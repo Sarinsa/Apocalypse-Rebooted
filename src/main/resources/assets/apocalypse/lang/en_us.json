@@ -1,0 +1,23 @@
+{
+  "event.apocalypse.sleep_penalty": "The monsters grow impatient",
+  "event.apocalypse.full_moon": "Death lingers in the air, a bad moon rises",
+
+  "tile.bed.apocalypse.full_moon": "You may not rest during a full moon",
+
+  "death.attack.apocalypse.rain": "%1$s was sprinkled to death",
+  "death.attack.apocalypse.rain.player": "%1$s died from rain whilst trying to escape %2$s",
+
+  "commands.Apocalypse.setWorldDifficulty.usage": "/setWorldDifficulty <new difficulty>",
+  "commands.Apocalypse.setWorldDifficulty.success": "Set world difficulty to %d",
+
+  "item.apocalypse.bucket_helm": "Bucket Helmet",
+
+  "entity.apocalypse.breecher": "Breecher",
+  "entity.apocalypse.grump": "Grump",
+  "entity.apocalypse.seeker": "Seeker",
+  "entity.apocalypse.ghost": "Ghost",
+  "entity.apocalypse.destroyer": "Destroyer",
+  "entity.apocalypse.seeker_fireball": "Seeker Fireball",
+  "entity.apocalypse.destroyer_fireball": "Destroyer Fireball",
+  "entity.apocalypse.fish_hook": "Fish Hook"
+}
