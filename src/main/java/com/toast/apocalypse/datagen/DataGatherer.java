@@ -15,6 +15,7 @@ public class DataGatherer {
 
         if (event.includeServer()) {
             dataGenerator.addProvider(new ApocalypseRecipeProvider(dataGenerator));
+            dataGenerator.addProvider(new ApocalypseLootTableProvider(dataGenerator));
         }
     }
 }
