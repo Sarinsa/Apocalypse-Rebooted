@@ -4,5 +4,6 @@ import net.minecraft.util.DamageSource;
 
 public class ApocalypseDamageSources {
 
-    public static final DamageSource YES = new DamageSource("yes");
+    /** The rain damage source. */
+    public static final DamageSource RAIN_DAMAGE = new DamageSource("apocalypse.rain").bypassArmor();
 }

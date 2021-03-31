@@ -1,8 +1,11 @@
 package com.toast.apocalypse.common.core;
 
+import com.toast.apocalypse.common.event.EntityEvents;
+import com.toast.apocalypse.common.register.ApocalypseEffects;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
 import com.toast.apocalypse.common.register.ApocalypseItems;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -27,7 +30,10 @@ public class Apocalypse {
         eventBus.addListener(this::onCommonSetup);
         eventBus.addListener(ApocalypseEntities::createEntityAttributes);
 
+        MinecraftForge.EVENT_BUS.register(new EntityEvents());
+
         ApocalypseItems.ITEMS.register(eventBus);
+        ApocalypseEffects.EFFECTS.register(eventBus);
         ApocalypseEntities.ENTITIES.register(eventBus);
     }
 

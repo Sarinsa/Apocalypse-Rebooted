@@ -37,7 +37,7 @@ public class ApocalypseEntityLootTableProvider extends EntityLootTables {
                 .withPool(LootPool.lootPool()
                         .setRolls(ConstantRange.exactly(1))
                         .add(ItemLootEntry.lootTableItem(Items.SLIME_BALL)
-                                .apply(SetCount.setCount(RandomValueRange.between(0.0F, 10F)))
+                                .apply(SetCount.setCount(RandomValueRange.between(0.0F, 2.0F)))
                                 .apply(LootingEnchantBonus.lootingMultiplier(RandomValueRange.between(0.0F, 2.0F))))));
     }
 }

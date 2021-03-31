@@ -19,7 +19,7 @@ public class ApocalypseItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Apocalypse.MODID);
 
 
-    public static final RegistryObject<Item> BUCKET_HELM = registerItem("bucket_helm", () -> new BucketHelmItem(new Item.Properties().tab(ItemGroup.TAB_COMBAT)));
+    public static final RegistryObject<Item> BUCKET_HELM = registerItem("bucket_helm", () -> new BucketHelmItem(new Item.Properties().tab(ItemGroup.TAB_COMBAT).durability(82)));
     public static final RegistryObject<SpawnEggItem> GHOST_SPAWN_EGG = registerSpawnEgg("ghost", ApocalypseEntities.GHOST_TYPE, 0xBCBCBC, 0x708899);
 
 
