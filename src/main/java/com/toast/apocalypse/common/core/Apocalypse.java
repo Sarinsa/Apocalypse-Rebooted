@@ -2,6 +2,7 @@ package com.toast.apocalypse.common.core;
 
 import com.toast.apocalypse.common.register.ApocalypseEntities;
 import com.toast.apocalypse.common.register.ApocalypseItems;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -12,21 +13,31 @@ import org.apache.logging.log4j.Logger;
 @Mod(Apocalypse.MODID)
 public class Apocalypse {
 
+    /** The mod's ID **/
     public static final String MODID = "apocalypse";
-    // A logger instance using the modid as prefix/identifier
+    /** A logger instance using the modid as prefix/identifier **/
     public static final Logger LOGGER = LogManager.getLogger(MODID);
 
 
     public Apocalypse() {
+        ApocalypseEntities.initTypes();
+
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         eventBus.addListener(this::onCommonSetup);
+        eventBus.addListener(ApocalypseEntities::createEntityAttributes);
 
         ApocalypseItems.ITEMS.register(eventBus);
         ApocalypseEntities.ENTITIES.register(eventBus);
     }
 
     public void onCommonSetup(FMLCommonSetupEvent event) {
+        event.enqueueWork(() -> {
 
+        });
+    }
+
+    public static ResourceLocation resourceLoc(String path) {
+        return new ResourceLocation(MODID, path);
     }
 }
