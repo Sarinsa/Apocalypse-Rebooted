@@ -6,11 +6,13 @@ import com.toast.apocalypse.common.util.WorldDifficultyManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.LogicalSide;
 
 public class EntityEvents {
 
@@ -22,6 +24,15 @@ public class EntityEvents {
         if (event.getEntityLiving() instanceof GhostEntity) {
             if (WorldDifficultyManager.isFullMoon(event.getWorld()))
                 event.setResult(Event.Result.DENY);
+        }
+    }
+
+    @SubscribeEvent
+    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        // Tick rain damage
+        if (event.side == LogicalSide.SERVER) {
+
+
         }
     }
 

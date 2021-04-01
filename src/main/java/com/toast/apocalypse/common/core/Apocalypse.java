@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.core;
 
+import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.event.EntityEvents;
@@ -47,7 +48,7 @@ public class Apocalypse {
 
     public void onCommonSetup(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-
+            ApocalypseCapabilities.registerCapabilities();
         });
     }
 
