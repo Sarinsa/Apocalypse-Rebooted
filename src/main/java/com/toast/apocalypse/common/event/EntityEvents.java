@@ -31,11 +31,14 @@ public class EntityEvents {
      */
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerTrySleep(PlayerSleepInBedEvent event) {
-        World world = event.getPlayer().getCommandSenderWorld();
+        PlayerEntity player = event.getPlayer();
+        World world = player.getCommandSenderWorld();
+
+        if (player.isSleeping() || !player.isAlive())
+            return;
 
         if (world.isNight() && WorldDifficultyManager.isFullMoon(world)) {
             event.setResult(PlayerEntity.SleepResult.OTHER_PROBLEM);
-            PlayerEntity player = event.getPlayer();
             player.displayClientMessage(new TranslationTextComponent(TranslationReferences.TRY_SLEEP_FULL_MOON), true);
         }
     }
