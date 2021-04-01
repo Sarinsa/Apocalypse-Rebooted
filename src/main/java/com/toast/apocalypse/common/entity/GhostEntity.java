@@ -1,7 +1,6 @@
 package com.toast.apocalypse.common.entity;
 
 import com.toast.apocalypse.api.IFullMoonMob;
-import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
@@ -19,6 +18,7 @@ import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
@@ -39,12 +39,13 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         return FlyingEntity.createMobAttributes()
                 .add(Attributes.ATTACK_DAMAGE, 1.0D)
                 .add(Attributes.MAX_HEALTH, 4.0D)
-                .add(Attributes.FLYING_SPEED, 1.0D);
+                .add(Attributes.FLYING_SPEED, 1.0D)
+                .add(Attributes.FOLLOW_RANGE, 230.0D);
     }
 
     @Override
     protected void registerGoals() {
-        this.targetSelector.addGoal(0, new GhostEntity.NearestAttackablePlayerTargetGoal<>(this, PlayerEntity.class, true));
+        this.targetSelector.addGoal(0, new GhostEntity.NearestAttackablePlayerTargetGoal<>(this, PlayerEntity.class));
         this.goalSelector.addGoal(0, new GhostEntity.MeleeAttackGoal());
         this.goalSelector.addGoal(5, new LookRandomlyGoal(this));
     }
@@ -89,6 +90,25 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         super.aiStep();
     }
 
+    /**
+     * Ghosts can "see" other entities through solids and walls,
+     * which allows them to target players they do not have line of sight to.
+     */
+    @Override
+    public boolean canSee(Entity entity) {
+        return true;
+    }
+
+    @Override
+    public boolean isPushable() {
+        return false; // Cannot be pushed by entities
+    }
+
+    @Override
+    protected void doPush(Entity entity) {
+        // Does not push other entities
+    }
+
     @Override
     public boolean canBreatheUnderwater() {
         return true; // Immune to drowning
@@ -101,7 +121,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
     @Override
     protected void lavaHurt() {
-        // Immune to lava fire and damage
+        // Immune to lava
     }
 
     @Override
@@ -183,8 +203,17 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
     private static class NearestAttackablePlayerTargetGoal<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {
 
-        public NearestAttackablePlayerTargetGoal(MobEntity mobEntity, Class<T> targetClass, boolean longMemory) {
-            super(mobEntity, targetClass, longMemory);
+        public NearestAttackablePlayerTargetGoal(MobEntity mobEntity, Class<T> targetClass) {
+            super(mobEntity, targetClass, false, false);
+        }
+
+        /**
+         * Friggin' large bounding box.
+         */
+        @Override
+        protected AxisAlignedBB getTargetSearchArea(double radius) {
+            double followRange = this.mob.getAttributeValue(Attributes.FOLLOW_RANGE);
+            return this.mob.getBoundingBox().inflate(followRange);
         }
     }
 
@@ -197,14 +226,14 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
             this.ghost = GhostEntity.this;
         }
 
+        private void setWantedPosition(LivingEntity target) {
+            Vector3d vector = target.getEyePosition(1.0F).add(0.0D, -(this.ghost.getBbHeight() / 2), 0.0D);
+            this.ghost.moveControl.setWantedPosition(vector.x, vector.y, vector.z, 1.0D);
+        }
+
         @Override
         public boolean canUse() {
-            if (this.ghost.getTarget() != null && !this.ghost.getMoveControl().hasWanted()) {
-                return this.ghost.distanceToSqr(this.ghost.getTarget()) > 4.0D;
-            }
-            else {
-                return false;
-            }
+            return this.ghost.getTarget() != null && !this.ghost.getMoveControl().hasWanted();
         }
 
         @Override
@@ -215,8 +244,9 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         @Override
         public void start() {
             LivingEntity target = this.ghost.getTarget();
-            Vector3d vector3d = target.getEyePosition(1.0F);
-            this.ghost.moveControl.setWantedPosition(vector3d.x, vector3d.y, vector3d.z, 1.0D);
+
+            if (target != null)
+                this.setWantedPosition(target);
         }
 
         @Override
@@ -231,12 +261,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
                 this.ghost.doHurtTarget(target);
             }
             else {
-                double distanceSqr = this.ghost.distanceToSqr(target);
-                if (distanceSqr < 9.0D) {
-                    Vector3d vector3d = target.getEyePosition(-4.0F);
-                    Apocalypse.LOGGER.info("Target Y coord: " + vector3d.y);
-                    this.ghost.moveControl.setWantedPosition(vector3d.x, vector3d.y, vector3d.z, 1.0D);
-                }
+                this.setWantedPosition(target);
             }
         }
     }
