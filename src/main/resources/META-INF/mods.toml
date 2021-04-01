@@ -1,6 +1,6 @@
 modLoader="javafml"
 loaderVersion="[36,)"
-license="Same license as FatherToast's project (none)"
+license="GNU General Public License v3.0"
 
 [[mods]]
     modId="apocalypse"
