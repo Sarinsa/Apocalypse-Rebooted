@@ -1,5 +1,7 @@
 package com.toast.apocalypse.common.core;
 
+import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
+import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.event.EntityEvents;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
@@ -7,9 +9,12 @@ import com.toast.apocalypse.common.register.ApocalypseItems;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,6 +40,9 @@ public class Apocalypse {
         ApocalypseItems.ITEMS.register(eventBus);
         ApocalypseEffects.EFFECTS.register(eventBus);
         ApocalypseEntities.ENTITIES.register(eventBus);
+
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ApocalypseCommonConfig.COMMON_SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ApocalypseClientConfig.CLIENT_SPEC);
     }
 
     public void onCommonSetup(FMLCommonSetupEvent event) {
