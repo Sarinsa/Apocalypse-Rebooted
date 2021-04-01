@@ -40,7 +40,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
                 .add(Attributes.ATTACK_DAMAGE, 1.0D)
                 .add(Attributes.MAX_HEALTH, 4.0D)
                 .add(Attributes.FLYING_SPEED, 1.0D)
-                .add(Attributes.FOLLOW_RANGE, 230.0D);
+                .add(Attributes.FOLLOW_RANGE, 300.0D);
     }
 
     @Override
@@ -150,11 +150,6 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
     }
 
     @Override
-    public float getBrightness() {
-        return 1.0F;
-    }
-
-    @Override
     public void tick() {
         this.noPhysics = true;
         super.tick();
@@ -227,7 +222,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         }
 
         private void setWantedPosition(LivingEntity target) {
-            Vector3d vector = target.getEyePosition(1.0F).add(0.0D, -(this.ghost.getBbHeight() / 2), 0.0D);
+            Vector3d vector = target.getEyePosition(1.0F).add(0.0D, -(this.ghost.getBbHeight() / 1.8), 0.0D);
             this.ghost.moveControl.setWantedPosition(vector.x, vector.y, vector.z, 1.0D);
         }
 
