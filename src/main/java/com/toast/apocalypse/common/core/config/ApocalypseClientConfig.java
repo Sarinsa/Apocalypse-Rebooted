@@ -17,7 +17,7 @@ public class ApocalypseClientConfig {
         CLIENT_SPEC = clientPair.getRight();
     }
 
-    public static class Client {
+    public static final class Client {
 
 
         private Client(ForgeConfigSpec.Builder configBuilder) {

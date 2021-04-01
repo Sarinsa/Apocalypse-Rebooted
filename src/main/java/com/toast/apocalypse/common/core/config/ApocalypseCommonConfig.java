@@ -17,11 +17,29 @@ public class ApocalypseCommonConfig {
         COMMON_SPEC = commonPair.getRight();
     }
 
-    public static class Common {
+    public static final class Common {
 
+        private final ForgeConfigSpec.IntValue rainTickRate;
+        private final ForgeConfigSpec.IntValue rainDamage;
 
         private Common(ForgeConfigSpec.Builder configBuilder) {
+            configBuilder.push("rain");
 
+            this.rainTickRate = configBuilder.comment("Determines the interval in which rain damage should be dealt in seconds. A value of 2 will inflict rain damage on players every 2 seconds.")
+                    .defineInRange("rainTickRate", 6, 1, 1000);
+
+            this.rainDamage = configBuilder.comment("The amount of damage that should be dealt to players on rain tick.")
+                    .defineInRange("rainDamage", 1, 1, 10000);
+
+            configBuilder.pop();
+        }
+
+        public int getRainTickRate() {
+            return this.rainTickRate.get() * 20;
+        }
+
+        public float getRainDamage() {
+            return (float) this.rainDamage.get();
         }
     }
 }
