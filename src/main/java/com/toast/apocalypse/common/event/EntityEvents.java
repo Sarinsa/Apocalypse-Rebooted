@@ -1,8 +1,12 @@
 package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.common.entity.GhostEntity;
+import com.toast.apocalypse.common.util.TranslationReferences;
 import com.toast.apocalypse.common.util.WorldDifficultyManager;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
+import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -17,6 +21,19 @@ public class EntityEvents {
         if (event.getEntityLiving() instanceof GhostEntity) {
             if (WorldDifficultyManager.isFullMoon(event.getWorld()))
                 event.setResult(Event.Result.DENY);
+        }
+    }
+
+    /**
+     * Prevent players from being able
+     * to sleep during full moons.
+     */
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onPlayerTrySleep(PlayerSleepInBedEvent event) {
+        if (WorldDifficultyManager.isFullMoon(event.getPlayer().getCommandSenderWorld())) {
+            event.setResult(PlayerEntity.SleepResult.OTHER_PROBLEM);
+            PlayerEntity player = event.getPlayer();
+            player.displayClientMessage(new TranslationTextComponent(TranslationReferences.TRY_SLEEP_FULL_MOON), true);
         }
     }
 }
