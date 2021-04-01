@@ -5,6 +5,7 @@ import com.toast.apocalypse.common.util.TranslationReferences;
 import com.toast.apocalypse.common.util.WorldDifficultyManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -30,7 +31,9 @@ public class EntityEvents {
      */
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerTrySleep(PlayerSleepInBedEvent event) {
-        if (WorldDifficultyManager.isFullMoon(event.getPlayer().getCommandSenderWorld())) {
+        World world = event.getPlayer().getCommandSenderWorld();
+
+        if (world.isNight() && WorldDifficultyManager.isFullMoon(world)) {
             event.setResult(PlayerEntity.SleepResult.OTHER_PROBLEM);
             PlayerEntity player = event.getPlayer();
             player.displayClientMessage(new TranslationTextComponent(TranslationReferences.TRY_SLEEP_FULL_MOON), true);
