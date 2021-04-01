@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.core;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.common.event.CapabilityAttachEvents;
 import com.toast.apocalypse.common.event.EntityEvents;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
@@ -15,7 +16,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -37,6 +37,7 @@ public class Apocalypse {
         eventBus.addListener(ApocalypseEntities::createEntityAttributes);
 
         MinecraftForge.EVENT_BUS.register(new EntityEvents());
+        MinecraftForge.EVENT_BUS.register(new CapabilityAttachEvents());
 
         ApocalypseItems.ITEMS.register(eventBus);
         ApocalypseEffects.EFFECTS.register(eventBus);

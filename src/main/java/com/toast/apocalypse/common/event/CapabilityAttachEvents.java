@@ -7,7 +7,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-public class CreateCapabilityEvent {
+public class CapabilityAttachEvents {
 
     @SubscribeEvent
     public void onCapabilityCreation(AttachCapabilitiesEvent<Entity> event) {
