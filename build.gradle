@@ -13,7 +13,7 @@ apply plugin: 'maven-publish'
 
 version = "${mc_version}-${mod_version}"
 group = 'com.toast.apocalypse'
-archivesBaseName = 'Apocalypse'
+archivesBaseName = 'Apocalypse-Rebooted'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
@@ -84,7 +84,7 @@ dependencies {
 jar {
     manifest {
         attributes([
-            "Specification-Title": "Apocalypsier",
+            "Specification-Title": "Apocalypse",
             "Specification-Vendor": "Sarinsa",
             "Specification-Version": "1", // We are version 1 of ourselves
             "Implementation-Title": project.name,
