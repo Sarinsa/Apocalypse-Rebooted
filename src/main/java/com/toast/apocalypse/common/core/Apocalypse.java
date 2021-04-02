@@ -50,6 +50,7 @@ public class Apocalypse {
     public void onCommonSetup(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             ApocalypseCapabilities.registerCapabilities();
+            ApocalypseEntities.registerEntitySpawnPlacement();
         });
     }
 

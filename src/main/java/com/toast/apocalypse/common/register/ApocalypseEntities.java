@@ -6,7 +6,11 @@ import com.toast.apocalypse.common.entity.living.GhostEntity;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityClassification;
+import net.minecraft.entity.EntitySpawnPlacementRegistry;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.monster.GhastEntity;
+import net.minecraft.entity.passive.AnimalEntity;
+import net.minecraft.world.gen.Heightmap;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
@@ -44,6 +48,15 @@ public class ApocalypseEntities {
     public static void createEntityAttributes(EntityAttributeCreationEvent event) {
         event.put(GHOST.get(), GhostEntity.createGhostAttributes().build());
         event.put(DESTROYER.get(), DestroyerEntity.createDestroyerAttributes().build());
+    }
+
+    /**
+     * Called during the FMLCommonSetupEvent.
+     * Our entities' spawn placements are registered here.
+     */
+    public static void registerEntitySpawnPlacement() {
+        EntitySpawnPlacementRegistry.register(GHOST.get(), EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, GhostEntity::checkGhostSpawnRules);
+        EntitySpawnPlacementRegistry.register(DESTROYER.get(), EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, DestroyerEntity::checkDestroyerSpawnRules);
     }
 
     private static <I extends Entity> RegistryObject<EntityType<I>> register(String name, EntityType.Builder<I> builder) {

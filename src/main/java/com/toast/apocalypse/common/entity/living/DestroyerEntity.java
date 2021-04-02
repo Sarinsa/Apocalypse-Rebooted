@@ -2,10 +2,7 @@ package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.api.IFullMoonMob;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.controller.MovementController;
@@ -17,8 +14,11 @@ import net.minecraft.entity.projectile.FireballEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
 
 import java.util.EnumSet;
@@ -44,8 +44,12 @@ public class DestroyerEntity extends GhastEntity implements IFullMoonMob {
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new DestroyerEntity.FireballAttackGoal(this));
         this.goalSelector.addGoal(0, new DestroyerEntity.LookAroundGoal(this));
-        this.goalSelector.addGoal(1, new DestroyerEntity.RandomFlyGoal(this));
+        this.goalSelector.addGoal(1, new DestroyerEntity.RandomOrRelativeToTargetFlyGoal(this));
         this.targetSelector.addGoal(0, new DestroyerEntity.DestroyerNearestAttackableTargetGoal<>(this, PlayerEntity.class));
+    }
+
+    public static boolean checkDestroyerSpawnRules(EntityType<? extends DestroyerEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
+        return world.getDifficulty() != Difficulty.PEACEFUL && MobEntity.checkMobSpawnRules(entityType, world, spawnReason, pos, random);
     }
 
     /**
@@ -180,13 +184,13 @@ public class DestroyerEntity extends GhastEntity implements IFullMoonMob {
     }
 
     /** Also essentially a copy of the ghast's goal */
-    static class RandomFlyGoal extends Goal {
+    static class RandomOrRelativeToTargetFlyGoal extends Goal {
 
         private static final double minDistanceBeforeBackUp = 120.0D;
         private static final double maxDistanceBeforeFollow = 1500.0D;
         private final DestroyerEntity destroyer;
 
-        public RandomFlyGoal(DestroyerEntity destroyer) {
+        public RandomOrRelativeToTargetFlyGoal(DestroyerEntity destroyer) {
             this.destroyer = destroyer;
             this.setFlags(EnumSet.of(Goal.Flag.MOVE));
         }
@@ -224,7 +228,8 @@ public class DestroyerEntity extends GhastEntity implements IFullMoonMob {
         private void setRandomWantedPosition() {
             Random random = this.destroyer.getRandom();
             double x = this.destroyer.getX() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
-            double y = this.destroyer.getY() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            // Don't want the destroyers wandering too far off into the sky
+            double y = this.destroyer.getY() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
             double z = this.destroyer.getZ() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
             this.destroyer.getMoveControl().setWantedPosition(x, y, z, 1.0D);
         }
