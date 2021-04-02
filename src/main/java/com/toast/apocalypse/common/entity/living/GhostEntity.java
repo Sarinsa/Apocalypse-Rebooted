@@ -223,7 +223,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
          */
         @Override
         protected AxisAlignedBB getTargetSearchArea(double radius) {
-            return this.mob.getBoundingBox().inflate(1000.0D);
+            return this.mob.getBoundingBox().inflate(this.getFollowDistance());
         }
     }
 

@@ -186,7 +186,7 @@ public class DestroyerEntity extends GhastEntity implements IFullMoonMob {
     /** Also essentially a copy of the ghast's goal */
     static class RandomOrRelativeToTargetFlyGoal extends Goal {
 
-        private static final double minDistanceBeforeBackUp = 120.0D;
+        private static final double minDistanceBeforeBackUp = 300.0D;
         private static final double maxDistanceBeforeFollow = 1500.0D;
         private final DestroyerEntity destroyer;
 
@@ -229,7 +229,7 @@ public class DestroyerEntity extends GhastEntity implements IFullMoonMob {
             Random random = this.destroyer.getRandom();
             double x = this.destroyer.getX() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
             // Don't want the destroyers wandering too far off into the sky
-            double y = this.destroyer.getY() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
+            double y = this.destroyer.getY() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 6.0F);
             double z = this.destroyer.getZ() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
             this.destroyer.getMoveControl().setWantedPosition(x, y, z, 1.0D);
         }

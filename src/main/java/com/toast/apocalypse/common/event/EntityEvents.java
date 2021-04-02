@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.api.IFullMoonMob;
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import com.toast.apocalypse.common.util.TranslationReferences;
 import com.toast.apocalypse.common.util.WorldDifficultyManager;
@@ -25,8 +26,9 @@ public class EntityEvents {
     public void onDespawnCheck(LivingSpawnEvent.AllowDespawn event) {
         if (event.getEntityLiving() instanceof IFullMoonMob) {
             IFullMoonMob fullMoonMob = (IFullMoonMob) event.getEntityLiving();
-            if (WorldDifficultyManager.isFullMoon(event.getWorld()) && fullMoonMob.persistentDuringFullMoon())
+            if (WorldDifficultyManager.isFullMoon(event.getWorld()) && fullMoonMob.persistentDuringFullMoon()) {
                 event.setResult(Event.Result.DENY);
+            }
         }
     }
 

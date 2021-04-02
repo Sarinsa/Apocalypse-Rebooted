@@ -1,6 +1,7 @@
 package com.toast.apocalypse.client.renderers.entity.ghost;
 
 import com.google.common.collect.ImmutableList;
+import com.toast.apocalypse.client.ApocalypseRenderTypes;
 import com.toast.apocalypse.common.entity.living.GhostEntity;
 import net.minecraft.client.renderer.entity.model.SegmentedModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
@@ -13,6 +14,7 @@ public class GhostModel<T extends GhostEntity> extends SegmentedModel<T> {
     private final ModelRenderer leftArm;
 
     public GhostModel() {
+        super(ApocalypseRenderTypes::entityCutoutNoCullBlend);
         this.head = new ModelRenderer(this, 0, 0).addBox(-2.0F, -10.0F, -2.0F, 4, 10, 4);
         this.body = new ModelRenderer(this, 16, 10).addBox(-4.0F, 0.0F, -2.0F, 8, 18, 4);
         this.rightArm = new ModelRenderer(this, 0, 16).addBox(-3.0F, -2.0F, -2.0F, 4, 12, 4);
