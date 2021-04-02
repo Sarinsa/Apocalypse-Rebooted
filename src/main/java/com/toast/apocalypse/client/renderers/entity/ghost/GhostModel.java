@@ -1,10 +1,8 @@
 package com.toast.apocalypse.client.renderers.entity.ghost;
 
 import com.google.common.collect.ImmutableList;
-import com.toast.apocalypse.common.entity.GhostEntity;
-import net.minecraft.client.renderer.entity.model.BlazeModel;
+import com.toast.apocalypse.common.entity.living.GhostEntity;
 import net.minecraft.client.renderer.entity.model.SegmentedModel;
-import net.minecraft.client.renderer.entity.model.ZombieModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 
 public class GhostModel<T extends GhostEntity> extends SegmentedModel<T> {

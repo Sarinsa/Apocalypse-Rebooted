@@ -1,7 +1,6 @@
 package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.api.IFullMoonMob;
-import com.toast.apocalypse.common.entity.GhostEntity;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import com.toast.apocalypse.common.util.TranslationReferences;
 import com.toast.apocalypse.common.util.WorldDifficultyManager;

@@ -1,5 +1,6 @@
 package com.toast.apocalypse.client;
 
+import com.toast.apocalypse.client.renderers.entity.destroyer.DestroyerRenderer;
 import com.toast.apocalypse.client.renderers.entity.ghost.GhostRenderer;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
@@ -22,5 +23,6 @@ public class ClientRegister {
 
     private static void registerEntityRenderers() {
         RenderingRegistry.registerEntityRenderingHandler(ApocalypseEntities.GHOST.get(), GhostRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(ApocalypseEntities.DESTROYER.get(), DestroyerRenderer::new);
     }
 }

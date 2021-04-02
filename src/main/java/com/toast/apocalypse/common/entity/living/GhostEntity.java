@@ -1,4 +1,4 @@
-package com.toast.apocalypse.common.entity;
+package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.api.IFullMoonMob;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
@@ -27,6 +27,12 @@ import net.minecraft.world.World;
 
 import java.util.EnumSet;
 
+/**
+ * This is a full moon mob that has the odd ability to completely ignore blocks. To compliment this, it has
+ * unlimited aggro range and ignores line of sight.<br>
+ * These are the bread and butter of invasions. Ghosts deal light damage that can't be reduced below 1 and apply
+ * a short increased gravity effect to help deal with flying players.
+ */
 public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
     public GhostEntity(EntityType<? extends FlyingEntity> entityType, World world) {
@@ -40,7 +46,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
                 .add(Attributes.ATTACK_DAMAGE, 1.0D)
                 .add(Attributes.MAX_HEALTH, 4.0D)
                 .add(Attributes.FLYING_SPEED, 1.0D)
-                .add(Attributes.FOLLOW_RANGE, 300.0D);
+                .add(Attributes.FOLLOW_RANGE, Double.POSITIVE_INFINITY);
     }
 
     @Override
@@ -91,8 +97,8 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
     }
 
     /**
-     * Ghosts can "see" other entities through solids and walls,
-     * which allows them to target players they do not have line of sight to.
+     * Completely ignore line of sight; the target
+     * is always "visible"
      */
     @Override
     public boolean canSee(Entity entity) {
@@ -207,8 +213,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
          */
         @Override
         protected AxisAlignedBB getTargetSearchArea(double radius) {
-            double followRange = this.mob.getAttributeValue(Attributes.FOLLOW_RANGE);
-            return this.mob.getBoundingBox().inflate(followRange);
+            return this.mob.getBoundingBox().inflate(1000.0D);
         }
     }
 

@@ -21,7 +21,7 @@ public class ApocalypseItems {
 
     public static final RegistryObject<Item> BUCKET_HELM = registerItem("bucket_helm", () -> new BucketHelmItem(new Item.Properties().tab(ItemGroup.TAB_COMBAT).durability(82)));
     public static final RegistryObject<SpawnEggItem> GHOST_SPAWN_EGG = registerSpawnEgg("ghost", ApocalypseEntities.GHOST_TYPE, 0xBCBCBC, 0x708899);
-
+    public static final RegistryObject<SpawnEggItem> DESTROYER_SPAWN_EGG = registerSpawnEgg("destroyer", ApocalypseEntities.DESTROYER_TYPE, 0x7D7D7D, 0xA80E0E);
 
     private static <T extends Item> RegistryObject<T> registerItem(String name, Supplier<T> itemSupplier) {
         return ITEMS.register(name, itemSupplier);
