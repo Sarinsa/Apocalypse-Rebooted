@@ -1,20 +1,37 @@
 package com.toast.apocalypse.common.util;
 
-import net.minecraft.block.Block;
+import com.toast.apocalypse.common.misc.DestroyerExplosionContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Effects;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.Explosion;
+import net.minecraft.world.ExplosionContext;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.event.ForgeEventFactory;
+import sun.security.krb5.internal.crypto.Des;
 
 /**
  * Used to determine whether mobs can harvest blocks and how fast they can break them.
  */
 public class BlockHelper {
+
+    /**
+     * Helper method for creating the destroyer
+     * explosion that can destroy any type of block.
+     *
+     * (Except from bedrock. Maybe this should be configurable?)
+     */
+    public static void destroyerExplosion(World world, Entity entity, DamageSource damageSource, double x, double y, double z, float explosionPower) {
+        Explosion.Mode mode = ForgeEventFactory.getMobGriefingEvent(world, entity) ? Explosion.Mode.DESTROY : Explosion.Mode.NONE;
+        world.explode(entity, damageSource, new DestroyerExplosionContext(), x, y, z, explosionPower, true, mode);
+    }
 
     /** Returns true if the mob should destroy the block. */
     public static boolean shouldDamage(BlockPos pos, LivingEntity entity, boolean needsTool, World world) {
