@@ -21,6 +21,7 @@ public class ApocalypseCommonConfig {
 
         private final ForgeConfigSpec.IntValue rainTickRate;
         private final ForgeConfigSpec.IntValue rainDamage;
+        private final ForgeConfigSpec.BooleanValue rainDamageEnabled;
 
         private Common(ForgeConfigSpec.Builder configBuilder) {
             configBuilder.push("rain");
@@ -31,6 +32,9 @@ public class ApocalypseCommonConfig {
             this.rainDamage = configBuilder.comment("The amount of damage that should be dealt to players on rain tick.")
                     .defineInRange("rainDamage", 1, 1, 10000);
 
+            this.rainDamageEnabled = configBuilder.comment("Set to false to disable rain damage, or to true to turn it on.")
+                    .define("enableRainDamage", true);
+
             configBuilder.pop();
         }
 
@@ -40,6 +44,10 @@ public class ApocalypseCommonConfig {
 
         public float getRainDamage() {
             return (float) this.rainDamage.get();
+        }
+
+        public boolean rainDamageEnabled() {
+            return this.rainDamageEnabled.get();
         }
     }
 }

@@ -2,6 +2,7 @@ package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.api.IFullMoonMob;
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import com.toast.apocalypse.common.util.TranslationReferences;
 import com.toast.apocalypse.common.util.WorldDifficultyManager;
@@ -36,6 +37,10 @@ public class EntityEvents {
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         // Tick rain damage
         if (event.side == LogicalSide.SERVER) {
+            // No point doing further checks if rain damage is disabled
+            if (!ApocalypseCommonConfig.COMMON.rainDamageEnabled())
+                return;
+
             World world = event.player.getCommandSenderWorld();
 
             if (EnchantmentHelper.hasAquaAffinity(event.player) || !world.canSeeSky(event.player.blockPosition()))
