@@ -1,9 +1,7 @@
 package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.api.IFullMoonMob;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.monster.GhastEntity;
@@ -31,6 +29,7 @@ public class GrumpEntity extends GhastEntity implements IFullMoonMob {
         return MobEntity.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 10.0D)
                 .add(Attributes.ATTACK_DAMAGE, 4.0D)
+                .add(Attributes.FLYING_SPEED, 0.9D)
                 .add(Attributes.FOLLOW_RANGE, Double.POSITIVE_INFINITY);
     }
 
@@ -38,4 +37,8 @@ public class GrumpEntity extends GhastEntity implements IFullMoonMob {
         return world.getDifficulty() != Difficulty.PEACEFUL && MobEntity.checkMobSpawnRules(entityType, world, spawnReason, pos, random);
     }
 
+    @Override
+    protected float getStandingEyeHeight(Pose pose, EntitySize entitySize) {
+        return 1.75F;
+    }
 }
