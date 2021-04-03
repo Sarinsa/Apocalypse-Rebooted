@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.register;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.living.DestroyerEntity;
 import com.toast.apocalypse.common.entity.living.GhostEntity;
+import com.toast.apocalypse.common.entity.living.GrumpEntity;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityClassification;
@@ -24,10 +25,12 @@ public class ApocalypseEntities {
 
     public static EntityType<GhostEntity> GHOST_TYPE;
     public static EntityType<DestroyerEntity> DESTROYER_TYPE;
+    public static EntityType<GrumpEntity> GRUMP_TYPE;
 
     public static final RegistryObject<EntityType<DestroyerFireballEntity>> DESTROYER_FIREBALL = register("destroyer_fireball", EntityType.Builder.<DestroyerFireballEntity>of(DestroyerFireballEntity::new, EntityClassification.MISC).sized(1.0F, 1.0F).clientTrackingRange(4).updateInterval(10));
     public static final RegistryObject<EntityType<GhostEntity>> GHOST = register("ghost", () -> GHOST_TYPE);
     public static final RegistryObject<EntityType<DestroyerEntity>> DESTROYER = register("destroyer", () -> DESTROYER_TYPE);
+    public static final RegistryObject<EntityType<GrumpEntity>> GRUMP = register("grump", () -> GRUMP_TYPE);
 
     /**
      * Initializing entity types for living entities in the mod class
@@ -38,6 +41,7 @@ public class ApocalypseEntities {
     public static void initTypes() {
         GHOST_TYPE = create("ghost", EntityType.Builder.of(GhostEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.8F));
         DESTROYER_TYPE = create("destroyer", EntityType.Builder.of(DestroyerEntity::new, EntityClassification.MONSTER).sized(4.5F, 4.5F).clientTrackingRange(10).fireImmune());
+        GRUMP_TYPE = create("grump", EntityType.Builder.of(GrumpEntity::new, EntityClassification.MONSTER).sized(1.0F, 1.0F));
     }
 
 
@@ -48,6 +52,7 @@ public class ApocalypseEntities {
     public static void createEntityAttributes(EntityAttributeCreationEvent event) {
         event.put(GHOST.get(), GhostEntity.createGhostAttributes().build());
         event.put(DESTROYER.get(), DestroyerEntity.createDestroyerAttributes().build());
+        event.put(GRUMP.get(), GrumpEntity.createGrumpAttributes().build());
     }
 
     /**
@@ -57,6 +62,7 @@ public class ApocalypseEntities {
     public static void registerEntitySpawnPlacement() {
         EntitySpawnPlacementRegistry.register(GHOST.get(), EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, GhostEntity::checkGhostSpawnRules);
         EntitySpawnPlacementRegistry.register(DESTROYER.get(), EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, DestroyerEntity::checkDestroyerSpawnRules);
+        EntitySpawnPlacementRegistry.register(GRUMP.get(), EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, GrumpEntity::checkGrumpSpawnRules);
     }
 
     private static <I extends Entity> RegistryObject<EntityType<I>> register(String name, EntityType.Builder<I> builder) {

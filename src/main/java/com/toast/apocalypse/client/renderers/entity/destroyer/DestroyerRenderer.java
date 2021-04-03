@@ -10,8 +10,8 @@ import net.minecraft.util.ResourceLocation;
 
 public class DestroyerRenderer<T extends DestroyerEntity> extends MobRenderer<T, GhastModel<T>> {
 
-    private static final ResourceLocation DESTROYER = Apocalypse.resourceLoc("textures/entity/destroyer/destroyer.png");
-    private static final ResourceLocation DESTROYER_FIRE = Apocalypse.resourceLoc("textures/entity/destroyer/destroyer_fire.png");
+    private static final ResourceLocation DESTROYER_TEXTURE = Apocalypse.resourceLoc("textures/entity/destroyer/destroyer.png");
+    private static final ResourceLocation DESTROYER_FIRE_TEXTURE = Apocalypse.resourceLoc("textures/entity/destroyer/destroyer_fire.png");
 
     public DestroyerRenderer(EntityRendererManager rendererManager) {
         super(rendererManager, new GhastModel<>(), 3.0F);
@@ -24,6 +24,6 @@ public class DestroyerRenderer<T extends DestroyerEntity> extends MobRenderer<T,
 
     @Override
     public ResourceLocation getTextureLocation(T destroyer) {
-        return destroyer.isCharging() ? DESTROYER_FIRE : DESTROYER;
+        return destroyer.isCharging() ? DESTROYER_FIRE_TEXTURE : DESTROYER_TEXTURE;
     }
 }
