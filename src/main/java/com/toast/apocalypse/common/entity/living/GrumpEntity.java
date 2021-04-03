@@ -39,6 +39,6 @@ public class GrumpEntity extends GhastEntity implements IFullMoonMob {
 
     @Override
     protected float getStandingEyeHeight(Pose pose, EntitySize entitySize) {
-        return 1.75F;
+        return 0.75F;
     }
 }
