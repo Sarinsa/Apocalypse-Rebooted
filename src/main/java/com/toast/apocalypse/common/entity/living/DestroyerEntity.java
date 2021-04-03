@@ -62,6 +62,11 @@ public class DestroyerEntity extends GhastEntity implements IFullMoonMob {
     }
 
     @Override
+    public boolean canBreatheUnderwater() {
+        return true; // Immune to drowning
+    }
+
+    @Override
     protected SoundEvent getAmbientSound() {
         return null;
     }
