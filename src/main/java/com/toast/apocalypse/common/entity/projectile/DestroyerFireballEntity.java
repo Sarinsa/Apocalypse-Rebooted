@@ -6,7 +6,6 @@ import com.toast.apocalypse.common.util.BlockHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.projectile.AbstractFireballEntity;
-import net.minecraft.entity.projectile.FireballEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.util.DamageSource;
@@ -18,11 +17,15 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkHooks;
 
+/**
+ * This is the type of fireball shot by destroyers. It is capable of destroying any block (except bedrock).
+ */
 public class DestroyerFireballEntity extends AbstractFireballEntity {
 
     /** The explosion power for this fireball */
     private int explosionPower = 1;
-    /** The time until this fireball explodes. Set when reflected. */
+    /** The time until this fireball explodes. Set when reflected.
+     *  This makes it harder to damage the destroyer with it's own fireball. */
     private int fuseTime = -1;
 
     public DestroyerFireballEntity(EntityType<? extends AbstractFireballEntity> entityType, World world) {
