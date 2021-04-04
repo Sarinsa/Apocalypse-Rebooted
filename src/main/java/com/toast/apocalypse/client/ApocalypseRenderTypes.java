@@ -5,8 +5,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 
-// May I also add that the fact that every single RenderState
-// is protected, which is a massive pain in the bum to access transform?
 public class ApocalypseRenderTypes {
 
     /**

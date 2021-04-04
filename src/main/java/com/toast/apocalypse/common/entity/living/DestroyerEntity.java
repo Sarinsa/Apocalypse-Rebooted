@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.api.IFullMoonMob;
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -78,6 +79,8 @@ public class DestroyerEntity extends GhastEntity implements IFullMoonMob {
         }
         // Prevent instant fireball death and return to sender advancement
         else if (damageSource.getDirectEntity() instanceof FireballEntity) {
+            // Prevent the destroyer from damaging itself
+            // when close up to a wall or solid obstacle
             if (damageSource.getEntity() == this)
                 return false;
 
@@ -204,13 +207,13 @@ public class DestroyerEntity extends GhastEntity implements IFullMoonMob {
         public boolean canUse() {
             MovementController controller = this.destroyer.getMoveControl();
 
-            if (this.destroyer.getTarget() != null) {
-                LivingEntity target = this.destroyer.getTarget();
-                return this.shouldMoveRelativeToTarget(target);
+            if (!controller.hasWanted()) {
+                Apocalypse.LOGGER.info("Destroyer has a position to move to");
+                return true;
             }
 
-            if (!controller.hasWanted()) {
-                return true;
+            if (this.destroyer.getTarget() != null) {
+                return this.shouldMoveRelativeToTarget();
             }
             else {
                 double x = controller.getWantedX() - this.destroyer.getX();
@@ -221,7 +224,8 @@ public class DestroyerEntity extends GhastEntity implements IFullMoonMob {
             }
         }
 
-        private boolean shouldMoveRelativeToTarget(LivingEntity target) {
+        private boolean shouldMoveRelativeToTarget() {
+            LivingEntity target = this.destroyer.getTarget();
             return target.distanceToSqr(this.destroyer) > maxDistanceBeforeFollow || target.distanceToSqr(this.destroyer) < minDistanceBeforeBackUp;
         }
 
@@ -233,7 +237,7 @@ public class DestroyerEntity extends GhastEntity implements IFullMoonMob {
         private void setRandomWantedPosition() {
             Random random = this.destroyer.getRandom();
             double x = this.destroyer.getX() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
-            // Don't want the destroyers wandering too far off into the sky
+            // Don't want the destroyer moving too much on the Y axis
             double y = this.destroyer.getY() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 6.0F);
             double z = this.destroyer.getZ() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
             this.destroyer.getMoveControl().setWantedPosition(x, y, z, 1.0D);
@@ -243,6 +247,8 @@ public class DestroyerEntity extends GhastEntity implements IFullMoonMob {
         public void start() {
             if (this.destroyer.getTarget() != null) {
                 LivingEntity target = this.destroyer.getTarget();
+
+                Apocalypse.LOGGER.info("Destroyer distance to target: " + target.distanceToSqr(this.destroyer));
 
                 if (target.distanceToSqr(this.destroyer) > maxDistanceBeforeFollow) {
                     this.destroyer.getMoveControl().setWantedPosition(target.getX(), target.getY() + 10.0D, target.getZ(), 1.0D);

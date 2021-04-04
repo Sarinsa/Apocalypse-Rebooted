@@ -19,9 +19,14 @@ public class ApocalypseCommonConfig {
 
     public static final class Common {
 
+        // Rain
         private final ForgeConfigSpec.IntValue rainTickRate;
         private final ForgeConfigSpec.IntValue rainDamage;
         private final ForgeConfigSpec.BooleanValue rainDamageEnabled;
+
+        // Difficulty
+        private final ForgeConfigSpec.DoubleValue maxDifficulty;
+        private final ForgeConfigSpec.IntValue difficultyIncreaseRate;
 
         private Common(ForgeConfigSpec.Builder configBuilder) {
             configBuilder.push("rain");
@@ -36,8 +41,18 @@ public class ApocalypseCommonConfig {
                     .define("enableRainDamage", true);
 
             configBuilder.pop();
+            configBuilder.push("difficulty");
+
+            this.maxDifficulty = configBuilder.comment("Sets the max difficulty that can be reached before it stops increasing.")
+                    .defineInRange("maxDifficulty", 150.0D, 0.0D, 10000.0D);
+
+            this.difficultyIncreaseRate = configBuilder.comment("Sets the rate at which difficulty increases over time in minutes. A value of 5 will make the difficulty increase every 5 minutes.")
+                    .defineInRange("difficultyIncreaseRate", 4, 1, 100);
+
+            configBuilder.pop();
         }
 
+        // Rain
         public int getRainTickRate() {
             return this.rainTickRate.get() * 20;
         }
@@ -48,6 +63,15 @@ public class ApocalypseCommonConfig {
 
         public boolean rainDamageEnabled() {
             return this.rainDamageEnabled.get();
+        }
+
+        // Difficulty
+        public double getMaxDifficulty() {
+            return this.maxDifficulty.get();
+        }
+
+        public int getDifficultyIncreaseRate() {
+            return this.difficultyIncreaseRate.get();
         }
     }
 }

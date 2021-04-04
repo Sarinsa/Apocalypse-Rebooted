@@ -13,6 +13,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
+import net.minecraftforge.event.world.SleepFinishedTimeEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -67,5 +68,12 @@ public class EntityEvents {
             event.setResult(PlayerEntity.SleepResult.OTHER_PROBLEM);
             player.displayClientMessage(new TranslationTextComponent(TranslationReferences.TRY_SLEEP_FULL_MOON), true);
         }
+    }
+
+    @SubscribeEvent()
+    public void onSuccessfulSleep(SleepFinishedTimeEvent event) {
+        event.getWorld().players().forEach((playerEntity) -> {
+            playerEntity.displayClientMessage(new TranslationTextComponent(TranslationReferences.SLEEP_PENALTY), true);
+        });
     }
 }

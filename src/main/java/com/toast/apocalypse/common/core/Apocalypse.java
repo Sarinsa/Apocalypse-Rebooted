@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.core;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.common.core.mod_event.EventRegister;
 import com.toast.apocalypse.common.event.CapabilityAttachEvents;
 import com.toast.apocalypse.common.event.EntityEvents;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
@@ -51,6 +52,7 @@ public class Apocalypse {
         event.enqueueWork(() -> {
             ApocalypseCapabilities.registerCapabilities();
             ApocalypseEntities.registerEntitySpawnPlacement();
+            EventRegister.registerEvents();
         });
     }
 
