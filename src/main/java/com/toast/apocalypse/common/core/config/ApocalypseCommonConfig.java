@@ -28,6 +28,8 @@ public class ApocalypseCommonConfig {
         private final ForgeConfigSpec.DoubleValue maxDifficulty;
         private final ForgeConfigSpec.IntValue difficultyIncreaseRate;
 
+        // Misc
+
         private Common(ForgeConfigSpec.Builder configBuilder) {
             configBuilder.push("rain");
 
@@ -48,6 +50,11 @@ public class ApocalypseCommonConfig {
 
             this.difficultyIncreaseRate = configBuilder.comment("Sets the rate at which difficulty increases over time in minutes. A value of 5 will make the difficulty increase every 5 minutes.")
                     .defineInRange("difficultyIncreaseRate", 4, 1, 100);
+
+            configBuilder.pop();
+            configBuilder.push("misc");
+
+
 
             configBuilder.pop();
         }
