@@ -14,10 +14,12 @@ import net.minecraft.entity.IRendersAsItem;
 import net.minecraft.entity.projectile.ProjectileItemEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.util.function.Supplier;
 
@@ -27,7 +29,6 @@ public class ClientRegister {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(new ClientEvents(event.getMinecraftSupplier().get()));
-
         registerEntityRenderers(event.getMinecraftSupplier());
     }
 

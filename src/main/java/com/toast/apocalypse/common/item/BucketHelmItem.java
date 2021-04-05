@@ -2,7 +2,7 @@ package com.toast.apocalypse.common.item;
 
 import com.toast.apocalypse.client.ClientUtil;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.util.TranslationReferences;
+import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -44,6 +44,6 @@ public class BucketHelmItem extends ArmorItem {
     @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack itemStack, World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
-        tooltip.add(new TranslationTextComponent(TranslationReferences.BUCKET_HELM_DESC).withStyle(TextFormatting.GRAY));
+        tooltip.add(new TranslationTextComponent(References.BUCKET_HELM_DESC).withStyle(TextFormatting.GRAY));
     }
 }

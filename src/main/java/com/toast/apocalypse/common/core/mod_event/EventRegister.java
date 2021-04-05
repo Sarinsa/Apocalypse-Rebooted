@@ -1,29 +1,27 @@
 package com.toast.apocalypse.common.core.mod_event;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import net.minecraft.util.ResourceLocation;
 
 import java.util.HashMap;
 import java.util.Objects;
 
 public class EventRegister {
 
-    public static final HashMap<ResourceLocation, AbstractEvent> EVENTS = new HashMap<>();
+    public static final HashMap<Integer, AbstractEvent> EVENTS = new HashMap<>();
 
-    public static final AbstractEvent FULL_MOON = new FullMoonEvent(Apocalypse.resourceLoc("full_moon"));
+    public static final AbstractEvent FULL_MOON = new FullMoonEvent(0);
 
     public static void registerEvents() {
         registerEvent(FULL_MOON);
     }
 
     private static void registerEvent(AbstractEvent event) {
-        Objects.requireNonNull(event);
-        Objects.requireNonNull(event.getId());
+        Objects.requireNonNull(event);;
 
-        ResourceLocation id = event.getId();
+        int id = event.getId();
 
         if (EVENTS.containsKey(id)) {
-            Apocalypse.LOGGER.warn("[{}] Attempted to register an event with duplicate ID: {}", EventRegister.class.getSimpleName(), id.toString());
+            Apocalypse.LOGGER.warn("[{}] Attempted to register an event with duplicate ID: {}", EventRegister.class.getSimpleName(), id);
         }
         else {
             // He put himself in the EVENTS map, funniest shit I've ever seen

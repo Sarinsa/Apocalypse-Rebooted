@@ -3,17 +3,14 @@ package com.toast.apocalypse.common.core.mod_event;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.server.ServerWorld;
-
-import javax.annotation.Nullable;
 
 public abstract class AbstractEvent {
 
     /** The ID for this event, must be unique */
-    private final ResourceLocation id;
+    private final int id;
 
-    public AbstractEvent(ResourceLocation id) {
+    public AbstractEvent(int id) {
         this.id = id;
     }
 
@@ -21,8 +18,7 @@ public abstract class AbstractEvent {
      * @return A ResourceLocation representing
      *         this event's unique ID.
      */
-    @Nullable
-    public final ResourceLocation getId() {
+    public final int getId() {
         return this.id;
     }
 
@@ -69,16 +65,16 @@ public abstract class AbstractEvent {
     /**
      * Saves this event.
      *
-     * @param saveData The JsonObject to save to.
+     * @param data The JsonObject to write to.
      * @throws JsonIOException If an exception occurs while trying to write.
      */
-    public abstract JsonObject save(JsonObject saveData) throws JsonIOException;
+    public abstract void write(JsonObject data) throws JsonIOException;
 
     /**
      * Loads this event.
      *
-     * @param loadData the JsonObject to read from.
+     * @param data the JsonObject to read from.
      * @throws JsonIOException If an exception occurs while trying to read.
      */
-    public abstract void load(JsonObject loadData) throws JsonIOException;
+    public abstract void read(JsonObject data) throws JsonIOException;
 }

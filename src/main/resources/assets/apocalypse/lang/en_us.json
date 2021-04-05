@@ -26,5 +26,8 @@
 
   "effect.apocalypse.heavy": "Heavy",
 
-  "apocalypse.item_desc.bucket_helm": "Protects you from the rain"
+  "apocalypse.item_desc.bucket_helm": "Protects you from the rain",
+
+  "apocalypse.command.argument.difficulty.invalid_value": "Aw shit",
+  "apocalypse.command.set_difficulty.update_message": "World difficulty has been updated!"
 }

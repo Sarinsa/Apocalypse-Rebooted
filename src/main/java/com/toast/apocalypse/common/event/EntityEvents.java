@@ -1,11 +1,10 @@
 package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.api.IFullMoonMob;
-import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
-import com.toast.apocalypse.common.util.TranslationReferences;
-import com.toast.apocalypse.common.util.WorldDifficultyManager;
+import com.toast.apocalypse.common.util.References;
+import com.toast.apocalypse.common.core.WorldDifficultyManager;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -66,14 +65,14 @@ public class EntityEvents {
 
         if (world.isNight() && WorldDifficultyManager.isFullMoon(world)) {
             event.setResult(PlayerEntity.SleepResult.OTHER_PROBLEM);
-            player.displayClientMessage(new TranslationTextComponent(TranslationReferences.TRY_SLEEP_FULL_MOON), true);
+            player.displayClientMessage(new TranslationTextComponent(References.TRY_SLEEP_FULL_MOON), true);
         }
     }
 
     @SubscribeEvent()
     public void onSuccessfulSleep(SleepFinishedTimeEvent event) {
         event.getWorld().players().forEach((playerEntity) -> {
-            playerEntity.displayClientMessage(new TranslationTextComponent(TranslationReferences.SLEEP_PENALTY), true);
+            playerEntity.displayClientMessage(new TranslationTextComponent(References.SLEEP_PENALTY), true);
         });
     }
 }

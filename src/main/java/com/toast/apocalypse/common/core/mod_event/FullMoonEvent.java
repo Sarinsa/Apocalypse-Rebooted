@@ -1,24 +1,29 @@
 package com.toast.apocalypse.common.core.mod_event;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
-import com.mojang.realmsclient.util.JsonUtils;
-import com.toast.apocalypse.common.util.TranslationReferences;
+import com.toast.apocalypse.common.util.References;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.server.ServerWorld;
 
+/**
+ * The full moon event. This event can occur every 8 days in game and will interrupt any other event and can not be interrupted
+ * by any other event.<br>
+ * These are often referred to as "full moon sieges" in other parts of the code and in the properties file.
+ */
 public class FullMoonEvent extends AbstractEvent {
 
-    public FullMoonEvent(ResourceLocation id) {
+    /** Time until mobs can start spawning. */
+    private int gracePeriod, baseGracePeriod;
+
+    public FullMoonEvent(int id) {
         super(id);
     }
 
     @Override
     public String getEventStartMessage() {
-        return TranslationReferences.FULL_MOON;
+        return References.FULL_MOON;
     }
 
     @Override
@@ -47,13 +52,15 @@ public class FullMoonEvent extends AbstractEvent {
     }
 
     @Override
-    public JsonObject save(JsonObject saveData) throws JsonIOException {
-        saveData.addProperty("players", 3);
-        return saveData;
+    public void write(JsonObject data) throws JsonIOException {
+        data.addProperty("eventId", this.getId());
+        data.addProperty("gracePeriod", this.gracePeriod);
+        data.addProperty("baseGracePeriod", this.baseGracePeriod);
     }
 
     @Override
-    public void load(JsonObject loadData) throws JsonIOException {
-
+    public void read(JsonObject data) throws JsonIOException {
+        this.gracePeriod = data.get("gracePeriod").getAsInt();
+        this.baseGracePeriod = data.get("baseGracePeriod").getAsInt();
     }
 }

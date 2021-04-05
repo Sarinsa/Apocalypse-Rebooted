@@ -1,7 +1,13 @@
 package com.toast.apocalypse.common.core.config;
 
+import com.toast.apocalypse.common.util.References;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.Dimension;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Apocalypse's common config, synced between client and server.
@@ -19,14 +25,25 @@ public class ApocalypseCommonConfig {
 
     public static final class Common {
 
+        private static final List<String> PENALTY_DIMENSIONS = new ArrayList<>();
+
+        static {
+            PENALTY_DIMENSIONS.add(Dimension.NETHER.getRegistryName().toString());
+            PENALTY_DIMENSIONS.add(Dimension.END.getRegistryName().toString());
+        }
+
         // Rain
         private final ForgeConfigSpec.IntValue rainTickRate;
         private final ForgeConfigSpec.IntValue rainDamage;
         private final ForgeConfigSpec.BooleanValue rainDamageEnabled;
 
         // Difficulty
-        private final ForgeConfigSpec.DoubleValue maxDifficulty;
-        private final ForgeConfigSpec.IntValue difficultyIncreaseRate;
+        private final ForgeConfigSpec.LongValue maxDifficulty;
+        private final ForgeConfigSpec.BooleanValue multiplayerDifficultyScaling;
+        private final ForgeConfigSpec.DoubleValue difficultyRateMultiplier;
+        private final ForgeConfigSpec.DoubleValue sleepPenalty;
+        private final ForgeConfigSpec.ConfigValue<List<? extends String>> dimensionsPenaltyList;
+        private final ForgeConfigSpec.DoubleValue dimensionPenalty;
 
         // Misc
 
@@ -45,11 +62,23 @@ public class ApocalypseCommonConfig {
             configBuilder.pop();
             configBuilder.push("difficulty");
 
-            this.maxDifficulty = configBuilder.comment("Sets the max difficulty that can be reached before it stops increasing.")
-                    .defineInRange("maxDifficulty", 150.0D, 0.0D, 10000.0D);
+            this.maxDifficulty = configBuilder.comment("Sets the max difficulty that can be reached before it stops increasing (in ticks).")
+                    .defineInRange("maxDifficulty", 200L * References.DAY_LENGTH, 0L, 10000L * References.DAY_LENGTH);
 
-            this.difficultyIncreaseRate = configBuilder.comment("Sets the rate at which difficulty increases over time in minutes. A value of 5 will make the difficulty increase every 5 minutes.")
-                    .defineInRange("difficultyIncreaseRate", 4, 1, 100);
+            this.multiplayerDifficultyScaling = configBuilder.comment("If enabled, world difficulty will increased by the configured multiplier")
+                    .define("multiplayerDifficultyScaling", true);
+
+            this.difficultyRateMultiplier = configBuilder.comment("Only relevant if multiplayer difficulty scaling is enabled. This is the multiplier used when calculating difficulty per player in the world.")
+                    .defineInRange("difficultyRateMultiplier", 1.0D, 1.0D, 1000.0D);
+
+            this.sleepPenalty = configBuilder.comment("Sets the amount of ticks to increase world difficulty by when players sleep through a night or thunderstorm.")
+                    .defineInRange("sleepPenalty", 2.0D, 0.0D, 1000.0D);
+
+            this.dimensionsPenaltyList = configBuilder.comment("A list of dimensions that should give difficulty penalty. Difficulty increases more in these dimensions.")
+                    .define("dimensionPenalyList", PENALTY_DIMENSIONS);
+
+            this.dimensionPenalty = configBuilder.comment("A multiplier used to determine how much the world difficulty should increase by when players sleep.")
+                    .defineInRange("dimensionPenalty", 10.0D, 0.0D, 1000.0D);
 
             configBuilder.pop();
             configBuilder.push("misc");
@@ -73,12 +102,28 @@ public class ApocalypseCommonConfig {
         }
 
         // Difficulty
-        public double getMaxDifficulty() {
+        public long getMaxDifficulty() {
             return this.maxDifficulty.get();
         }
 
-        public int getDifficultyIncreaseRate() {
-            return this.difficultyIncreaseRate.get();
+        public boolean multiplayerDifficultyScaling() {
+            return this.multiplayerDifficultyScaling.get();
+        }
+
+        public double getDifficultyRateMultiplier() {
+            return this.difficultyRateMultiplier.get();
+        }
+
+        public double getSleepPenalty() {
+            return this.sleepPenalty.get();
+        }
+
+        public List<String> getDifficultyPenaltyDimensions() {
+            return this.dimensionsPenaltyList.getPath();
+        }
+
+        public double getDimensionPenalty() {
+            return this.dimensionPenalty.get();
         }
     }
 }
