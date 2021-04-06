@@ -34,9 +34,7 @@ public class ApocalypseBaseCommand {
             return Commands.literal("set")
                     .requires((source) -> source.hasPermission(3))
                     .then(Commands.argument("difficulty", DifficultyArgument.difficulty()))
-                    .executes((context) -> {
-                        return setWorldDifficulty(context.getSource(), LongArgumentType.getLong(context, "difficulty"));
-                    });
+                    .executes((context) -> setWorldDifficulty(context.getSource(), LongArgumentType.getLong(context, "difficulty")));
         }
 
         private static int setWorldDifficulty(CommandSource source, long difficulty) {

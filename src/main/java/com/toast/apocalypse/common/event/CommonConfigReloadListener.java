@@ -3,10 +3,14 @@ package com.toast.apocalypse.common.event;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.WorldDifficultyManager;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +37,10 @@ public class CommonConfigReloadListener {
         WorldDifficultyManager.DIFFICULTY_MULTIPLIER = ApocalypseCommonConfig.COMMON.getDifficultyRateMultiplier();
         WorldDifficultyManager.SLEEP_PENALTY = ApocalypseCommonConfig.COMMON.getSleepPenalty();
 
-        List<ResourceLocation> list = new ArrayList<>();
-        ApocalypseCommonConfig.COMMON.getDifficultyPenaltyDimensions().forEach((s -> list.add(new ResourceLocation(s))));
+        List<RegistryKey<World>> list = new ArrayList<>();
+        ApocalypseCommonConfig.COMMON.getDifficultyPenaltyDimensions().forEach((s -> {
+            list.add(RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(s)));
+        }));
         WorldDifficultyManager.DIMENSION_PENALTY_LIST = list;
 
         WorldDifficultyManager.DIMENSION_PENALTY = ApocalypseCommonConfig.COMMON.getDimensionPenalty();

@@ -68,11 +68,4 @@ public class EntityEvents {
             player.displayClientMessage(new TranslationTextComponent(References.TRY_SLEEP_FULL_MOON), true);
         }
     }
-
-    @SubscribeEvent()
-    public void onSuccessfulSleep(SleepFinishedTimeEvent event) {
-        event.getWorld().players().forEach((playerEntity) -> {
-            playerEntity.displayClientMessage(new TranslationTextComponent(References.SLEEP_PENALTY), true);
-        });
-    }
 }

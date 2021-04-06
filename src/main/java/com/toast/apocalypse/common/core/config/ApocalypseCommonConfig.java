@@ -28,8 +28,8 @@ public class ApocalypseCommonConfig {
         private static final List<String> PENALTY_DIMENSIONS = new ArrayList<>();
 
         static {
-            PENALTY_DIMENSIONS.add(Dimension.NETHER.getRegistryName().toString());
-            PENALTY_DIMENSIONS.add(Dimension.END.getRegistryName().toString());
+            PENALTY_DIMENSIONS.add(Dimension.NETHER.location().toString());
+            PENALTY_DIMENSIONS.add(Dimension.END.location().toString());
         }
 
         // Rain

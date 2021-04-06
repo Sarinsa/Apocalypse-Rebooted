@@ -20,6 +20,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
@@ -59,8 +60,6 @@ public class Apocalypse {
         MinecraftForge.EVENT_BUS.register(new CapabilityAttachEvents());
         MinecraftForge.EVENT_BUS.register(this.getDifficultyManager());
         MinecraftForge.EVENT_BUS.addListener(CommandRegister::registerCommands);
-        MinecraftForge.EVENT_BUS.addListener(this::onServerAboutToStart);
-        MinecraftForge.EVENT_BUS.addListener(this::onServerStopped);
 
         ApocalypseItems.ITEMS.register(eventBus);
         ApocalypseEffects.EFFECTS.register(eventBus);
@@ -76,14 +75,6 @@ public class Apocalypse {
             ApocalypseEntities.registerEntitySpawnPlacement();
             EventRegister.registerEvents();
         });
-    }
-
-    public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
-        this.getDifficultyManager().init(event.getServer());
-    }
-
-    public void onServerStopped(FMLServerStoppedEvent event) {
-        this.getDifficultyManager().cleanup();
     }
 
     public static ResourceLocation resourceLoc(String path) {
