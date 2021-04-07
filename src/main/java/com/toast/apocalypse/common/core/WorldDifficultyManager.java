@@ -1,8 +1,6 @@
 package com.toast.apocalypse.common.core;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.api.IDifficultyProvider;
 import com.toast.apocalypse.common.core.mod_event.AbstractEvent;
 import com.toast.apocalypse.common.core.mod_event.EventRegister;
 import com.toast.apocalypse.common.event.CommonConfigReloadListener;
@@ -10,10 +8,9 @@ import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.RegistryKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
@@ -35,7 +32,7 @@ import java.util.List;
  * saves and loads it to and from the disk, and notifies clients of changes to it.<br>
  * In addition, it houses many helper methods related to world difficulty and save data.
  */
-public final class WorldDifficultyManager {
+public final class WorldDifficultyManager implements IDifficultyProvider {
 
     /** Number of ticks per update. */
     public static final int TICKS_PER_UPDATE = 5;
@@ -124,15 +121,17 @@ public final class WorldDifficultyManager {
                 if (this.worldDifficultyRateMul > 1.0) {
                     this.worldDifficultyRateMul = (this.worldDifficultyRateMul - 1.0) * DIFFICULTY_MULTIPLIER + 1.0;
                 }
+                Apocalypse.LOGGER.info("Difficulty rate multiplier: " + this.worldDifficultyRateMul);
                 // Apply dimension difficulty rate penalty if any player is in another dimension
                 if (DIMENSION_PENALTY > 0.0D) {
                     for (PlayerEntity player : server.getPlayerList().getPlayers()) {
-                        if (DIMENSION_PENALTY_LIST.contains(player.getCommandSenderWorld().dimension())) {
+                        if (!player.isSpectator() && DIMENSION_PENALTY_LIST.contains(player.getCommandSenderWorld().dimension())) {
                             this.worldDifficultyRateMul *= 1.0 + DIMENSION_PENALTY;
                             break;
                         }
                     }
                 }
+                Apocalypse.LOGGER.info("Dimension penalty: " + DIMENSION_PENALTY);
                 this.worldDifficulty += WorldDifficultyManager.TICKS_PER_UPDATE * this.worldDifficultyRateMul;
 
                 // Update each world
@@ -189,8 +188,8 @@ public final class WorldDifficultyManager {
 
         // Check for time jumps (aka sleeping in bed)
         long skippedTime = 0L;
-        if (world.dimension().equals(World.OVERWORLD)) { // TEST - base time jumps only on overworld
-            if (this.worldDifficultyRateMul > 0.0 && worldData != null && ApocalypseCommonConfig.COMMON.getSleepPenalty() > 0.0) {
+        if (world.dimension() == World.OVERWORLD) { // TEST - base time jumps only on overworld
+            if (this.worldDifficultyRateMul > 0.0 && worldData != null && SLEEP_PENALTY > 0.0) {
                 skippedTime = world.getGameTime() - worldData.lastWorldTime; // normally == 5
             }
         }
@@ -201,7 +200,7 @@ public final class WorldDifficultyManager {
             if (dayTime < 13000) {
                 this.checkedFullMoon = false;
             }
-            else if (!this.checkedFullMoon && WorldDifficultyManager.isFullMoon(world)) {
+            else if (!this.checkedFullMoon && isFullMoon(world)) {
                 this.checkedFullMoon = true;
                 this.startEvent(EventRegister.FULL_MOON);
             }
@@ -240,19 +239,19 @@ public final class WorldDifficultyManager {
         //this.write();
     }
 
-    public long getWorldDifficulty() {
+    public long getDifficulty() {
         return this.worldDifficulty;
     }
 
-    public double getWorldDifficultyRate() {
+    public double getDifficultyRate() {
         return this.worldDifficultyRateMul;
     }
 
-    public void setWorldDifficulty(long difficulty) {
+    public void setDifficulty(long difficulty) {
         this.worldDifficulty = difficulty;
     }
 
-    public void setWorldDifficultyRate(double rate) {
+    public void setDifficultyRate(double rate) {
         this.worldDifficultyRateMul = rate;
     }
 
@@ -294,11 +293,16 @@ public final class WorldDifficultyManager {
         this.checkedFullMoon = false;
     }
 
-
     public void load() {
         try {
             // Load difficulty
             this.worldDifficulty = CapabilityHelper.getWorldDifficulty(this.server.overworld());
+            CompoundNBT eventData = CapabilityHelper.getEventData(this.server.overworld());
+
+            if (eventData != null && eventData.contains("EventId", 3)) {
+                this.currentEvent = EventRegister.EVENTS.get(eventData.getInt("EventId"));
+                this.currentEvent.read(eventData);
+            }
         }
         catch (Exception e) {
             log(Level.ERROR, "Failed to read world save data! That shouldn't happen.");
@@ -310,6 +314,10 @@ public final class WorldDifficultyManager {
         try {
             // Save difficulty
             CapabilityHelper.setWorldDifficulty(this.server.overworld(), this.worldDifficulty);
+
+            if (this.currentEvent != null) {
+                CapabilityHelper.setEventData(this.server.overworld(), this.currentEvent.write(new CompoundNBT()));
+            }
         }
         catch (Exception e) {
             log(Level.ERROR, "Failed to write world save data! Not cool beans.");

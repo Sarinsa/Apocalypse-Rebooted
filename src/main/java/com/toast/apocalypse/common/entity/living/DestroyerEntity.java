@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.api.IFullMoonMob;
+import com.toast.apocalypse.api.event.IFullMoonMob;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import net.minecraft.entity.*;
@@ -90,6 +90,11 @@ public class DestroyerEntity extends GhastEntity implements IFullMoonMob {
             }
         }
         return super.hurt(damageSource, damage);
+    }
+
+    @Override
+    public int defaultSpawnChance() {
+        return 5;
     }
 
     private static class DestroyerNearestAttackableTargetGoal<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {

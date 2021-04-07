@@ -1,4 +1,4 @@
-package com.toast.apocalypse.api;
+package com.toast.apocalypse.api.event;
 
 /**
  * This represents a type of monster that will spawn as part of a full moon event.
@@ -15,4 +15,16 @@ public interface IFullMoonMob {
     default boolean persistentDuringFullMoon() {
         return true;
     }
+
+    /**
+     * The default chance for this
+     * full moon mob to spawn during
+     * a full moon.
+     *
+     * This value will later be
+     * inserted into the mod's config
+     * where it can later be tweaked
+     * by the user if needed be.
+     */
+    int defaultSpawnChance();
 }

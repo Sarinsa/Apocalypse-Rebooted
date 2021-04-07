@@ -39,7 +39,7 @@ public class ApocalypseBaseCommand {
 
         private static int setWorldDifficulty(CommandSource source, long difficulty) {
             long difficultyCalculated = difficulty * References.DAY_LENGTH;
-            Apocalypse.INSTANCE.getDifficultyManager().setWorldDifficulty(difficultyCalculated);
+            Apocalypse.INSTANCE.getDifficultyManager().setDifficulty(difficultyCalculated);
             NetworkHelper.sendUpdateWorldDifficulty(difficultyCalculated);
 
             source.getServer().getPlayerList().getPlayers().forEach((playerEntity) -> {

@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.api.IFullMoonMob;
+import com.toast.apocalypse.api.event.IFullMoonMob;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
@@ -167,6 +167,11 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         this.noPhysics = true;
         super.tick();
         this.noPhysics = false;
+    }
+
+    @Override
+    public int defaultSpawnChance() {
+        return 9;
     }
 
     /**

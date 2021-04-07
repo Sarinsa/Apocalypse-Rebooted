@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.api.IFullMoonMob;
+import com.toast.apocalypse.api.event.IFullMoonMob;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -61,5 +61,10 @@ public class GrumpEntity extends GhastEntity implements IFullMoonMob {
 
     public static boolean checkGrumpSpawnRules(EntityType<? extends GrumpEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
         return world.getDifficulty() != Difficulty.PEACEFUL && MobEntity.checkMobSpawnRules(entityType, world, spawnReason, pos, random);
+    }
+
+    @Override
+    public int defaultSpawnChance() {
+        return 4;
     }
 }
