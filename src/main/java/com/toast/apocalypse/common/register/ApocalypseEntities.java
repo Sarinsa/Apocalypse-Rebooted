@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.register;
 
+import com.toast.apocalypse.api.register.IRegistryHelper;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.living.DestroyerEntity;
 import com.toast.apocalypse.common.entity.living.GhostEntity;
@@ -53,6 +54,17 @@ public class ApocalypseEntities {
         event.put(GHOST.get(), GhostEntity.createGhostAttributes().build());
         event.put(DESTROYER.get(), DestroyerEntity.createDestroyerAttributes().build());
         event.put(GRUMP.get(), GrumpEntity.createGrumpAttributes().build());
+    }
+
+    /**
+     * Registering our own stuff here.
+     * Called during {@link net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent}
+     * from our mod class.
+     */
+    public static void registerFullMoon(IRegistryHelper registryHelper) {
+        registryHelper.registerFullMoonMob(ApocalypseEntities.GHOST.get(), 9, true);
+        registryHelper.registerFullMoonMob(ApocalypseEntities.DESTROYER.get(), 5, true);
+        registryHelper.registerFullMoonMob(ApocalypseEntities.GRUMP.get(), 3, true);
     }
 
     /**

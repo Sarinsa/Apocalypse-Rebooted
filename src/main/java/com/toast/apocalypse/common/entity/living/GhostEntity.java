@@ -1,6 +1,5 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.api.event.IFullMoonMob;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
 import com.toast.apocalypse.common.util.MobHelper;
 import net.minecraft.block.BlockState;
@@ -38,7 +37,7 @@ import java.util.Random;
  * These are the bread and butter of invasions. Ghosts deal light damage that can't be reduced below 1 and apply
  * a short increased gravity effect to help deal with flying players.
  */
-public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
+public class GhostEntity extends FlyingEntity implements IMob {
 
     public GhostEntity(EntityType<? extends FlyingEntity> entityType, World world) {
         super(entityType, world);
@@ -171,11 +170,6 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         this.noPhysics = true;
         super.tick();
         this.noPhysics = false;
-    }
-
-    @Override
-    public int defaultSpawnChance() {
-        return 9;
     }
 
     /**

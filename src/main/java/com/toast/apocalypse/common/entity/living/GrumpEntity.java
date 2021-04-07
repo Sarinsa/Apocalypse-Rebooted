@@ -1,11 +1,11 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.api.event.IFullMoonMob;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.GhastEntity;
+import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
@@ -22,7 +22,7 @@ import java.util.Random;
  * Unlike most full moon mobs, this one has no means of breaking through defenses and therefore relies on the
  * player being vulnerable to attack - whether by will or by other mobs breaking through to the player.
  */
-public class GrumpEntity extends GhastEntity implements IFullMoonMob {
+public class GrumpEntity extends GhastEntity implements IMob {
 
     public GrumpEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
@@ -61,10 +61,5 @@ public class GrumpEntity extends GhastEntity implements IFullMoonMob {
 
     public static boolean checkGrumpSpawnRules(EntityType<? extends GrumpEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
         return world.getDifficulty() != Difficulty.PEACEFUL && MobEntity.checkMobSpawnRules(entityType, world, spawnReason, pos, random);
-    }
-
-    @Override
-    public int defaultSpawnChance() {
-        return 4;
     }
 }

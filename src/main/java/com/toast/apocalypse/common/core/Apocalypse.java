@@ -94,8 +94,8 @@ public class Apocalypse {
         event.enqueueWork(() -> {
             ApocalypseCapabilities.registerCapabilities();
             ApocalypseEntities.registerEntitySpawnPlacement();
+            ApocalypseEntities.registerFullMoon(this.registryHelper);
         });
-        this.registryHelper.registerInternal();
     }
 
     public void onLoadComplete(FMLLoadCompleteEvent event) {
