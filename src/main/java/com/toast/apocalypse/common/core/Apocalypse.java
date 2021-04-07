@@ -59,6 +59,11 @@ public class Apocalypse {
     /** Packet handler instance */
     private final PacketHandler packetHandler = new PacketHandler();
 
+    // Yay, static init
+    static {
+        EventRegister.init();
+    }
+
     public Apocalypse() {
         INSTANCE = this;
 
@@ -69,6 +74,7 @@ public class Apocalypse {
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         eventBus.addListener(this::onCommonSetup);
+        eventBus.addListener(this::onLoadComplete);
         eventBus.addListener(ApocalypseEntities::createEntityAttributes);
 
         MinecraftForge.EVENT_BUS.register(new EntityEvents());
@@ -88,8 +94,8 @@ public class Apocalypse {
         event.enqueueWork(() -> {
             ApocalypseCapabilities.registerCapabilities();
             ApocalypseEntities.registerEntitySpawnPlacement();
-            EventRegister.init();
         });
+        this.registryHelper.registerInternal();
     }
 
     public void onLoadComplete(FMLLoadCompleteEvent event) {
@@ -106,6 +112,8 @@ public class Apocalypse {
 
                             if (IApocalypsePlugin.class.isAssignableFrom(pluginClass)) {
                                 IApocalypsePlugin plugin = (IApocalypsePlugin) pluginClass.newInstance();
+                                // This makes debugging a bit easier
+                                this.registryHelper.setCurrentPluginId(plugin.getPluginId());
                                 plugin.load(this.api);
                                 LOGGER.info("Found Apocalypse plugin at {} with plugin ID: {}", annotationData.getMemberName(), plugin.getPluginId());
                             }
