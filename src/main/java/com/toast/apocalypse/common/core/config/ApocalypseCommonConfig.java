@@ -78,7 +78,7 @@ public class ApocalypseCommonConfig {
                     .define("dimensionPenaltyList", PENALTY_DIMENSIONS);
 
             this.dimensionPenalty = configBuilder.comment("The difficulty rate multiplier used when any player on the server is in a dimension with penalty.")
-                    .defineInRange("dimensionPenalty", 2.5D, 0.0D, 1000.0D);
+                    .defineInRange("dimensionPenalty", 1.5D, 0.0D, 1000.0D);
 
             configBuilder.pop();
             configBuilder.push("misc");
