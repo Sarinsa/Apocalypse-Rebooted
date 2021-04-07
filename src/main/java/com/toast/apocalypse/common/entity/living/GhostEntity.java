@@ -2,6 +2,7 @@ package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.api.event.IFullMoonMob;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
+import com.toast.apocalypse.common.util.MobHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -26,6 +27,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeMod;
 
 import java.util.EnumSet;
 import java.util.Random;
@@ -49,6 +51,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
                 .add(Attributes.ATTACK_DAMAGE, 1.0D)
                 .add(Attributes.MAX_HEALTH, 4.0D)
                 .add(Attributes.FLYING_SPEED, 1.0D)
+                .add(ForgeMod.SWIM_SPEED.get(), 1.0F)
                 .add(Attributes.FOLLOW_RANGE, Double.POSITIVE_INFINITY);
     }
 
@@ -67,6 +70,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
     public boolean doHurtTarget(Entity entity) {
         if (super.doHurtTarget(entity)) {
             if (entity instanceof PlayerEntity) {
+                MobHelper.attackEntityForMob(this, entity, 1.0F);
                 int duration = this.getCommandSenderWorld().getDifficulty() == Difficulty.HARD ? 120 : 80;
                 ((PlayerEntity)entity).addEffect(new EffectInstance(ApocalypseEffects.HEAVY.get(), duration));
             }
