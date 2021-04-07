@@ -99,7 +99,8 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
 
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onPlayerJoinWorld(PlayerEvent.PlayerLoggedInEvent event) {
-        this.updateWorldDifficulty();
+        NetworkHelper.sendUpdateWorldDifficulty(this.worldDifficulty);
+        NetworkHelper.sendUpdateWorldDifficultyRate(this.worldDifficultyRateMul);
     }
 
     /**
@@ -114,7 +115,7 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
     public void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             // Counter to update the world
-            if (++this.timeUntilUpdate >= WorldDifficultyManager.TICKS_PER_UPDATE) {
+            if (++this.timeUntilUpdate >= TICKS_PER_UPDATE) {
                 this.timeUntilUpdate = 0;
                 // Update active event
                 if (this.currentEvent != null) {
