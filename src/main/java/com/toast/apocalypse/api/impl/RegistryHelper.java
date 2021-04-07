@@ -3,6 +3,7 @@ package com.toast.apocalypse.api.impl;
 import com.google.common.collect.Lists;
 import com.toast.apocalypse.api.register.IRegistryHelper;
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.register.ApocalypseEntities;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import org.apache.logging.log4j.Level;
@@ -24,15 +25,6 @@ public final class RegistryHelper implements IRegistryHelper {
     private String currentPluginId = "no_plugin_id :(";
 
     public RegistryHelper() {
-
-    }
-
-    /**
-     * Registering our own stuff here.
-     * Called during {@link net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent}
-     * from our mod class.
-     */
-    public void registerInternal() {
 
     }
 
