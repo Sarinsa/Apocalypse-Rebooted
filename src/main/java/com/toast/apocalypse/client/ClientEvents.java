@@ -90,7 +90,7 @@ public class ClientEvents {
 
         // Calculate difficulty level in days with 1 decimal point
         int color = COLORS[0];
-        long difficulty = Apocalypse.INSTANCE.getDifficultyManager().getWorldDifficulty();
+        long difficulty = Apocalypse.INSTANCE.getDifficultyManager().getDifficulty();
         int partialDifficulty = (int) (difficulty % 24000L / 2400);
 
         if (COLOR_CHANGE >= 0L && difficulty >= 0L) {
@@ -106,7 +106,7 @@ public class ClientEvents {
         String difficultyInfo = "Difficulty: " + difficulty + "." + partialDifficulty;
 
         // Calculate % of increase in difficulty rate
-        double difficultyRate = Apocalypse.INSTANCE.getDifficultyManager().getWorldDifficultyRate();
+        double difficultyRate = Apocalypse.INSTANCE.getDifficultyManager().getDifficultyRate();
         if (difficultyRate != 1.0) {
             difficultyInfo = difficultyInfo + " Rate: " + (int)(difficultyRate * 100.0) + "%";
         }

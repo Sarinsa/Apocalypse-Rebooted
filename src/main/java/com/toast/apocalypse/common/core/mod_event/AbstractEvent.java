@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.core.mod_event;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.server.ServerWorld;
 
 public abstract class AbstractEvent {
@@ -65,16 +66,14 @@ public abstract class AbstractEvent {
     /**
      * Saves this event.
      *
-     * @param data The JsonObject to write to.
-     * @throws JsonIOException If an exception occurs while trying to write.
+     * @param data The tag to write to.
      */
-    public abstract void write(JsonObject data) throws JsonIOException;
+    public abstract CompoundNBT write(CompoundNBT data);
 
     /**
      * Loads this event.
      *
-     * @param data the JsonObject to read from.
-     * @throws JsonIOException If an exception occurs while trying to read.
+     * @param data the tag to read from.
      */
-    public abstract void read(JsonObject data) throws JsonIOException;
+    public abstract void read(CompoundNBT data) throws JsonIOException;
 }

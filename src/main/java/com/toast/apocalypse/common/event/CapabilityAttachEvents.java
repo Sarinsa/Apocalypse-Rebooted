@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.common.capability.difficulty.DifficultyCapabilityProvider;
+import com.toast.apocalypse.common.capability.event_data.EventDataCapabilityProvider;
 import com.toast.apocalypse.common.capability.rain_tick.RainTickCapabilityProvider;
 import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.entity.Entity;
@@ -27,11 +28,8 @@ public class CapabilityAttachEvents {
     @SubscribeEvent
     public void onWorldCapabilityAttach(AttachCapabilitiesEvent<World> event) {
         if (event.getObject().dimension().equals(World.OVERWORLD)) {
-            Apocalypse.LOGGER.info("Successfully attached difficulty capability!");
             event.addCapability(Apocalypse.resourceLoc("difficulty"), new DifficultyCapabilityProvider());
-        }
-        else {
-            Apocalypse.LOGGER.info("Difficulty capability was not attached to this world: " + event.getObject().dimension().location().toString());
+            event.addCapability(Apocalypse.resourceLoc("event_data"), new EventDataCapabilityProvider());
         }
     }
 }

@@ -71,14 +71,14 @@ public class ApocalypseCommonConfig {
             this.difficultyRateMultiplier = configBuilder.comment("Only relevant if multiplayer difficulty scaling is enabled. This is the multiplier used when calculating difficulty per player in the world.")
                     .defineInRange("difficultyRateMultiplier", 1.0D, 1.0D, 1000.0D);
 
-            this.sleepPenalty = configBuilder.comment("Sets the amount of ticks to increase world difficulty by when players sleep through a night or thunderstorm.")
+            this.sleepPenalty = configBuilder.comment("Sets the multiplier used to increase world difficulty when players sleep through a night or thunderstorm.")
                     .defineInRange("sleepPenalty", 2.0D, 0.0D, 1000.0D);
 
             this.dimensionsPenaltyList = configBuilder.comment("A list of dimensions that should give difficulty penalty. Difficulty increases more in these dimensions.")
-                    .define("dimensionPenalyList", PENALTY_DIMENSIONS);
+                    .define("dimensionPenaltyList", PENALTY_DIMENSIONS);
 
-            this.dimensionPenalty = configBuilder.comment("A multiplier used to determine how much the world difficulty should increase by when players sleep.")
-                    .defineInRange("dimensionPenalty", 10.0D, 0.0D, 1000.0D);
+            this.dimensionPenalty = configBuilder.comment("The difficulty rate multiplier used when any player on the server is in a dimension with penalty.")
+                    .defineInRange("dimensionPenalty", 2.5D, 0.0D, 1000.0D);
 
             configBuilder.pop();
             configBuilder.push("misc");
@@ -118,8 +118,8 @@ public class ApocalypseCommonConfig {
             return this.sleepPenalty.get();
         }
 
-        public List<String> getDifficultyPenaltyDimensions() {
-            return this.dimensionsPenaltyList.getPath();
+        public List<? extends String> getDifficultyPenaltyDimensions() {
+            return this.dimensionsPenaltyList.get();
         }
 
         public double getDimensionPenalty() {

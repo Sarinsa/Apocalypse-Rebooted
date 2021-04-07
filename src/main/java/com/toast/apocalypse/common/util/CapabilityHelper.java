@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.util;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -50,5 +51,22 @@ public class CapabilityHelper {
         long diff = world.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(ApocalypseCapabilities.DIFFICULTY_CAPABILITY.getDefaultInstance()).getDifficulty();
         Apocalypse.LOGGER.error("Read world difficulty capability: " + diff);
         return diff;
+    }
+
+    //
+    // EVENT DATA
+    //
+    public static void setEventData(@Nonnull World world, CompoundNBT data) {
+        if (!world.dimension().equals(World.OVERWORLD)) {
+            throw new IllegalArgumentException("Cannot save event data to other worlds than the overworld");
+        }
+        world.getCapability(ApocalypseCapabilities.EVENT_DATA_CAPABILITY).orElse(ApocalypseCapabilities.EVENT_DATA_CAPABILITY.getDefaultInstance()).setEventData(data);
+    }
+
+    public static CompoundNBT getEventData(@Nonnull World world) {
+        if (!world.dimension().equals(World.OVERWORLD)) {
+            throw new IllegalArgumentException("Cannot fetch event data from other worlds than the overworld");
+        }
+        return world.getCapability(ApocalypseCapabilities.EVENT_DATA_CAPABILITY).orElse(ApocalypseCapabilities.EVENT_DATA_CAPABILITY.getDefaultInstance()).getEventData();
     }
 }

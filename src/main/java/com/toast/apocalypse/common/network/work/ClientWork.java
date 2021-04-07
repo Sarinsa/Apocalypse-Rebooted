@@ -7,10 +7,10 @@ import com.toast.apocalypse.common.network.message.S2CUpdateWorldDifficultyRate;
 public class ClientWork {
 
     public static void handleDifficultyUpdate(S2CUpdateWorldDifficulty message) {
-        Apocalypse.INSTANCE.getDifficultyManager().setWorldDifficulty(message.difficulty);
+        Apocalypse.INSTANCE.getDifficultyManager().setDifficulty(message.difficulty);
     }
 
     public static void handleDifficultyRateUpdate(S2CUpdateWorldDifficultyRate message) {
-        Apocalypse.INSTANCE.getDifficultyManager().setWorldDifficultyRate(message.difficultyRate);
+        Apocalypse.INSTANCE.getDifficultyManager().setDifficultyRate(message.difficultyRate);
     }
 }

@@ -1,10 +1,8 @@
 package com.toast.apocalypse.common.core.mod_event;
 
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonObject;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.server.ServerWorld;
 
 /**
@@ -52,15 +50,17 @@ public class FullMoonEvent extends AbstractEvent {
     }
 
     @Override
-    public void write(JsonObject data) throws JsonIOException {
-        data.addProperty("eventId", this.getId());
-        data.addProperty("gracePeriod", this.gracePeriod);
-        data.addProperty("baseGracePeriod", this.baseGracePeriod);
+    public CompoundNBT write(CompoundNBT data) {
+        data.putInt("EventId", this.getId());
+        data.putInt("GracePeriod", this.gracePeriod);
+        data.putInt("BaseGracePeriod", this.baseGracePeriod);
+
+        return data;
     }
 
     @Override
-    public void read(JsonObject data) throws JsonIOException {
-        this.gracePeriod = data.get("gracePeriod").getAsInt();
-        this.baseGracePeriod = data.get("baseGracePeriod").getAsInt();
+    public void read(CompoundNBT data) {
+        this.gracePeriod = data.getInt("GracePeriod");
+        this.baseGracePeriod = data.getInt("BaseGracePeriod");
     }
 }
