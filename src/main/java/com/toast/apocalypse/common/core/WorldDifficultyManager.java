@@ -41,6 +41,7 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
      *
      *  @see CommonConfigReloadListener#updateInfo()
      */
+    public static long MAX_DIFFICULTY;
     public static boolean MULTIPLAYER_DIFFICULTY_SCALING;
     public static double DIFFICULTY_MULTIPLIER;
     public static double SLEEP_PENALTY;
@@ -62,6 +63,13 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
 
     /** The world difficulty */
     private long worldDifficulty;
+
+    /** Used to temporarily store the new
+     *  so that it will not be updated
+     *  before we checked if we have
+     *  reached the maximum difficulty
+     */
+    private long nextDifficulty;
 
     /** The world difficulty multiplier */
     private double worldDifficultyRateMul;
@@ -132,7 +140,9 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                     }
                 }
                 Apocalypse.LOGGER.info("Dimension penalty: " + DIMENSION_PENALTY);
-                this.worldDifficulty += WorldDifficultyManager.TICKS_PER_UPDATE * this.worldDifficultyRateMul;
+
+                this.nextDifficulty = worldDifficulty;
+                this.nextDifficulty += WorldDifficultyManager.TICKS_PER_UPDATE * this.worldDifficultyRateMul;
 
                 // Update each world
                 long mostSkippedTime = 0L;
@@ -141,13 +151,18 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                 }
                 // Handle sleep penalty
                 if (mostSkippedTime > 20L) {
-                    this.worldDifficulty += mostSkippedTime * SLEEP_PENALTY * this.worldDifficultyRateMul;
+                    this.nextDifficulty += mostSkippedTime * SLEEP_PENALTY * this.worldDifficultyRateMul;
                     // Send skipped time messages
                     for (PlayerEntity playerEntity : server.getPlayerList().getPlayers()) {
                           playerEntity.displayClientMessage(new TranslationTextComponent(References.SLEEP_PENALTY), true);
                     }
                 }
-                this.updateWorldDifficulty();
+                // Only update difficulty if it is
+                // below the maximum level
+                if (this.nextDifficulty < MAX_DIFFICULTY) {
+                    this.worldDifficulty = nextDifficulty;
+                    this.updateWorldDifficulty();
+                }
             }
             // TODO: Move to separate event listener
             // Initialize any spawned entities
@@ -315,9 +330,12 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
             // Save difficulty
             CapabilityHelper.setWorldDifficulty(this.server.overworld(), this.worldDifficulty);
 
+            CompoundNBT eventData = new CompoundNBT();
+
             if (this.currentEvent != null) {
-                CapabilityHelper.setEventData(this.server.overworld(), this.currentEvent.write(new CompoundNBT()));
+                this.currentEvent.write(eventData);
             }
+            CapabilityHelper.setEventData(this.server.overworld(), eventData);
         }
         catch (Exception e) {
             log(Level.ERROR, "Failed to write world save data! Not cool beans.");

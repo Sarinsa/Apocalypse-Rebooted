@@ -6,6 +6,7 @@ import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.gui.ForgeIngameGui;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -20,6 +21,8 @@ public class ClientEvents {
     };
 
     // Rendering properties for quick access.
+    public static long DIFFICULTY = 0;
+    public static double DIFFICULTY_RATE = 0.0D;
     public static long COLOR_CHANGE;
     public static int POSITION_X;
     public static int POSITION_Y;
@@ -69,7 +72,7 @@ public class ClientEvents {
     }
 
     /**
-     * Called by ForgeIngameGui.renderGameOverlay().
+     * Called by ForgeIngameGui.render().
      * float partialTicks = time since the last game tick.
      * ScaledResolution resolution = the game resolution.
      * int mouseX = the x position of the mouse.
@@ -90,7 +93,7 @@ public class ClientEvents {
 
         // Calculate difficulty level in days with 1 decimal point
         int color = COLORS[0];
-        long difficulty = Apocalypse.INSTANCE.getDifficultyManager().getDifficulty();
+        long difficulty = DIFFICULTY;
         int partialDifficulty = (int) (difficulty % 24000L / 2400);
 
         if (COLOR_CHANGE >= 0L && difficulty >= 0L) {
@@ -106,7 +109,7 @@ public class ClientEvents {
         String difficultyInfo = "Difficulty: " + difficulty + "." + partialDifficulty;
 
         // Calculate % of increase in difficulty rate
-        double difficultyRate = Apocalypse.INSTANCE.getDifficultyManager().getDifficultyRate();
+        double difficultyRate = DIFFICULTY_RATE;
         if (difficultyRate != 1.0) {
             difficultyInfo = difficultyInfo + " Rate: " + (int)(difficultyRate * 100.0) + "%";
         }

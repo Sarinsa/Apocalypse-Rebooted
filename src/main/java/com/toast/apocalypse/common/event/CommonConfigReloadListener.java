@@ -33,6 +33,7 @@ public class CommonConfigReloadListener {
     }
 
     public static void updateInfo() {
+        WorldDifficultyManager.MAX_DIFFICULTY = ApocalypseCommonConfig.COMMON.getMaxDifficulty();
         WorldDifficultyManager.MULTIPLAYER_DIFFICULTY_SCALING = ApocalypseCommonConfig.COMMON.multiplayerDifficultyScaling();
         WorldDifficultyManager.DIFFICULTY_MULTIPLIER = ApocalypseCommonConfig.COMMON.getDifficultyRateMultiplier();
         WorldDifficultyManager.SLEEP_PENALTY = ApocalypseCommonConfig.COMMON.getSleepPenalty();
