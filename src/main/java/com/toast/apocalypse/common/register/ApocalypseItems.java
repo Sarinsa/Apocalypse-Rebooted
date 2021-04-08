@@ -2,6 +2,7 @@ package com.toast.apocalypse.common.register;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.item.BucketHelmItem;
+import com.toast.apocalypse.common.item.FatherlyToastItem;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.Item;
@@ -19,7 +20,8 @@ public class ApocalypseItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Apocalypse.MODID);
 
 
-    public static final RegistryObject<Item> BUCKET_HELM = registerItem("bucket_helm", () -> new BucketHelmItem(new Item.Properties().tab(ItemGroup.TAB_COMBAT).durability(82)));
+    public static final RegistryObject<Item> FATHERLY_TOAST = registerItem("fatherly_toast", FatherlyToastItem::new);
+    public static final RegistryObject<Item> BUCKET_HELM = registerItem("bucket_helm", BucketHelmItem::new);
     public static final RegistryObject<SpawnEggItem> GHOST_SPAWN_EGG = registerSpawnEgg("ghost", ApocalypseEntities.GHOST_TYPE, 0xBCBCBC, 0x708899);
     public static final RegistryObject<SpawnEggItem> DESTROYER_SPAWN_EGG = registerSpawnEgg("destroyer", ApocalypseEntities.DESTROYER_TYPE, 0x7D7D7D, 0xA80E0E);
     public static final RegistryObject<SpawnEggItem> GRUMP_SPAWN_EGG = registerSpawnEgg("grump", ApocalypseEntities.GRUMP_TYPE, 0xF9F9F9, 0x2D41F4);

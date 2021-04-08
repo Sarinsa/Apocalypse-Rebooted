@@ -10,6 +10,7 @@
   "commands.apocalypse.setWorldDifficulty.usage": "/setWorldDifficulty <new difficulty>",
   "commands.apocalypse.setWorldDifficulty.success": "Set world difficulty to %d",
 
+  "item.apocalypse.fatherly_toast": "Fatherly Toast",
   "item.apocalypse.bucket_helm": "Bucket Helmet",
   "item.apocalypse.ghost_spawn_egg": "Ghost Spawn Egg",
   "item.apocalypse.destroyer_spawn_egg": "Destroyer Spawn Egg",
@@ -26,6 +27,7 @@
 
   "effect.apocalypse.heavy": "Heavy",
 
+  "apocalypse.item_desc.fatherly_toast": "Mmmm, toasty!",
   "apocalypse.item_desc.bucket_helm": "Protects you from the rain",
 
   "apocalypse.command.argument.difficulty.invalid_value": "Value can not be less than 1 or exceed the configured difficulty limit",

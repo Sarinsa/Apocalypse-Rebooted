@@ -6,6 +6,7 @@ public class References {
     public static final int DAY_LENGTH = 24000;
 
     // Translation keys
+    public static final String FATHERLY_TOAST_DESC = "apocalypse.item_desc.fatherly_toast";
     public static final String BUCKET_HELM_DESC = "apocalypse.item_desc.bucket_helm";
     public static final String TRY_SLEEP_FULL_MOON = "tile.bed.apocalypse.full_moon";
     public static final String SLEEP_PENALTY = "event.apocalypse.sleep_penalty";
