@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "com.toast.apocalypse.common.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "minVersion": "0.8",
+  "refmap": "apocalypse.refmap.json",
+  "mixins": [
+    "ItemEntityMixin"
+  ],
+  "client": [],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

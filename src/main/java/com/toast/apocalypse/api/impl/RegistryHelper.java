@@ -64,7 +64,7 @@ public final class RegistryHelper implements IRegistryHelper {
     }
 
     /** Helper method for logging */
-    private static void log(Level loggingLevel, String message, Object... arguments) {
-        Apocalypse.LOGGER.log(loggingLevel,"[{}] " + message, Lists.asList(RegistryHelper.class.getSimpleName(), arguments));
+    private static void log(Level level, String message, Object... arguments) {
+        Apocalypse.LOGGER.log(level,"[{}] " + message, Lists.asList(RegistryHelper.class.getSimpleName(), arguments));
     }
 }
