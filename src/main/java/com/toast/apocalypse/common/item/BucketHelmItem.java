@@ -7,9 +7,7 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ArmorItem;
-import net.minecraft.item.ArmorMaterial;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -25,8 +23,8 @@ public class BucketHelmItem extends ArmorItem {
     private static final String HELMET_TEXTURE_1 = Apocalypse.resourceLoc("textures/models/armor/bucket_layer_1.png").toString();
     private static final String HELMET_TEXTURE_2 = Apocalypse.resourceLoc("textures/models/armor/bucket_layer_2.png").toString();
 
-    public BucketHelmItem(Properties properties) {
-        super(ArmorMaterial.IRON, EquipmentSlotType.HEAD, properties);
+    public BucketHelmItem() {
+        super(ArmorMaterial.IRON, EquipmentSlotType.HEAD, new Item.Properties().tab(ItemGroup.TAB_COMBAT));
     }
 
     @Override
