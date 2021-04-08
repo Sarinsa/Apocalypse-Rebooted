@@ -16,6 +16,10 @@ public class EventRegister {
         Objects.requireNonNull(event);
         int id = event.getId();
 
+        if (id == -1) {
+            throw new IllegalArgumentException("It appears that Sarinsa has been a total idiot and tried to register a mod event with an ID of -1. (I know I am a doofus, but this couldn't possibly happen, right?)");
+        }
+
         if (EVENTS.containsKey(id)) {
             Apocalypse.LOGGER.warn("[{}] Attempted to register an event with duplicate ID: {}", EventRegister.class.getSimpleName(), id);
         }

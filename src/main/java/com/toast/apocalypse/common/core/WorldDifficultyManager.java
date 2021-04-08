@@ -271,6 +271,11 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
         this.worldDifficultyRateMul = rate;
     }
 
+    @Override
+    public int currentEventId() {
+        return this.currentEvent == null ? -1 : this.currentEvent.getId();
+    }
+
     /** Starts an event, if possible.
      * @param event The event to start.
      */
