@@ -1,15 +1,21 @@
 package com.toast.apocalypse.common.event;
 
-import com.toast.apocalypse.api.event.IFullMoonMob;
+import com.toast.apocalypse.api.impl.FullMoonMobInfo;
+import com.toast.apocalypse.api.impl.RegistryHelper;
+import com.toast.apocalypse.common.core.WorldDifficultyManager;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.common.register.ApocalypseItems;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import com.toast.apocalypse.common.util.References;
-import com.toast.apocalypse.common.core.WorldDifficultyManager;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -24,9 +30,10 @@ public class EntityEvents {
      */
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onDespawnCheck(LivingSpawnEvent.AllowDespawn event) {
-        if (event.getEntityLiving() instanceof IFullMoonMob) {
-            IFullMoonMob fullMoonMob = (IFullMoonMob) event.getEntityLiving();
-            if (WorldDifficultyManager.isFullMoon(event.getWorld()) && fullMoonMob.persistentDuringFullMoon()) {
+        if (RegistryHelper.FULL_MOON_MOB_INFO.containsKey(event.getEntityLiving().getType())) {
+            FullMoonMobInfo mobInfo = RegistryHelper.FULL_MOON_MOB_INFO.get(event.getEntityLiving().getType());
+
+            if (WorldDifficultyManager.isFullMoon(event.getWorld()) && mobInfo.isPersistent()) {
                 event.setResult(Event.Result.DENY);
             }
         }
@@ -65,6 +72,22 @@ public class EntityEvents {
         if (world.isNight() && WorldDifficultyManager.isFullMoon(world)) {
             event.setResult(PlayerEntity.SleepResult.OTHER_PROBLEM);
             player.displayClientMessage(new TranslationTextComponent(References.TRY_SLEEP_FULL_MOON), true);
+        }
+    }
+
+    /**
+     * Toast
+     */
+    @SubscribeEvent
+    public void onEntityStruckByLightning(EntityStruckByLightningEvent event) {
+        if (event.getEntity() instanceof ItemEntity) {
+            ItemEntity itemEntity = (ItemEntity) event.getEntity();
+
+            if (itemEntity.getItem().getItem() == Items.BREAD) {
+                World world = event.getEntity().getCommandSenderWorld();
+                world.addFreshEntity(new ItemEntity(world, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), new ItemStack(ApocalypseItems.FATHERLY_TOAST.get())));
+                itemEntity.remove();
+            }
         }
     }
 }
