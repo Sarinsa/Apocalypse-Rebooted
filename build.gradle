@@ -107,6 +107,19 @@ jar {
     }
 }
 
+task apiJar(type: Jar) {
+    classifier = 'api'
+    include 'com/toast/apocalypse/api/**/*'
+    exclude 'com/toast/apocalypse/api/impl/**/*'
+
+    from sourceSets.main.output
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives apiJar
+}
+
 jar.finalizedBy('reobfJar')
 
 publishing {
