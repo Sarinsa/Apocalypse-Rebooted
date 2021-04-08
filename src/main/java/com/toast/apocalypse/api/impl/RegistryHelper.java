@@ -14,7 +14,7 @@ import java.util.Objects;
 public final class RegistryHelper implements IRegistryHelper {
 
     /** A map containing info about full moon mobs */
-    private static final HashMap<EntityType<? extends LivingEntity>, FullMoonMobInfo> FULL_MOON_MOB_INFO = new HashMap<>();
+    public static final HashMap<EntityType<? extends LivingEntity>, FullMoonMobInfo> FULL_MOON_MOB_INFO = new HashMap<>();
 
     /** Keeping this here to avoid writing the
      *  same annoying symbols over and over again.
