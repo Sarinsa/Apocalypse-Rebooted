@@ -15,14 +15,14 @@ public class DestroyerExplosionContext extends ExplosionContext {
 
     @Override
     public Optional<Float> getBlockExplosionResistance(Explosion explosion, IBlockReader world, BlockPos pos, BlockState state, FluidState fluidState) {
-        return (state.isAir(world, pos) && fluidState.isEmpty()
+        return (state.isAir(world, pos) 
                 ? Optional.empty()
                 : Optional.of(Math.min(0.8F, state.getExplosionResistance(world, pos, explosion))));
     }
 
     @Override
     public boolean shouldBlockExplode(Explosion explosion, IBlockReader world, BlockPos pos, BlockState state, float p_230311_5_) {
-        // Let's not blow up bedrock I think?
-        return state.getBlock() != Blocks.BEDROCK;
+        // Let's not blow up bedrock and fluids I think?
+        return state.getBlock() != Blocks.BEDROCK && state.getFluidState().isEmpty();
     }
 }
