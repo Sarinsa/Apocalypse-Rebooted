@@ -1,6 +1,5 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -11,6 +10,7 @@ import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FireballEntity;
+import net.minecraft.pathfinding.FlyingPathNavigator;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -32,6 +32,10 @@ public class DestroyerEntity extends GhastEntity {
 
     public DestroyerEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
+        FlyingPathNavigator navigator = new FlyingPathNavigator(this, world);
+        navigator.setCanOpenDoors(false);
+        navigator.setCanPassDoors(false);
+        this.navigation = navigator;
     }
 
     public static AttributeModifierMap.MutableAttribute createDestroyerAttributes() {
@@ -190,11 +194,9 @@ public class DestroyerEntity extends GhastEntity {
         }
     }
 
-    /** Also essentially a copy of the ghast's goal */
     static class RandomOrRelativeToTargetFlyGoal extends Goal {
 
-        private static final double minDistanceBeforeBackUp = 300.0D;
-        private static final double maxDistanceBeforeFollow = 1500.0D;
+        private static final double maxDistanceBeforeFollow = 1400.0D;
         private final DestroyerEntity destroyer;
 
         public RandomOrRelativeToTargetFlyGoal(DestroyerEntity destroyer) {
@@ -207,12 +209,7 @@ public class DestroyerEntity extends GhastEntity {
             MovementController controller = this.destroyer.getMoveControl();
 
             if (!controller.hasWanted()) {
-                Apocalypse.LOGGER.info("Destroyer has a position to move to");
                 return true;
-            }
-
-            if (this.destroyer.getTarget() != null) {
-                return this.shouldMoveRelativeToTarget();
             }
             else {
                 double x = controller.getWantedX() - this.destroyer.getX();
@@ -221,11 +218,6 @@ public class DestroyerEntity extends GhastEntity {
                 double d3 = x * x + y * y + z * z;
                 return d3 < 1.0D || d3 > 3600.0D;
             }
-        }
-
-        private boolean shouldMoveRelativeToTarget() {
-            LivingEntity target = this.destroyer.getTarget();
-            return target.distanceToSqr(this.destroyer) > maxDistanceBeforeFollow || target.distanceToSqr(this.destroyer) < minDistanceBeforeBackUp;
         }
 
         @Override
@@ -237,6 +229,7 @@ public class DestroyerEntity extends GhastEntity {
             Random random = this.destroyer.getRandom();
             double x = this.destroyer.getX() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
             // Don't want the destroyer moving too much on the Y axis
+            // in case it just decides to vanish into space.
             double y = this.destroyer.getY() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 6.0F);
             double z = this.destroyer.getZ() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
             this.destroyer.getMoveControl().setWantedPosition(x, y, z, 1.0D);
@@ -246,13 +239,12 @@ public class DestroyerEntity extends GhastEntity {
         public void start() {
             if (this.destroyer.getTarget() != null) {
                 LivingEntity target = this.destroyer.getTarget();
+                double distanceToTarget = this.destroyer.distanceToSqr(target);
 
-                Apocalypse.LOGGER.info("Destroyer distance to target: " + target.distanceToSqr(this.destroyer));
-
-                if (target.distanceToSqr(this.destroyer) > maxDistanceBeforeFollow) {
-                    this.destroyer.getMoveControl().setWantedPosition(target.getX(), target.getY() + 10.0D, target.getZ(), 1.0D);
+                if (distanceToTarget > maxDistanceBeforeFollow) {
+                    this.destroyer.moveControl.setWantedPosition(target.getX(), target.getY() + 10.0D, target.getZ(), 1.0D);
                 }
-                else if (target.distanceToSqr(this.destroyer) < minDistanceBeforeBackUp) {
+                else {
                     this.setRandomWantedPosition();
                 }
             }
