@@ -21,9 +21,9 @@ public class ClientEvents {
     };
 
     // Rendering properties for quick access.
+    public static final long COLOR_CHANGE = 25L * References.DAY_LENGTH;
     public static long DIFFICULTY = 0;
     public static double DIFFICULTY_RATE = 0.0D;
-    public static long COLOR_CHANGE;
     public static int POSITION_X;
     public static int POSITION_Y;
     public static int OFFSET_X;
@@ -39,9 +39,7 @@ public class ClientEvents {
     /**
      * Updates the render info when rendering the world difficulty in-game.
      * Called from {@link ClientConfigReloadListener} when the client config is loaded/reloaded */
-    public static void updateInfo(DifficultyRenderPosWidth widthPos, DifficultyRenderPosHeight heightPos, int xOffset, int yOffset, long colorChange) {
-        COLOR_CHANGE = colorChange * References.DAY_LENGTH;
-
+    public static void updateInfo(DifficultyRenderPosWidth widthPos, DifficultyRenderPosHeight heightPos, int xOffset, int yOffset) {
         switch (widthPos) {
             default:
             case LEFT:

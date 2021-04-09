@@ -35,7 +35,6 @@ public class ApocalypseClientConfig {
         private final ForgeConfigSpec.EnumValue<DifficultyRenderPosHeight> difficultyRenderPosHeight;
         private final ForgeConfigSpec.IntValue difficultyRenderXOffset;
         private final ForgeConfigSpec.IntValue difficultyRenderYOffset;
-        private final ForgeConfigSpec.LongValue colorChange;
 
         private Client(ForgeConfigSpec.Builder configBuilder) {
             configBuilder.push("in_game_gui");
@@ -51,9 +50,6 @@ public class ApocalypseClientConfig {
 
             this.difficultyRenderYOffset = configBuilder.comment("Additional Y offset for where to render difficulty in-game")
                     .defineInRange("difficultyRenderYOffset", 0, 0, 10000);
-
-            this.colorChange = configBuilder.comment("Determines when to change the color used when rendering the difficulty count in-game. A value of 25 will make the color change for every 25 levels. (Changes color at difficulty 25, 50, 75, 100 etc.)")
-                    .defineInRange("colorChange", 25L, 1L, 100L);
 
             configBuilder.pop();
         }
@@ -72,10 +68,6 @@ public class ApocalypseClientConfig {
 
         public int getDifficultyRenderYOffset() {
             return this.difficultyRenderYOffset.get();
-        }
-
-        public long getColorChange() {
-            return this.colorChange.get();
         }
     }
 }
