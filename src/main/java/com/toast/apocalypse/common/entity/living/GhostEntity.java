@@ -27,6 +27,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 
 import java.util.EnumSet;
 import java.util.Random;
@@ -57,7 +58,7 @@ public class GhostEntity extends FlyingEntity implements IMob {
     @Override
     protected void registerGoals() {
         this.targetSelector.addGoal(0, new GhostEntity.NearestAttackablePlayerTargetGoal<>(this, PlayerEntity.class));
-        this.goalSelector.addGoal(0, new GhostEntity.MeleeAttackGoal());
+        this.goalSelector.addGoal(0, new GhostEntity.MeleeAttackGoal(this));
         this.goalSelector.addGoal(5, new LookRandomlyGoal(this));
     }
 
@@ -67,7 +68,7 @@ public class GhostEntity extends FlyingEntity implements IMob {
 
     @Override
     public boolean doHurtTarget(Entity entity) {
-        if (super.doHurtTarget(entity) && MobHelper.attackEntityForMob(this, entity, 1.0F)) {
+        if (super.doHurtTarget(entity)) {
             if (entity instanceof PlayerEntity) {
                 int duration = this.getCommandSenderWorld().getDifficulty() == Difficulty.HARD ? 120 : 80;
                 ((PlayerEntity)entity).addEffect(new EffectInstance(ApocalypseEffects.HEAVY.get(), duration));
@@ -226,13 +227,13 @@ public class GhostEntity extends FlyingEntity implements IMob {
         }
     }
 
-    private class MeleeAttackGoal extends Goal {
+    private static class MeleeAttackGoal extends Goal {
 
         final GhostEntity ghost;
 
-        public MeleeAttackGoal() {
+        public MeleeAttackGoal(GhostEntity ghost) {
             this.setFlags(EnumSet.of(Goal.Flag.MOVE));
-            this.ghost = GhostEntity.this;
+            this.ghost = ghost;
         }
 
         private void setWantedPosition(LivingEntity target) {

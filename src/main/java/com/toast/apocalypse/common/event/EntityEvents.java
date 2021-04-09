@@ -2,12 +2,15 @@ package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.api.impl.FullMoonMobInfo;
 import com.toast.apocalypse.api.impl.RegistryHelper;
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.WorldDifficultyManager;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.common.register.ApocalypseEntities;
 import com.toast.apocalypse.common.register.ApocalypseItems;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -17,6 +20,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -73,6 +77,29 @@ public class EntityEvents {
         if (world.isNight() && WorldDifficultyManager.isFullMoon(world)) {
             event.setResult(PlayerEntity.SleepResult.OTHER_PROBLEM);
             player.displayClientMessage(new TranslationTextComponent(References.TRY_SLEEP_FULL_MOON), true);
+        }
+    }
+
+    /**
+     * Modifying final damage dealt to entities by
+     * the mobs we have that have a minimum
+     * amount of damage they should inflict.
+     */
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onLivingEntityDamaged(LivingDamageEvent event) {
+        Entity attacker = event.getSource().getEntity();
+
+        Apocalypse.LOGGER.info("Attacker: " + (attacker == null ? "null" : attacker.getType().getRegistryName().getPath()));
+
+        if (attacker != null) {
+            float damage = event.getAmount();
+
+            if (attacker.getType() == ApocalypseEntities.GHOST.get()) {
+                event.setAmount(Math.max(1.0F, damage));
+            }
+            else if (attacker.getType() == ApocalypseEntities.GRUMP.get()) {
+                event.setAmount(Math.max(2.0F, damage));
+            }
         }
     }
 
