@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.item;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
@@ -23,8 +24,17 @@ public class FatherlyToastItem extends Item {
     @Override
     public ItemStack finishUsingItem(ItemStack itemStack, World world, LivingEntity livingEntity) {
         if (this.isEdible()) {
-            livingEntity.setSecondsOnFire(1000);
-            return livingEntity.eat(world, itemStack);
+
+            if (livingEntity instanceof PlayerEntity) {
+                // Avoid the player rendering as on fire for just
+                // a split second since they are in creative.
+                if (((PlayerEntity)livingEntity).abilities.instabuild)
+                    return livingEntity.eat(world, itemStack);
+            }
+            else {
+                livingEntity.setSecondsOnFire(1000);
+                return livingEntity.eat(world, itemStack);
+            }
         }
         return itemStack;
     }
