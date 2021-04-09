@@ -22,8 +22,7 @@ public class HeavyEffect extends Effect {
     @Override
     public void applyEffectTick(LivingEntity livingEntity, int amplifier) {
         Vector3d velocity = livingEntity.getDeltaMovement();
-        double yVelocity = Math.min(-(1 + amplifier) * 0.2, velocity.y);
-        livingEntity.setDeltaMovement(velocity.x, yVelocity, velocity.z);
+        livingEntity.setDeltaMovement(velocity.x, Math.min(-0.5, velocity.y), velocity.z);
     }
 
     @Override
