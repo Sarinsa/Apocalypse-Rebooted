@@ -10,6 +10,7 @@ import com.toast.apocalypse.common.util.References;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -82,12 +83,15 @@ public class EntityEvents {
     public void onEntityStruckByLightning(EntityStruckByLightningEvent event) {
         if (event.getEntity() instanceof ItemEntity) {
             ItemEntity itemEntity = (ItemEntity) event.getEntity();
+            Item item = itemEntity.getItem().getItem();
 
-            if (itemEntity.getItem().getItem() == Items.BREAD) {
+            if (item == Items.BREAD) {
                 World world = event.getEntity().getCommandSenderWorld();
                 world.addFreshEntity(new ItemEntity(world, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), new ItemStack(ApocalypseItems.FATHERLY_TOAST.get())));
                 itemEntity.remove();
             }
+            else if (item == ApocalypseItems.FATHERLY_TOAST.get())
+                event.setCanceled(true);
         }
     }
 }

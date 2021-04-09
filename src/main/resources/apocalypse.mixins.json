@@ -4,9 +4,7 @@
   "compatibilityLevel": "JAVA_8",
   "minVersion": "0.8",
   "refmap": "apocalypse.refmap.json",
-  "mixins": [
-    "ItemEntityMixin"
-  ],
+  "mixins": [],
   "client": [],
   "server": [],
   "injectors": {
