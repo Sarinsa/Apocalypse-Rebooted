@@ -67,9 +67,8 @@ public class GhostEntity extends FlyingEntity implements IMob {
 
     @Override
     public boolean doHurtTarget(Entity entity) {
-        if (super.doHurtTarget(entity)) {
+        if (super.doHurtTarget(entity) && MobHelper.attackEntityForMob(this, entity, 1.0F)) {
             if (entity instanceof PlayerEntity) {
-                MobHelper.attackEntityForMob(this, entity, 1.0F);
                 int duration = this.getCommandSenderWorld().getDifficulty() == Difficulty.HARD ? 120 : 80;
                 ((PlayerEntity)entity).addEffect(new EffectInstance(ApocalypseEffects.HEAVY.get(), duration));
             }
