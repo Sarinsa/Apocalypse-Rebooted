@@ -64,13 +64,6 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
     /** The world difficulty */
     private long worldDifficulty;
 
-    /** Used to temporarily store the new
-     *  so that it will not be updated
-     *  before we checked if we have
-     *  reached the maximum difficulty
-     */
-    private long nextDifficulty;
-
     /** The world difficulty multiplier */
     private double worldDifficultyRateMul;
     private double lastWorldDifficultyRate;
@@ -130,7 +123,7 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                 if (this.worldDifficultyRateMul > 1.0) {
                     this.worldDifficultyRateMul = (this.worldDifficultyRateMul - 1.0) * DIFFICULTY_MULTIPLIER + 1.0;
                 }
-                Apocalypse.LOGGER.info("Difficulty rate multiplier: " + this.worldDifficultyRateMul);
+
                 // Apply dimension difficulty rate penalty if any player is in another dimension
                 if (DIMENSION_PENALTY > 0.0D) {
                     for (PlayerEntity player : server.getPlayerList().getPlayers()) {
@@ -140,10 +133,9 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                         }
                     }
                 }
-                Apocalypse.LOGGER.info("Dimension penalty: " + DIMENSION_PENALTY);
 
-                this.nextDifficulty = worldDifficulty;
-                this.nextDifficulty += WorldDifficultyManager.TICKS_PER_UPDATE * this.worldDifficultyRateMul;
+                long nextDifficulty = worldDifficulty;
+                nextDifficulty += WorldDifficultyManager.TICKS_PER_UPDATE * this.worldDifficultyRateMul;
 
                 // Update each world
                 long mostSkippedTime = 0L;
@@ -152,7 +144,7 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                 }
                 // Handle sleep penalty
                 if (mostSkippedTime > 20L) {
-                    this.nextDifficulty += mostSkippedTime * SLEEP_PENALTY * this.worldDifficultyRateMul;
+                    nextDifficulty += mostSkippedTime * SLEEP_PENALTY * this.worldDifficultyRateMul;
                     // Send skipped time messages
                     for (PlayerEntity playerEntity : server.getPlayerList().getPlayers()) {
                           playerEntity.displayClientMessage(new TranslationTextComponent(References.SLEEP_PENALTY), true);
@@ -160,7 +152,7 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                 }
                 // Only update difficulty if it is
                 // below the maximum level
-                if (this.nextDifficulty < MAX_DIFFICULTY) {
+                if (nextDifficulty < MAX_DIFFICULTY) {
                     this.worldDifficulty = nextDifficulty;
                     this.updateWorldDifficulty();
                 }
