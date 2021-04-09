@@ -15,7 +15,6 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 public class ApocalypseBaseCommand {
 
-
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
         dispatcher.register(Commands.literal("apocalypse")
                 .then(DifficultyBaseCommand.register()));
