@@ -18,12 +18,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class BucketHelmItem extends ArmorItem {
+public class BucketHelmetItem extends ArmorItem {
 
     private static final String HELMET_TEXTURE_1 = Apocalypse.resourceLoc("textures/models/armor/bucket_layer_1.png").toString();
     private static final String HELMET_TEXTURE_2 = Apocalypse.resourceLoc("textures/models/armor/bucket_layer_2.png").toString();
 
-    public BucketHelmItem() {
+    public BucketHelmetItem() {
         super(ArmorMaterial.IRON, EquipmentSlotType.HEAD, new Item.Properties().tab(ItemGroup.TAB_COMBAT));
     }
 
