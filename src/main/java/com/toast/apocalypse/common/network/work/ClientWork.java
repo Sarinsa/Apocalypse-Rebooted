@@ -1,6 +1,5 @@
 package com.toast.apocalypse.common.network.work;
 
-import com.toast.apocalypse.client.ClientEvents;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.network.message.S2CUpdateWorldDifficulty;
 import com.toast.apocalypse.common.network.message.S2CUpdateWorldDifficultyRate;
@@ -13,10 +12,10 @@ import com.toast.apocalypse.common.network.message.S2CUpdateWorldDifficultyRate;
 public class ClientWork {
 
     public static void handleDifficultyUpdate(S2CUpdateWorldDifficulty message) {
-        ClientEvents.DIFFICULTY = message.difficulty;
+        Apocalypse.INSTANCE.getDifficultyManager().setDifficulty(message.difficulty);
     }
 
     public static void handleDifficultyRateUpdate(S2CUpdateWorldDifficultyRate message) {
-        ClientEvents.DIFFICULTY_RATE = message.difficultyRate;
+        Apocalypse.INSTANCE.getDifficultyManager().setDifficultyRate(message.difficultyRate);
     }
 }

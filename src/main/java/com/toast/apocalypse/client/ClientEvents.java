@@ -2,6 +2,7 @@ package com.toast.apocalypse.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.WorldDifficultyManager;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -20,10 +21,10 @@ public class ClientEvents {
             0xFFFFFF, 0x88FFFF, 0x88FF88, 0xFFFF88, 0xFFBB88, 0xFF8888
     };
 
+    private final WorldDifficultyManager difficultyManager;
+
     // Rendering properties for quick access.
     public static final long COLOR_CHANGE = 25L * References.DAY_LENGTH;
-    public static long DIFFICULTY = 0;
-    public static double DIFFICULTY_RATE = 0.0D;
     public static int POSITION_X;
     public static int POSITION_Y;
     public static int OFFSET_X;
@@ -34,6 +35,7 @@ public class ClientEvents {
 
     public ClientEvents(Minecraft minecraft) {
         this.minecraftClient = minecraft;
+        this.difficultyManager = Apocalypse.INSTANCE.getDifficultyManager();
     }
 
     /**
@@ -91,7 +93,7 @@ public class ClientEvents {
 
         // Calculate difficulty level in days with 1 decimal point
         int color = COLORS[0];
-        long difficulty = DIFFICULTY;
+        long difficulty = this.difficultyManager.getDifficulty();
         int partialDifficulty = (int) (difficulty % 24000L / 2400);
 
         if (COLOR_CHANGE >= 0L && difficulty >= 0L) {
@@ -107,7 +109,7 @@ public class ClientEvents {
         String difficultyInfo = "Difficulty: " + difficulty + "." + partialDifficulty;
 
         // Calculate % of increase in difficulty rate
-        double difficultyRate = DIFFICULTY_RATE;
+        double difficultyRate = this.difficultyManager.getDifficultyRate();
         if (difficultyRate != 1.0) {
             difficultyInfo = difficultyInfo + " Rate: " + (int)(difficultyRate * 100.0) + "%";
         }
