@@ -6,6 +6,7 @@ import com.toast.apocalypse.common.entity.living.DestroyerEntity;
 import com.toast.apocalypse.common.entity.living.GhostEntity;
 import com.toast.apocalypse.common.entity.living.GrumpEntity;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
+import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntitySpawnPlacementRegistry;
@@ -28,6 +29,7 @@ public class ApocalypseEntities {
     public static EntityType<DestroyerEntity> DESTROYER_TYPE;
     public static EntityType<GrumpEntity> GRUMP_TYPE;
 
+    public static final RegistryObject<EntityType<MonsterFishHook>> MONSTER_FISH_HOOK = register("monster_fish_hook", EntityType.Builder.<MonsterFishHook>of(MonsterFishHook::new, EntityClassification.MISC).sized(0.25F, 0.25F));
     public static final RegistryObject<EntityType<DestroyerFireballEntity>> DESTROYER_FIREBALL = register("destroyer_fireball", EntityType.Builder.<DestroyerFireballEntity>of(DestroyerFireballEntity::new, EntityClassification.MISC).sized(1.0F, 1.0F).clientTrackingRange(4).updateInterval(10));
     public static final RegistryObject<EntityType<GhostEntity>> GHOST = register("ghost", () -> GHOST_TYPE);
     public static final RegistryObject<EntityType<DestroyerEntity>> DESTROYER = register("destroyer", () -> DESTROYER_TYPE);

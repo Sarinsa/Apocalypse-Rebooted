@@ -4,6 +4,7 @@ import com.toast.apocalypse.common.register.ApocalypseEntities;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.item.ItemEntity;
@@ -41,6 +42,10 @@ public class MonsterFishHook extends ProjectileEntity {
     private int life;
     private Entity hookedIn;
     private State currentState = State.FLYING;
+
+    public MonsterFishHook(EntityType<? extends MonsterFishHook> entityType, World world) {
+        super(entityType, world);
+    }
 
     private MonsterFishHook(World world, MobEntity mobEntity) {
         super(ApocalypseEntities.MONSTER_FISH_HOOK.get(), world);
