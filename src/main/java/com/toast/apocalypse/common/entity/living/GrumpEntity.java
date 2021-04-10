@@ -1,5 +1,7 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
+import com.toast.apocalypse.common.register.ApocalypseEffects;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -10,7 +12,9 @@ import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.VexEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
@@ -45,9 +49,9 @@ public class GrumpEntity extends GhastEntity implements IMob {
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new GrumpEntity.MeleeAttackGoal(this));
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, 10, true, false, (p_213812_1_) -> {
-            return Math.abs(p_213812_1_.getY() - this.getY()) <= 4.0D;
-        }));
+        this.goalSelector.addGoal(1, new LaunchMonsterHookGoal(this));
+        this.goalSelector.addGoal(1, new LookAroundGoal(this));
+        this.targetSelector.addGoal(0, new GrumpNearestAttackableTargetGoal<>(this, PlayerEntity.class));
     }
 
     @Override
@@ -67,6 +71,20 @@ public class GrumpEntity extends GhastEntity implements IMob {
 
     public static boolean checkGrumpSpawnRules(EntityType<? extends GrumpEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
         return world.getDifficulty() != Difficulty.PEACEFUL && MobEntity.checkMobSpawnRules(entityType, world, spawnReason, pos, random);
+    }
+
+    @Override
+    public boolean doHurtTarget(Entity entity) {
+        if (super.doHurtTarget(entity)) {
+            if (entity instanceof PlayerEntity) {
+                int duration = this.getCommandSenderWorld().getDifficulty() == Difficulty.HARD ? 100 : 60;
+                ((PlayerEntity)entity).addEffect(new EffectInstance(ApocalypseEffects.HEAVY.get(), duration));
+            }
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     /** Copied from ghast */
@@ -144,6 +162,84 @@ public class GrumpEntity extends GhastEntity implements IMob {
             else {
                 this.setWantedPosition(target);
             }
+        }
+    }
+
+    private static class LaunchMonsterHookGoal extends Goal {
+
+        private final GrumpEntity grump;
+        private MonsterFishHook fishHook;
+        private int timeHookExisted;
+        private int timeNextHookLaunch;
+
+        public LaunchMonsterHookGoal(GrumpEntity grump) {
+            this.grump = grump;
+        }
+
+        @Override
+        public boolean canUse() {
+            if (grump.getTarget() != null) {
+                LivingEntity target = grump.getTarget();
+                return grump.canSee(target) && grump.distanceToSqr(target) < 100.0D;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return this.canUse();
+        }
+
+        @Override
+        public void start() {
+            this.spawnMonsterFishHook();
+        }
+
+        @Override
+        public void stop() {
+            this.fishHook.remove();
+        }
+
+        @Override
+        public void tick() {
+            if (this.fishHook == null) {
+                ++this.timeNextHookLaunch;
+
+                if (this.timeNextHookLaunch >= 40) {
+                    this.spawnMonsterFishHook();
+                    this.timeNextHookLaunch = 0;
+                }
+            }
+            else {
+                if (this.fishHook.getHookedIn() != null) {
+                    this.fishHook.bringInHookedEntity();
+                    this.fishHook.remove();
+                    return;
+                }
+                ++this.timeHookExisted;
+
+                if (this.timeHookExisted >= 70) {
+                    this.timeHookExisted = 0;
+                    this.fishHook.remove();
+                }
+            }
+        }
+
+        private void spawnMonsterFishHook() {
+            this.fishHook = new MonsterFishHook(this.grump, this.grump.getCommandSenderWorld());
+            this.grump.getCommandSenderWorld().addFreshEntity(fishHook);
+        }
+    }
+
+    private static class GrumpNearestAttackableTargetGoal<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {
+
+        public GrumpNearestAttackableTargetGoal(MobEntity entity, Class<T> targetClass) {
+            super(entity, targetClass, true);
+        }
+
+        /** Friggin' large bounding box */
+        protected AxisAlignedBB getTargetSearchArea(double followRange) {
+            return this.mob.getBoundingBox().inflate(followRange, followRange, followRange);
         }
     }
 }

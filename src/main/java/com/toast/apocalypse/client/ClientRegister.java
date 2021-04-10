@@ -1,5 +1,6 @@
 package com.toast.apocalypse.client;
 
+import com.toast.apocalypse.client.renderers.entity.NoRender;
 import com.toast.apocalypse.client.renderers.entity.destroyer.DestroyerRenderer;
 import com.toast.apocalypse.client.renderers.entity.ghost.GhostRenderer;
 import com.toast.apocalypse.client.renderers.entity.grump.GrumpRenderer;
@@ -33,6 +34,7 @@ public class ClientRegister {
     }
 
     private static void registerEntityRenderers(Supplier<Minecraft> minecraftSupplier) {
+        RenderingRegistry.registerEntityRenderingHandler(ApocalypseEntities.MONSTER_FISH_HOOK.get(), NoRender::new);
         RenderingRegistry.registerEntityRenderingHandler(ApocalypseEntities.GHOST.get(), GhostRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(ApocalypseEntities.DESTROYER.get(), DestroyerRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(ApocalypseEntities.GRUMP.get(), GrumpRenderer::new);
