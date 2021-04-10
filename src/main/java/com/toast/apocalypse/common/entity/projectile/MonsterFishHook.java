@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.entity.projectile;
 
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -123,6 +124,7 @@ public class MonsterFishHook extends ProjectileEntity {
         super.tick();
         MobEntity mobEntity = this.getMobOwner();
         if (mobEntity == null) {
+            Apocalypse.LOGGER.info("Fish hook owner is null!!");
             this.remove();
         } else if (this.level.isClientSide || !this.shouldStopFishing(mobEntity)) {
             if (this.onGround) {

@@ -1,19 +1,21 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
-import net.minecraft.entity.monster.VexEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.potion.EffectInstance;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -34,6 +36,12 @@ import java.util.Random;
  */
 public class GrumpEntity extends GhastEntity implements IMob {
 
+    /**
+     * The current fish hook entity
+     * launched by the grump.
+     */
+    private MonsterFishHook fishHook;
+
     public GrumpEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
     }
@@ -51,12 +59,13 @@ public class GrumpEntity extends GhastEntity implements IMob {
         this.goalSelector.addGoal(0, new GrumpEntity.MeleeAttackGoal(this));
         this.goalSelector.addGoal(1, new LaunchMonsterHookGoal(this));
         this.goalSelector.addGoal(1, new LookAroundGoal(this));
+        this.goalSelector.addGoal(5, new GrumpEntity.RandomFlyGoal(this));
         this.targetSelector.addGoal(0, new GrumpNearestAttackableTargetGoal<>(this, PlayerEntity.class));
     }
 
     @Override
     protected float getStandingEyeHeight(Pose pose, EntitySize entitySize) {
-        return 0.65F;
+        return 0.60F;
     }
 
     @Override
@@ -121,18 +130,18 @@ public class GrumpEntity extends GhastEntity implements IMob {
         final GrumpEntity grump;
 
         public MeleeAttackGoal(GrumpEntity grump) {
-            this.setFlags(EnumSet.of(Goal.Flag.MOVE));
+            this.setFlags(EnumSet.of(Flag.MOVE));
             this.grump = grump;
         }
 
         private void setWantedPosition(LivingEntity target) {
-            Vector3d vector = target.getEyePosition(1.0F).add(0.0D, -(this.grump.getBbHeight() / 1.8), 0.0D);
+            Vector3d vector = target.getEyePosition(1.0F).add(0.0D, -(this.grump.getBbHeight() / 1.3), 0.0D);
             this.grump.moveControl.setWantedPosition(vector.x, vector.y, vector.z, 1.0D);
         }
 
         @Override
         public boolean canUse() {
-            return this.grump.getTarget() != null && !this.grump.getMoveControl().hasWanted();
+            return this.grump.getTarget() != null;
         }
 
         @Override
@@ -168,11 +177,11 @@ public class GrumpEntity extends GhastEntity implements IMob {
     private static class LaunchMonsterHookGoal extends Goal {
 
         private final GrumpEntity grump;
-        private MonsterFishHook fishHook;
         private int timeHookExisted;
         private int timeNextHookLaunch;
 
         public LaunchMonsterHookGoal(GrumpEntity grump) {
+            this.setFlags(EnumSet.of(Flag.TARGET));
             this.grump = grump;
         }
 
@@ -197,13 +206,18 @@ public class GrumpEntity extends GhastEntity implements IMob {
 
         @Override
         public void stop() {
-            this.fishHook.remove();
+            this.grump.fishHook.remove();
+            this.grump.fishHook = null;
         }
 
         @Override
         public void tick() {
-            if (this.fishHook == null) {
+            MonsterFishHook fishHook = this.grump.fishHook;
+
+            if (fishHook == null) {
+                Apocalypse.LOGGER.info("Fisher hook is null");
                 ++this.timeNextHookLaunch;
+                Apocalypse.LOGGER.info("Time until next hook: " + this.timeNextHookLaunch);
 
                 if (this.timeNextHookLaunch >= 40) {
                     this.spawnMonsterFishHook();
@@ -211,23 +225,28 @@ public class GrumpEntity extends GhastEntity implements IMob {
                 }
             }
             else {
-                if (this.fishHook.getHookedIn() != null) {
-                    this.fishHook.bringInHookedEntity();
-                    this.fishHook.remove();
+                if (fishHook.getHookedIn() != null) {
+                    Apocalypse.LOGGER.info("Fish hook has a hooked target!");
+                    fishHook.bringInHookedEntity();
+                    fishHook.remove();
                     return;
                 }
                 ++this.timeHookExisted;
+                Apocalypse.LOGGER.info("Hook has existed for: " + this.timeHookExisted);
 
                 if (this.timeHookExisted >= 70) {
                     this.timeHookExisted = 0;
-                    this.fishHook.remove();
+                    fishHook.remove();
                 }
             }
         }
 
         private void spawnMonsterFishHook() {
-            this.fishHook = new MonsterFishHook(this.grump, this.grump.getCommandSenderWorld());
-            this.grump.getCommandSenderWorld().addFreshEntity(fishHook);
+            World world = this.grump.getCommandSenderWorld();
+            MonsterFishHook fishHook = new MonsterFishHook(this.grump, world);
+            world.addFreshEntity(fishHook);
+            this.grump.fishHook = fishHook;
+            world.playSound(null, this.grump.blockPosition(), SoundEvents.FISHING_BOBBER_THROW, SoundCategory.NEUTRAL, 0.6F, 0.4F / (world.random.nextFloat() * 0.4F + 0.8F));
         }
     }
 
@@ -238,8 +257,53 @@ public class GrumpEntity extends GhastEntity implements IMob {
         }
 
         /** Friggin' large bounding box */
+        @Override
         protected AxisAlignedBB getTargetSearchArea(double followRange) {
             return this.mob.getBoundingBox().inflate(followRange, followRange, followRange);
+        }
+    }
+
+    /** Copied from ghast */
+    static class RandomFlyGoal extends Goal {
+
+        private final GrumpEntity grump;
+
+        public RandomFlyGoal(GrumpEntity grump) {
+            this.grump = grump;
+            this.setFlags(EnumSet.of(Goal.Flag.MOVE));
+        }
+
+        @Override
+        public boolean canUse() {
+            MovementController movementcontroller = this.grump.getMoveControl();
+            if (!movementcontroller.hasWanted()) {
+                return this.grump.getTarget() == null;
+            }
+            else {
+                double x = movementcontroller.getWantedX() - this.grump.getX();
+                double y = movementcontroller.getWantedY() - this.grump.getY();
+                double z = movementcontroller.getWantedZ() - this.grump.getZ();
+                double d3 = x * x + y * y + z * z;
+                return d3 < 1.0D || d3 > 3600.0D;
+            }
+        }
+
+        @Override
+        public void stop() {
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return false;
+        }
+
+        @Override
+        public void start() {
+            Random random = this.grump.getRandom();
+            double x = this.grump.getX() + (double)((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            double y = this.grump.getY() + (double)((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            double z = this.grump.getZ() + (double)((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            this.grump.getMoveControl().setWantedPosition(x, y, z, 1.0D);
         }
     }
 }
