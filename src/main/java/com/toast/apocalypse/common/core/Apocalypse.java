@@ -10,6 +10,7 @@ import com.toast.apocalypse.api.impl.RegistryHelper;
 import com.toast.apocalypse.api.register.IRegistryHelper;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.command.CommandRegister;
+import com.toast.apocalypse.common.command.argument.ApocalypseArgumentTypes;
 import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.core.mod_event.EventRegister;
@@ -92,6 +93,7 @@ public class Apocalypse {
 
     public void onCommonSetup(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
+            ApocalypseArgumentTypes.register();
             ApocalypseCapabilities.registerCapabilities();
             ApocalypseEntities.registerEntitySpawnPlacement();
             ApocalypseEntities.registerFullMoon(this.registryHelper);

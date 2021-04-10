@@ -7,9 +7,6 @@
   "death.attack.apocalypse.rain": "%1$s was sprinkled to death",
   "death.attack.apocalypse.rain.player": "%1$s died from rain whilst trying to escape %2$s",
 
-  "commands.apocalypse.setWorldDifficulty.usage": "/setWorldDifficulty <new difficulty>",
-  "commands.apocalypse.setWorldDifficulty.success": "Set world difficulty to %d",
-
   "item.apocalypse.fatherly_toast": "Fatherly Toast",
   "item.apocalypse.bucket_helm": "Bucket Helmet",
   "item.apocalypse.ghost_spawn_egg": "Ghost Spawn Egg",
@@ -23,7 +20,7 @@
   "entity.apocalypse.destroyer": "Destroyer",
   "entity.apocalypse.seeker_fireball": "Seeker Fireball",
   "entity.apocalypse.destroyer_fireball": "Destroyer Fireball",
-  "entity.apocalypse.fish_hook": "Fish Hook",
+  "entity.apocalypse.monster_fish_hook": "Fish Hook",
 
   "effect.apocalypse.heavy": "Heavy",
 

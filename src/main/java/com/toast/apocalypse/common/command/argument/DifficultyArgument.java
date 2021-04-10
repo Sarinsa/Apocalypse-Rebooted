@@ -6,7 +6,9 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.toast.apocalypse.common.core.WorldDifficultyManager;
 import com.toast.apocalypse.common.util.References;
+import net.minecraft.command.arguments.ArgumentTypes;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.server.command.ConfigCommand;
 
 public class DifficultyArgument implements ArgumentType<Long> {
 
