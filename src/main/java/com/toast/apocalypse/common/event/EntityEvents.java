@@ -56,18 +56,8 @@ public class EntityEvents {
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         // Tick rain damage
-        if (event.side == LogicalSide.SERVER) {
-            // No point doing further checks if rain damage is disabled
-            if (!ApocalypseCommonConfig.COMMON.rainDamageEnabled())
-                return;
-
-            World world = event.player.getCommandSenderWorld();
-
-            if (EnchantmentHelper.hasAquaAffinity(event.player) || !world.canSeeSky(event.player.blockPosition()))
-                return;
-
-            if (world.isRainingAt(event.player.blockPosition()))
-                RainDamageTickHelper.checkAndPerformRainDamageTick(event.player);
+        if (event.side == LogicalSide.SERVER && event.phase == TickEvent.Phase.END) {
+            RainDamageTickHelper.checkAndPerformRainDamageTick(event.player);
         }
     }
 

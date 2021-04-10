@@ -51,7 +51,7 @@ public class ApocalypseCommonConfig {
             configBuilder.push("rain");
 
             this.rainTickRate = configBuilder.comment("Determines the interval in which rain damage should be dealt in seconds. A value of 2 will inflict rain damage on players every 2 seconds.")
-                    .defineInRange("rainTickRate", 6, 1, 1000);
+                    .defineInRange("rainTickRate", 3, 1, 1000);
 
             this.rainDamage = configBuilder.comment("The amount of damage that should be dealt to players on rain tick.")
                     .defineInRange("rainDamage", 1, 1, 10000);

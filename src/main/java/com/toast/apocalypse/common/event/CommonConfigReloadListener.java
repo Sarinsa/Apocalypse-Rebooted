@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.event;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.WorldDifficultyManager;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
@@ -45,5 +46,8 @@ public class CommonConfigReloadListener {
         WorldDifficultyManager.DIMENSION_PENALTY_LIST = list;
 
         WorldDifficultyManager.DIMENSION_PENALTY = ApocalypseCommonConfig.COMMON.getDimensionPenalty();
+
+        RainDamageTickHelper.RAIN_TICK_RATE = ApocalypseCommonConfig.COMMON.getRainTickRate();
+        RainDamageTickHelper.RAIN_DAMAGE = ApocalypseCommonConfig.COMMON.getRainDamage();
     }
 }
