@@ -78,6 +78,12 @@ public class GrumpEntity extends GhastEntity implements IMob {
         return null;
     }
 
+    // Not nearly as loud as a ghast since it is much smaller.
+    @Override
+    protected float getSoundVolume() {
+        return 2.5F;
+    }
+
     public static boolean checkGrumpSpawnRules(EntityType<? extends GrumpEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
         return world.getDifficulty() != Difficulty.PEACEFUL && MobEntity.checkMobSpawnRules(entityType, world, spawnReason, pos, random);
     }
