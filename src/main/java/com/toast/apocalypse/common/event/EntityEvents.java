@@ -5,22 +5,26 @@ import com.toast.apocalypse.api.impl.RegistryHelper;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.WorldDifficultyManager;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.common.register.ApocalypseEffects;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
 import com.toast.apocalypse.common.register.ApocalypseItems;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -42,6 +46,11 @@ public class EntityEvents {
                 event.setResult(Event.Result.DENY);
             }
         }
+    }
+
+    @SubscribeEvent
+    public void onLivingTick(LivingEvent.LivingUpdateEvent event) {
+
     }
 
     @SubscribeEvent
@@ -88,8 +97,6 @@ public class EntityEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onLivingEntityDamaged(LivingDamageEvent event) {
         Entity attacker = event.getSource().getEntity();
-
-        Apocalypse.LOGGER.info("Attacker: " + (attacker == null ? "null" : attacker.getType().getRegistryName().getPath()));
 
         if (attacker != null) {
             float damage = event.getAmount();
