@@ -10,6 +10,7 @@ import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.LookRandomlyGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
+import net.minecraft.entity.ai.goal.ZombieAttackGoal;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.MonsterEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -266,13 +267,18 @@ public class GhostEntity extends FlyingEntity implements IMob {
         @Override
         public void tick() {
             LivingEntity target = this.ghost.getTarget();
+            double distance = this.ghost.distanceToSqr(target);
 
-            if (this.ghost.getBoundingBox().intersects(target.getBoundingBox())) {
+            if (canAttackReach(target, distance)) {
                 this.ghost.doHurtTarget(target);
             }
             else {
                 this.setWantedPosition(target);
             }
+        }
+
+        private boolean canAttackReach(LivingEntity target, double distance) {
+            return distance <= (double)(this.ghost.getBbWidth() * 2.0F * this.ghost.getBbWidth() * 2.0F + target.getBbWidth());
         }
     }
 }
