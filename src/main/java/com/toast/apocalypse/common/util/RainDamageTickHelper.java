@@ -43,16 +43,20 @@ public class RainDamageTickHelper {
         if (world.isRainingAt(player.blockPosition())) {
 
             if (CapabilityHelper.getRainTicks(player) >= RAIN_TICK_RATE) {
-                float damage = ApocalypseCommonConfig.COMMON.getRainDamage();
                 ItemStack headStack = player.getItemBySlot(EquipmentSlotType.HEAD);
 
-                if (!headStack.isEmpty() && headStack.getItem() == ApocalypseItems.BUCKET_HELM.get()) {
+                if (!headStack.isEmpty()) {
+                    if (headStack.getItem() == ApocalypseItems.BUCKET_HELM.get()) {
+                        return;
+                    }
                     headStack.hurtAndBreak(player.getRandom().nextInt(2), player, (playerEntity) -> player.broadcastBreakEvent(EquipmentSlotType.HEAD));
-                } else {
-                    player.hurt(ApocalypseDamageSources.RAIN_DAMAGE, damage);
+                }
+                else {
+                    player.hurt(ApocalypseDamageSources.RAIN_DAMAGE, RAIN_DAMAGE);
                 }
                 CapabilityHelper.clearRainTicks(player);
-            } else {
+            }
+            else {
                 CapabilityHelper.addRainTick(player);
             }
         }
