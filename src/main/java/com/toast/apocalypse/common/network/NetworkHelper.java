@@ -4,11 +4,12 @@ import com.toast.apocalypse.common.network.message.S2CUpdateWorldDifficulty;
 import com.toast.apocalypse.common.network.message.S2CUpdateWorldDifficultyRate;
 import net.minecraftforge.fml.network.PacketDistributor;
 
-/** Helper class for easily sending messages*/
+/** Helper class for easily sending messages */
 public class NetworkHelper {
 
-    /** Sends a message from the server to client
-     *  that the world difficulty rate has changes.
+    /**
+     * Sends a message from the server to client
+     * to inform of a change in world difficulty rate.
      *
      * @param rate The new world difficulty rate.
      */
@@ -16,10 +17,11 @@ public class NetworkHelper {
         PacketHandler.CHANNEL.send(PacketDistributor.ALL.noArg(), new S2CUpdateWorldDifficultyRate(rate));
     }
 
-    /** Sends a message from the server to client
-     *  that the world difficulty rate has changes.
+    /**
+     * Sends a message from the server to client
+     * to inform of a change in world difficulty.
      *
-     * @param difficulty The new world difficulty rate.
+     * @param difficulty The new world difficulty.
      */
     public static void sendUpdateWorldDifficulty(long difficulty) {
         PacketHandler.CHANNEL.send(PacketDistributor.ALL.noArg(), new S2CUpdateWorldDifficulty(difficulty));

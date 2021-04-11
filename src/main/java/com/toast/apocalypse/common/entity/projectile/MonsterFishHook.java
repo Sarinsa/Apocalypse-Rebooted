@@ -307,10 +307,4 @@ public class MonsterFishHook extends ProjectileEntity {
         HOOKED_IN_ENTITY,
         BOBBING;
     }
-
-    enum WaterType {
-        ABOVE_WATER,
-        INSIDE_WATER,
-        INVALID;
-    }
 }

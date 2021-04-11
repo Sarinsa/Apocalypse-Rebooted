@@ -52,7 +52,7 @@ public class Apocalypse {
     private final RegistryHelper registryHelper = new RegistryHelper();
 
     /** Config helper instance */
-    private final IConfigHelper configHelper = new ConfigHelper();
+    private final ConfigHelper configHelper = new ConfigHelper();
 
     /** Api class instance */
     private final ApocalypseAPI api = new ApocalypseAPI();
@@ -77,6 +77,7 @@ public class Apocalypse {
         eventBus.addListener(this::onCommonSetup);
         eventBus.addListener(this::onLoadComplete);
         eventBus.addListener(ApocalypseEntities::createEntityAttributes);
+        eventBus.register(this.getConfigHelper());
 
         MinecraftForge.EVENT_BUS.register(new EntityEvents());
         MinecraftForge.EVENT_BUS.register(new CapabilityAttachEvents());
@@ -143,7 +144,7 @@ public class Apocalypse {
         return this.registryHelper;
     }
 
-    public IConfigHelper getConfigHelper() {
+    public ConfigHelper getConfigHelper() {
         return this.configHelper;
     }
 

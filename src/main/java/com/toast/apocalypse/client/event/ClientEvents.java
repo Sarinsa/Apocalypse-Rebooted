@@ -1,13 +1,11 @@
-package com.toast.apocalypse.client;
+package com.toast.apocalypse.client.event;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.WorldDifficultyManager;
-import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.gui.ForgeIngameGui;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -24,7 +22,7 @@ public class ClientEvents {
     private final WorldDifficultyManager difficultyManager;
 
     // Rendering properties for quick access.
-    public static final long COLOR_CHANGE = 25L * References.DAY_LENGTH;
+    public static long COLOR_CHANGE;
     public static int POSITION_X;
     public static int POSITION_Y;
     public static int OFFSET_X;

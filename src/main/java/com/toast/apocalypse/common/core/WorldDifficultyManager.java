@@ -331,7 +331,7 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
             CompoundNBT eventData = new CompoundNBT();
 
             if (this.currentEvent != null) {
-                this.currentEvent.write(eventData);
+                eventData = this.currentEvent.write(eventData);
             }
             CapabilityHelper.setEventData(this.server.overworld(), eventData);
         }

@@ -4,7 +4,9 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.toast.apocalypse.common.command.argument.DifficultyArgument;
+import com.toast.apocalypse.common.command.argument.MaxDifficultyArgument;
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.command.CommandSource;
@@ -25,7 +27,8 @@ public class ApocalypseBaseCommand {
         private static ArgumentBuilder<CommandSource, ?> register() {
             return Commands.literal("difficulty")
                     .requires((source) -> source.hasPermission(3))
-                    .then(DifficultySetCommand.register());
+                    .then(DifficultySetCommand.register())
+                    .then(DifficultySetMaxCommand.register());
         }
     }
 
@@ -45,6 +48,26 @@ public class ApocalypseBaseCommand {
 
             source.getServer().getPlayerList().getPlayers().forEach((playerEntity) -> {
                 playerEntity.sendMessage(new TranslationTextComponent(References.DIFFICULTY_UPDATED_MESSAGE), Util.NIL_UUID);
+            });
+            return 0;
+        }
+    }
+
+    private static class DifficultySetMaxCommand {
+
+        private static ArgumentBuilder<CommandSource, ?> register() {
+            return Commands.literal("max")
+                    .requires((source) -> source.hasPermission(3))
+                    .then(Commands.argument("difficulty", MaxDifficultyArgument.maxDifficulty())
+                            .executes((context) -> setWorldMaxDifficulty(context.getSource(), LongArgumentType.getLong(context, "difficulty"))));
+        }
+
+        private static int setWorldMaxDifficulty(CommandSource source, long difficulty) {
+            Apocalypse.INSTANCE.getConfigHelper().setMaxWorldDifficulty(difficulty);
+
+
+            source.getServer().getPlayerList().getPlayers().forEach((playerEntity) -> {
+                playerEntity.sendMessage(new TranslationTextComponent(References.MAX_DIFFICULTY_UPDATED_MESSAGE, String.format("%d", difficulty)), Util.NIL_UUID);
             });
             return 0;
         }

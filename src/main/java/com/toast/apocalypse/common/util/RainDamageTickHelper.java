@@ -42,7 +42,7 @@ public class RainDamageTickHelper {
                 ItemStack headStack = player.getItemBySlot(EquipmentSlotType.HEAD);
 
                 if (!headStack.isEmpty()) {
-                    if (headStack.getItem() == ApocalypseItems.BUCKET_HELM.get()) {
+                    if (headStack.getItem() == ApocalypseItems.BUCKET_HELM.get() || headStack.getItem().getMaxDamage(headStack) <= 0) {
                         return;
                     }
                     headStack.hurtAndBreak(player.getRandom().nextInt(2), player, (playerEntity) -> player.broadcastBreakEvent(EquipmentSlotType.HEAD));

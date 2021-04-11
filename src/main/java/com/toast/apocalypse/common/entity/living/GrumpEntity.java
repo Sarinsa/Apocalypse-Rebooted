@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.entity.living;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
+import com.toast.apocalypse.common.register.ApocalypseEntities;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -214,6 +215,8 @@ public class GrumpEntity extends GhastEntity implements IMob {
         public void stop() {
             this.grump.fishHook.remove();
             this.grump.fishHook = null;
+            this.timeHookExisted = 0;
+            this.timeNextHookLaunch = 0;
         }
 
         @Override
