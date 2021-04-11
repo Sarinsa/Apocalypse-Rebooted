@@ -2,9 +2,11 @@ package com.toast.apocalypse.common.effect;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectType;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraftforge.common.ForgeMod;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,10 +21,14 @@ public class HeavyEffect extends Effect {
         super(effectType, color);
     }
 
+    /**
+     * This effect is merely used as a marker.
+     * The actual gravity manipulation is
+     * handled in {@link com.toast.apocalypse.common.mixin.LivingEntityMixin}
+     */
     @Override
     public void applyEffectTick(LivingEntity livingEntity, int amplifier) {
-        Vector3d velocity = livingEntity.getDeltaMovement();
-        livingEntity.setDeltaMovement(velocity.x, Math.min(-0.5, velocity.y), velocity.z);
+        // No
     }
 
     @Override
