@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.item;
 import com.toast.apocalypse.client.ClientUtil;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.util.References;
+import net.minecraft.block.CarvedPumpkinBlock;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -24,7 +25,7 @@ public class BucketHelmetItem extends ArmorItem {
     private static final String HELMET_TEXTURE_2 = Apocalypse.resourceLoc("textures/models/armor/bucket_layer_2.png").toString();
 
     public BucketHelmetItem() {
-        super(ArmorMaterial.IRON, EquipmentSlotType.HEAD, new Item.Properties().tab(ItemGroup.TAB_COMBAT));
+        super(ArmorMaterial.IRON, EquipmentSlotType.HEAD, new Item.Properties().tab(ItemGroup.TAB_COMBAT).defaultDurability(0));
     }
 
     @Override
