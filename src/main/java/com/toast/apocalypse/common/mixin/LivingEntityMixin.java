@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 public abstract class LivingEntityMixin extends Entity {
 
     @Shadow
-    public abstract boolean hasEffect(Effect p_70644_1_);
+    public abstract boolean hasEffect(Effect effect);
 
     public LivingEntityMixin(EntityType<?> entityType, World world) {
         super(entityType, world);

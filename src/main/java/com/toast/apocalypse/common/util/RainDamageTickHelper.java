@@ -31,10 +31,6 @@ public class RainDamageTickHelper {
      * @see com.toast.apocalypse.common.event.EntityEvents#onPlayerTick(TickEvent.PlayerTickEvent)
      */
     public static void checkAndPerformRainDamageTick(PlayerEntity player) {
-        // No point doing further checks if rain damage is disabled
-        if (!ApocalypseCommonConfig.COMMON.rainDamageEnabled())
-            return;
-
         World world = player.getCommandSenderWorld();
 
         if (EnchantmentHelper.hasAquaAffinity(player) || !world.canSeeSky(player.blockPosition()))
