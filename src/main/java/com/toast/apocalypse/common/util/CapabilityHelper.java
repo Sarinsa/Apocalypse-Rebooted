@@ -49,7 +49,6 @@ public class CapabilityHelper {
             throw new IllegalArgumentException("Cannot fetch world difficulty from other worlds than the overworld");
         }
         long diff = world.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(ApocalypseCapabilities.DIFFICULTY_CAPABILITY.getDefaultInstance()).getDifficulty();
-        Apocalypse.LOGGER.error("Read world difficulty capability: " + diff);
         return diff;
     }
 
