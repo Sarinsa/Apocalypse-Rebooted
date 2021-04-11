@@ -27,6 +27,6 @@
   "apocalypse.item_desc.fatherly_toast": "Mmmm, toasty!",
   "apocalypse.item_desc.bucket_helm": "Protects you from the rain",
 
-  "apocalypse.command.argument.difficulty.invalid_value": "Value can not be less than 1 or exceed the configured difficulty limit",
+  "apocalypse.command.argument.difficulty.invalid_value": "Value can not be less than 0 or exceed the configured difficulty limit",
   "apocalypse.command.set_difficulty.update_message": "World difficulty has been updated!"
 }
