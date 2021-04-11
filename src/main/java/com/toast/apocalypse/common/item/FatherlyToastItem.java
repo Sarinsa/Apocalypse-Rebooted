@@ -24,17 +24,17 @@ public class FatherlyToastItem extends Item {
     @Override
     public ItemStack finishUsingItem(ItemStack itemStack, World world, LivingEntity livingEntity) {
         if (this.isEdible()) {
+            boolean setFire = true;
 
             if (livingEntity instanceof PlayerEntity) {
-                // Avoid the player rendering as on fire for just
-                // a split second since they are in creative.
-                if (((PlayerEntity)livingEntity).abilities.instabuild)
-                    return livingEntity.eat(world, itemStack);
+                // Lighting creative players just makes the fire
+                // extinguish instantly, which is weird to look at.
+                setFire = !((PlayerEntity) livingEntity).abilities.instabuild;
             }
-            else {
+            if (setFire) {
                 livingEntity.setSecondsOnFire(1000);
-                return livingEntity.eat(world, itemStack);
             }
+            return livingEntity.eat(world, itemStack);
         }
         return itemStack;
     }
