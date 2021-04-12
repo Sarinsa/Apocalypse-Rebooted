@@ -4,6 +4,7 @@ public class References {
 
     // How many ticks there are in one day
     public static final int DAY_LENGTH = 24000;
+    public static final long DEFAULT_MAX_DIFFICULTY = 250L * DAY_LENGTH;
 
     // Translation keys
     public static final String FATHERLY_TOAST_DESC = "apocalypse.item_desc.fatherly_toast";

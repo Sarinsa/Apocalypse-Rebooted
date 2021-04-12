@@ -1,8 +1,11 @@
 package com.toast.apocalypse.common.network.work;
 
+import com.toast.apocalypse.client.event.ClientEvents;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.network.message.S2CUpdateWorldDifficulty;
 import com.toast.apocalypse.common.network.message.S2CUpdateWorldDifficultyRate;
+import com.toast.apocalypse.common.network.message.S2CUpdateWorldMaxDifficulty;
+import com.toast.apocalypse.common.util.References;
 
 /**
  * Referencing client only code here should cause no trouble
@@ -17,5 +20,13 @@ public class ClientWork {
 
     public static void handleDifficultyRateUpdate(S2CUpdateWorldDifficultyRate message) {
         Apocalypse.INSTANCE.getDifficultyManager().setDifficultyRate(message.difficultyRate);
+    }
+
+    public static void handleMaxDifficultyUpdate(S2CUpdateWorldMaxDifficulty message) {
+        long maxDifficulty = message.maxDifficulty;
+
+        Apocalypse.INSTANCE.getDifficultyManager().setMaxDifficulty(maxDifficulty);
+
+        ClientEvents.COLOR_CHANGE = maxDifficulty > 0L ? maxDifficulty : References.DEFAULT_MAX_DIFFICULTY;
     }
 }

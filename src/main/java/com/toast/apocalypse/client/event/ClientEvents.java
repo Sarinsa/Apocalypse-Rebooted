@@ -84,6 +84,11 @@ public class ClientEvents {
         if (event.getType() != RenderGameOverlayEvent.ElementType.BOSSHEALTH || OFFSET_X < 0 || OFFSET_Y < 0)
             return;
 
+        // Don't bother rendering the difficulty
+        // when it will constantly be at 0.
+        if (this.difficultyManager.getMaxDifficulty() == 0L)
+            return;
+
         int width = event.getWindow().getGuiScaledWidth();
         int height = event.getWindow().getGuiScaledHeight();
 

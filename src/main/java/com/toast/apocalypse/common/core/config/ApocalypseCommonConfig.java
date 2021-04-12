@@ -38,7 +38,6 @@ public class ApocalypseCommonConfig {
         private final ForgeConfigSpec.BooleanValue rainDamageEnabled;
 
         // Difficulty
-        private final ForgeConfigSpec.IntValue maxDifficulty;
         private final ForgeConfigSpec.BooleanValue multiplayerDifficultyScaling;
         private final ForgeConfigSpec.DoubleValue difficultyRateMultiplier;
         private final ForgeConfigSpec.DoubleValue sleepPenalty;
@@ -61,9 +60,6 @@ public class ApocalypseCommonConfig {
 
             configBuilder.pop();
             configBuilder.push("difficulty");
-
-            this.maxDifficulty = configBuilder.comment("Sets the max difficulty that can be reached before it stops increasing")
-                    .defineInRange("maxDifficulty", 200, 0, 100000);
 
             this.multiplayerDifficultyScaling = configBuilder.comment("If enabled, world difficulty will increased by the configured multiplier")
                     .define("multiplayerDifficultyScaling", true);
@@ -106,10 +102,6 @@ public class ApocalypseCommonConfig {
         //
         // DIFFICULTY
         //
-        public long getMaxDifficulty() {
-            return (long) this.maxDifficulty.get() * References.DAY_LENGTH;
-        }
-
         public boolean multiplayerDifficultyScaling() {
             return this.multiplayerDifficultyScaling.get();
         }

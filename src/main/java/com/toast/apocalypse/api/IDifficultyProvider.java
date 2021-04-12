@@ -13,6 +13,11 @@ public interface IDifficultyProvider {
     long getDifficulty();
 
     /**
+     * @return The difficulty limit for this world/server.
+     */
+    long getMaxDifficulty();
+
+    /**
      * @return The current world difficulty rate.
      */
     double getDifficultyRate();

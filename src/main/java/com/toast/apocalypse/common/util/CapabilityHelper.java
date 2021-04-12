@@ -2,6 +2,7 @@ package com.toast.apocalypse.common.util;
 
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.network.NetworkHelper;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.World;
@@ -48,8 +49,24 @@ public class CapabilityHelper {
         if (!world.dimension().equals(World.OVERWORLD)) {
             throw new IllegalArgumentException("Cannot fetch world difficulty from other worlds than the overworld");
         }
-        long diff = world.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(ApocalypseCapabilities.DIFFICULTY_CAPABILITY.getDefaultInstance()).getDifficulty();
-        return diff;
+        return world.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(ApocalypseCapabilities.DIFFICULTY_CAPABILITY.getDefaultInstance()).getDifficulty();
+    }
+
+    public static long getMaxWorldDifficulty(@Nonnull World world) {
+        if (!world.dimension().equals(World.OVERWORLD)) {
+            throw new IllegalArgumentException("Cannot fetch max world difficulty from other worlds than the overworld");
+        }
+        long max = world.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(ApocalypseCapabilities.DIFFICULTY_CAPABILITY.getDefaultInstance()).getMaxDifficulty();
+        Apocalypse.LOGGER.info("Max difficulty: " + max);
+        return max;
+    }
+
+    public static void setMaxWorldDifficulty(@Nonnull World world, long maxDifficulty) {
+        if (!world.dimension().equals(World.OVERWORLD)) {
+            throw new IllegalArgumentException("Cannot set max world difficulty for other worlds than the overworld");
+        }
+        world.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(ApocalypseCapabilities.DIFFICULTY_CAPABILITY.getDefaultInstance()).setMaxDifficulty(maxDifficulty);
+        NetworkHelper.sendUpdateWorldMaxDifficulty(maxDifficulty);
     }
 
     //

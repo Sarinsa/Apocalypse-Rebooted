@@ -4,6 +4,7 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.WorldDifficultyManager;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.command.arguments.ArgumentTypes;
@@ -24,7 +25,7 @@ public class DifficultyArgument implements ArgumentType<Long> {
         String s = stringReader.readUnquotedString();
         long difficulty = Long.parseLong(s);
 
-        boolean validValue = difficulty >= 0L && difficulty <= WorldDifficultyManager.MAX_DIFFICULTY / References.DAY_LENGTH;
+        boolean validValue = difficulty >= 0L && difficulty <= (Apocalypse.INSTANCE.getDifficultyManager().getMaxDifficulty() / References.DAY_LENGTH);
 
         if (!validValue) {
             throw ERROR_INVALID_DIFFICULTY_VALUE.create(difficulty);

@@ -7,4 +7,8 @@ public interface IDifficultyCapability {
     long getDifficulty();
 
     void addDifficulty(long amount);
+
+    void setMaxDifficulty(long maxDifficulty);
+
+    long getMaxDifficulty();
 }

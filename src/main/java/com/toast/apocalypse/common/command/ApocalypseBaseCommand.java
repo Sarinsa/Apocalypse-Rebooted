@@ -6,12 +6,11 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.toast.apocalypse.common.command.argument.DifficultyArgument;
 import com.toast.apocalypse.common.command.argument.MaxDifficultyArgument;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.common.core.WorldDifficultyManager;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
-import net.minecraft.command.impl.TimeCommand;
 import net.minecraft.util.Util;
 import net.minecraft.util.text.TranslationTextComponent;
 
@@ -62,13 +61,21 @@ public class ApocalypseBaseCommand {
                             .executes((context) -> setWorldMaxDifficulty(context.getSource(), LongArgumentType.getLong(context, "difficulty"))));
         }
 
-        private static int setWorldMaxDifficulty(CommandSource source, long difficulty) {
-            Apocalypse.INSTANCE.getConfigHelper().setMaxWorldDifficulty(difficulty);
-
+        private static int setWorldMaxDifficulty(CommandSource source, long maxDifficulty) {
+            WorldDifficultyManager difficultyManager = Apocalypse.INSTANCE.getDifficultyManager();
 
             source.getServer().getPlayerList().getPlayers().forEach((playerEntity) -> {
-                playerEntity.sendMessage(new TranslationTextComponent(References.MAX_DIFFICULTY_UPDATED_MESSAGE, String.format("%d", difficulty)), Util.NIL_UUID);
+                playerEntity.sendMessage(new TranslationTextComponent(References.MAX_DIFFICULTY_UPDATED_MESSAGE, String.format("%d", maxDifficulty)), Util.NIL_UUID);
             });
+            long difficultyScaled = maxDifficulty * References.DAY_LENGTH;
+
+            difficultyManager.setMaxDifficulty(difficultyScaled);
+            NetworkHelper.sendUpdateWorldMaxDifficulty(difficultyScaled);
+
+            if (difficultyManager.getDifficulty() > difficultyScaled) {
+                difficultyManager.setDifficulty(difficultyScaled);
+                NetworkHelper.sendUpdateWorldDifficulty(difficultyScaled);
+            }
             return 0;
         }
     }

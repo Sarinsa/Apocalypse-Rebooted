@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.capability.difficulty;
 
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.LongNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
@@ -11,7 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 @SuppressWarnings("all")
-public class DifficultyCapabilityProvider implements ICapabilitySerializable<LongNBT> {
+public class DifficultyCapabilityProvider implements ICapabilitySerializable<CompoundNBT> {
 
     private final IDifficultyCapability INSTANCE = ApocalypseCapabilities.DIFFICULTY_CAPABILITY.getDefaultInstance();
     private final LazyOptional<IDifficultyCapability> optional = LazyOptional.of(() -> INSTANCE);
@@ -23,12 +24,12 @@ public class DifficultyCapabilityProvider implements ICapabilitySerializable<Lon
     }
 
     @Override
-    public LongNBT serializeNBT() {
-        return (LongNBT) ApocalypseCapabilities.DIFFICULTY_CAPABILITY.getStorage().writeNBT(ApocalypseCapabilities.DIFFICULTY_CAPABILITY, INSTANCE, null);
+    public CompoundNBT serializeNBT() {
+        return (CompoundNBT) ApocalypseCapabilities.DIFFICULTY_CAPABILITY.getStorage().writeNBT(ApocalypseCapabilities.DIFFICULTY_CAPABILITY, INSTANCE, null);
     }
 
     @Override
-    public void deserializeNBT(LongNBT nbt) {
+    public void deserializeNBT(CompoundNBT nbt) {
         ApocalypseCapabilities.DIFFICULTY_CAPABILITY.getStorage().readNBT(ApocalypseCapabilities.DIFFICULTY_CAPABILITY, INSTANCE, null, nbt);
     }
 }

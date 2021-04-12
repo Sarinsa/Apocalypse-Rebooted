@@ -41,7 +41,6 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
      *
      *  @see CommonConfigReloadListener#updateInfo()
      */
-    public static long MAX_DIFFICULTY;
     public static boolean MULTIPLAYER_DIFFICULTY_SCALING;
     public static double DIFFICULTY_MULTIPLIER;
     public static double SLEEP_PENALTY;
@@ -63,6 +62,7 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
 
     /** The world difficulty */
     private long worldDifficulty;
+    private long maxWorldDifficulty;
 
     /** The world difficulty multiplier */
     private double worldDifficultyRateMul;
@@ -94,6 +94,7 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
     public void onPlayerJoinWorld(PlayerEvent.PlayerLoggedInEvent event) {
         NetworkHelper.sendUpdateWorldDifficulty(this.worldDifficulty);
         NetworkHelper.sendUpdateWorldDifficultyRate(this.worldDifficultyRateMul);
+        NetworkHelper.sendUpdateWorldMaxDifficulty(this.maxWorldDifficulty);
     }
 
     /**
@@ -133,9 +134,11 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                         }
                     }
                 }
+                boolean maxDifficultyReached = this.maxWorldDifficulty != 0 && this.worldDifficulty >= this.maxWorldDifficulty;
 
-                long nextDifficulty = worldDifficulty;
-                nextDifficulty += WorldDifficultyManager.TICKS_PER_UPDATE * this.worldDifficultyRateMul;
+                if (!maxDifficultyReached) {
+                    this.worldDifficulty += WorldDifficultyManager.TICKS_PER_UPDATE * this.worldDifficultyRateMul;
+                }
 
                 // Update each world
                 long mostSkippedTime = 0L;
@@ -143,8 +146,8 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                     mostSkippedTime = this.updateWorld(world, mostSkippedTime);
                 }
                 // Handle sleep penalty
-                if (mostSkippedTime > 20L) {
-                    nextDifficulty += mostSkippedTime * SLEEP_PENALTY * this.worldDifficultyRateMul;
+                if (!maxDifficultyReached && mostSkippedTime > 20L) {
+                    this.worldDifficulty += mostSkippedTime * SLEEP_PENALTY * this.worldDifficultyRateMul;
                     // Send skipped time messages
                     for (PlayerEntity playerEntity : server.getPlayerList().getPlayers()) {
                           playerEntity.displayClientMessage(new TranslationTextComponent(References.SLEEP_PENALTY), true);
@@ -152,10 +155,7 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                 }
                 // Only update difficulty if it is
                 // below the maximum level
-                if (nextDifficulty < MAX_DIFFICULTY) {
-                    this.worldDifficulty = nextDifficulty;
-                    this.updateWorldDifficulty();
-                }
+                this.updateWorldDifficulty();
             }
             // TODO: Move to separate event listener
             // Initialize any spawned entities
@@ -247,10 +247,17 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
         //this.write();
     }
 
+    @Override
     public long getDifficulty() {
         return this.worldDifficulty;
     }
 
+    @Override
+    public long getMaxDifficulty() {
+        return this.maxWorldDifficulty;
+    }
+
+    @Override
     public double getDifficultyRate() {
         return this.worldDifficultyRateMul;
     }
@@ -259,10 +266,18 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
         this.worldDifficulty = difficulty;
     }
 
+    public void setMaxDifficulty(long maxDifficulty) {
+        this.maxWorldDifficulty = maxDifficulty;
+    }
+
     public void setDifficultyRate(double rate) {
         this.worldDifficultyRateMul = rate;
     }
 
+    /**
+     * @return The ID of the current event, if any.
+     *         Returns -1 if there is no current event.
+     */
     @Override
     public int currentEventId() {
         return this.currentEvent == null ? -1 : this.currentEvent.getId();
@@ -309,8 +324,11 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
     public void load() {
         try {
             // Load difficulty
-            this.worldDifficulty = CapabilityHelper.getWorldDifficulty(this.server.overworld());
-            CompoundNBT eventData = CapabilityHelper.getEventData(this.server.overworld());
+            World world = this.server.overworld();
+
+            this.worldDifficulty = CapabilityHelper.getWorldDifficulty(world);
+            this.maxWorldDifficulty = CapabilityHelper.getMaxWorldDifficulty(world);
+            CompoundNBT eventData = CapabilityHelper.getEventData(world);
 
             if (eventData != null && eventData.contains("EventId", 3)) {
                 this.currentEvent = EventRegister.EVENTS.get(eventData.getInt("EventId"));
@@ -326,14 +344,17 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
     public void save() {
         try {
             // Save difficulty
-            CapabilityHelper.setWorldDifficulty(this.server.overworld(), this.worldDifficulty);
+            World world = this.server.overworld();
+
+            CapabilityHelper.setWorldDifficulty(world, this.worldDifficulty);
+            CapabilityHelper.setMaxWorldDifficulty(world, this.maxWorldDifficulty);
 
             CompoundNBT eventData = new CompoundNBT();
 
             if (this.currentEvent != null) {
                 eventData = this.currentEvent.write(eventData);
             }
-            CapabilityHelper.setEventData(this.server.overworld(), eventData);
+            CapabilityHelper.setEventData(world, eventData);
         }
         catch (Exception e) {
             log(Level.ERROR, "Failed to write world save data! Not cool beans.");
