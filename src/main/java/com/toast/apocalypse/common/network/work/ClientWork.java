@@ -27,6 +27,6 @@ public class ClientWork {
 
         Apocalypse.INSTANCE.getDifficultyManager().setMaxDifficulty(maxDifficulty);
 
-        ClientEvents.COLOR_CHANGE = maxDifficulty > 0L ? maxDifficulty : References.DEFAULT_MAX_DIFFICULTY;
+        ClientEvents.COLOR_CHANGE = maxDifficulty > -1 ? maxDifficulty : References.DEFAULT_COLOR_CHANGE;
     }
 }

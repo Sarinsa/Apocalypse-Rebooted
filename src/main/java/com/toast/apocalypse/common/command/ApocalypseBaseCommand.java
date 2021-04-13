@@ -67,14 +67,21 @@ public class ApocalypseBaseCommand {
             source.getServer().getPlayerList().getPlayers().forEach((playerEntity) -> {
                 playerEntity.sendMessage(new TranslationTextComponent(References.MAX_DIFFICULTY_UPDATED_MESSAGE, String.format("%d", maxDifficulty)), Util.NIL_UUID);
             });
-            long difficultyScaled = maxDifficulty * References.DAY_LENGTH;
 
-            difficultyManager.setMaxDifficulty(difficultyScaled);
-            NetworkHelper.sendUpdateWorldMaxDifficulty(difficultyScaled);
+            if (maxDifficulty == -1) {
+                difficultyManager.setMaxDifficulty(maxDifficulty);
+                NetworkHelper.sendUpdateWorldMaxDifficulty(maxDifficulty);
+            }
+            else {
+                long difficultyScaled = maxDifficulty * References.DAY_LENGTH;
 
-            if (difficultyManager.getDifficulty() > difficultyScaled) {
-                difficultyManager.setDifficulty(difficultyScaled);
-                NetworkHelper.sendUpdateWorldDifficulty(difficultyScaled);
+                difficultyManager.setMaxDifficulty(difficultyScaled);
+                NetworkHelper.sendUpdateWorldMaxDifficulty(difficultyScaled);
+
+                if (difficultyManager.getDifficulty() > difficultyScaled) {
+                    difficultyManager.setDifficulty(difficultyScaled);
+                    NetworkHelper.sendUpdateWorldDifficulty(difficultyScaled);
+                }
             }
             return 0;
         }

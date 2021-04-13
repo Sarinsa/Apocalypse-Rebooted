@@ -134,7 +134,7 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                         }
                     }
                 }
-                boolean maxDifficultyReached = this.maxWorldDifficulty != 0 && this.worldDifficulty >= this.maxWorldDifficulty;
+                boolean maxDifficultyReached = this.maxWorldDifficulty >= 0 && this.worldDifficulty >= this.maxWorldDifficulty;
 
                 if (!maxDifficultyReached) {
                     this.worldDifficulty += WorldDifficultyManager.TICKS_PER_UPDATE * this.worldDifficultyRateMul;

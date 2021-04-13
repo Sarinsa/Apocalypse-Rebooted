@@ -3,8 +3,9 @@ package com.toast.apocalypse.common.util;
 public class References {
 
     // How many ticks there are in one day
-    public static final int DAY_LENGTH = 24000;
-    public static final long DEFAULT_MAX_DIFFICULTY = 250L * DAY_LENGTH;
+    public static final long DAY_LENGTH = 24000L;
+    public static final long MAX_DIFFICULTY_HARD_LIMIT = 100000L * DAY_LENGTH;
+    public static final long DEFAULT_COLOR_CHANGE = 240L * DAY_LENGTH;
 
     // Translation keys
     public static final String FATHERLY_TOAST_DESC = "apocalypse.item_desc.fatherly_toast";

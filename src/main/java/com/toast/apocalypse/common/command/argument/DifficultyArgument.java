@@ -22,10 +22,12 @@ public class DifficultyArgument implements ArgumentType<Long> {
     }
 
     public Long parse(StringReader stringReader) throws CommandSyntaxException {
+        WorldDifficultyManager difficultyManager = Apocalypse.INSTANCE.getDifficultyManager();
         String s = stringReader.readUnquotedString();
         long difficulty = Long.parseLong(s);
 
-        boolean validValue = difficulty >= 0L && difficulty <= (Apocalypse.INSTANCE.getDifficultyManager().getMaxDifficulty() / References.DAY_LENGTH);
+        long maxDifficulty = difficultyManager.getMaxDifficulty() < 0 ? References.MAX_DIFFICULTY_HARD_LIMIT : (difficultyManager.getMaxDifficulty() / References.DAY_LENGTH);
+        boolean validValue = difficulty >= 0 && difficulty <= maxDifficulty;
 
         if (!validValue) {
             throw ERROR_INVALID_DIFFICULTY_VALUE.create(difficulty);

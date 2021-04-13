@@ -31,10 +31,8 @@ public class DifficultyCapabilityStorage implements Capability.IStorage<IDifficu
             return;
         }
         CompoundNBT tag = (CompoundNBT) nbt;
-        long maxDifficulty = tag.contains("MaxDifficulty", Constants.NBT.TAG_LONG) ? tag.getLong("MaxDifficulty") : References.DEFAULT_MAX_DIFFICULTY;
 
         instance.setDifficulty(tag.getLong("Difficulty"));
-        instance.setMaxDifficulty(maxDifficulty);
-        Apocalypse.LOGGER.info("Capability storage max difficulty: " + maxDifficulty);
+        instance.setMaxDifficulty(tag.getLong("MaxDifficulty"));
     }
 }

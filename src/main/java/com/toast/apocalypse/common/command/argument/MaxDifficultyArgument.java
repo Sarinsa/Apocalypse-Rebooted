@@ -21,7 +21,7 @@ public class MaxDifficultyArgument implements ArgumentType<Long> {
         String s = stringReader.readUnquotedString();
         long maxDifficulty = Long.parseLong(s);
 
-        boolean validValue = maxDifficulty >= 0L && maxDifficulty <= 100000L;
+        boolean validValue = maxDifficulty >= -1L && maxDifficulty <= (References.MAX_DIFFICULTY_HARD_LIMIT / References.DAY_LENGTH);
 
         if (!validValue) {
             throw ERROR_INVALID_DIFFICULTY_VALUE.create(maxDifficulty);

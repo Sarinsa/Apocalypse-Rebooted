@@ -29,7 +29,6 @@ public class CommonConfigReloadListener {
     @SubscribeEvent
     public static void onLoad(ModConfig.Loading event) {
         if (event.getConfig().getType() == ModConfig.Type.COMMON) {
-            parseCommonModConfig();
             updateInfo();
         }
     }
@@ -61,32 +60,5 @@ public class CommonConfigReloadListener {
 
         RainDamageTickHelper.RAIN_TICK_RATE = ApocalypseCommonConfig.COMMON.getRainTickRate();
         RainDamageTickHelper.RAIN_DAMAGE = ApocalypseCommonConfig.COMMON.getRainDamage();
-    }
-
-    /**
-     * Parses the common ModConfig for Apocalypse
-     * to the Config Helper when the config is loaded.
-     */
-    @SuppressWarnings("all")
-    private static void parseCommonModConfig() {
-        String modid = Apocalypse.MODID;
-        String configName = ConfigTracker.INSTANCE.getConfigFileName(modid, ModConfig.Type.COMMON);
-
-        if (configName != null && !configName.isEmpty()) {
-            ModContainer modContainer = ModList.get().getModContainerById(modid).orElseThrow(() -> new RuntimeException("Failed to fetch ModContainer instance for " + modid));
-            Field field = ObfuscationReflectionHelper.findField(ModContainer.class, "configs");
-
-            try {
-                EnumMap<ModConfig.Type, ModConfig> configMap;
-                configMap = (EnumMap<ModConfig.Type, ModConfig>) field.get(modContainer);
-                Apocalypse.INSTANCE.getConfigHelper().setModConfig(configMap.getOrDefault(ModConfig.Type.COMMON, null));
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        else {
-            Apocalypse.LOGGER.error("Failed to fetch ModConfig! The config helper will not work properly.");
-        }
     }
 }

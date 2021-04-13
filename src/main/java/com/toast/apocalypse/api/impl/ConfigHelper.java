@@ -21,22 +21,8 @@ import java.util.List;
  */
 public final class ConfigHelper implements IConfigHelper {
 
-    /**
-     * Apocalypse's common mod config.
-     */
-    private ModConfig commonConfig;
-
     public ConfigHelper() {
 
-    }
-
-    public void setModConfig(@Nonnull ModConfig modConfig) {
-        if (modConfig.getType() != ModConfig.Type.COMMON) {
-            Apocalypse.LOGGER.error("Config helper received the wrong mod config type. Should be the common config, but instead got " + modConfig.getType().name());
-        }
-        else {
-            this.commonConfig = modConfig;
-        }
     }
 
     @Override
@@ -47,9 +33,5 @@ public final class ConfigHelper implements IConfigHelper {
     @Override
     public List<? extends String> penaltyDimensions() {
         return ApocalypseCommonConfig.COMMON.getDifficultyPenaltyDimensions();
-    }
-
-    public void setMaxWorldDifficulty(long maxDifficulty) {
-        this.commonConfig.getConfigData().set("maxDifficulty", maxDifficulty);
     }
 }
