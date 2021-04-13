@@ -38,6 +38,7 @@ public class ClientRegister {
         RenderingRegistry.registerEntityRenderingHandler(ApocalypseEntities.GRUMP.get(), GrumpRenderer::new);
 
         registerSpriteRenderer(ApocalypseEntities.DESTROYER_FIREBALL.get(), minecraftSupplier, 3.0F, true);
+        registerSpriteRenderer(ApocalypseEntities.MONSTER_FISH_HOOK.get(), minecraftSupplier);
     }
 
     private static <T extends Entity & IRendersAsItem> void registerSpriteRenderer(EntityType<T> entityType, Supplier<Minecraft> minecraftSupplier) {

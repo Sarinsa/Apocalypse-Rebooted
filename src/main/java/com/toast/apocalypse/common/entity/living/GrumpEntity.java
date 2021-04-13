@@ -196,7 +196,7 @@ public class GrumpEntity extends GhastEntity implements IMob {
         public boolean canUse() {
             if (grump.getTarget() != null) {
                 LivingEntity target = grump.getTarget();
-                return grump.canSee(target) && grump.distanceToSqr(target) < 100.0D;
+                return grump.canSee(target) && grump.distanceToSqr(target) < 130.0D;
             }
             return false;
         }
@@ -221,33 +221,40 @@ public class GrumpEntity extends GhastEntity implements IMob {
 
         @Override
         public void tick() {
-            MonsterFishHook fishHook = this.grump.fishHook;
+            GrumpEntity grump = this.grump;
 
-            if (fishHook == null) {
+            if (grump.fishHook == null) {
                 Apocalypse.LOGGER.info("Fisher hook is null");
-                ++this.timeNextHookLaunch;
                 Apocalypse.LOGGER.info("Time until next hook: " + this.timeNextHookLaunch);
 
-                if (this.timeNextHookLaunch >= 40) {
+                if (++this.timeNextHookLaunch >= 40) {
                     this.spawnMonsterFishHook();
                     this.timeNextHookLaunch = 0;
                 }
             }
             else {
-                if (fishHook.getHookedIn() != null) {
+                if (grump.fishHook.getHookedIn() != null) {
                     Apocalypse.LOGGER.info("Fish hook has a hooked target!");
-                    fishHook.bringInHookedEntity();
-                    fishHook.remove();
+                    // The grump might end up
+                    // accidentally hooking itself
+                    if (grump.fishHook.getHookedIn() != this.grump) {
+                        grump.fishHook.bringInHookedEntity();
+                    }
+                    this.removeMonsterFishHook();
                     return;
                 }
-                ++this.timeHookExisted;
                 Apocalypse.LOGGER.info("Hook has existed for: " + this.timeHookExisted);
 
-                if (this.timeHookExisted >= 70) {
+                if (++this.timeHookExisted >= 70) {
                     this.timeHookExisted = 0;
-                    fishHook.remove();
+                    this.removeMonsterFishHook();
                 }
             }
+        }
+
+        private void removeMonsterFishHook() {
+            this.grump.fishHook.remove();
+            this.grump.fishHook = null;
         }
 
         private void spawnMonsterFishHook() {
