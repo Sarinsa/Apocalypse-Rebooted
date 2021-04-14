@@ -32,7 +32,6 @@ public class ClientRegister {
     }
 
     private static void registerEntityRenderers(Supplier<Minecraft> minecraftSupplier) {
-        RenderingRegistry.registerEntityRenderingHandler(ApocalypseEntities.MONSTER_FISH_HOOK.get(), NoRender::new);
         RenderingRegistry.registerEntityRenderingHandler(ApocalypseEntities.GHOST.get(), GhostRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(ApocalypseEntities.DESTROYER.get(), DestroyerRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(ApocalypseEntities.GRUMP.get(), GrumpRenderer::new);

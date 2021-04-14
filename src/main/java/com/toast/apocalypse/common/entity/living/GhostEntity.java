@@ -13,6 +13,7 @@ import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.ai.goal.ZombieAttackGoal;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.MonsterEntity;
+import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
@@ -71,7 +72,7 @@ public class GhostEntity extends FlyingEntity implements IMob {
     public boolean doHurtTarget(Entity entity) {
         if (super.doHurtTarget(entity)) {
             if (entity instanceof PlayerEntity) {
-                int duration = this.getCommandSenderWorld().getDifficulty() == Difficulty.HARD ? 120 : 80;
+                int duration = this.level.getDifficulty() == Difficulty.HARD ? 120 : 80;
                 ((PlayerEntity)entity).addEffect(new EffectInstance(ApocalypseEffects.HEAVY.get(), duration));
             }
             return true;

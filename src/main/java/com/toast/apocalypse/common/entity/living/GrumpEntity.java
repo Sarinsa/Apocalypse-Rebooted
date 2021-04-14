@@ -93,7 +93,7 @@ public class GrumpEntity extends GhastEntity implements IMob {
     public boolean doHurtTarget(Entity entity) {
         if (super.doHurtTarget(entity)) {
             if (entity instanceof PlayerEntity) {
-                int duration = this.getCommandSenderWorld().getDifficulty() == Difficulty.HARD ? 100 : 60;
+                int duration = this.level.getDifficulty() == Difficulty.HARD ? 100 : 60;
                 ((PlayerEntity)entity).addEffect(new EffectInstance(ApocalypseEffects.HEAVY.get(), duration));
             }
             return true;
