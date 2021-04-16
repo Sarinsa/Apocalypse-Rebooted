@@ -20,6 +20,9 @@ import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Difficulty;
@@ -265,10 +268,15 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
     }
 
     public void bringInHookedEntity() {
-        Entity entity = this.getOwner();
-        if (entity != null) {
-            Vector3d vector3d = (new Vector3d(entity.getX() - this.getX(), entity.getY() - this.getY(), entity.getZ() - this.getZ())).scale(0.1D);
+        MobEntity mobEntity = this.getMobOwner();
+
+        if (mobEntity != null) {
+            this.level.playSound(null, mobEntity.blockPosition(), SoundEvents.FISHING_BOBBER_RETRIEVE, SoundCategory.HOSTILE, 0.6F, 0.4F / (this.level.random.nextFloat() * 0.4F + 0.8F));
+            Vector3d vector3d = (new Vector3d(mobEntity.getX() - this.getX(), mobEntity.getY() - this.getY(), mobEntity.getZ() - this.getZ())).scale(0.2D);
             this.hookedIn.setDeltaMovement(this.hookedIn.getDeltaMovement().add(vector3d));
+        }
+        else {
+            Apocalypse.LOGGER.info("Hook owner is null!");
         }
     }
 

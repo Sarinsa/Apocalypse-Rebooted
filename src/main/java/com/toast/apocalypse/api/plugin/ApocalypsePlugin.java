@@ -1,4 +1,4 @@
-package com.toast.apocalypse.api;
+package com.toast.apocalypse.api.plugin;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

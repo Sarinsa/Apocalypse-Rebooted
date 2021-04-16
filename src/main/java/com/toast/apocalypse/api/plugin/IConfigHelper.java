@@ -1,4 +1,4 @@
-package com.toast.apocalypse.api;
+package com.toast.apocalypse.api.plugin;
 
 import java.util.List;
 
@@ -14,6 +14,12 @@ public interface IConfigHelper {
      *         enabled in the mod config.
      */
     boolean rainDamageEnabled();
+
+    /**
+     * @return The amount of damage that rain
+     *         inflicts per rain damage tick.
+     */
+    float rainDamageAmount();
 
     /**
      * @return A list of Strings representing the registry

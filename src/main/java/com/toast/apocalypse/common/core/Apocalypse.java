@@ -1,13 +1,11 @@
 package com.toast.apocalypse.common.core;
 
-import com.toast.apocalypse.api.ApocalypsePlugin;
-import com.toast.apocalypse.api.IApocalypseApi;
-import com.toast.apocalypse.api.IApocalypsePlugin;
-import com.toast.apocalypse.api.IConfigHelper;
 import com.toast.apocalypse.api.impl.ApocalypseAPI;
 import com.toast.apocalypse.api.impl.ConfigHelper;
 import com.toast.apocalypse.api.impl.RegistryHelper;
-import com.toast.apocalypse.api.register.IRegistryHelper;
+import com.toast.apocalypse.api.plugin.ApocalypsePlugin;
+import com.toast.apocalypse.api.plugin.IApocalypsePlugin;
+import com.toast.apocalypse.api.plugin.IRegistryHelper;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.command.CommandRegister;
 import com.toast.apocalypse.common.command.argument.ApocalypseArgumentTypes;
@@ -148,7 +146,7 @@ public class Apocalypse {
         return this.configHelper;
     }
 
-    public IApocalypseApi getApi() {
+    public ApocalypseAPI getApi() {
         return this.api;
     }
 

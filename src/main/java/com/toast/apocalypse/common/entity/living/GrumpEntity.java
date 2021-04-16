@@ -196,7 +196,7 @@ public class GrumpEntity extends GhastEntity implements IMob {
         public boolean canUse() {
             if (grump.getTarget() != null) {
                 LivingEntity target = grump.getTarget();
-                return grump.canSee(target) && grump.distanceToSqr(target) < 130.0D;
+                return grump.canSee(target) && grump.distanceToSqr(target) < 150.0D;
             }
             return false;
         }
@@ -213,8 +213,10 @@ public class GrumpEntity extends GhastEntity implements IMob {
 
         @Override
         public void stop() {
-            this.grump.fishHook.remove();
-            this.grump.fishHook = null;
+            if (this.grump.fishHook != null) {
+                this.grump.fishHook.remove();
+                this.grump.fishHook = null;
+            }
             this.timeHookExisted = 0;
             this.timeNextHookLaunch = 0;
         }
@@ -224,9 +226,6 @@ public class GrumpEntity extends GhastEntity implements IMob {
             GrumpEntity grump = this.grump;
 
             if (grump.fishHook == null) {
-                Apocalypse.LOGGER.info("Fisher hook is null");
-                Apocalypse.LOGGER.info("Time until next hook: " + this.timeNextHookLaunch);
-
                 if (++this.timeNextHookLaunch >= 40) {
                     this.spawnMonsterFishHook();
                     this.timeNextHookLaunch = 0;
@@ -234,7 +233,7 @@ public class GrumpEntity extends GhastEntity implements IMob {
             }
             else {
                 if (grump.fishHook.getHookedIn() != null) {
-                    Apocalypse.LOGGER.info("Fish hook has a hooked target!");
+                    Apocalypse.LOGGER.info("Hook target: " + grump.fishHook.getHookedIn().getType().getRegistryName().getPath());
                     // The grump might end up
                     // accidentally hooking itself
                     if (grump.fishHook.getHookedIn() != this.grump) {
@@ -243,7 +242,6 @@ public class GrumpEntity extends GhastEntity implements IMob {
                     this.removeMonsterFishHook();
                     return;
                 }
-                Apocalypse.LOGGER.info("Hook has existed for: " + this.timeHookExisted);
 
                 if (++this.timeHookExisted >= 70) {
                     this.timeHookExisted = 0;

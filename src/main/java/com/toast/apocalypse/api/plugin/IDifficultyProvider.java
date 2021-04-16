@@ -1,4 +1,4 @@
-package com.toast.apocalypse.api;
+package com.toast.apocalypse.api.plugin;
 
 /**
  * A simple interface that lets modders interact

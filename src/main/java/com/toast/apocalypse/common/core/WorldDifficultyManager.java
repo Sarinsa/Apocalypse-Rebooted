@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.core;
 
-import com.toast.apocalypse.api.IDifficultyProvider;
+import com.toast.apocalypse.api.plugin.ApocalypseApi;
+import com.toast.apocalypse.api.plugin.IDifficultyProvider;
 import com.toast.apocalypse.common.core.mod_event.AbstractEvent;
 import com.toast.apocalypse.common.core.mod_event.EventRegister;
 import com.toast.apocalypse.common.event.CommonConfigReloadListener;
@@ -36,6 +37,13 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
 
     /** Number of ticks per update. */
     public static final int TICKS_PER_UPDATE = 5;
+    /** Number of ticks per save. */
+    public static final int TICKS_PER_SAVE = 60;
+
+    /** Time until next server tick update. */
+    private int timeUntilUpdate = 0;
+    /** Time until next save */
+    private int timeUntilSave = 0;
 
     /** These are updated when the mod config is loaded/reloaded
      *
@@ -67,9 +75,6 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
     /** The world difficulty multiplier */
     private double worldDifficultyRateMul;
     private double lastWorldDifficultyRate;
-
-    /** Time until next server tick update. */
-    private int timeUntilUpdate = 0;
 
 
     /** Fetch the server */
@@ -115,11 +120,11 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                 if (this.currentEvent != null) {
                     this.currentEvent.update();
                 }
-
                 MinecraftServer server = this.server;
-                Iterable<ServerWorld> worlds = server.getAllLevels();
-                // Update difficulty rate, scaled per person
-                this.worldDifficultyRateMul = MULTIPLAYER_DIFFICULTY_SCALING ? 1.0D : server.getPlayerCount();
+
+                Apocalypse.LOGGER.info("Player count: " + server.getPlayerCount());
+                // Apply a +20% difficulty multiplier per player online
+                this.worldDifficultyRateMul = MULTIPLAYER_DIFFICULTY_SCALING ? (server.getPlayerCount() * 0.2D) : 1.0D;
 
                 if (this.worldDifficultyRateMul > 1.0) {
                     this.worldDifficultyRateMul = (this.worldDifficultyRateMul - 1.0) * DIFFICULTY_MULTIPLIER + 1.0;
@@ -140,6 +145,8 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                     this.worldDifficulty += WorldDifficultyManager.TICKS_PER_UPDATE * this.worldDifficultyRateMul;
                 }
 
+                Iterable<ServerWorld> worlds = server.getAllLevels();
+
                 // Update each world
                 long mostSkippedTime = 0L;
                 for (ServerWorld world : worlds) {
@@ -156,6 +163,12 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                 // Only update difficulty if it is
                 // below the maximum level
                 this.updateWorldDifficulty();
+
+                // Save difficulty and event capability data.
+                if (++this.timeUntilSave >= TICKS_PER_SAVE) {
+                    this.timeUntilSave = 0;
+                    this.save();
+                }
             }
             // TODO: Move to separate event listener
             // Initialize any spawned entities
@@ -243,8 +256,6 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
             this.lastWorldDifficultyRate = this.worldDifficultyRateMul;
         }
         NetworkHelper.sendUpdateWorldDifficulty(this.worldDifficulty);
-        // Might be tad too excessive to write every update
-        //this.write();
     }
 
     @Override
@@ -317,6 +328,8 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
     public void cleanup() {
         this.save();
         this.server = null;
+        this.timeUntilUpdate = 0;
+        this.timeUntilSave = 0;
         this.worldDifficulty = 0L;
         this.checkedFullMoon = false;
     }

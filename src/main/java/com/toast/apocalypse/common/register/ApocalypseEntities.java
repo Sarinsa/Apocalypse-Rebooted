@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.register;
 
-import com.toast.apocalypse.api.register.IRegistryHelper;
+import com.toast.apocalypse.api.plugin.IRegistryHelper;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.living.DestroyerEntity;
 import com.toast.apocalypse.common.entity.living.GhostEntity;
@@ -11,8 +11,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntitySpawnPlacementRegistry;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.monster.GhastEntity;
-import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.fml.RegistryObject;

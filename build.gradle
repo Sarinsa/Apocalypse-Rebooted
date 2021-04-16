@@ -14,6 +14,10 @@ apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: "org.spongepowered.mixin"
 
+mixin {
+    add sourceSets.main, "apocalypse.mixins.refmap.json"
+}
+
 version = "${mc_version}-${mod_version}"
 group = 'com.toast.apocalypse'
 archivesBaseName = 'Apocalypse-Rebooted'
@@ -32,7 +36,11 @@ minecraft {
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
 
+            property "mixin.debug.export", "true"
+            property 'mixin.env.disableRefMap', 'true'
+
             arg "-mixin.config=apocalypse.mixins.json"
+
 
             mods {
                 apocalypse {
@@ -46,6 +54,9 @@ minecraft {
 
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
+
+            property 'mixin.env.disableRefMap', 'true'
+            property "mixin.debug.export", "true"
 
             arg "-mixin.config=apocalypse.mixins.json"
 
@@ -73,10 +84,6 @@ minecraft {
     }
 }
 
-mixin {
-    add sourceSets.main, "apocalypse.refmap.json"
-}
-
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
@@ -90,6 +97,8 @@ dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
     runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}")
+
+    annotationProcessor 'org.spongepowered:mixin:0.8.2:processor'
 }
 
 jar {

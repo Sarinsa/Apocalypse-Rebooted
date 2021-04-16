@@ -1,4 +1,4 @@
-package com.toast.apocalypse.api.register;
+package com.toast.apocalypse.api.plugin;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;

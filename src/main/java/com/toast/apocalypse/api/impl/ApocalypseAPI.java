@@ -1,12 +1,12 @@
 package com.toast.apocalypse.api.impl;
 
-import com.toast.apocalypse.api.IApocalypseApi;
-import com.toast.apocalypse.api.IConfigHelper;
-import com.toast.apocalypse.api.IDifficultyProvider;
-import com.toast.apocalypse.api.register.IRegistryHelper;
+import com.toast.apocalypse.api.plugin.ApocalypseApi;
+import com.toast.apocalypse.api.plugin.IConfigHelper;
+import com.toast.apocalypse.api.plugin.IDifficultyProvider;
+import com.toast.apocalypse.api.plugin.IRegistryHelper;
 import com.toast.apocalypse.common.core.Apocalypse;
 
-public final class ApocalypseAPI implements IApocalypseApi {
+public final class ApocalypseAPI extends ApocalypseApi {
 
     @Override
     public IRegistryHelper getRegistryHelper() {

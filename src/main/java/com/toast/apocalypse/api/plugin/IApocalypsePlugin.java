@@ -1,4 +1,4 @@
-package com.toast.apocalypse.api;
+package com.toast.apocalypse.api.plugin;
 
 /**
  * This is the interface that your
@@ -13,7 +13,7 @@ public interface IApocalypsePlugin {
      * @param api The IApocalypseApi instance
      *            parsed by Apocalypse.
      */
-    void load(final IApocalypseApi api);
+    void load(final ApocalypseApi api);
 
     /**
      * @return A String representing the ID / name of this
