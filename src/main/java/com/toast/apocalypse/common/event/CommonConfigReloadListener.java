@@ -3,8 +3,10 @@ package com.toast.apocalypse.common.event;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.WorldDifficultyManager;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.common.misc.DestroyerExplosionContext;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
+import net.minecraft.block.Block;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
@@ -17,7 +19,9 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.config.ConfigTracker;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.registries.ForgeRegistries;
+import sun.security.krb5.internal.crypto.Des;
 
+import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -60,5 +64,21 @@ public class CommonConfigReloadListener {
 
         RainDamageTickHelper.RAIN_TICK_RATE = ApocalypseCommonConfig.COMMON.getRainTickRate();
         RainDamageTickHelper.RAIN_DAMAGE = ApocalypseCommonConfig.COMMON.getRainDamage();
+
+        // Clear before refreshing entries
+        DestroyerExplosionContext.DESTROYER_PROOF_BLOCKS.clear();
+
+        for (String blockName : ApocalypseCommonConfig.COMMON.getDestroyerProofBlocks()) {
+            if (ResourceLocation.isValidResourceLocation(blockName)) {
+                ResourceLocation blockLocation = new ResourceLocation(blockName);
+
+                if (ForgeRegistries.BLOCKS.containsKey(blockLocation)) {
+                    DestroyerExplosionContext.DESTROYER_PROOF_BLOCKS.add(ForgeRegistries.BLOCKS.getValue(blockLocation));
+                }
+            }
+            else {
+                Apocalypse.LOGGER.warn("Invalid block registry name found in the destroyer proof block list. Check your Apocalypse common config! Problematic ResourceLocation: " + "\"" + blockName + "\"");
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.core.config;
 
+import net.minecraft.block.Blocks;
 import net.minecraft.world.Dimension;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
@@ -24,10 +25,13 @@ public class ApocalypseCommonConfig {
     public static final class Common {
 
         private static final List<String> PENALTY_DIMENSIONS = new ArrayList<>();
+        private static final List<String> DESTROYER_PROOF_BLOCKS = new ArrayList<>();
 
         static {
             PENALTY_DIMENSIONS.add(Dimension.NETHER.location().toString());
             PENALTY_DIMENSIONS.add(Dimension.END.location().toString());
+
+            DESTROYER_PROOF_BLOCKS.add(Blocks.BEDROCK.getRegistryName().toString());
         }
 
         // Rain
@@ -41,6 +45,9 @@ public class ApocalypseCommonConfig {
         private final ForgeConfigSpec.DoubleValue sleepPenalty;
         private final ForgeConfigSpec.ConfigValue<List<? extends String>> dimensionsPenaltyList;
         private final ForgeConfigSpec.DoubleValue dimensionPenalty;
+
+        // Misc
+        private final ForgeConfigSpec.ConfigValue<List<? extends String>> destroyerProofBlocks;
 
         // Misc
 
@@ -92,6 +99,12 @@ public class ApocalypseCommonConfig {
 
             configBuilder.pop();
             configBuilder.pop();
+            configBuilder.push("misc");
+
+            this.destroyerProofBlocks = configBuilder.comment("A list of blocks that the destroyer cannot explode. Generally speaking this list should be empty since destroyers are supposed to destroy any block, but if an exception is absolutely needed, the block in question can be whitelisted here.")
+                    .define("destroyerProofBlocks", DESTROYER_PROOF_BLOCKS);
+
+            configBuilder.pop();
         }
 
         //
@@ -130,6 +143,13 @@ public class ApocalypseCommonConfig {
 
         public double getDimensionPenalty() {
             return this.dimensionPenalty.get();
+        }
+
+        //
+        //  MISC
+        //
+        public List<? extends String> getDestroyerProofBlocks() {
+            return this.destroyerProofBlocks.get();
         }
     }
 }
