@@ -1,9 +1,8 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.entity.IFullMoonMob;
 import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
-import com.toast.apocalypse.common.register.ApocalypseEntities;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -35,7 +34,7 @@ import java.util.Random;
  * Unlike most full moon mobs, this one has no means of breaking through defenses and therefore relies on the
  * player being vulnerable to attack - whether by will or by other mobs breaking through to the player.
  */
-public class GrumpEntity extends GhastEntity implements IMob {
+public class GrumpEntity extends GhastEntity implements IMob, IFullMoonMob {
 
     /**
      * The current fish hook entity
@@ -196,7 +195,7 @@ public class GrumpEntity extends GhastEntity implements IMob {
         public boolean canUse() {
             if (grump.getTarget() != null) {
                 LivingEntity target = grump.getTarget();
-                return grump.canSee(target) && grump.distanceToSqr(target) < 150.0D;
+                return grump.canSee(target) && grump.distanceToSqr(target) < 180.0D;
             }
             return false;
         }
@@ -233,7 +232,6 @@ public class GrumpEntity extends GhastEntity implements IMob {
             }
             else {
                 if (grump.fishHook.getHookedIn() != null) {
-                    Apocalypse.LOGGER.info("Hook target: " + grump.fishHook.getHookedIn().getType().getRegistryName().getPath());
                     // The grump might end up
                     // accidentally hooking itself
                     if (grump.fishHook.getHookedIn() != this.grump) {

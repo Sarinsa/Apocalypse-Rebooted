@@ -1,7 +1,6 @@
 package com.toast.apocalypse.api.plugin;
 
 import com.toast.apocalypse.api.TimeChangedEvent;
-import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraftforge.common.MinecraftForge;
 
 /**
@@ -32,6 +31,17 @@ public abstract class ApocalypseApi {
      */
     public abstract IConfigHelper getConfigHelper();
 
+    /**
+     * Since Apocalypse increases difficulty over time,
+     * any form of time skip is punished with additional
+     * difficulty. This applies to sleeping in a vanilla setting.
+     * If your mod skips time by any means other than sleeping
+     * and you want it to affect Apocalypse's difficulty you can
+     * fire this event which Apocalypse will listen for and dish out
+     * a difficulty penalty relative to the amount of time skipped.
+     *
+     * @param newTime The amount of time skipped.
+     */
     public static void onTimeChanged(long newTime) {
         MinecraftForge.EVENT_BUS.post(new TimeChangedEvent(newTime));
     }

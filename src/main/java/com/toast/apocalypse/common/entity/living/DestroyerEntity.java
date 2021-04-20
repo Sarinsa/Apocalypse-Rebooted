@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.common.entity.IFullMoonMob;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -7,6 +8,7 @@ import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
+import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.FireballEntity;
@@ -28,7 +30,7 @@ import java.util.Random;
  * This is a full moon mob similar to a ghast, though it has unlimited aggro range ignoring line of sight and
  * its fireballs can destroy anything within a small area.
  */
-public class DestroyerEntity extends GhastEntity {
+public class DestroyerEntity extends GhastEntity implements IMob, IFullMoonMob {
 
     public DestroyerEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);

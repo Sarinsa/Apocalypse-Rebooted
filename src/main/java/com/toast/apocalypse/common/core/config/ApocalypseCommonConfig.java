@@ -1,7 +1,5 @@
 package com.toast.apocalypse.common.core.config;
 
-import com.toast.apocalypse.common.util.References;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.Dimension;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
@@ -64,8 +62,8 @@ public class ApocalypseCommonConfig {
             this.multiplayerDifficultyScaling = configBuilder.comment("If enabled, world difficulty will increased by the configured multiplier")
                     .define("multiplayerDifficultyScaling", true);
 
-            this.difficultyRateMultiplier = configBuilder.comment("Only relevant if multiplayer difficulty scaling is enabled. This is the multiplier used when calculating difficulty per player in the world.")
-                    .defineInRange("difficultyRateMultiplier", 1.0D, 1.0D, 1000.0D);
+            this.difficultyRateMultiplier = configBuilder.comment("Only relevant if multiplayer difficulty scaling is enabled. For example, a value of 0.05 will apply an additional +5% difficulty increment per online player (If only one player is online this multiplier will not be active)")
+                    .defineInRange("difficultyRateMultiplier", 0.05D, 0.01D, 10.0D);
 
             this.sleepPenalty = configBuilder.comment("Sets the multiplier used to increase world difficulty when players sleep through a night or thunderstorm.")
                     .defineInRange("sleepPenalty", 2.0D, 0.0D, 1000.0D);
@@ -77,10 +75,22 @@ public class ApocalypseCommonConfig {
                     .defineInRange("dimensionPenalty", 1.5D, 0.0D, 1000.0D);
 
             configBuilder.pop();
-            configBuilder.push("misc");
+            configBuilder.comment("This section revolves around everything related to the full moon sieges.");
+            configBuilder.push("full_moon");
+
+            configBuilder.comment("The spawn weights for all the full moon mobs.");
+            configBuilder.push("spawn_chance");
 
 
+            configBuilder.pop();
+            configBuilder.comment("The maximum amount of a specific full moon mob that can spawn during a full moon siege.");
+            configBuilder.push("max_spawn_count");
 
+            configBuilder.pop();
+            configBuilder.comment("The minimum amount of a specific full moon mob that can spawn during a full moon siege.");
+            configBuilder.push("min_spawn_count");
+
+            configBuilder.pop();
             configBuilder.pop();
         }
 

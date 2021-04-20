@@ -5,7 +5,6 @@ import com.toast.apocalypse.api.impl.ConfigHelper;
 import com.toast.apocalypse.api.impl.RegistryHelper;
 import com.toast.apocalypse.api.plugin.ApocalypsePlugin;
 import com.toast.apocalypse.api.plugin.IApocalypsePlugin;
-import com.toast.apocalypse.api.plugin.IRegistryHelper;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.command.CommandRegister;
 import com.toast.apocalypse.common.command.argument.ApocalypseArgumentTypes;
@@ -30,6 +29,9 @@ import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Mod(Apocalypse.MODID)
 public class Apocalypse {
@@ -95,11 +97,11 @@ public class Apocalypse {
             ApocalypseArgumentTypes.register();
             ApocalypseCapabilities.registerCapabilities();
             ApocalypseEntities.registerEntitySpawnPlacement();
-            ApocalypseEntities.registerFullMoon(this.registryHelper);
         });
     }
 
     public void onLoadComplete(FMLLoadCompleteEvent event) {
+        // Mod plugin post setup
         ModList.get().getAllScanData().forEach(scanData -> {
             scanData.getAnnotations().forEach(annotationData -> {
 
@@ -113,21 +115,21 @@ public class Apocalypse {
 
                             if (IApocalypsePlugin.class.isAssignableFrom(pluginClass)) {
                                 IApocalypsePlugin plugin = (IApocalypsePlugin) pluginClass.newInstance();
-                                // This makes debugging a bit easier
                                 this.registryHelper.setCurrentPluginId(plugin.getPluginId());
-                                plugin.load(this.api);
+                                plugin.load(this.getApi());
                                 LOGGER.info("Found Apocalypse plugin at {} with plugin ID: {}", annotationData.getMemberName(), plugin.getPluginId());
                             }
                         }
                         catch (Exception e) {
-                            LOGGER.error("Failed to register Apocalypse plugin at {}! Damn dag nabit damnit!", annotationData.getMemberName());
+                            LOGGER.error("Failed to load Apocalypse plugin at {}! Damn dag nabit damnit!", annotationData.getMemberName());
                             e.printStackTrace();
                         }
                     }
                 }
             });
         });
-        registryHelper.postSetup();
+        // Post setup
+        this.registryHelper.postSetup();
     }
 
     public static ResourceLocation resourceLoc(String path) {
@@ -138,7 +140,7 @@ public class Apocalypse {
         return this.difficultyManager;
     }
 
-    public IRegistryHelper getRegistryHelper() {
+    public RegistryHelper getRegistryHelper() {
         return this.registryHelper;
     }
 

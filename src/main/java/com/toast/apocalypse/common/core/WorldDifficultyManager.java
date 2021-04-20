@@ -1,6 +1,5 @@
 package com.toast.apocalypse.common.core;
 
-import com.toast.apocalypse.api.plugin.ApocalypseApi;
 import com.toast.apocalypse.api.plugin.IDifficultyProvider;
 import com.toast.apocalypse.common.core.mod_event.AbstractEvent;
 import com.toast.apocalypse.common.core.mod_event.EventRegister;
@@ -113,21 +112,27 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
+            MinecraftServer server = this.server;
+
             // Counter to update the world
             if (++this.timeUntilUpdate >= TICKS_PER_UPDATE) {
                 this.timeUntilUpdate = 0;
+
                 // Update active event
                 if (this.currentEvent != null) {
                     this.currentEvent.update();
                 }
-                MinecraftServer server = this.server;
 
-                Apocalypse.LOGGER.info("Player count: " + server.getPlayerCount());
-                // Apply a +20% difficulty multiplier per player online
-                this.worldDifficultyRateMul = MULTIPLAYER_DIFFICULTY_SCALING ? (server.getPlayerCount() * 0.2D) : 1.0D;
+                // Apply a +5% difficulty multiplier per player online
+                if (MULTIPLAYER_DIFFICULTY_SCALING) {
+                    int playerCount = server.getPlayerCount();
 
-                if (this.worldDifficultyRateMul > 1.0) {
-                    this.worldDifficultyRateMul = (this.worldDifficultyRateMul - 1.0) * DIFFICULTY_MULTIPLIER + 1.0;
+                    if (playerCount > 1) {
+                        this.worldDifficultyRateMul = 1.0D + ((server.getPlayerCount() - 1.0D) * DIFFICULTY_MULTIPLIER);
+                    }
+                    else {
+                        this.worldDifficultyRateMul = 1.0D;
+                    }
                 }
 
                 // Apply dimension difficulty rate penalty if any player is in another dimension
@@ -162,7 +167,7 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                 }
                 // Only update difficulty if it is
                 // below the maximum level
-                this.updateWorldDifficulty();
+                this.updateWorldDifficulty(maxDifficultyReached);
 
                 // Save difficulty and event capability data.
                 if (++this.timeUntilSave >= TICKS_PER_SAVE) {
@@ -249,13 +254,21 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
         Apocalypse.LOGGER.log(level, "[{}] " + message, WorldDifficultyManager.class.getSimpleName());
     }
 
-    /** Saves the world's difficulty and updates the clients, if needed. */
-    private void updateWorldDifficulty() {
+    /**
+     * Notifies clients of changes to world difficulty and difficulty multiplier.
+     *
+     * @param maxDifficultyReached True if the difficulty limit has been reached.
+     *                             Do not bother sending a world difficulty update
+     *                             message to clients if this is the case.
+     */
+    private void updateWorldDifficulty(boolean maxDifficultyReached) {
         if (this.worldDifficultyRateMul != this.lastWorldDifficultyRate) {
             NetworkHelper.sendUpdateWorldDifficultyRate(this.worldDifficultyRateMul);
             this.lastWorldDifficultyRate = this.worldDifficultyRateMul;
         }
-        NetworkHelper.sendUpdateWorldDifficulty(this.worldDifficulty);
+        if (!maxDifficultyReached) {
+            NetworkHelper.sendUpdateWorldDifficulty(this.worldDifficulty);
+        }
     }
 
     @Override
@@ -315,13 +328,11 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
             }
         }
         this.currentEvent = event;
-        this.updateWorldDifficulty();
     }
 
     /** Ends the current active event, if any. */
     public void endEvent() {
         this.currentEvent = null;
-        this.updateWorldDifficulty();
     }
 
     /** Cleans up the references to things in a server when the server stops. */

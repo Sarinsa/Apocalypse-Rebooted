@@ -5,15 +5,13 @@ import com.toast.apocalypse.api.plugin.IRegistryHelper;
 import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraftforge.fml.RegistryObject;
 import org.apache.logging.log4j.Level;
 
 import java.util.HashMap;
 import java.util.Objects;
 
 public final class RegistryHelper implements IRegistryHelper {
-
-    /** A map containing info about full moon mobs */
-    public static final HashMap<EntityType<? extends LivingEntity>, FullMoonMobInfo> FULL_MOON_MOB_INFO = new HashMap<>();
 
     /** Keeping this here to avoid writing the
      *  same annoying symbols over and over again.
@@ -23,9 +21,6 @@ public final class RegistryHelper implements IRegistryHelper {
     /** The ID of the plugin that is currently being loaded */
     private String currentPluginId = "no_plugin_id :(";
 
-    public RegistryHelper() {
-
-    }
 
     /**
      * Called after all found mod
@@ -33,24 +28,6 @@ public final class RegistryHelper implements IRegistryHelper {
      */
     public void postSetup() {
 
-    }
-
-    @Override
-    public <T extends LivingEntity> void registerFullMoonMob(EntityType<T> entityType, int baseSpawnChance, boolean persistent) {
-        Objects.requireNonNull(entityType);
-
-        if (baseSpawnChance < 0) {
-            log(Level.WARN, PLUGIN_MESSAGE + "attempted to register a full moon mob with negative spawn chance. It will not be registered.", this.currentPluginId);
-            return;
-        }
-
-        if (FULL_MOON_MOB_INFO.containsKey(entityType)) {
-            String registryName = entityType.getRegistryName() == null ? "missingno" : entityType.getRegistryName().toString();
-            log(Level.WARN, PLUGIN_MESSAGE + "attempted to register a full moon mob with an entity type that has already been registered! Type: {}", this.currentPluginId, registryName);
-        }
-        else {
-            FULL_MOON_MOB_INFO.put(entityType, new FullMoonMobInfo(baseSpawnChance, persistent));
-        }
     }
 
     /**

@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.common.entity.IFullMoonMob;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
-import com.toast.apocalypse.common.util.MobHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -10,10 +10,9 @@ import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.LookRandomlyGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
-import net.minecraft.entity.ai.goal.ZombieAttackGoal;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.MonsterEntity;
-import net.minecraft.entity.passive.WolfEntity;
+import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
@@ -29,7 +28,6 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeMod;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
 
 import java.util.EnumSet;
 import java.util.Random;
@@ -40,7 +38,9 @@ import java.util.Random;
  * These are the bread and butter of invasions. Ghosts deal light damage that can't be reduced below 1 and apply
  * a short increased gravity effect to help deal with flying players.
  */
-public class GhostEntity extends FlyingEntity implements IMob {
+public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
+
+    protected boolean shouldManeuver;
 
     public GhostEntity(EntityType<? extends FlyingEntity> entityType, World world) {
         super(entityType, world);
@@ -59,13 +59,26 @@ public class GhostEntity extends FlyingEntity implements IMob {
 
     @Override
     protected void registerGoals() {
-        this.targetSelector.addGoal(0, new GhostEntity.NearestAttackablePlayerTargetGoal<>(this, PlayerEntity.class));
-        this.goalSelector.addGoal(0, new GhostEntity.MeleeAttackGoal(this));
+        this.goalSelector.addGoal(0, new GhostEntity.ManeuverAttackerGoal<>(this));
+        this.goalSelector.addGoal(1, new GhostEntity.MeleeAttackGoal<>(this));
         this.goalSelector.addGoal(5, new LookRandomlyGoal(this));
+        this.targetSelector.addGoal(0, new GhostEntity.NearestAttackablePlayerTargetGoal<>(this, PlayerEntity.class));
     }
 
     public static boolean checkGhostSpawnRules(EntityType<? extends GhostEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
         return world.getDifficulty() != Difficulty.PEACEFUL && MonsterEntity.isDarkEnoughToSpawn(world, pos, random);
+    }
+
+    @Override
+    public boolean hurt(DamageSource damageSource, float damage) {
+        if (super.hurt(damageSource, damage)) {
+            if (damageSource.getEntity() != null && this.random.nextInt(2) == 0) {
+                this.shouldManeuver = true;
+            }
+
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -214,6 +227,37 @@ public class GhostEntity extends FlyingEntity implements IMob {
         }
     }
 
+    private static class ManeuverAttackerGoal<T extends GhostEntity> extends Goal {
+
+        private final T ghost;
+
+        public ManeuverAttackerGoal(T ghost) {
+            this.ghost = ghost;
+            this.setFlags(EnumSet.of(Flag.MOVE));
+        }
+
+        @Override
+        public boolean canUse() {
+            return this.ghost.shouldManeuver && this.ghost.getLastHurtByMob() != null;
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return this.ghost.moveControl.hasWanted();
+        }
+
+        @Override
+        public void stop() {
+            this.ghost.shouldManeuver = false;
+        }
+
+        @Override
+        public void start() {
+            Random random = this.ghost.getRandom();
+            this.ghost.moveControl.setWantedPosition(this.ghost.getX() + (random.nextGaussian() * 14), this.ghost.getY() + (random.nextGaussian() * 10), this.ghost.getZ() + (random.nextGaussian() * 14), 1.1F);
+        }
+    }
+
     private static class NearestAttackablePlayerTargetGoal<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {
 
         public NearestAttackablePlayerTargetGoal(MobEntity mobEntity, Class<T> targetClass) {
@@ -229,11 +273,11 @@ public class GhostEntity extends FlyingEntity implements IMob {
         }
     }
 
-    private static class MeleeAttackGoal extends Goal {
+    private static class MeleeAttackGoal<T extends GhostEntity> extends Goal {
 
-        final GhostEntity ghost;
+        private final T ghost;
 
-        public MeleeAttackGoal(GhostEntity ghost) {
+        public MeleeAttackGoal(T ghost) {
             this.setFlags(EnumSet.of(Goal.Flag.MOVE));
             this.ghost = ghost;
         }

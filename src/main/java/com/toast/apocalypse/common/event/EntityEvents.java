@@ -1,24 +1,18 @@
 package com.toast.apocalypse.common.event;
 
-import com.toast.apocalypse.api.impl.FullMoonMobInfo;
-import com.toast.apocalypse.api.impl.RegistryHelper;
-import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.WorldDifficultyManager;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
-import com.toast.apocalypse.common.register.ApocalypseEffects;
+import com.toast.apocalypse.common.entity.IFullMoonMob;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
 import com.toast.apocalypse.common.register.ApocalypseItems;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import com.toast.apocalypse.common.util.References;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.event.TickEvent;
@@ -39,12 +33,8 @@ public class EntityEvents {
      */
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onDespawnCheck(LivingSpawnEvent.AllowDespawn event) {
-        if (RegistryHelper.FULL_MOON_MOB_INFO.containsKey(event.getEntityLiving().getType())) {
-            FullMoonMobInfo mobInfo = RegistryHelper.FULL_MOON_MOB_INFO.get(event.getEntityLiving().getType());
-
-            if (WorldDifficultyManager.isFullMoon(event.getWorld()) && mobInfo.isPersistent()) {
-                event.setResult(Event.Result.DENY);
-            }
+        if (WorldDifficultyManager.isFullMoon(event.getWorld()) && event.getEntityLiving() instanceof IFullMoonMob) {
+            event.setResult(Event.Result.DENY);
         }
     }
 

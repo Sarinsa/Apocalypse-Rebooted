@@ -2,17 +2,15 @@ package com.toast.apocalypse.common.entity.projectile;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.ShieldItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
@@ -21,7 +19,6 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
@@ -30,21 +27,20 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
-import net.minecraftforge.fml.network.FMLPlayMessages;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 import java.util.Random;
-import java.util.function.BiFunction;
 
 /**
  * This is a fish hook projectile that can be fired by monsters to pull targets closer.<br>
  * Players are able to block this projectile with a shield, negating its effects.
+ *
+ * Essentially a copy paste of {@link net.minecraft.entity.projectile.FishingBobberEntity}
  */
 @OnlyIn(value = Dist.CLIENT, _interface = IRendersAsItem.class)
 public class MonsterFishHook extends ProjectileEntity implements IEntityAdditionalSpawnData, IRendersAsItem {
 
-    private final Random syncronizedRandom = new Random();
     private static final DataParameter<Integer> DATA_HOOKED_ENTITY = EntityDataManager.defineId(MonsterFishHook.class, DataSerializers.INT);
     private int life;
     private Entity hookedIn;
@@ -58,15 +54,6 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
         super(ApocalypseEntities.MONSTER_FISH_HOOK.get(), world);
         this.setOwner(mobEntity);
         this.noCulling = true;
-    }
-
-    // Custom client factory
-    public MonsterFishHook(World world, MobEntity mobEntity, double x, double y, double z) {
-        this(world, mobEntity);
-        this.setPos(x, y, z);
-        this.xo = this.getX();
-        this.yo = this.getY();
-        this.zo = this.getZ();
     }
 
     public MonsterFishHook(MobEntity mobEntity, World world) {
@@ -118,12 +105,10 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
 
     @Override
     public void tick() {
-        this.syncronizedRandom.setSeed(this.getUUID().getLeastSignificantBits() ^ this.level.getGameTime());
         super.tick();
         MobEntity mobEntity = this.getMobOwner();
 
         if (mobEntity == null) {
-            Apocalypse.LOGGER.info("Fish hook owner is null!!");
             this.remove();
         }
         else if (this.level.isClientSide || !this.shouldStopFishing(mobEntity)) {
@@ -220,6 +205,7 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
     @Override
     protected void onHitEntity(EntityRayTraceResult rayTraceResult) {
         super.onHitEntity(rayTraceResult);
+
         if (!this.level.isClientSide) {
             Entity entity = rayTraceResult.getEntity();
 
@@ -227,9 +213,11 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
                 PlayerEntity playerEntity = (PlayerEntity) entity;
 
                 if (playerEntity.isBlocking()) {
-                    if (playerEntity.getCommandSenderWorld().getDifficulty() == Difficulty.HARD)
-                        playerEntity.disableShield(true);
-
+                    if (playerEntity.getCommandSenderWorld().getDifficulty() == Difficulty.HARD) {
+                        playerEntity.getCooldowns().addCooldown(Items.SHIELD, 100);
+                        this.level.broadcastEntityEvent(playerEntity, (byte) 30);
+                    }
+                    this.remove();
                     return;
                 }
             }
@@ -272,11 +260,15 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
 
         if (mobEntity != null) {
             this.level.playSound(null, mobEntity.blockPosition(), SoundEvents.FISHING_BOBBER_RETRIEVE, SoundCategory.HOSTILE, 0.6F, 0.4F / (this.level.random.nextFloat() * 0.4F + 0.8F));
-            Vector3d vector3d = (new Vector3d(mobEntity.getX() - this.getX(), mobEntity.getY() - this.getY(), mobEntity.getZ() - this.getZ())).scale(0.2D);
-            this.hookedIn.setDeltaMovement(this.hookedIn.getDeltaMovement().add(vector3d));
-        }
-        else {
-            Apocalypse.LOGGER.info("Hook owner is null!");
+
+            double xMotion = mobEntity.getX() - this.getX();
+            double yMotion = mobEntity.getY() - this.getY();
+            double zMotion = mobEntity.getZ() - this.getZ();
+
+            double v = Math.sqrt(xMotion * xMotion + yMotion * yMotion + zMotion * zMotion);
+            double multiplier = 0.3;
+
+            this.hookedIn.setDeltaMovement(xMotion * multiplier, yMotion * multiplier + Math.sqrt(v) * 0.3, zMotion * multiplier);
         }
     }
 

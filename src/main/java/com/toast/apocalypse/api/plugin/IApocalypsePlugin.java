@@ -10,8 +10,7 @@ public interface IApocalypsePlugin {
     /**
      * Called by Apocalypse during {@link net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent}
      *
-     * @param api The IApocalypseApi instance
-     *            parsed by Apocalypse.
+     * @param api The Apocalypse API instance.
      */
     void load(final ApocalypseApi api);
 
