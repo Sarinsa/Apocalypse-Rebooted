@@ -1,22 +1,24 @@
 package com.toast.apocalypse.common.entity.projectile;
 
-import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.network.NetworkHelper;
+import com.toast.apocalypse.common.network.PacketHandler;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
 import net.minecraft.entity.*;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.item.ShieldItem;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.network.play.server.SEntityVelocityPacket;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
@@ -30,7 +32,6 @@ import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
-import java.util.Random;
 
 /**
  * This is a fish hook projectile that can be fired by monsters to pull targets closer.<br>
@@ -221,6 +222,7 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
                     return;
                 }
             }
+
             this.hookedIn = rayTraceResult.getEntity();
             this.setHookedEntity();
         }
@@ -260,6 +262,7 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
 
         if (mobEntity != null) {
             this.level.playSound(null, mobEntity.blockPosition(), SoundEvents.FISHING_BOBBER_RETRIEVE, SoundCategory.HOSTILE, 0.6F, 0.4F / (this.level.random.nextFloat() * 0.4F + 0.8F));
+            Entity entity = this.hookedIn;
 
             double xMotion = mobEntity.getX() - this.getX();
             double yMotion = mobEntity.getY() - this.getY();
@@ -268,7 +271,12 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
             double v = Math.sqrt(xMotion * xMotion + yMotion * yMotion + zMotion * zMotion);
             double multiplier = 0.3;
 
-            this.hookedIn.setDeltaMovement(xMotion * multiplier, yMotion * multiplier + Math.sqrt(v) * 0.3, zMotion * multiplier);
+            Vector3d velocity = new Vector3d(xMotion * multiplier, yMotion * multiplier + Math.sqrt(v) * 0.3, zMotion * multiplier);
+
+            if (entity instanceof ServerPlayerEntity) {
+                NetworkHelper.sendEntityVelocityUpdate((ServerPlayerEntity) entity, entity, velocity);
+            }
+            entity.setDeltaMovement(velocity);
         }
     }
 

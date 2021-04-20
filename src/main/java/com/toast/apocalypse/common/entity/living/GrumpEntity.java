@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.common.entity.IFullMoonMob;
+import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
 import net.minecraft.entity.*;
@@ -8,6 +9,7 @@ import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.entity.ai.goal.HurtByTargetGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
@@ -60,7 +62,8 @@ public class GrumpEntity extends GhastEntity implements IMob, IFullMoonMob {
         this.goalSelector.addGoal(1, new LaunchMonsterHookGoal(this));
         this.goalSelector.addGoal(1, new LookAroundGoal(this));
         this.goalSelector.addGoal(5, new GrumpEntity.RandomFlyGoal(this));
-        this.targetSelector.addGoal(0, new GrumpNearestAttackableTargetGoal<>(this, PlayerEntity.class));
+        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
+        this.targetSelector.addGoal(1, new GrumpNearestAttackableTargetGoal<>(this, PlayerEntity.class));
     }
 
     @Override
