@@ -255,7 +255,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         @Override
         public void start() {
             Random random = this.ghost.getRandom();
-            this.ghost.moveControl.setWantedPosition(this.ghost.getX() + (random.nextGaussian() * 14), this.ghost.getY() + (random.nextGaussian() * 10), this.ghost.getZ() + (random.nextGaussian() * 14), 1.1F);
+            this.ghost.moveControl.setWantedPosition(this.ghost.getX() + (random.nextGaussian() * 10), this.ghost.getY() + (random.nextGaussian() * 10), this.ghost.getZ() + (random.nextGaussian() * 10), 1.1F);
         }
     }
 
