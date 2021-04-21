@@ -105,7 +105,8 @@ public class EntityEvents {
 
             if (item == Items.BREAD) {
                 World world = event.getEntity().getCommandSenderWorld();
-                world.addFreshEntity(new ItemEntity(world, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), new ItemStack(ApocalypseItems.FATHERLY_TOAST.get())));
+                int itemCount = itemEntity.getItem().getCount();
+                world.addFreshEntity(new ItemEntity(world, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), new ItemStack(ApocalypseItems.FATHERLY_TOAST.get(), itemCount)));
                 itemEntity.remove();
             }
             else if (item == ApocalypseItems.FATHERLY_TOAST.get())
