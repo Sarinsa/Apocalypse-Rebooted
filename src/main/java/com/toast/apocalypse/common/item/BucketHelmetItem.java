@@ -1,11 +1,14 @@
 package com.toast.apocalypse.common.item;
 
 import com.toast.apocalypse.client.ClientUtil;
+import com.toast.apocalypse.client.renderers.model.armor.BucketHelmetModel;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.block.CarvedPumpkinBlock;
+import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
@@ -21,8 +24,7 @@ import java.util.List;
 
 public class BucketHelmetItem extends ArmorItem {
 
-    private static final String HELMET_TEXTURE_1 = Apocalypse.resourceLoc("textures/models/armor/bucket_layer_1.png").toString();
-    private static final String HELMET_TEXTURE_2 = Apocalypse.resourceLoc("textures/models/armor/bucket_layer_2.png").toString();
+    private static final String TEXTURE = Apocalypse.resourceLoc("textures/models/armor/bucket_helm.png").toString();
 
     public BucketHelmetItem() {
         super(ArmorMaterial.IRON, EquipmentSlotType.HEAD, new Item.Properties().tab(ItemGroup.TAB_COMBAT).defaultDurability(0));
@@ -31,11 +33,20 @@ public class BucketHelmetItem extends ArmorItem {
     @Override
     @Nullable
     public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlotType slot, String type) {
-        return slot == EquipmentSlotType.CHEST ? HELMET_TEXTURE_2 : HELMET_TEXTURE_1;
+        return TEXTURE;
     }
 
-    @Override
+    // This is the largest number of annotations I have ever seen on one method
     @OnlyIn(Dist.CLIENT)
+    @Override
+    @Nullable
+    @SuppressWarnings("unchecked")
+    public <A extends BipedModel<?>> A getArmorModel(LivingEntity entityLiving, ItemStack itemStack, EquipmentSlotType armorSlot, A defaultModel) {
+        return armorSlot == EquipmentSlotType.HEAD ? (A) new BucketHelmetModel() : defaultModel;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
     public void renderHelmetOverlay(ItemStack stack, PlayerEntity player, int width, int height, float partialTicks) {
         ClientUtil.renderBucketHelmOverlay(width, height);
     }
