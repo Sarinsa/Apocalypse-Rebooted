@@ -23,6 +23,7 @@ public class ApocalypseItems {
     public static final RegistryObject<Item> BUCKET_HELM = registerItem("bucket_helm", BucketHelmetItem::new);
     public static final RegistryObject<SpawnEggItem> GHOST_SPAWN_EGG = registerSpawnEgg("ghost", ApocalypseEntities.GHOST_TYPE, 0xBCBCBC, 0x708899);
     public static final RegistryObject<SpawnEggItem> DESTROYER_SPAWN_EGG = registerSpawnEgg("destroyer", ApocalypseEntities.DESTROYER_TYPE, 0x7D7D7D, 0xA80E0E);
+    public static final RegistryObject<SpawnEggItem> SEEKER_SPAWN_EGG = registerSpawnEgg("seeker", ApocalypseEntities.SEEKER_TYPE, 0xF9F9F9, 0xA80E0E);
     public static final RegistryObject<SpawnEggItem> GRUMP_SPAWN_EGG = registerSpawnEgg("grump", ApocalypseEntities.GRUMP_TYPE, 0xF9F9F9, 0x2D41F4);
 
     private static <T extends Item> RegistryObject<T> registerItem(String name, Supplier<T> itemSupplier) {

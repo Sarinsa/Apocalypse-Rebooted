@@ -271,7 +271,7 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
             double v = Math.sqrt(xMotion * xMotion + yMotion * yMotion + zMotion * zMotion);
             double multiplier = 0.3;
 
-            Vector3d velocity = new Vector3d(xMotion * multiplier, yMotion * multiplier + Math.sqrt(v) * 0.3, zMotion * multiplier);
+            Vector3d velocity = new Vector3d(xMotion * multiplier, yMotion * multiplier + Math.sqrt(v) * 0.15, zMotion * multiplier);
 
             if (entity instanceof ServerPlayerEntity) {
                 NetworkHelper.sendEntityVelocityUpdate((ServerPlayerEntity) entity, entity, velocity);
