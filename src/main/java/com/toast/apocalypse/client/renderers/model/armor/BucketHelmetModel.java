@@ -7,6 +7,8 @@ package com.toast.apocalypse.client.renderers.model.armor;
 
 
 import com.google.common.collect.ImmutableList;
+import net.minecraft.client.renderer.entity.PlayerRenderer;
+import net.minecraft.client.renderer.entity.layers.BipedArmorLayer;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.LivingEntity;
@@ -17,13 +19,13 @@ public class BucketHelmetModel extends BipedModel<LivingEntity> {
     private final ModelRenderer cube_r1;
 
     public BucketHelmetModel() {
-        super(1.0F);
+        super(0.0F);
         this.texWidth = 32;
         this.texHeight = 32;
 
         this.head = new ModelRenderer(this);
         this.head.setPos(0.0F, 0.0F, 0.0F);
-        this.head.texOffs(0, 14).addBox(-4.0F, -13.0F, -4.0F, 8.0F, 10.0F, 8.0F, 0.0F, false);
+        this.head.texOffs(0, 14).addBox(-4.0F, -13.0F, -4.0F, 8.0F, 10.0F, 8.0F, 1.0F, false);
 
         this.rope = new ModelRenderer(this);
         this.rope.setPos(0.0F, 0.0F, 0.0F);

@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.item;
 
+import com.toast.apocalypse.client.ClientRegister;
 import com.toast.apocalypse.client.ClientUtil;
 import com.toast.apocalypse.client.renderers.model.armor.BucketHelmetModel;
 import com.toast.apocalypse.common.core.Apocalypse;
@@ -42,7 +43,7 @@ public class BucketHelmetItem extends ArmorItem {
     @Nullable
     @SuppressWarnings("unchecked")
     public <A extends BipedModel<?>> A getArmorModel(LivingEntity entityLiving, ItemStack itemStack, EquipmentSlotType armorSlot, A defaultModel) {
-        return armorSlot == EquipmentSlotType.HEAD ? (A) new BucketHelmetModel() : defaultModel;
+        return armorSlot == EquipmentSlotType.HEAD ? (A) ClientRegister.BUCKET_HELMET_MODEL : defaultModel;
     }
 
     @OnlyIn(Dist.CLIENT)

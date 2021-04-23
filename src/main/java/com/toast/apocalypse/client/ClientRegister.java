@@ -6,7 +6,9 @@ import com.toast.apocalypse.client.renderers.entity.destroyer.DestroyerRenderer;
 import com.toast.apocalypse.client.renderers.entity.ghost.GhostRenderer;
 import com.toast.apocalypse.client.renderers.entity.grump.GrumpRenderer;
 import com.toast.apocalypse.client.renderers.entity.seeker.SeekerRenderer;
+import com.toast.apocalypse.client.renderers.model.armor.BucketHelmetModel;
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.item.BucketHelmetItem;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemRenderer;
@@ -20,11 +22,14 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import org.lwjgl.system.CallbackI;
 
 import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Apocalypse.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientRegister {
+
+    public static final BucketHelmetModel BUCKET_HELMET_MODEL = new BucketHelmetModel();
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
