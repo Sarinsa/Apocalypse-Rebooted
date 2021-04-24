@@ -22,17 +22,6 @@ import sun.security.krb5.internal.crypto.Des;
  */
 public class BlockHelper {
 
-    /**
-     * Helper method for creating the destroyer
-     * explosion that can destroy any type of block.
-     *
-     * (Except from bedrock. Maybe this should be configurable?)
-     */
-    public static void destroyerExplosion(World world, Entity entity, DamageSource damageSource, double x, double y, double z, float explosionPower) {
-        Explosion.Mode mode = ForgeEventFactory.getMobGriefingEvent(world, entity) ? Explosion.Mode.DESTROY : Explosion.Mode.NONE;
-        world.explode(entity, damageSource, new DestroyerExplosionContext(), x, y, z, explosionPower, false, mode);
-    }
-
     /** Returns true if the mob should destroy the block. */
     public static boolean shouldDamage(BlockPos pos, LivingEntity entity, boolean needsTool, World world) {
         ItemStack heldStack = entity.getUseItem();

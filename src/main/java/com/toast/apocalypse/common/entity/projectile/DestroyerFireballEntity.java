@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.entity.projectile;
 
 import com.toast.apocalypse.common.entity.living.DestroyerEntity;
+import com.toast.apocalypse.common.misc.DestroyerExplosionContext;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
 import com.toast.apocalypse.common.util.BlockHelper;
 import net.minecraft.entity.Entity;
@@ -16,7 +17,9 @@ import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
+import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 /**
@@ -39,6 +42,17 @@ public class DestroyerFireballEntity extends AbstractFireballEntity {
         this.explosionPower = destroyer.getExplosionPower();
     }
 
+    /**
+     * Helper method for creating the destroyer
+     * explosion that can destroy any type of block.
+     *
+     * (Except from bedrock. Maybe this should be configurable?)
+     */
+    public static void destroyerExplosion(World world, Entity entity, DamageSource damageSource, double x, double y, double z, float explosionPower) {
+        Explosion.Mode mode = ForgeEventFactory.getMobGriefingEvent(world, entity) ? Explosion.Mode.DESTROY : Explosion.Mode.NONE;
+        world.explode(entity, damageSource, new DestroyerExplosionContext(), x, y, z, explosionPower, false, mode);
+    }
+
     @Override
     protected void onHit(RayTraceResult result) {
         if (result.getType() == RayTraceResult.Type.ENTITY) {
@@ -59,7 +73,7 @@ public class DestroyerFireballEntity extends AbstractFireballEntity {
             }
         }
         if (!this.level.isClientSide) {
-            BlockHelper.destroyerExplosion(this.getCommandSenderWorld(), this, DamageSource.fireball(this, this.getOwner()), this.getX(), this.getY(), this.getZ(), this.explosionPower);
+            destroyerExplosion(this.getCommandSenderWorld(), this, DamageSource.fireball(this, this.getOwner()), this.getX(), this.getY(), this.getZ(), this.explosionPower);
             this.remove();
         }
     }
@@ -74,7 +88,7 @@ public class DestroyerFireballEntity extends AbstractFireballEntity {
             // wants to use the dummy info that would be parsed, lets not.
             // Did that explanation make sense? Probably not.
             if (!this.level.isClientSide) {
-                BlockHelper.destroyerExplosion(this.getCommandSenderWorld(), this, DamageSource.fireball(this, this.getOwner()), this.getX(), this.getY(), this.getZ(), this.explosionPower);
+                destroyerExplosion(this.getCommandSenderWorld(), this, DamageSource.fireball(this, this.getOwner()), this.getX(), this.getY(), this.getZ(), this.explosionPower);
                 this.remove();
             }
         }
