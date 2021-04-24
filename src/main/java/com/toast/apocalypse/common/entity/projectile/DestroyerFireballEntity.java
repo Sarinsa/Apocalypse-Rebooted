@@ -5,6 +5,8 @@ import com.toast.apocalypse.common.register.ApocalypseEntities;
 import com.toast.apocalypse.common.util.BlockHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractFireballEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
@@ -41,8 +43,20 @@ public class DestroyerFireballEntity extends AbstractFireballEntity {
     protected void onHit(RayTraceResult result) {
         if (result.getType() == RayTraceResult.Type.ENTITY) {
             EntityRayTraceResult entityResult = (EntityRayTraceResult) result;
-            entityResult.getEntity().hurt(DamageSource.indirectMagic(this, this.getOwner()), 4.0F);
-            entityResult.getEntity().setSecondsOnFire(5);
+            Entity entity = entityResult.getEntity();
+            entity.hurt(DamageSource.fireball(this, this.getOwner()), 4.0F);
+
+            // Deals heavy damage to shields
+            if (entity instanceof LivingEntity) {
+                LivingEntity livingEntity = (LivingEntity) entity;
+
+                if (livingEntity.isBlocking()) {
+                    livingEntity.hurtCurrentlyUsedShield(100.0F);
+                }
+                else {
+                    livingEntity.setSecondsOnFire(5);
+                }
+            }
         }
         if (!this.level.isClientSide) {
             BlockHelper.destroyerExplosion(this.getCommandSenderWorld(), this, DamageSource.fireball(this, this.getOwner()), this.getX(), this.getY(), this.getZ(), this.explosionPower);
