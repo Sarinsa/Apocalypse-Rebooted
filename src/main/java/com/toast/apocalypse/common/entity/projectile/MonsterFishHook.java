@@ -21,6 +21,7 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.play.server.SEntityVelocityPacket;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
@@ -72,6 +73,7 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
         Vector3d vector3d = new Vector3d(-f3, MathHelper.clamp(-(f5 / f4), -5.0F, 5.0F), -f2);
         double d3 = vector3d.length();
         vector3d = vector3d.multiply(0.6D / d3 + 0.5D + this.random.nextGaussian() * 0.0045D, 0.6D / d3 + 0.5D + this.random.nextGaussian() * 0.0045D, 0.6D / d3 + 0.5D + this.random.nextGaussian() * 0.0045D);
+        vector3d = vector3d.multiply(1.2D, 1.2D, 1.2D);
         this.setDeltaMovement(vector3d);
         this.yRot = (float)(MathHelper.atan2(vector3d.x, vector3d.z) * (double)(180F / (float)Math.PI));
         this.xRot = (float)(MathHelper.atan2(vector3d.y, MathHelper.sqrt(getHorizontalDistanceSqr(vector3d))) * (double)(180F / (float)Math.PI));
@@ -211,12 +213,14 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
             Entity entity = rayTraceResult.getEntity();
 
             if (entity instanceof PlayerEntity) {
-                PlayerEntity playerEntity = (PlayerEntity) entity;
+                PlayerEntity player = (PlayerEntity) entity;
 
-                if (playerEntity.isBlocking()) {
-                    if (playerEntity.getCommandSenderWorld().getDifficulty() == Difficulty.HARD) {
-                        playerEntity.getCooldowns().addCooldown(Items.SHIELD, 100);
-                        this.level.broadcastEntityEvent(playerEntity, (byte) 30);
+                if (player.isBlocking()) {
+                    if (player.getCommandSenderWorld().getDifficulty() == Difficulty.HARD) {
+                        player.disableShield(true);
+                    }
+                    else {
+                        this.level.playSound(player, player.blockPosition(), SoundEvents.SHIELD_BLOCK, SoundCategory.PLAYERS, 1.0F, 0.8F + this.level.random.nextFloat() * 0.4F);
                     }
                     this.remove();
                     return;
@@ -271,7 +275,7 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
             double v = Math.sqrt(xMotion * xMotion + yMotion * yMotion + zMotion * zMotion);
             double multiplier = 0.3;
 
-            Vector3d velocity = new Vector3d(xMotion * multiplier, yMotion * multiplier + Math.sqrt(v) * 0.15, zMotion * multiplier);
+            Vector3d velocity = new Vector3d(xMotion * multiplier, yMotion * multiplier + Math.sqrt(v) * 0.1, zMotion * multiplier);
 
             if (entity instanceof ServerPlayerEntity) {
                 NetworkHelper.sendEntityVelocityUpdate((ServerPlayerEntity) entity, entity, velocity);
