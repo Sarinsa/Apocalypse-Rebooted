@@ -10,6 +10,7 @@ import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.LookRandomlyGoal;
+import net.minecraft.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.MonsterEntity;
@@ -62,8 +63,9 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         this.goalSelector.addGoal(0, new GhostEntity.ManeuverAttackerGoal<>(this));
         this.goalSelector.addGoal(1, new GhostEntity.MeleeAttackGoal<>(this));
         this.goalSelector.addGoal(5, new LookRandomlyGoal(this));
-        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
-        this.targetSelector.addGoal(1, new GhostEntity.NearestAttackablePlayerTargetGoal<>(this, PlayerEntity.class));
+        this.targetSelector.addGoal(0, new GhostEntity.NearestAttackablePlayerTargetGoal<>(this, PlayerEntity.class));
+        this.targetSelector.addGoal(1, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
+
     }
 
     public static boolean checkGhostSpawnRules(EntityType<? extends GhostEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
@@ -301,13 +303,17 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         @Override
         public void start() {
             LivingEntity target = this.ghost.getTarget();
+            this.ghost.setAggressive(true);
 
-            if (target != null)
+            if (target != null) {
                 this.setWantedPosition(target);
+            }
         }
 
         @Override
         public void stop() {
+            this.ghost.setAggressive(false);
+            this.ghost.setTarget(null);
         }
 
         @Override

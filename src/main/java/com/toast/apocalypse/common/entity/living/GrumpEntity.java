@@ -62,8 +62,8 @@ public class GrumpEntity extends GhastEntity implements IMob, IFullMoonMob {
         this.goalSelector.addGoal(1, new LaunchMonsterHookGoal(this));
         this.goalSelector.addGoal(1, new LookAroundGoal(this));
         this.goalSelector.addGoal(5, new GrumpEntity.RandomFlyGoal(this));
-        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
-        this.targetSelector.addGoal(1, new GrumpNearestAttackableTargetGoal<>(this, PlayerEntity.class));
+        this.targetSelector.addGoal(0, new GrumpNearestAttackableTargetGoal<>(this, PlayerEntity.class));
+        this.targetSelector.addGoal(1, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
     }
 
     @Override

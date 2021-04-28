@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.IFullMoonMob;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
@@ -13,7 +14,10 @@ import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
+import net.minecraft.entity.monster.MonsterEntity;
+import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.AbstractFireballEntity;
 import net.minecraft.entity.projectile.FireballEntity;
 import net.minecraft.entity.projectile.SmallFireballEntity;
 import net.minecraft.network.datasync.DataParameter;
@@ -32,6 +36,8 @@ import net.minecraft.world.World;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 /**
  * This is a full moon mob whose entire goal in life is to break through your defenses. It is similar to a ghast, only
@@ -39,9 +45,10 @@ import java.util.Random;
  * clear line of sight. When it does have direct vision, it shoots much weaker fireballs that can be easily reflected
  * back at the seeker. The seeker also alerts nearby monsters of the player's whereabouts when in it's direct line of sight.
  */
-public class SeekerEntity extends GhastEntity implements IMob, IFullMoonMob {
+public class SeekerEntity extends GhastEntity implements IFullMoonMob {
 
     private static final DataParameter<Boolean> ALERTING = EntityDataManager.defineId(SeekerEntity.class, DataSerializers.BOOLEAN);
+    private static final Predicate<LivingEntity> ALERT_PREDICATE = (livingEntity) -> !(livingEntity instanceof IFullMoonMob);
 
     private int nextTimeAlerting;
 
@@ -61,8 +68,8 @@ public class SeekerEntity extends GhastEntity implements IMob, IFullMoonMob {
         this.goalSelector.addGoal(0, new SeekerEntity.LookAroundGoal(this));
         this.goalSelector.addGoal(1, new SeekerEntity.RandomOrRelativeToTargetFlyGoal(this));
         this.goalSelector.addGoal(2, new SeekerEntity.AlertOtherMonstersGoal(this));
-        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
-        this.targetSelector.addGoal(1, new SeekerEntity.DestroyerNearestAttackableTargetGoal<>(this, PlayerEntity.class));
+        this.targetSelector.addGoal(0, new SeekerEntity.SeekerNearestAttackableTargetGoal<>(this, PlayerEntity.class));
+        this.targetSelector.addGoal(1, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
     }
 
     @Override
@@ -76,7 +83,7 @@ public class SeekerEntity extends GhastEntity implements IMob, IFullMoonMob {
     }
 
     public boolean canAlert() {
-        return !this.isAlerting() && this.nextTimeAlerting <= 0;
+        return !this.isCharging() && !this.isAlerting() && this.nextTimeAlerting <= 0;
     }
 
     public boolean isAlerting() {
@@ -101,7 +108,7 @@ public class SeekerEntity extends GhastEntity implements IMob, IFullMoonMob {
             return false;
         }
         // Prevent instant fireball death and return to sender advancement
-        else if (damageSource.getDirectEntity() instanceof FireballEntity) {
+        else if (damageSource.getDirectEntity() instanceof AbstractFireballEntity) {
             // Prevent the destroyer from damaging itself
             // when close up to a wall or solid obstacle
             if (damageSource.getEntity() == this)
@@ -112,6 +119,10 @@ public class SeekerEntity extends GhastEntity implements IMob, IFullMoonMob {
                 return true;
             }
         }
+        else if (damageSource.isExplosion() && damageSource.getEntity() == this) {
+            return false;
+        }
+
         return super.hurt(damageSource, damage);
     }
 
@@ -122,16 +133,6 @@ public class SeekerEntity extends GhastEntity implements IMob, IFullMoonMob {
     @Override
     public boolean canSee(Entity entity) {
         return true;
-    }
-
-    /**
-     * Actually checks if the seeker has direct
-     * line of sight to it's target.
-     */
-    public boolean canSeeDirectly(Entity entity) {
-        Vector3d vector3d = new Vector3d(this.getX(), this.getEyeY(), this.getZ());
-        Vector3d vector3d1 = new Vector3d(entity.getX(), entity.getEyeY(), entity.getZ());
-        return this.level.clip(new RayTraceContext(vector3d, vector3d1, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, this)).getType() == RayTraceResult.Type.MISS;
     }
 
     @Override
@@ -153,9 +154,9 @@ public class SeekerEntity extends GhastEntity implements IMob, IFullMoonMob {
         this.nextTimeAlerting = time;
     }
 
-    private static class DestroyerNearestAttackableTargetGoal<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {
+    private static class SeekerNearestAttackableTargetGoal<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {
 
-        public DestroyerNearestAttackableTargetGoal(MobEntity entity, Class<T> targetClass) {
+        public SeekerNearestAttackableTargetGoal(MobEntity entity, Class<T> targetClass) {
             super(entity, targetClass, false, false);
         }
 
@@ -215,17 +216,11 @@ public class SeekerEntity extends GhastEntity implements IMob, IFullMoonMob {
                     if (!this.seeker.isSilent()) {
                         world.levelEvent(null, 1016, this.seeker.blockPosition(), 0);
                     }
-                    if (this.seeker.canSeeDirectly(target)) {
-                        SeekerFireballEntity fireball = new SeekerFireballEntity(world, this.seeker, x, y, z);
-                        fireball.setPos(this.seeker.getX() + vector3d.x * 4.0D, this.seeker.getY(0.5D) + 0.2D, fireball.getZ() + vector3d.z * 4.0D);
-                        world.addFreshEntity(fireball);
-                    }
-                    else {
-                        FireballEntity fireball = new FireballEntity(world, this.seeker, x, y, z);
-                        fireball.setPos(this.seeker.getX() + vector3d.x * 4.0D, this.seeker.getY(0.5D) + 0.5D, fireball.getZ() + vector3d.z * 4.0D);
-                        fireball.explosionPower = this.seeker.getExplosionPower();
-                        world.addFreshEntity(fireball);
-                    }
+                    boolean canSeeTarget = this.seeker.canSeeDirectly(this.seeker, target);
+                    SeekerFireballEntity fireball = new SeekerFireballEntity(world, this.seeker, canSeeTarget, x, y, z);
+                    fireball.setPos(this.seeker.getX() + vector3d.x * 4.0D, this.seeker.getY(0.5D) + 0.2D, fireball.getZ() + vector3d.z * 4.0D);
+                    world.addFreshEntity(fireball);
+
                     this.chargeTime = -40;
                 }
             }
@@ -337,7 +332,7 @@ public class SeekerEntity extends GhastEntity implements IMob, IFullMoonMob {
         @Override
         public boolean canUse() {
             if (this.seeker.canAlert()) {
-                return this.seeker.getTarget() != null && this.seeker.canSeeDirectly(this.seeker.getTarget());
+                return this.seeker.getTarget() != null && this.seeker.canSeeDirectly(this.seeker, this.seeker.getTarget());
             }
             return false;
         }
@@ -354,12 +349,24 @@ public class SeekerEntity extends GhastEntity implements IMob, IFullMoonMob {
             LivingEntity target = this.seeker.getTarget();
 
             if (target != null) {
-                AxisAlignedBB searchBox = target.getBoundingBox().inflate(60.0D, 40.0D, 60.0D);
-                List<MobEntity> toAlert = this.seeker.level.getLoadedEntitiesOfClass(MobEntity.class, searchBox, mobEntity -> mobEntity.getTarget() != this.seeker.getTarget() && !(mobEntity instanceof IFullMoonMob));
+                AxisAlignedBB searchBox = target.getBoundingBox().inflate(60.0D, 30.0D, 60.0D);
+                List<LivingEntity> toAlert = this.seeker.level.getLoadedEntitiesOfClass(LivingEntity.class, searchBox, ALERT_PREDICATE);
 
-                for (MobEntity mobEntity : toAlert) {
-                    mobEntity.setTarget(this.seeker.getTarget());
-                    mobEntity.getNavigation().moveTo(target, 1.0D);
+                for (LivingEntity livingEntity : toAlert) {
+                    if (Apocalypse.INSTANCE.getRegistryHelper().getAlertRegister().containsEntry(livingEntity.getClass())) {
+                        Apocalypse.INSTANCE.getRegistryHelper().getAlertRegister().getFromEntity(livingEntity.getClass()).accept(livingEntity, target, this.seeker);
+                        return;
+                    }
+                    else {
+                        if (livingEntity instanceof MobEntity && livingEntity instanceof IMob) {
+                            MobEntity mobEntity = (MobEntity) livingEntity;
+
+                            if (mobEntity.getTarget() != this.seeker.getTarget()) {
+                                mobEntity.setTarget(this.seeker.getTarget());
+                                mobEntity.getNavigation().moveTo(target, 1.0D);
+                            }
+                        }
+                    }
                 }
             }
             this.seeker.playSound(SoundEvents.GHAST_SCREAM, 5.0F, 0.6F);

@@ -9,10 +9,10 @@ import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
-import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.GhastEntity;
+import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.FireballEntity;
+import net.minecraft.entity.projectile.AbstractFireballEntity;
 import net.minecraft.pathfinding.FlyingPathNavigator;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
@@ -31,7 +31,7 @@ import java.util.Random;
  * This is a full moon mob similar to a ghast, though it has unlimited aggro range ignoring line of sight and
  * its fireballs can destroy anything within a small area.
  */
-public class DestroyerEntity extends GhastEntity implements IMob, IFullMoonMob {
+public class DestroyerEntity extends GhastEntity implements IFullMoonMob {
 
     public DestroyerEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
@@ -52,8 +52,9 @@ public class DestroyerEntity extends GhastEntity implements IMob, IFullMoonMob {
         this.goalSelector.addGoal(0, new DestroyerEntity.FireballAttackGoal(this));
         this.goalSelector.addGoal(0, new DestroyerEntity.LookAroundGoal(this));
         this.goalSelector.addGoal(1, new DestroyerEntity.RandomOrRelativeToTargetFlyGoal(this));
-        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
-        this.targetSelector.addGoal(1, new DestroyerEntity.DestroyerNearestAttackableTargetGoal<>(this, PlayerEntity.class));
+        this.targetSelector.addGoal(0, new DestroyerEntity.DestroyerNearestAttackableTargetGoal<>(this, PlayerEntity.class));
+        this.targetSelector.addGoal(1, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
+
     }
 
     public static boolean checkDestroyerSpawnRules(EntityType<? extends DestroyerEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
@@ -85,7 +86,7 @@ public class DestroyerEntity extends GhastEntity implements IMob, IFullMoonMob {
             return false;
         }
         // Prevent instant fireball death and return to sender advancement
-        else if (damageSource.getDirectEntity() instanceof FireballEntity) {
+        else if (damageSource.getDirectEntity() instanceof AbstractFireballEntity) {
             // Prevent the destroyer from damaging itself
             // when close up to a wall or solid obstacle
             if (damageSource.getEntity() == this)
@@ -96,6 +97,10 @@ public class DestroyerEntity extends GhastEntity implements IMob, IFullMoonMob {
                 return true;
             }
         }
+        else if (damageSource.isExplosion() && damageSource.getEntity() == this) {
+            return false;
+        }
+
         return super.hurt(damageSource, damage);
     }
 
