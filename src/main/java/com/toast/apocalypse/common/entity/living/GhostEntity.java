@@ -241,7 +241,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
         @Override
         public boolean canUse() {
-            return this.ghost.shouldManeuver && this.ghost.getLastHurtByMob() != null;
+            return this.ghost.getTarget() != null && this.ghost.shouldManeuver && this.ghost.getLastHurtByMob() != null;
         }
 
         @Override
