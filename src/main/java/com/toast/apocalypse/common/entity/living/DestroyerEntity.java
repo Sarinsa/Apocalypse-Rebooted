@@ -10,7 +10,6 @@ import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.GhastEntity;
-import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractFireballEntity;
 import net.minecraft.pathfinding.FlyingPathNavigator;
@@ -39,6 +38,7 @@ public class DestroyerEntity extends GhastEntity implements IFullMoonMob {
         navigator.setCanOpenDoors(false);
         navigator.setCanPassDoors(false);
         this.navigation = navigator;
+        this.xpReward = 5;
     }
 
     public static AttributeModifierMap.MutableAttribute createDestroyerAttributes() {

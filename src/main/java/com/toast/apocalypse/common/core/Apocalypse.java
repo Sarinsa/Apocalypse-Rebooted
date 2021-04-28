@@ -103,35 +103,37 @@ public class Apocalypse {
     }
 
     public void onLoadComplete(FMLLoadCompleteEvent event) {
-        // Mod plugin post setup
-        ModList.get().getAllScanData().forEach(scanData -> {
-            scanData.getAnnotations().forEach(annotationData -> {
+        event.enqueueWork(() -> {
+            // Mod plugin post setup
+            ModList.get().getAllScanData().forEach(scanData -> {
+                scanData.getAnnotations().forEach(annotationData -> {
 
-                // Look for classes annotated with @ApocalypsePlugin
-                if (annotationData.getAnnotationType().getClassName().equals(ApocalypsePlugin.class.getName())) {
-                    String modid = (String) annotationData.getAnnotationData().getOrDefault("modid", "");
+                    // Look for classes annotated with @ApocalypsePlugin
+                    if (annotationData.getAnnotationType().getClassName().equals(ApocalypsePlugin.class.getName())) {
+                        String modid = (String) annotationData.getAnnotationData().getOrDefault("modid", "");
 
-                    if (ModList.get().isLoaded(modid)) {
-                        try {
-                            Class<?> pluginClass = Class.forName(annotationData.getMemberName());
+                        if (ModList.get().isLoaded(modid) || modid.isEmpty()) {
+                            try {
+                                Class<?> pluginClass = Class.forName(annotationData.getMemberName());
 
-                            if (IApocalypsePlugin.class.isAssignableFrom(pluginClass)) {
-                                IApocalypsePlugin plugin = (IApocalypsePlugin) pluginClass.newInstance();
-                                this.registryHelper.setCurrentPluginId(plugin.getPluginId());
-                                plugin.load(this.getApi());
-                                LOGGER.info("Found Apocalypse plugin at {} with plugin ID: {}", annotationData.getMemberName(), plugin.getPluginId());
+                                if (IApocalypsePlugin.class.isAssignableFrom(pluginClass)) {
+                                    IApocalypsePlugin plugin = (IApocalypsePlugin) pluginClass.newInstance();
+                                    this.registryHelper.setCurrentPluginId(plugin.getPluginId());
+                                    plugin.load(this.getApi());
+                                    LOGGER.info("Found Apocalypse plugin at {} with plugin ID: {}", annotationData.getMemberName(), plugin.getPluginId());
+                                }
+                            }
+                            catch (Exception e) {
+                                LOGGER.error("Failed to load Apocalypse plugin at {}! Damn dag nabit damnit!", annotationData.getMemberName());
+                                e.printStackTrace();
                             }
                         }
-                        catch (Exception e) {
-                            LOGGER.error("Failed to load Apocalypse plugin at {}! Damn dag nabit damnit!", annotationData.getMemberName());
-                            e.printStackTrace();
-                        }
                     }
-                }
+                });
             });
+            // Post setup
+            this.registryHelper.postSetup();
         });
-        // Post setup
-        this.registryHelper.postSetup();
     }
 
     public static ResourceLocation resourceLoc(String path) {

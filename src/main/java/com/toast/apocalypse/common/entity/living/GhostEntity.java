@@ -9,8 +9,8 @@ import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.entity.ai.goal.LookAtGoal;
 import net.minecraft.entity.ai.goal.LookRandomlyGoal;
-import net.minecraft.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.MonsterEntity;
@@ -35,7 +35,7 @@ import java.util.Random;
 
 /**
  * This is a full moon mob that has the odd ability to completely ignore blocks. To compliment this, it has
- * unlimited aggro range and ignores line of sight.<br>
+ * unlimited aggro range and ignores line of sight.
  * These are the bread and butter of invasions. Ghosts deal light damage that can't be reduced below 1 and apply
  * a short increased gravity effect to help deal with flying players.
  */
@@ -60,16 +60,22 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(0, new GhostEntity.ManeuverAttackerGoal<>(this));
-        this.goalSelector.addGoal(1, new GhostEntity.MeleeAttackGoal<>(this));
+        this.goalSelector.addGoal(0, new GhostEntity.MeleeAttackGoal<>(this));
+        this.goalSelector.addGoal(1, new GhostEntity.ManeuverAttackerGoal<>(this));
         this.goalSelector.addGoal(5, new LookRandomlyGoal(this));
+        this.goalSelector.addGoal(6, new RandomFlyGoal(this));
+        this.goalSelector.addGoal(6, new LookAtGoal(this, PlayerEntity.class,8.0F));
         this.targetSelector.addGoal(0, new GhostEntity.NearestAttackablePlayerTargetGoal<>(this, PlayerEntity.class));
         this.targetSelector.addGoal(1, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
-
     }
 
     public static boolean checkGhostSpawnRules(EntityType<? extends GhostEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
         return world.getDifficulty() != Difficulty.PEACEFUL && MonsterEntity.isDarkEnoughToSpawn(world, pos, random);
+    }
+
+    @Override
+    protected float getStandingEyeHeight(Pose pose, EntitySize entitySize) {
+        return 0.60F;
     }
 
     @Override
@@ -78,7 +84,6 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
             if (damageSource.getEntity() != null && this.random.nextInt(2) == 0) {
                 this.shouldManeuver = true;
             }
-
             return true;
         }
         return false;
@@ -292,12 +297,12 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
         @Override
         public boolean canUse() {
-            return this.ghost.getTarget() != null && !this.ghost.getMoveControl().hasWanted();
+            return !this.ghost.shouldManeuver && this.ghost.getTarget() != null && !this.ghost.getMoveControl().hasWanted();
         }
 
         @Override
         public boolean canContinueToUse() {
-            return this.ghost.getMoveControl().hasWanted() && this.ghost.getTarget() != null && this.ghost.getTarget().isAlive();
+            return !this.ghost.shouldManeuver && this.ghost.getMoveControl().hasWanted() && this.ghost.getTarget() != null && this.ghost.getTarget().isAlive();
         }
 
         @Override
@@ -331,6 +336,50 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
         private boolean canAttackReach(LivingEntity target, double distance) {
             return distance <= (double)(this.ghost.getBbWidth() * 2.0F * this.ghost.getBbWidth() * 2.0F + target.getBbWidth());
+        }
+    }
+
+    /** Copied from ghast */
+    static class RandomFlyGoal extends Goal {
+
+        private final GhostEntity ghost;
+
+        public RandomFlyGoal(GhostEntity ghost) {
+            this.ghost = ghost;
+            this.setFlags(EnumSet.of(Goal.Flag.MOVE));
+        }
+
+        @Override
+        public boolean canUse() {
+            MovementController movementcontroller = this.ghost.getMoveControl();
+            if (!movementcontroller.hasWanted()) {
+                return this.ghost.getTarget() == null;
+            }
+            else {
+                double x = movementcontroller.getWantedX() - this.ghost.getX();
+                double y = movementcontroller.getWantedY() - this.ghost.getY();
+                double z = movementcontroller.getWantedZ() - this.ghost.getZ();
+                double d3 = x * x + y * y + z * z;
+                return d3 < 1.0D || d3 > 3600.0D;
+            }
+        }
+
+        @Override
+        public void stop() {
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return false;
+        }
+
+        @Override
+        public void start() {
+            Random random = this.ghost.getRandom();
+            double x = this.ghost.getX() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
+            double y = this.ghost.getY() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
+            double z = this.ghost.getZ() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
+            this.ghost.getMoveControl().setWantedPosition(x, y, z, 1.0D);
         }
     }
 }

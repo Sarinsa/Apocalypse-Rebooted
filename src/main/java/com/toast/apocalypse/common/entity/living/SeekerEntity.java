@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.api.impl.SeekerAlertRegister;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.IFullMoonMob;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
@@ -48,12 +49,13 @@ import java.util.function.Predicate;
 public class SeekerEntity extends GhastEntity implements IFullMoonMob {
 
     private static final DataParameter<Boolean> ALERTING = EntityDataManager.defineId(SeekerEntity.class, DataSerializers.BOOLEAN);
-    private static final Predicate<LivingEntity> ALERT_PREDICATE = (livingEntity) -> !(livingEntity instanceof IFullMoonMob);
+    private static final BiPredicate<LivingEntity, MobEntity> ALERT_PREDICATE = (livingEntity, seeker) -> !(livingEntity instanceof IFullMoonMob) && seeker.getTarget() != livingEntity;
 
     private int nextTimeAlerting;
 
     public SeekerEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
+        this.xpReward = 5;
     }
 
     public static AttributeModifierMap.MutableAttribute createSeekerAttributes() {
@@ -72,18 +74,18 @@ public class SeekerEntity extends GhastEntity implements IFullMoonMob {
         this.targetSelector.addGoal(1, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
     }
 
+    public static boolean checkSeekerSpawnRules(EntityType<? extends SeekerEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
+        return world.getDifficulty() != Difficulty.PEACEFUL && MobEntity.checkMobSpawnRules(entityType, world, spawnReason, pos, random);
+    }
+
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(ALERTING, false);
     }
 
-    public static boolean checkSeekerSpawnRules(EntityType<? extends SeekerEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
-        return world.getDifficulty() != Difficulty.PEACEFUL && MobEntity.checkMobSpawnRules(entityType, world, spawnReason, pos, random);
-    }
-
     public boolean canAlert() {
-        return !this.isCharging() && !this.isAlerting() && this.nextTimeAlerting <= 0;
+        return this.nextTimeAlerting <= 0 && this.getTarget() != null && !this.isCharging() && !this.isAlerting() && this.canSeeDirectly(this, this.getTarget());
     }
 
     public boolean isAlerting() {
@@ -331,10 +333,7 @@ public class SeekerEntity extends GhastEntity implements IFullMoonMob {
 
         @Override
         public boolean canUse() {
-            if (this.seeker.canAlert()) {
-                return this.seeker.getTarget() != null && this.seeker.canSeeDirectly(this.seeker, this.seeker.getTarget());
-            }
-            return false;
+            return this.seeker.canAlert();
         }
 
         @Override
@@ -344,17 +343,22 @@ public class SeekerEntity extends GhastEntity implements IFullMoonMob {
 
         @Override
         public void start() {
-            this.seeker.setAlerting(true);
-            this.timeAlerting = -60;
+            SeekerAlertRegister alertRegister = Apocalypse.INSTANCE.getRegistryHelper().getAlertRegister();
             LivingEntity target = this.seeker.getTarget();
+            this.timeAlerting = -60;
 
             if (target != null) {
                 AxisAlignedBB searchBox = target.getBoundingBox().inflate(60.0D, 30.0D, 60.0D);
-                List<LivingEntity> toAlert = this.seeker.level.getLoadedEntitiesOfClass(LivingEntity.class, searchBox, ALERT_PREDICATE);
+                List<LivingEntity> toAlert = this.seeker.level.getLoadedEntitiesOfClass(LivingEntity.class, searchBox, (entity) -> ALERT_PREDICATE.test(entity, this.seeker));
+
+                if (toAlert.isEmpty())
+                    return;
 
                 for (LivingEntity livingEntity : toAlert) {
-                    if (Apocalypse.INSTANCE.getRegistryHelper().getAlertRegister().containsEntry(livingEntity.getClass())) {
-                        Apocalypse.INSTANCE.getRegistryHelper().getAlertRegister().getFromEntity(livingEntity.getClass()).accept(livingEntity, target, this.seeker);
+                    Class<? extends LivingEntity> entityClass = livingEntity.getClass();
+
+                    if (alertRegister.containsEntry(entityClass)) {
+                        alertRegister.getFromEntity(entityClass).accept(livingEntity, target, this.seeker);
                         return;
                     }
                     else {
@@ -362,6 +366,7 @@ public class SeekerEntity extends GhastEntity implements IFullMoonMob {
                             MobEntity mobEntity = (MobEntity) livingEntity;
 
                             if (mobEntity.getTarget() != this.seeker.getTarget()) {
+                                mobEntity.setLastHurtByMob(null);
                                 mobEntity.setTarget(this.seeker.getTarget());
                                 mobEntity.getNavigation().moveTo(target, 1.0D);
                             }
@@ -369,6 +374,7 @@ public class SeekerEntity extends GhastEntity implements IFullMoonMob {
                     }
                 }
             }
+            this.seeker.setAlerting(true);
             this.seeker.playSound(SoundEvents.GHAST_SCREAM, 5.0F, 0.6F);
         }
 

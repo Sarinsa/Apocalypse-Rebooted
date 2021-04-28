@@ -71,16 +71,16 @@ public class SeekerFireballEntity extends AbstractFireballEntity {
         if (this.getOwner() instanceof LivingEntity) {
             owner = (LivingEntity) this.getOwner();
         }
-
         boolean enabledMobGrief = ForgeEventFactory.getMobGriefingEvent(world, this.getEntity());
 
-        if (this.sawTarget) {
-            world.explode(owner, this.getX(), this.getY(), this.getZ(), (float) this.explosionStrength, enabledMobGrief, enabledMobGrief ? Explosion.Mode.DESTROY : Explosion.Mode.NONE);
-        }
-        else {
-            if (!world.isClientSide) {
+        if (!this.level.isClientSide) {
+            if (this.sawTarget) {
+                world.explode(owner, this.getX(), this.getY(), this.getZ(), (float) this.explosionStrength, enabledMobGrief, enabledMobGrief ? Explosion.Mode.DESTROY : Explosion.Mode.NONE);
+            }
+            else {
                 if (!(owner instanceof MobEntity) || world.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) || net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(world, this.getEntity())) {
                     BlockPos firePos = result.getBlockPos().relative(direction);
+
                     if (this.level.isEmptyBlock(firePos)) {
                         this.level.setBlockAndUpdate(firePos, AbstractFireBlock.getState(this.level, firePos));
                     }
@@ -106,7 +106,6 @@ public class SeekerFireballEntity extends AbstractFireballEntity {
         this.markHurt();
 
         if (damageSource.getEntity() != null) {
-            // Reflect fireball and set fuse time
             Entity entity = damageSource.getEntity();
             Vector3d vec = entity.getLookAngle();
             this.setDeltaMovement(vec);

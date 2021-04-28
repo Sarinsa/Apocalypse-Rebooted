@@ -29,7 +29,6 @@ public final class RegistryHelper implements IRegistryHelper {
         this.alertRegister = new SeekerAlertRegister();
     }
 
-
     @Override
     public <A extends LivingEntity, B extends LivingEntity, C extends MobEntity> void registerSeekerAlertable(Class<A> alertable, TriConsumer<A, B, C> logic) {
         Objects.requireNonNull(alertable);

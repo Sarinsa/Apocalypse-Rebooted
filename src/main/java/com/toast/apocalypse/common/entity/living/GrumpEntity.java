@@ -11,6 +11,7 @@ import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.HurtByTargetGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
+import net.minecraft.entity.item.ExperienceOrbEntity;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.PlayerEntity;
@@ -46,6 +47,7 @@ public class GrumpEntity extends GhastEntity implements IMob, IFullMoonMob {
 
     public GrumpEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
+        this.xpReward = 3;
     }
 
     public static AttributeModifierMap.MutableAttribute createGrumpAttributes() {
@@ -315,9 +317,9 @@ public class GrumpEntity extends GhastEntity implements IMob, IFullMoonMob {
         @Override
         public void start() {
             Random random = this.grump.getRandom();
-            double x = this.grump.getX() + (double)((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
-            double y = this.grump.getY() + (double)((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
-            double z = this.grump.getZ() + (double)((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            double x = this.grump.getX() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
+            double y = this.grump.getY() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
+            double z = this.grump.getZ() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
             this.grump.getMoveControl().setWantedPosition(x, y, z, 1.0D);
         }
     }

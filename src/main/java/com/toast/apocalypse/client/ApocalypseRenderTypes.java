@@ -7,6 +7,8 @@ import net.minecraft.util.ResourceLocation;
 
 public class ApocalypseRenderTypes {
 
+    public static RenderState.AlphaState GHOST_ALPHA = new RenderState.AlphaState(0.001F);
+
     /**
      * This RenderType is the same as entityCutoutNoCull except
      * with additive transparency. We use this for rendering the ghost entity.
@@ -18,8 +20,7 @@ public class ApocalypseRenderTypes {
                 .setTextureState(new RenderState.TextureState(resourceLocation, false, false))
                 .setTransparencyState(RenderState.ADDITIVE_TRANSPARENCY)
                 .setDiffuseLightingState(RenderState.DIFFUSE_LIGHTING)
-                .setAlphaState(RenderState.DEFAULT_ALPHA)
-                .setCullState(RenderState.NO_CULL)
+                .setAlphaState(GHOST_ALPHA)
                 .setLightmapState(RenderState.LIGHTMAP)
                 .setOverlayState(RenderState.OVERLAY)
                 .createCompositeState(true);
