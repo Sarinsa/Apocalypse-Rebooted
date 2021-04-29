@@ -21,6 +21,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractFireballEntity;
 import net.minecraft.entity.projectile.FireballEntity;
 import net.minecraft.entity.projectile.SmallFireballEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -85,7 +86,7 @@ public class SeekerEntity extends GhastEntity implements IFullMoonMob {
     }
 
     public boolean canAlert() {
-        return this.nextTimeAlerting <= 0 && this.getTarget() != null && !this.isCharging() && !this.isAlerting() && this.canSeeDirectly(this, this.getTarget());
+        return this.nextTimeAlerting <= 0 && this.getTarget() != null && !this.isCharging() && !this.isAlerting() && this.canSeeDirectly(this.getTarget());
     }
 
     public boolean isAlerting() {
@@ -137,6 +138,16 @@ public class SeekerEntity extends GhastEntity implements IFullMoonMob {
         return true;
     }
 
+    /**
+     * Checks if the seeker actually has direct
+     * line of sight to the target entity.
+     */
+    public boolean canSeeDirectly(Entity entity) {
+        Vector3d vector3d = new Vector3d(this.getX(), this.getEyeY(), this.getZ());
+        Vector3d vector3d1 = new Vector3d(entity.getX(), entity.getEyeY(), entity.getZ());
+        return this.level.clip(new RayTraceContext(vector3d, vector3d1, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, this)).getType() == RayTraceResult.Type.MISS;
+    }
+
     @Override
     public boolean canBreatheUnderwater() {
         return true; // Immune to drowning
@@ -155,6 +166,19 @@ public class SeekerEntity extends GhastEntity implements IFullMoonMob {
     public void setNextTimeAlerting(int time) {
         this.nextTimeAlerting = time;
     }
+
+    @Override
+    public void addAdditionalSaveData(CompoundNBT compoundNBT) {
+        super.addAdditionalSaveData(compoundNBT);
+        compoundNBT.putInt("NextTimeAlerting", this.nextTimeAlerting);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundNBT compoundNBT) {
+        super.readAdditionalSaveData(compoundNBT);
+        this.nextTimeAlerting = compoundNBT.getInt("NextTimeAlerting");
+    }
+
 
     private static class SeekerNearestAttackableTargetGoal<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {
 
@@ -218,7 +242,7 @@ public class SeekerEntity extends GhastEntity implements IFullMoonMob {
                     if (!this.seeker.isSilent()) {
                         world.levelEvent(null, 1016, this.seeker.blockPosition(), 0);
                     }
-                    boolean canSeeTarget = this.seeker.canSeeDirectly(this.seeker, target);
+                    boolean canSeeTarget = this.seeker.canSeeDirectly(target);
                     SeekerFireballEntity fireball = new SeekerFireballEntity(world, this.seeker, canSeeTarget, x, y, z);
                     fireball.setPos(this.seeker.getX() + vector3d.x * 4.0D, this.seeker.getY(0.5D) + 0.2D, fireball.getZ() + vector3d.z * 4.0D);
                     world.addFreshEntity(fireball);
@@ -351,8 +375,11 @@ public class SeekerEntity extends GhastEntity implements IFullMoonMob {
                 AxisAlignedBB searchBox = target.getBoundingBox().inflate(60.0D, 30.0D, 60.0D);
                 List<LivingEntity> toAlert = this.seeker.level.getLoadedEntitiesOfClass(LivingEntity.class, searchBox, (entity) -> ALERT_PREDICATE.test(entity, this.seeker));
 
-                if (toAlert.isEmpty())
+                if (toAlert.isEmpty()) {
+                    // No need to perform further checks if the list is empty
+                    this.timeAlerting = 0;
                     return;
+                }
 
                 for (LivingEntity livingEntity : toAlert) {
                     Class<? extends LivingEntity> entityClass = livingEntity.getClass();

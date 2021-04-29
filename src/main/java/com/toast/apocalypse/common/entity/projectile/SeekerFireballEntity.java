@@ -31,7 +31,6 @@ public class SeekerFireballEntity extends AbstractFireballEntity {
     private boolean sawTarget = false;
     private boolean reflected = false;
     private int explosionStrength = 1;
-    private Entity seekTarget;
 
     public SeekerFireballEntity(EntityType<? extends AbstractFireballEntity> entityType, World world) {
         super(entityType, world);
@@ -71,13 +70,10 @@ public class SeekerFireballEntity extends AbstractFireballEntity {
         if (this.getOwner() instanceof LivingEntity) {
             owner = (LivingEntity) this.getOwner();
         }
-        boolean enabledMobGrief = ForgeEventFactory.getMobGriefingEvent(world, this.getEntity());
+        boolean enabledMobGrief = world.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) || net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(world, this.getEntity());
 
         if (!this.level.isClientSide) {
             if (this.sawTarget) {
-                world.explode(owner, this.getX(), this.getY(), this.getZ(), (float) this.explosionStrength, enabledMobGrief, enabledMobGrief ? Explosion.Mode.DESTROY : Explosion.Mode.NONE);
-            }
-            else {
                 if (!(owner instanceof MobEntity) || world.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) || net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(world, this.getEntity())) {
                     BlockPos firePos = result.getBlockPos().relative(direction);
 
@@ -85,6 +81,9 @@ public class SeekerFireballEntity extends AbstractFireballEntity {
                         this.level.setBlockAndUpdate(firePos, AbstractFireBlock.getState(this.level, firePos));
                     }
                 }
+            }
+            else {
+                world.explode(owner, this.getX(), this.getY(), this.getZ(), (float) this.explosionStrength, enabledMobGrief, enabledMobGrief ? Explosion.Mode.DESTROY : Explosion.Mode.NONE);
             }
         }
     }
