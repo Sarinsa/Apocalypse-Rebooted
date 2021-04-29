@@ -9,9 +9,7 @@ import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.goal.HurtByTargetGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
-import net.minecraft.entity.item.ExperienceOrbEntity;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.PlayerEntity;
@@ -37,7 +35,7 @@ import java.util.Random;
  * Unlike most full moon mobs, this one has no means of breaking through defenses and therefore relies on the
  * player being vulnerable to attack - whether by will or by other mobs breaking through to the player.
  */
-public class GrumpEntity extends GhastEntity implements IMob, IFullMoonMob {
+public class GrumpEntity extends AbstractFullMoonGhastEntity implements IMob, IFullMoonMob {
 
     /**
      * The current fish hook entity
@@ -71,16 +69,6 @@ public class GrumpEntity extends GhastEntity implements IMob, IFullMoonMob {
     @Override
     protected float getStandingEyeHeight(Pose pose, EntitySize entitySize) {
         return 0.60F;
-    }
-
-    @Override
-    public boolean canBreatheUnderwater() {
-        return true; // Immune to drowning
-    }
-
-    @Override
-    protected SoundEvent getAmbientSound() {
-        return null;
     }
 
     // Not nearly as loud as a ghast since it is much smaller.
@@ -152,12 +140,18 @@ public class GrumpEntity extends GhastEntity implements IMob, IFullMoonMob {
 
         @Override
         public boolean canUse() {
-            return this.grump.getTarget() != null;
+            LivingEntity target = this.grump.getTarget();
+            return target != null && this.grump.canSeeDirectly(target);
         }
 
         @Override
         public boolean canContinueToUse() {
-            return this.grump.getMoveControl().hasWanted() && this.grump.getTarget() != null && this.grump.getTarget().isAlive();
+            LivingEntity target = this.grump.getTarget();
+
+            if (target != null && target.isAlive()) {
+                return this.grump.getMoveHelperController().hasWanted() && this.grump.getMoveHelperController().canReachCurrentWanted();
+            }
+            return false;
         }
 
         @Override

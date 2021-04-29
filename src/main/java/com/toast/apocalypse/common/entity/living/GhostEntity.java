@@ -75,7 +75,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
     @Override
     protected float getStandingEyeHeight(Pose pose, EntitySize entitySize) {
-        return 0.60F;
+        return 1.80F;
     }
 
     @Override
@@ -209,6 +209,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
         public void tick() {
             if (this.operation == MovementController.Action.MOVE_TO) {
+
                 T ghost = this.ghostEntity;
                 Vector3d vector3d = new Vector3d(this.wantedX - ghost.getX(), this.wantedY - ghost.getY(), this.wantedZ - ghost.getZ());
                 double d0 = vector3d.length();
@@ -379,7 +380,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
             double x = this.ghost.getX() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
             double y = this.ghost.getY() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
             double z = this.ghost.getZ() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
-            this.ghost.getMoveControl().setWantedPosition(x, y, z, 1.0D);
+            this.ghost.getMoveControl().setWantedPosition(x, y, z, 0.85D);
         }
     }
 }

@@ -30,14 +30,10 @@ import java.util.Random;
  * This is a full moon mob similar to a ghast, though it has unlimited aggro range ignoring line of sight and
  * its fireballs can destroy anything within a small area.
  */
-public class DestroyerEntity extends GhastEntity implements IFullMoonMob {
+public class DestroyerEntity extends AbstractFullMoonGhastEntity implements IFullMoonMob {
 
     public DestroyerEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
-        FlyingPathNavigator navigator = new FlyingPathNavigator(this, world);
-        navigator.setCanOpenDoors(false);
-        navigator.setCanPassDoors(false);
-        this.navigation = navigator;
         this.xpReward = 5;
     }
 
@@ -68,16 +64,6 @@ public class DestroyerEntity extends GhastEntity implements IFullMoonMob {
     @Override
     public boolean canSee(Entity entity) {
         return true;
-    }
-
-    @Override
-    public boolean canBreatheUnderwater() {
-        return true; // Immune to drowning
-    }
-
-    @Override
-    protected SoundEvent getAmbientSound() {
-        return null;
     }
 
     @Override
@@ -145,7 +131,7 @@ public class DestroyerEntity extends GhastEntity implements IFullMoonMob {
         public void tick() {
             LivingEntity target = this.destroyer.getTarget();
 
-            if (target.distanceToSqr(this.destroyer) < 4096.0D && this.destroyer.canSee(target)) {
+            if (this.destroyer.horizontalDistanceToSqr(target) < 4096.0D && this.destroyer.canSee(target)) {
                 World world = this.destroyer.level;
                 ++this.chargeTime;
                 if (this.chargeTime == 10 && !this.destroyer.isSilent()) {
@@ -237,21 +223,27 @@ public class DestroyerEntity extends GhastEntity implements IFullMoonMob {
         private void setRandomWantedPosition() {
             Random random = this.destroyer.getRandom();
             double x = this.destroyer.getX() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
-            // Don't want the destroyer moving too much on the Y axis
-            // in case it just decides to vanish into space.
-            double y = this.destroyer.getY() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 6.0F);
+            double y = this.destroyer.getY() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 10.0F);
             double z = this.destroyer.getZ() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
             this.destroyer.getMoveControl().setWantedPosition(x, y, z, 1.0D);
         }
 
         @Override
         public void start() {
+            MoveHelperController controller = this.destroyer.getMoveHelperController();
+
             if (this.destroyer.getTarget() != null) {
                 LivingEntity target = this.destroyer.getTarget();
+                boolean canSeeDirectly = this.destroyer.canSeeDirectly(target);
                 double distanceToTarget = this.destroyer.distanceToSqr(target);
 
                 if (distanceToTarget > maxDistanceBeforeFollow) {
-                    this.destroyer.moveControl.setWantedPosition(target.getX(), target.getY() + 10.0D, target.getZ(), 1.0D);
+                    if (!controller.canReachCurrentWanted()) {
+                        this.setRandomWantedPosition();
+                    }
+                    else {
+                        controller.setWantedPosition(target.getX(), target.getY() + 10.0D, target.getZ(), 1.0D);
+                    }
                 }
                 else {
                     this.setRandomWantedPosition();

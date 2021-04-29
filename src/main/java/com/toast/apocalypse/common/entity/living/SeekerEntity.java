@@ -4,7 +4,6 @@ import com.toast.apocalypse.api.impl.SeekerAlertRegister;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.IFullMoonMob;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
-import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -12,24 +11,20 @@ import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
-import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
-import net.minecraft.entity.monster.MonsterEntity;
-import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractFireballEntity;
 import net.minecraft.entity.projectile.FireballEntity;
-import net.minecraft.entity.projectile.SmallFireballEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.IServerWorld;
@@ -39,7 +34,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
 import java.util.function.BiPredicate;
-import java.util.function.Predicate;
 
 /**
  * This is a full moon mob whose entire goal in life is to break through your defenses. It is similar to a ghast, only
@@ -47,7 +41,7 @@ import java.util.function.Predicate;
  * clear line of sight. When it does have direct vision, it shoots much weaker fireballs that can be easily reflected
  * back at the seeker. The seeker also alerts nearby monsters of the player's whereabouts when in it's direct line of sight.
  */
-public class SeekerEntity extends GhastEntity implements IFullMoonMob {
+public class SeekerEntity extends AbstractFullMoonGhastEntity implements IFullMoonMob {
 
     private static final DataParameter<Boolean> ALERTING = EntityDataManager.defineId(SeekerEntity.class, DataSerializers.BOOLEAN);
     private static final BiPredicate<LivingEntity, MobEntity> ALERT_PREDICATE = (livingEntity, seeker) -> !(livingEntity instanceof IFullMoonMob) && seeker.getTarget() != livingEntity;
@@ -111,7 +105,7 @@ public class SeekerEntity extends GhastEntity implements IFullMoonMob {
             return false;
         }
         // Prevent instant fireball death and return to sender advancement
-        else if (damageSource.getDirectEntity() instanceof AbstractFireballEntity) {
+        else if (damageSource.getDirectEntity() instanceof SeekerFireballEntity || damageSource.getDirectEntity() instanceof FireballEntity) {
             // Prevent the destroyer from damaging itself
             // when close up to a wall or solid obstacle
             if (damageSource.getEntity() == this)
@@ -125,7 +119,6 @@ public class SeekerEntity extends GhastEntity implements IFullMoonMob {
         else if (damageSource.isExplosion() && damageSource.getEntity() == this) {
             return false;
         }
-
         return super.hurt(damageSource, damage);
     }
 
@@ -136,26 +129,6 @@ public class SeekerEntity extends GhastEntity implements IFullMoonMob {
     @Override
     public boolean canSee(Entity entity) {
         return true;
-    }
-
-    /**
-     * Checks if the seeker actually has direct
-     * line of sight to the target entity.
-     */
-    public boolean canSeeDirectly(Entity entity) {
-        Vector3d vector3d = new Vector3d(this.getX(), this.getEyeY(), this.getZ());
-        Vector3d vector3d1 = new Vector3d(entity.getX(), entity.getEyeY(), entity.getZ());
-        return this.level.clip(new RayTraceContext(vector3d, vector3d1, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, this)).getType() == RayTraceResult.Type.MISS;
-    }
-
-    @Override
-    public boolean canBreatheUnderwater() {
-        return true; // Immune to drowning
-    }
-
-    @Override
-    protected SoundEvent getAmbientSound() {
-        return null;
     }
 
     @Override
@@ -226,7 +199,7 @@ public class SeekerEntity extends GhastEntity implements IFullMoonMob {
         public void tick() {
             LivingEntity target = this.seeker.getTarget();
 
-            if (target.distanceToSqr(this.seeker) < 4096.0D) {
+            if (this.seeker.horizontalDistanceToSqr(target) < 4096.0D) {
                 World world = this.seeker.level;
                 ++this.chargeTime;
                 if (this.chargeTime == 10 && !this.seeker.isSilent()) {
@@ -320,8 +293,6 @@ public class SeekerEntity extends GhastEntity implements IFullMoonMob {
         private void setRandomWantedPosition() {
             Random random = this.seeker.getRandom();
             double x = this.seeker.getX() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
-            // Don't want the destroyer moving too much on the Y axis
-            // in case it just decides to vanish into space.
             double y = this.seeker.getY() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 6.0F);
             double z = this.seeker.getZ() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
             this.seeker.getMoveControl().setWantedPosition(x, y, z, 1.0D);
@@ -366,6 +337,7 @@ public class SeekerEntity extends GhastEntity implements IFullMoonMob {
         }
 
         @Override
+        @SuppressWarnings("all")
         public void start() {
             SeekerAlertRegister alertRegister = Apocalypse.INSTANCE.getRegistryHelper().getAlertRegister();
             LivingEntity target = this.seeker.getTarget();
@@ -400,9 +372,9 @@ public class SeekerEntity extends GhastEntity implements IFullMoonMob {
                         }
                     }
                 }
+                this.seeker.setAlerting(true);
+                this.seeker.playSound(SoundEvents.GHAST_SCREAM, 5.0F, 0.6F);
             }
-            this.seeker.setAlerting(true);
-            this.seeker.playSound(SoundEvents.GHAST_SCREAM, 5.0F, 0.6F);
         }
 
         @Override
