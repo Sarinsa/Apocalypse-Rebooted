@@ -62,7 +62,7 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity implements IFullMo
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new SeekerEntity.FireballAttackGoal(this));
-        this.goalSelector.addGoal(0, new SeekerEntity.LookAroundGoal(this));
+        this.goalSelector.addGoal(1, new SeekerEntity.LookAroundGoal(this));
         this.goalSelector.addGoal(1, new SeekerEntity.RandomOrRelativeToTargetFlyGoal(this));
         this.goalSelector.addGoal(2, new SeekerEntity.AlertOtherMonstersGoal(this));
         this.targetSelector.addGoal(0, new SeekerEntity.SeekerNearestAttackableTargetGoal<>(this, PlayerEntity.class));
@@ -80,7 +80,7 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity implements IFullMo
     }
 
     public boolean canAlert() {
-        return this.nextTimeAlerting <= 0 && this.getTarget() != null && !this.isCharging() && !this.isAlerting() && this.canSeeDirectly(this.getTarget());
+        return this.nextTimeAlerting <= 0 && !this.isCharging();
     }
 
     public boolean isAlerting() {
@@ -177,12 +177,15 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity implements IFullMo
 
         @Override
         public boolean canUse() {
-            return this.seeker.getTarget() != null && !this.seeker.isAlerting();
+            if (this.seeker.getTarget() != null) {
+                return !this.seeker.canAlert() && !this.seeker.isAlerting();
+            }
+            return false;
         }
 
         @Override
         public boolean canContinueToUse() {
-            return !this.seeker.isAlerting() && this.seeker.getTarget() != null;
+            return this.canUse();
         }
 
         @Override
@@ -328,7 +331,10 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity implements IFullMo
 
         @Override
         public boolean canUse() {
-            return this.seeker.canAlert();
+            if (this.seeker.getTarget() != null) {
+                return this.seeker.canAlert() && this.seeker.canSeeDirectly(this.seeker.getTarget());
+            }
+            return false;
         }
 
         @Override

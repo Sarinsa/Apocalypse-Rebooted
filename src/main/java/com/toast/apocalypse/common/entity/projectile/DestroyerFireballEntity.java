@@ -45,8 +45,6 @@ public class DestroyerFireballEntity extends AbstractFireballEntity {
     /**
      * Helper method for creating the destroyer
      * explosion that can destroy any type of block.
-     *
-     * (Except from bedrock. Maybe this should be configurable?)
      */
     public static void destroyerExplosion(World world, Entity entity, DamageSource damageSource, double x, double y, double z, float explosionPower) {
         Explosion.Mode mode = ForgeEventFactory.getMobGriefingEvent(world, entity) ? Explosion.Mode.DESTROY : Explosion.Mode.NONE;

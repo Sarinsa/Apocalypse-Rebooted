@@ -1,6 +1,8 @@
 package com.toast.apocalypse.common.entity.projectile;
 
 import com.toast.apocalypse.common.entity.living.SeekerEntity;
+import com.toast.apocalypse.common.misc.DestroyerExplosionContext;
+import com.toast.apocalypse.common.misc.SeekerExplosionContext;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.entity.Entity;
@@ -26,6 +28,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.network.NetworkHooks;
 
+import javax.annotation.Nullable;
+
 public class SeekerFireballEntity extends AbstractFireballEntity {
 
     private boolean sawTarget = false;
@@ -40,6 +44,16 @@ public class SeekerFireballEntity extends AbstractFireballEntity {
         super(ApocalypseEntities.SEEKER_FIREBALL.get(), seeker, x, y, z, world);
         this.sawTarget = sawTarget;
         this.explosionStrength = seeker.getExplosionPower();
+    }
+
+    /**
+     * Helper method for creating the seeker fireball
+     * explosion. A custom ExplosionContext is used in order
+     * to explode blocks even if they are surrounded by a fluid.
+     */
+    public static void seekerExplosion(World world, @Nullable Entity entity, DamageSource damageSource, double x, double y, double z, float explosionPower, boolean enableMobGrief) {
+        Explosion.Mode mode = enableMobGrief ? Explosion.Mode.DESTROY : Explosion.Mode.NONE;
+        world.explode(entity, damageSource, new SeekerExplosionContext(), x, y, z, explosionPower, false, mode);
     }
 
     @Override
@@ -74,7 +88,7 @@ public class SeekerFireballEntity extends AbstractFireballEntity {
 
         if (!this.level.isClientSide) {
             if (this.sawTarget) {
-                if (!(owner instanceof MobEntity) || world.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) || net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(world, this.getEntity())) {
+                if (!(owner instanceof MobEntity) || enabledMobGrief) {
                     BlockPos firePos = result.getBlockPos().relative(direction);
 
                     if (this.level.isEmptyBlock(firePos)) {
@@ -83,7 +97,7 @@ public class SeekerFireballEntity extends AbstractFireballEntity {
                 }
             }
             else {
-                world.explode(owner, this.getX(), this.getY(), this.getZ(), (float) this.explosionStrength, enabledMobGrief, enabledMobGrief ? Explosion.Mode.DESTROY : Explosion.Mode.NONE);
+                seekerExplosion(this.level, owner, DamageSource.fireball(this, this.getOwner()), this.getX(), this.getY(), this.getZ(), (float) this.explosionStrength, enabledMobGrief);
             }
         }
     }
