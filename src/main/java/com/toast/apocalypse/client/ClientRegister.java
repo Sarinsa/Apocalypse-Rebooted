@@ -2,6 +2,7 @@ package com.toast.apocalypse.client;
 
 import com.toast.apocalypse.client.event.ClientEvents;
 import com.toast.apocalypse.client.renderers.entity.NoRender;
+import com.toast.apocalypse.client.renderers.entity.breecher.BreecherRenderer;
 import com.toast.apocalypse.client.renderers.entity.destroyer.DestroyerRenderer;
 import com.toast.apocalypse.client.renderers.entity.ghost.GhostRenderer;
 import com.toast.apocalypse.client.renderers.entity.grump.GrumpRenderer;
@@ -42,6 +43,7 @@ public class ClientRegister {
         RenderingRegistry.registerEntityRenderingHandler(ApocalypseEntities.DESTROYER.get(), DestroyerRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(ApocalypseEntities.SEEKER.get(), SeekerRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(ApocalypseEntities.GRUMP.get(), GrumpRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(ApocalypseEntities.BREECHER.get(), BreecherRenderer::new);
 
         registerSpriteRenderer(ApocalypseEntities.DESTROYER_FIREBALL.get(), minecraftSupplier, 3.0F, true);
         registerSpriteRenderer(ApocalypseEntities.SEEKER_FIREBALL.get(), minecraftSupplier, 1.5F, true);

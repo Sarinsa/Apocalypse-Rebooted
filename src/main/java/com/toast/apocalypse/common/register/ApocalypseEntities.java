@@ -1,10 +1,7 @@
 package com.toast.apocalypse.common.register;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.entity.living.DestroyerEntity;
-import com.toast.apocalypse.common.entity.living.GhostEntity;
-import com.toast.apocalypse.common.entity.living.GrumpEntity;
-import com.toast.apocalypse.common.entity.living.SeekerEntity;
+import com.toast.apocalypse.common.entity.living.*;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
 import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
@@ -28,6 +25,7 @@ public class ApocalypseEntities {
     public static EntityType<DestroyerEntity> DESTROYER_TYPE;
     public static EntityType<SeekerEntity> SEEKER_TYPE;
     public static EntityType<GrumpEntity> GRUMP_TYPE;
+    public static EntityType<BreecherEntity> BREECHER_TYPE;
 
     public static final RegistryObject<EntityType<MonsterFishHook>> MONSTER_FISH_HOOK = register("monster_fish_hook", EntityType.Builder.<MonsterFishHook>of(MonsterFishHook::new, EntityClassification.MISC).noSave().noSummon().sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(5));
     public static final RegistryObject<EntityType<DestroyerFireballEntity>> DESTROYER_FIREBALL = register("destroyer_fireball", EntityType.Builder.<DestroyerFireballEntity>of(DestroyerFireballEntity::new, EntityClassification.MISC).sized(1.0F, 1.0F).clientTrackingRange(4).updateInterval(10));
@@ -36,6 +34,7 @@ public class ApocalypseEntities {
     public static final RegistryObject<EntityType<DestroyerEntity>> DESTROYER = register("destroyer", () -> DESTROYER_TYPE);
     public static final RegistryObject<EntityType<SeekerEntity>> SEEKER = register("seeker", () -> SEEKER_TYPE);
     public static final RegistryObject<EntityType<GrumpEntity>> GRUMP = register("grump", () -> GRUMP_TYPE);
+    public static final RegistryObject<EntityType<BreecherEntity>> BREECHER = register("breecher", () -> BREECHER_TYPE);
 
     /**
      * Initializing entity types for living entities in the mod class
@@ -48,6 +47,7 @@ public class ApocalypseEntities {
         DESTROYER_TYPE = create("destroyer", EntityType.Builder.of(DestroyerEntity::new, EntityClassification.MONSTER).sized(4.5F, 4.5F).clientTrackingRange(10).fireImmune());
         SEEKER_TYPE = create("seeker", EntityType.Builder.of(SeekerEntity::new, EntityClassification.MONSTER).sized(4.5F, 4.5F).clientTrackingRange(10).fireImmune());
         GRUMP_TYPE = create("grump", EntityType.Builder.of(GrumpEntity::new, EntityClassification.MONSTER).sized(1.0F, 1.0F));
+        BREECHER_TYPE = create("breecher", EntityType.Builder.of(BreecherEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.7F).clientTrackingRange(8));
     }
 
 
@@ -60,6 +60,7 @@ public class ApocalypseEntities {
         event.put(DESTROYER.get(), DestroyerEntity.createDestroyerAttributes().build());
         event.put(SEEKER.get(), SeekerEntity.createSeekerAttributes().build());
         event.put(GRUMP.get(), GrumpEntity.createGrumpAttributes().build());
+        event.put(BREECHER.get(), BreecherEntity.createBreecherAttributes().build());
     }
 
     /**
