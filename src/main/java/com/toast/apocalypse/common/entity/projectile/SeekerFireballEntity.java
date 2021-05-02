@@ -14,9 +14,7 @@ import net.minecraft.entity.projectile.FireballEntity;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.EntityRayTraceResult;
@@ -93,6 +91,7 @@ public class SeekerFireballEntity extends AbstractFireballEntity {
 
                     if (this.level.isEmptyBlock(firePos)) {
                         this.level.setBlockAndUpdate(firePos, AbstractFireBlock.getState(this.level, firePos));
+                        this.level.playSound(null, this.blockPosition(), SoundEvents.BLAZE_SHOOT, SoundCategory.MASTER, 2.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F);
                     }
                 }
             }
