@@ -18,7 +18,7 @@ public class GrumpBucketHelmetModel<T extends GhastEntity> extends EntityModel<T
 
         this.head = new ModelRenderer(this);
         this.head.setPos(0.0F, 0.0F, 0.0F);
-        this.head.texOffs(0, 14).addBox(-4.0F, 3.0F, -4.0F, 8.0F, 10.0F, 8.0F, 5.2F, false);
+        this.head.texOffs(0, 14).addBox(-4.0F, 3.0F, -4.0F, 8.0F, 10.0F, 8.0F, 5.0F, false);
     }
 
     @Override

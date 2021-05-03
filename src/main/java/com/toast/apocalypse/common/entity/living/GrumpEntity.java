@@ -15,6 +15,7 @@ import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -97,9 +98,9 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
 
     @Override
     public boolean hurt(DamageSource damageSource, float damage) {
-        if (damageSource.isProjectile()) {
+        if (damageSource.getDirectEntity() instanceof AbstractArrowEntity) {
             if (this.getItemBySlot(EquipmentSlotType.HEAD).getItem() == ApocalypseItems.BUCKET_HELM.get()) {
-                damage = 1.0F;
+                damage = Math.min(damage, 1.0F);
             }
         }
         return super.hurt(damageSource, damage);
