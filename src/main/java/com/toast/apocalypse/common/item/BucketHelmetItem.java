@@ -25,7 +25,7 @@ import java.util.List;
 
 public class BucketHelmetItem extends ArmorItem {
 
-    private static final String TEXTURE = Apocalypse.resourceLoc("textures/models/armor/bucket_helm.png").toString();
+    public static final String TEXTURE = Apocalypse.resourceLoc("textures/models/armor/bucket_helm.png").toString();
 
     public BucketHelmetItem() {
         super(ArmorMaterial.IRON, EquipmentSlotType.HEAD, new Item.Properties().tab(ItemGroup.TAB_COMBAT).defaultDurability(0));

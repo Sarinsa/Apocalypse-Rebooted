@@ -13,6 +13,7 @@ public class GrumpRenderer<T extends GrumpEntity> extends MobRenderer<T, GhastMo
 
     public GrumpRenderer(EntityRendererManager rendererManager) {
         super(rendererManager, new GhastModel<>(), 0.5F);
+        this.addLayer(new GrumpBucketHelmetLayer<>(this));
     }
 
     @Override

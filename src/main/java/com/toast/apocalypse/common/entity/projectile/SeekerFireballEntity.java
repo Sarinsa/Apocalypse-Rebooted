@@ -51,7 +51,7 @@ public class SeekerFireballEntity extends AbstractFireballEntity {
      */
     public static void seekerExplosion(World world, @Nullable Entity entity, DamageSource damageSource, double x, double y, double z, float explosionPower, boolean enableMobGrief) {
         Explosion.Mode mode = enableMobGrief ? Explosion.Mode.DESTROY : Explosion.Mode.NONE;
-        world.explode(entity, damageSource, new SeekerExplosionContext(), x, y, z, explosionPower, false, mode);
+        world.explode(entity, damageSource, new SeekerExplosionContext(), x, y, z, explosionPower, true, mode);
     }
 
     @Override

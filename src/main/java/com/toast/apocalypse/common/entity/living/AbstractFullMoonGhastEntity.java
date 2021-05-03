@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.entity.IFullMoonMob;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.controller.MovementController;
@@ -13,7 +14,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
-public abstract class AbstractFullMoonGhastEntity extends GhastEntity {
+public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements IFullMoonMob {
 
     public AbstractFullMoonGhastEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);

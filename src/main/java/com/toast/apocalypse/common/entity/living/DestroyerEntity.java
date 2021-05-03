@@ -12,9 +12,7 @@ import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractFireballEntity;
-import net.minecraft.pathfinding.FlyingPathNavigator;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -30,7 +28,7 @@ import java.util.Random;
  * This is a full moon mob similar to a ghast, though it has unlimited aggro range ignoring line of sight and
  * its fireballs can destroy anything within a small area.
  */
-public class DestroyerEntity extends AbstractFullMoonGhastEntity implements IFullMoonMob {
+public class DestroyerEntity extends AbstractFullMoonGhastEntity {
 
     public DestroyerEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);

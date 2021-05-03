@@ -41,7 +41,7 @@ import java.util.function.BiPredicate;
  * clear line of sight. When it does have direct vision, it shoots much weaker fireballs that can be easily reflected
  * back at the seeker. The seeker also alerts nearby monsters of the player's whereabouts when in it's direct line of sight.
  */
-public class SeekerEntity extends AbstractFullMoonGhastEntity implements IFullMoonMob {
+public class SeekerEntity extends AbstractFullMoonGhastEntity {
 
     private static final DataParameter<Boolean> ALERTING = EntityDataManager.defineId(SeekerEntity.class, DataSerializers.BOOLEAN);
     private static final BiPredicate<LivingEntity, MobEntity> ALERT_PREDICATE = (livingEntity, seeker) -> !(livingEntity instanceof IFullMoonMob) && seeker.getTarget() != livingEntity;

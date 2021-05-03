@@ -4,6 +4,7 @@ import com.toast.apocalypse.common.entity.IFullMoonMob;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
+import com.toast.apocalypse.common.register.ApocalypseItems;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -12,8 +13,13 @@ import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
+import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.potion.EffectInstance;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
@@ -22,6 +28,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
 
@@ -35,7 +42,7 @@ import java.util.Random;
  * Unlike most full moon mobs, this one has no means of breaking through defenses and therefore relies on the
  * player being vulnerable to attack - whether by will or by other mobs breaking through to the player.
  */
-public class GrumpEntity extends AbstractFullMoonGhastEntity implements IMob, IFullMoonMob {
+public class GrumpEntity extends AbstractFullMoonGhastEntity {
 
     /**
      * The current fish hook entity
@@ -79,6 +86,23 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IMob, IF
 
     public static boolean checkGrumpSpawnRules(EntityType<? extends GrumpEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
         return world.getDifficulty() != Difficulty.PEACEFUL && MobEntity.checkMobSpawnRules(entityType, world, spawnReason, pos, random);
+    }
+
+    @Override
+    protected void populateDefaultEquipmentSlots(DifficultyInstance difficultyInstance) {
+        if (this.random.nextFloat() < (this.level.getDifficulty() == Difficulty.HARD ? 0.2F : 0.1F)) {
+            this.setItemSlot(EquipmentSlotType.HEAD, new ItemStack(ApocalypseItems.BUCKET_HELM.get()));
+        }
+    }
+
+    @Override
+    public boolean hurt(DamageSource damageSource, float damage) {
+        if (damageSource.isProjectile()) {
+            if (this.getItemBySlot(EquipmentSlotType.HEAD).getItem() == ApocalypseItems.BUCKET_HELM.get()) {
+                damage = 1.0F;
+            }
+        }
+        return super.hurt(damageSource, damage);
     }
 
     @Override
