@@ -48,8 +48,7 @@ public class ApocalypseCommonConfig {
 
         // Misc
         private final ForgeConfigSpec.ConfigValue<List<? extends String>> destroyerProofBlocks;
-
-        // Misc
+        private final ForgeConfigSpec.IntValue grumpBucketHelmetChance;
 
         private Common(ForgeConfigSpec.Builder configBuilder) {
             configBuilder.push("rain");
@@ -104,6 +103,9 @@ public class ApocalypseCommonConfig {
             this.destroyerProofBlocks = configBuilder.comment("A list of blocks that the destroyer cannot explode. Generally speaking this list should be empty since destroyers are supposed to destroy any block, but if an exception is absolutely needed, the block in question can be whitelisted here.")
                     .define("destroyerProofBlocks", DESTROYER_PROOF_BLOCKS);
 
+            this.grumpBucketHelmetChance = configBuilder.comment("This is the chance in percentage for grumps to spawn with a bucket helmet equipped. Grumps with bucket helmets are heavily armored against arrows.")
+                    .defineInRange("grumpBucketHelmetChance", 5, 0, 100);
+
             configBuilder.pop();
         }
 
@@ -150,6 +152,10 @@ public class ApocalypseCommonConfig {
         //
         public List<? extends String> getDestroyerProofBlocks() {
             return this.destroyerProofBlocks.get();
+        }
+
+        public int getGrumpBucketHelmetChance() {
+            return this.grumpBucketHelmetChance.get();
         }
     }
 }

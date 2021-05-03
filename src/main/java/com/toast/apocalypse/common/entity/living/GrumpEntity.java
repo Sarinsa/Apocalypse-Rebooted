@@ -1,10 +1,12 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.entity.IFullMoonMob;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
 import com.toast.apocalypse.common.register.ApocalypseItems;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -19,6 +21,7 @@ import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundCategory;
@@ -33,6 +36,9 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
+import java.time.LocalDate;
+import java.time.temporal.ChronoField;
 import java.util.EnumSet;
 import java.util.Random;
 
@@ -91,7 +97,14 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
 
     @Override
     protected void populateDefaultEquipmentSlots(DifficultyInstance difficultyInstance) {
-        if (this.random.nextFloat() < (this.level.getDifficulty() == Difficulty.HARD ? 0.2F : 0.1F)) {
+        int chance = ApocalypseCommonConfig.COMMON.getGrumpBucketHelmetChance();
+
+        if (chance <= 0)
+            return;
+
+        chance -= 1;
+
+        if (this.random.nextInt(100) <= chance) {
             this.setItemSlot(EquipmentSlotType.HEAD, new ItemStack(ApocalypseItems.BUCKET_HELM.get()));
         }
     }
@@ -118,6 +131,13 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
         else {
             return false;
         }
+    }
+
+    @Nullable
+    public ILivingEntityData finalizeSpawn(IServerWorld serverWorld, DifficultyInstance difficultyInstance, SpawnReason spawnReason, @Nullable ILivingEntityData spawnData, @Nullable CompoundNBT compoundNBT) {
+        spawnData = super.finalizeSpawn(serverWorld, difficultyInstance, spawnReason, spawnData, compoundNBT);
+        this.populateDefaultEquipmentSlots(difficultyInstance);
+        return spawnData;
     }
 
     /** Copied from ghast */
