@@ -1,11 +1,9 @@
 package com.toast.apocalypse.common.util;
 
-import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.event.CommonConfigReloadListener;
 import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
 import com.toast.apocalypse.common.register.ApocalypseItems;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
@@ -34,28 +32,25 @@ public class RainDamageTickHelper {
     public static void checkAndPerformRainDamageTick(PlayerEntity player) {
         World world = player.getCommandSenderWorld();
 
-        if (EnchantmentHelper.hasAquaAffinity(player) || !world.canSeeSky(player.blockPosition()))
+        if (EnchantmentHelper.hasAquaAffinity(player) || !world.isRainingAt(player.blockPosition()))
             return;
 
-        if (world.isRainingAt(player.blockPosition())) {
+        if (CapabilityHelper.getRainTicks(player) >= RAIN_TICK_RATE) {
+            CapabilityHelper.clearRainTicks(player);
+            ItemStack headStack = player.getItemBySlot(EquipmentSlotType.HEAD);
 
-            if (CapabilityHelper.getRainTicks(player) >= RAIN_TICK_RATE) {
-                ItemStack headStack = player.getItemBySlot(EquipmentSlotType.HEAD);
-
-                if (!headStack.isEmpty()) {
-                    if (headStack.getItem() == ApocalypseItems.BUCKET_HELM.get() || headStack.getItem().getMaxDamage(headStack) <= 0) {
-                        return;
-                    }
-                    headStack.hurtAndBreak(player.getRandom().nextInt(2), player, (playerEntity) -> player.broadcastBreakEvent(EquipmentSlotType.HEAD));
+            if (!headStack.isEmpty()) {
+                if (headStack.getItem() == ApocalypseItems.BUCKET_HELM.get() || headStack.getItem().getMaxDamage(headStack) <= 0) {
+                    return;
                 }
-                else {
-                    player.hurt(ApocalypseDamageSources.RAIN_DAMAGE, RAIN_DAMAGE);
-                }
-                CapabilityHelper.clearRainTicks(player);
+                headStack.hurtAndBreak(player.getRandom().nextInt(2), player, (playerEntity) -> player.broadcastBreakEvent(EquipmentSlotType.HEAD));
             }
             else {
-                CapabilityHelper.addRainTick(player);
+                player.hurt(ApocalypseDamageSources.RAIN_DAMAGE, RAIN_DAMAGE);
             }
+        }
+        else {
+            CapabilityHelper.addRainTick(player);
         }
     }
 }

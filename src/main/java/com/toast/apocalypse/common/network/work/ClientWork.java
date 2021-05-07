@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.network.work;
 
 import com.toast.apocalypse.client.event.ClientEvents;
+import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.network.message.S2CUpdateEntityVelocity;
 import com.toast.apocalypse.common.network.message.S2CUpdateWorldDifficulty;
@@ -8,8 +9,10 @@ import com.toast.apocalypse.common.network.message.S2CUpdateWorldDifficultyRate;
 import com.toast.apocalypse.common.network.message.S2CUpdateWorldMaxDifficulty;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 
 /**
  * Referencing client only code here should cause no trouble
@@ -18,8 +21,16 @@ import net.minecraft.world.World;
  */
 public class ClientWork {
 
+    private static <T> T getCapability(ClientPlayerEntity player, Capability<T> capability) {
+        return player.getCapability(capability).orElse(capability.getDefaultInstance());
+    }
+
     public static void handleDifficultyUpdate(S2CUpdateWorldDifficulty message) {
-        Apocalypse.INSTANCE.getDifficultyManager().setDifficulty(message.difficulty);
+        ClientPlayerEntity player = Minecraft.getInstance().player;
+
+        if (player != null) {
+            getCapability(player, ApocalypseCapabilities.DIFFICULTY_CAPABILITY).setDifficulty(message.difficulty);
+        }
     }
 
     public static void handleDifficultyRateUpdate(S2CUpdateWorldDifficultyRate message) {
@@ -27,11 +38,13 @@ public class ClientWork {
     }
 
     public static void handleMaxDifficultyUpdate(S2CUpdateWorldMaxDifficulty message) {
-        long maxDifficulty = message.maxDifficulty;
+        ClientPlayerEntity player = Minecraft.getInstance().player;
 
-        Apocalypse.INSTANCE.getDifficultyManager().setMaxDifficulty(maxDifficulty);
-
-        ClientEvents.COLOR_CHANGE = maxDifficulty > -1 ? maxDifficulty : References.DEFAULT_COLOR_CHANGE;
+        if (player != null) {
+            long maxDifficulty = message.maxDifficulty;
+            getCapability(player, ApocalypseCapabilities.DIFFICULTY_CAPABILITY).setMaxDifficulty(maxDifficulty);
+            ClientEvents.COLOR_CHANGE = maxDifficulty > -1 ? maxDifficulty : References.DEFAULT_COLOR_CHANGE;
+        }
     }
 
     public static void handleEntityVelocityUpdate(S2CUpdateEntityVelocity message) {

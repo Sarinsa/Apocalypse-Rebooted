@@ -2,7 +2,8 @@ package com.toast.apocalypse.client.event;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.WorldDifficultyManager;
+import com.toast.apocalypse.common.core.difficulty.WorldDifficultyManager;
+import com.toast.apocalypse.common.util.CapabilityHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -84,9 +85,11 @@ public class ClientEvents {
         if (event.getType() != RenderGameOverlayEvent.ElementType.BOSSHEALTH || OFFSET_X < 0 || OFFSET_Y < 0)
             return;
 
+        long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(this.minecraftClient.player);
+
         // Don't bother rendering the difficulty
         // when it will constantly be at 0.
-        if (this.difficultyManager.getMaxDifficulty() == 0L)
+        if (maxDifficulty == 0L)
             return;
 
         int width = event.getWindow().getGuiScaledWidth();
@@ -96,7 +99,7 @@ public class ClientEvents {
 
         // Calculate difficulty level in days with 1 decimal point
         int color = COLORS[0];
-        long difficulty = this.difficultyManager.getDifficulty();
+        long difficulty = CapabilityHelper.getPlayerDifficulty(this.minecraftClient.player);
         int partialDifficulty = (int) (difficulty % 24000L / 2400);
 
         if (COLOR_CHANGE >= 0L && difficulty >= 0L) {

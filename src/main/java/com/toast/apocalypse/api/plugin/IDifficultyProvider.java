@@ -1,21 +1,11 @@
 package com.toast.apocalypse.api.plugin;
 
 /**
- * A simple interface that lets modders interact
- * with Apocalypse's difficulty manager to a
- * limited degree.
+ * A simple interface that lets modders check
+ * Apocalypse's current difficulty rate and
+ * active event.
  */
 public interface IDifficultyProvider {
-
-    /**
-     * @return The current world difficulty.
-     */
-    long getDifficulty();
-
-    /**
-     * @return The difficulty limit for this world/server.
-     */
-    long getMaxDifficulty();
 
     /**
      * @return The current world difficulty rate.

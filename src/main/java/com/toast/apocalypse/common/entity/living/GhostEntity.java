@@ -1,6 +1,5 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.common.entity.IFullMoonMob;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
 import net.minecraft.block.BlockState;
@@ -252,7 +251,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
         @Override
         public boolean canContinueToUse() {
-            return this.ghost.moveControl.hasWanted();
+            return false;
         }
 
         @Override
@@ -264,6 +263,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         public void start() {
             Random random = this.ghost.getRandom();
             this.ghost.moveControl.setWantedPosition(this.ghost.getX() + (random.nextGaussian() * 10), this.ghost.getY() + (random.nextGaussian() * 10), this.ghost.getZ() + (random.nextGaussian() * 10), 1.1F);
+            this.ghost.shouldManeuver = false;
         }
     }
 

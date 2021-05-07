@@ -1,6 +1,7 @@
-package com.toast.apocalypse.common.core;
+package com.toast.apocalypse.common.core.difficulty;
 
 import com.toast.apocalypse.api.plugin.IDifficultyProvider;
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.mod_event.AbstractEvent;
 import com.toast.apocalypse.common.core.mod_event.EventRegister;
 import com.toast.apocalypse.common.event.CommonConfigReloadListener;
@@ -8,6 +9,7 @@ import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.RegistryKey;
@@ -24,6 +26,8 @@ import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 import org.apache.logging.log4j.Level;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -67,13 +71,15 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
     /** Used to prevent full moons from constantly happening. */
     private boolean checkedFullMoon;
 
-    /** The world difficulty */
-    private long worldDifficulty;
-    private long maxWorldDifficulty;
-
     /** The world difficulty multiplier */
     private double worldDifficultyRateMul;
     private double lastWorldDifficultyRate;
+
+    /** The recent amount of time that has has been skipped. */
+    private long skippedTime;
+
+    /** The collection of players grouped together for difficulty calculations */
+    private final Collection<PlayerGroup> playerGroups = new ArrayList<>();
 
 
     /** Fetch the server */
@@ -84,7 +90,8 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
 
     @SubscribeEvent
     public void onServerStarted(FMLServerStartedEvent event) {
-        if (this.server.overworld().dimension().equals(World.OVERWORLD)) {
+        // Would this really ever be anything else?
+        if (this.server.overworld().dimension() == World.OVERWORLD) {
             this.load();
         }
     }
@@ -96,13 +103,60 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
 
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onPlayerJoinWorld(PlayerEvent.PlayerLoggedInEvent event) {
-        NetworkHelper.sendUpdateWorldDifficulty(this.worldDifficulty);
         NetworkHelper.sendUpdateWorldDifficultyRate(this.worldDifficultyRateMul);
-        NetworkHelper.sendUpdateWorldMaxDifficulty(this.maxWorldDifficulty);
+
+        if (!event.getPlayer().getCommandSenderWorld().isClientSide) {
+            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) event.getPlayer();
+
+            NetworkHelper.sendUpdatePlayerDifficulty(serverPlayer);
+            NetworkHelper.sendUpdatePlayerMaxDifficulty(serverPlayer);
+        }
     }
 
     /**
-     * Called each game tick.
+     * Updates each player's difficulty.
+     */
+    @SubscribeEvent
+    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) {
+
+            if (++this.timeUntilUpdate >= TICKS_PER_UPDATE) {
+                this.timeUntilUpdate = 0;
+
+                PlayerEntity player = event.player;
+
+                long currentDifficulty = CapabilityHelper.getPlayerDifficulty(player);
+                long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
+
+                boolean maxDifficultyReached = maxDifficulty >= 0 && currentDifficulty >= maxDifficulty;
+
+                if (!maxDifficultyReached) {
+                    currentDifficulty += WorldDifficultyManager.TICKS_PER_UPDATE * this.worldDifficultyRateMul;
+                }
+
+                // Handle sleep penalty
+                if (!maxDifficultyReached && this.skippedTime > 20L) {
+                    currentDifficulty += this.skippedTime * SLEEP_PENALTY * this.worldDifficultyRateMul;
+                    // Send skipped time messages
+                    for (PlayerEntity playerEntity : server.getPlayerList().getPlayers()) {
+                        playerEntity.displayClientMessage(new TranslationTextComponent(References.SLEEP_PENALTY), true);
+                    }
+                }
+
+                // Update player difficulty
+                if (!player.getCommandSenderWorld().isClientSide) {
+                    ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
+                    CapabilityHelper.setPlayerDifficulty(serverPlayer, currentDifficulty);
+                    NetworkHelper.sendUpdatePlayerDifficulty(serverPlayer, currentDifficulty);
+                }
+            }
+        }
+    }
+
+    /**
+     * Called each game tick to update world difficulty rate
+     * and the currently running Apocalypse event.
+     *
      * TickEvent.Type type = the type of tick.
      * Side side = the side this tick is on.
      * TickEvent.Phase phase = the phase of this tick (START, END).
@@ -117,6 +171,14 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
             // Counter to update the world
             if (++this.timeUntilUpdate >= TICKS_PER_UPDATE) {
                 this.timeUntilUpdate = 0;
+
+                for (PlayerGroup group : this.playerGroups) {
+                    if (group.getPlayers().isEmpty()) {
+                        this.playerGroups.remove(group);
+                        return;
+                    }
+                    group.tick();
+                }
 
                 // Update active event
                 if (this.currentEvent != null) {
@@ -135,7 +197,7 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                     }
                 }
 
-                // Apply dimension difficulty rate penalty if any player is in another dimension
+                // Apply dimension difficulty rate penalty if any player is in a dimension marked for penalty
                 if (DIMENSION_PENALTY > 0.0D) {
                     for (PlayerEntity player : server.getPlayerList().getPlayers()) {
                         if (!player.isSpectator() && DIMENSION_PENALTY_LIST.contains(player.getCommandSenderWorld().dimension())) {
@@ -144,32 +206,16 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                         }
                     }
                 }
-                boolean maxDifficultyReached = this.maxWorldDifficulty >= 0 && this.worldDifficulty >= this.maxWorldDifficulty;
-
-                if (!maxDifficultyReached) {
-                    this.worldDifficulty += WorldDifficultyManager.TICKS_PER_UPDATE * this.worldDifficultyRateMul;
-                }
-
                 Iterable<ServerWorld> worlds = server.getAllLevels();
 
                 // Update each world
-                long mostSkippedTime = 0L;
                 for (ServerWorld world : worlds) {
-                    mostSkippedTime = this.updateWorld(world, mostSkippedTime);
+                    this.skippedTime = this.updateWorld(world, this.skippedTime);
                 }
-                // Handle sleep penalty
-                if (!maxDifficultyReached && mostSkippedTime > 20L) {
-                    this.worldDifficulty += mostSkippedTime * SLEEP_PENALTY * this.worldDifficultyRateMul;
-                    // Send skipped time messages
-                    for (PlayerEntity playerEntity : server.getPlayerList().getPlayers()) {
-                          playerEntity.displayClientMessage(new TranslationTextComponent(References.SLEEP_PENALTY), true);
-                    }
-                }
-                // Only update difficulty if it is
-                // below the maximum level
-                this.updateWorldDifficulty(maxDifficultyReached);
+                // Update the difficulty rate
+                this.updateDifficultyRate();
 
-                // Save difficulty and event capability data.
+                // Save event data
                 if (++this.timeUntilSave >= TICKS_PER_SAVE) {
                     this.timeUntilSave = 0;
                     this.save();
@@ -221,7 +267,7 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
         }
 
         // Starts the full moon event
-        if (this.worldDifficulty > 0L && this.currentEvent != EventRegister.FULL_MOON) {
+        if (world.getGameTime() > 0L && this.currentEvent != EventRegister.FULL_MOON) {
             int dayTime = (int) (world.getGameTime() % 24000);
             if (dayTime < 13000) {
                 this.checkedFullMoon = false;
@@ -256,29 +302,12 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
 
     /**
      * Notifies clients of changes to world difficulty and difficulty multiplier.
-     *
-     * @param maxDifficultyReached True if the difficulty limit has been reached.
-     *                             Do not bother sending a world difficulty update
-     *                             message to clients if this is the case.
      */
-    private void updateWorldDifficulty(boolean maxDifficultyReached) {
+    private void updateDifficultyRate() {
         if (this.worldDifficultyRateMul != this.lastWorldDifficultyRate) {
             NetworkHelper.sendUpdateWorldDifficultyRate(this.worldDifficultyRateMul);
             this.lastWorldDifficultyRate = this.worldDifficultyRateMul;
         }
-        if (!maxDifficultyReached) {
-            NetworkHelper.sendUpdateWorldDifficulty(this.worldDifficulty);
-        }
-    }
-
-    @Override
-    public long getDifficulty() {
-        return this.worldDifficulty;
-    }
-
-    @Override
-    public long getMaxDifficulty() {
-        return this.maxWorldDifficulty;
     }
 
     @Override
@@ -286,16 +315,12 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
         return this.worldDifficultyRateMul;
     }
 
-    public void setDifficulty(long difficulty) {
-        this.worldDifficulty = difficulty;
-    }
-
-    public void setMaxDifficulty(long maxDifficulty) {
-        this.maxWorldDifficulty = maxDifficulty;
-    }
-
     public void setDifficultyRate(double rate) {
         this.worldDifficultyRateMul = rate;
+    }
+
+    public Iterable<PlayerGroup> getPlayerGroups() {
+        return this.playerGroups;
     }
 
     /**
@@ -341,7 +366,6 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
         this.server = null;
         this.timeUntilUpdate = 0;
         this.timeUntilSave = 0;
-        this.worldDifficulty = 0L;
         this.checkedFullMoon = false;
     }
 
@@ -349,9 +373,6 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
         try {
             // Load difficulty
             World world = this.server.overworld();
-
-            this.worldDifficulty = CapabilityHelper.getWorldDifficulty(world);
-            this.maxWorldDifficulty = CapabilityHelper.getMaxWorldDifficulty(world);
             CompoundNBT eventData = CapabilityHelper.getEventData(world);
 
             if (eventData != null && eventData.contains("EventId", 3)) {
@@ -369,10 +390,6 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
         try {
             // Save difficulty
             World world = this.server.overworld();
-
-            CapabilityHelper.setWorldDifficulty(world, this.worldDifficulty);
-            CapabilityHelper.setMaxWorldDifficulty(world, this.maxWorldDifficulty);
-
             CompoundNBT eventData = new CompoundNBT();
 
             if (this.currentEvent != null) {

@@ -1,7 +1,5 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.entity.IFullMoonMob;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.controller.MovementController;
@@ -93,12 +91,12 @@ public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements
             }
         }
 
-        private boolean canReach(Vector3d p_220673_1_, int p_220673_2_) {
+        private boolean canReach(Vector3d vec, int p_220673_2_) {
             AxisAlignedBB axisalignedbb = this.ghast.getBoundingBox();
             boolean canReach = true;
 
             for(int i = 1; i < p_220673_2_; ++i) {
-                axisalignedbb = axisalignedbb.move(p_220673_1_);
+                axisalignedbb = axisalignedbb.move(vec);
                 if (!this.ghast.level.noCollision(this.ghast, axisalignedbb)) {
                     canReach = false;
                     break;
@@ -108,7 +106,6 @@ public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements
         }
 
         public boolean canReachCurrentWanted() {
-            Apocalypse.LOGGER.info("Can current wanted be reached:" + this.canReachCurrent);
             return this.canReachCurrent;
         }
     }
