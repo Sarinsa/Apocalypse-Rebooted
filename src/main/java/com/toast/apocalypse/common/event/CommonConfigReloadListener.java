@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.difficulty.PlayerGroup;
 import com.toast.apocalypse.common.core.difficulty.WorldDifficultyManager;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.misc.DestroyerExplosionContext;
@@ -51,6 +52,7 @@ public class CommonConfigReloadListener {
         WorldDifficultyManager.DIMENSION_PENALTY_LIST = list;
 
         WorldDifficultyManager.DIMENSION_PENALTY = ApocalypseCommonConfig.COMMON.getDimensionPenalty();
+        PlayerGroup.USE_AVERAGE_DIFFICULTY = ApocalypseCommonConfig.COMMON.getAverageGroupDifficulty();
 
         RainDamageTickHelper.RAIN_TICK_RATE = ApocalypseCommonConfig.COMMON.getRainTickRate();
         RainDamageTickHelper.RAIN_DAMAGE = ApocalypseCommonConfig.COMMON.getRainDamage();

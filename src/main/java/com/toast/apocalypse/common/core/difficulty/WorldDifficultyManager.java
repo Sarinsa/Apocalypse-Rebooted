@@ -42,11 +42,15 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
     public static final int TICKS_PER_UPDATE = 5;
     /** Number of ticks per save. */
     public static final int TICKS_PER_SAVE = 60;
+    /** Number of ticks per player group update. */
+    public static final int TICKS_PER_GROUP_UPDATE = 180;
 
     /** Time until next server tick update. */
     private int timeUntilUpdate = 0;
     /** Time until next save */
     private int timeUntilSave = 0;
+    /** Time until next player group tick */
+    private int timeUntilGroupTick = 0;
 
     /** These are updated when the mod config is loaded/reloaded
      *
@@ -172,14 +176,6 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
             if (++this.timeUntilUpdate >= TICKS_PER_UPDATE) {
                 this.timeUntilUpdate = 0;
 
-                for (PlayerGroup group : this.playerGroups) {
-                    if (group.getPlayers().isEmpty()) {
-                        this.playerGroups.remove(group);
-                        return;
-                    }
-                    group.tick();
-                }
-
                 // Update active event
                 if (this.currentEvent != null) {
                     this.currentEvent.update();
@@ -214,11 +210,25 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                 }
                 // Update the difficulty rate
                 this.updateDifficultyRate();
+            }
+            // Save event data
+            if (++this.timeUntilSave >= TICKS_PER_SAVE) {
+                this.timeUntilSave = 0;
+                this.save();
+            }
 
-                // Save event data
-                if (++this.timeUntilSave >= TICKS_PER_SAVE) {
-                    this.timeUntilSave = 0;
-                    this.save();
+            // Tick player groups
+            if (server.getPlayerCount() > 1) {
+                if (++this.timeUntilGroupTick >= TICKS_PER_GROUP_UPDATE) {
+                    this.timeUntilGroupTick = 0;
+
+                    for (PlayerGroup group : this.playerGroups) {
+                        if (group.getPlayers().isEmpty()) {
+                            this.playerGroups.remove(group);
+                            return;
+                        }
+                        group.tick();
+                    }
                 }
             }
             // TODO: Move to separate event listener
