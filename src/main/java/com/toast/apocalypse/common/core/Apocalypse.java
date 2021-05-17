@@ -14,6 +14,7 @@ import com.toast.apocalypse.common.core.difficulty.WorldDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventRegister;
 import com.toast.apocalypse.common.event.CapabilityAttachEvents;
 import com.toast.apocalypse.common.event.EntityEvents;
+import com.toast.apocalypse.common.event.PlayerEvents;
 import com.toast.apocalypse.common.network.PacketHandler;
 import com.toast.apocalypse.common.register.ApocalypseBlocks;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
@@ -79,6 +80,7 @@ public class Apocalypse {
         eventBus.register(this.getConfigHelper());
 
         MinecraftForge.EVENT_BUS.register(new EntityEvents());
+        MinecraftForge.EVENT_BUS.register(new PlayerEvents());
         MinecraftForge.EVENT_BUS.register(new CapabilityAttachEvents());
         MinecraftForge.EVENT_BUS.register(this.getDifficultyManager());
         MinecraftForge.EVENT_BUS.addListener(CommandRegister::registerCommands);

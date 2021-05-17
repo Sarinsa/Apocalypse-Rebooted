@@ -37,36 +37,6 @@ public class EntityEvents {
         }
     }
 
-    @SubscribeEvent
-    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        // No point doing further checks if rain damage is disabled
-        if (!ApocalypseCommonConfig.COMMON.rainDamageEnabled())
-            return;
-
-        // Tick rain damage
-        if (event.side == LogicalSide.SERVER && event.phase == TickEvent.Phase.END) {
-            RainDamageTickHelper.checkAndPerformRainDamageTick(event.player);
-        }
-    }
-
-    /**
-     * Prevent players from being able
-     * to sleep during full moons.
-     */
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onPlayerTrySleep(PlayerSleepInBedEvent event) {
-        PlayerEntity player = event.getPlayer();
-        World world = player.getCommandSenderWorld();
-
-        if (player.isSleeping() || !player.isAlive())
-            return;
-
-        if (world.isNight() && WorldDifficultyManager.isFullMoon(world)) {
-            event.setResult(PlayerEntity.SleepResult.OTHER_PROBLEM);
-            player.displayClientMessage(new TranslationTextComponent(References.TRY_SLEEP_FULL_MOON), true);
-        }
-    }
-
     /**
      * Modifying final damage dealt to entities by
      * the mobs we have that have a minimum
