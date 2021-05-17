@@ -39,12 +39,12 @@ public class EntityEvents {
 
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        // No point doing further checks if rain damage is disabled
+        if (!ApocalypseCommonConfig.COMMON.rainDamageEnabled())
+            return;
+
         // Tick rain damage
         if (event.side == LogicalSide.SERVER && event.phase == TickEvent.Phase.END) {
-            // No point doing further checks if rain damage is disabled
-            if (!ApocalypseCommonConfig.COMMON.rainDamageEnabled())
-                return;
-
             RainDamageTickHelper.checkAndPerformRainDamageTick(event.player);
         }
     }
