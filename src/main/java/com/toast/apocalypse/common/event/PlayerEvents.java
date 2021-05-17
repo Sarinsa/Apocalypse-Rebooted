@@ -2,12 +2,15 @@ package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.core.difficulty.WorldDifficultyManager;
+import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -42,6 +45,17 @@ public class PlayerEvents {
         if (world.isNight() && WorldDifficultyManager.isFullMoon(world)) {
             event.setResult(PlayerEntity.SleepResult.OTHER_PROBLEM);
             player.displayClientMessage(new TranslationTextComponent(References.TRY_SLEEP_FULL_MOON), true);
+        }
+    }
+
+    /**
+     * Makes player difficulty persist on death and when leaving The End
+     */
+    @SubscribeEvent
+    public void onPlayerCloned(PlayerEvent.Clone event) {
+        if (event.getPlayer() instanceof ServerPlayerEntity) {
+            long difficulty = CapabilityHelper.getPlayerDifficulty(event.getOriginal());
+            CapabilityHelper.setPlayerDifficulty((ServerPlayerEntity) event.getPlayer(), difficulty);
         }
     }
 }
