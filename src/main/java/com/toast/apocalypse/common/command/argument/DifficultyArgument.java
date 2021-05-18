@@ -21,7 +21,7 @@ public class DifficultyArgument implements ArgumentType<Long> {
         String s = stringReader.readUnquotedString();
         long difficulty = Long.parseLong(s);
 
-        boolean validValue = difficulty >= 0 && difficulty <= References.MAX_DIFFICULTY_HARD_LIMIT;
+        boolean validValue = difficulty >= 0 && difficulty <= References.MAX_DIFFICULTY_HARD_LIMIT / References.DAY_LENGTH;
 
         if (!validValue) {
             throw ERROR_INVALID_DIFFICULTY_VALUE.create(difficulty);

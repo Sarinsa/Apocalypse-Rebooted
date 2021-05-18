@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.toast.apocalypse.common.command.argument.DifficultyArgument;
@@ -10,6 +11,9 @@ import com.toast.apocalypse.common.util.References;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.command.arguments.EntityArgument;
+import net.minecraft.command.arguments.ItemArgument;
+import net.minecraft.command.impl.EffectCommand;
+import net.minecraft.command.impl.GiveCommand;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.text.TranslationTextComponent;
 
@@ -34,10 +38,9 @@ public class ApocalypseBaseCommand {
 
         private static ArgumentBuilder<CommandSource, ?> register() {
             return Commands.literal("set")
-                    .requires((source) -> source.hasPermission(3))
-                    .then(Commands.argument("player", EntityArgument.player()))
-                    .then(Commands.argument("difficulty", DifficultyArgument.difficulty())
-                    .executes((context) -> setPlayerDifficulty(context.getSource(), EntityArgument.getPlayer(context, "player"), LongArgumentType.getLong(context, "difficulty"))));
+                    .then(Commands.argument("player", EntityArgument.player())
+                            .then(Commands.argument("difficulty", DifficultyArgument.difficulty())
+                                    .executes((context) -> setPlayerDifficulty(context.getSource(), EntityArgument.getPlayer(context, "player"), LongArgumentType.getLong(context, "difficulty")))));
         }
 
         private static int setPlayerDifficulty(CommandSource source, ServerPlayerEntity player, long difficulty) {
@@ -59,10 +62,9 @@ public class ApocalypseBaseCommand {
 
         private static ArgumentBuilder<CommandSource, ?> register() {
             return Commands.literal("max")
-                    .requires((source) -> source.hasPermission(3))
-                    .then(Commands.argument("difficulty", MaxDifficultyArgument.maxDifficulty())
-                    .then(Commands.argument("player", EntityArgument.player()))
-                    .executes((context) -> setPlayerMaxDifficulty(context.getSource(), EntityArgument.getPlayer(context, "player"), LongArgumentType.getLong(context, "difficulty"))));
+                    .then(Commands.argument("player", EntityArgument.player())
+                            .then(Commands.argument("difficulty", MaxDifficultyArgument.maxDifficulty())
+                                    .executes((context) -> setPlayerMaxDifficulty(context.getSource(), EntityArgument.getPlayer(context, "player"), LongArgumentType.getLong(context, "difficulty")))));
         }
 
         private static int setPlayerMaxDifficulty(CommandSource source, ServerPlayerEntity player, long maxDifficulty) {
