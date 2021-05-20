@@ -61,15 +61,14 @@ public class CommonConfigReloadListener {
         DestroyerExplosionContext.DESTROYER_PROOF_BLOCKS.clear();
 
         for (String blockName : ApocalypseCommonConfig.COMMON.getDestroyerProofBlocks()) {
-            if (ResourceLocation.isValidResourceLocation(blockName)) {
-                ResourceLocation blockLocation = new ResourceLocation(blockName);
+            ResourceLocation blockLocation = ResourceLocation.tryParse(blockName);
 
-                if (ForgeRegistries.BLOCKS.containsKey(blockLocation)) {
-                    DestroyerExplosionContext.DESTROYER_PROOF_BLOCKS.add(ForgeRegistries.BLOCKS.getValue(blockLocation));
-                }
-            }
-            else {
+            if (blockLocation == null) {
                 Apocalypse.LOGGER.warn("Invalid block registry name found in the destroyer proof block list. Check your Apocalypse common config! Problematic ResourceLocation: " + "\"" + blockName + "\"");
+            }
+
+            if (ForgeRegistries.BLOCKS.containsKey(blockLocation)) {
+                DestroyerExplosionContext.DESTROYER_PROOF_BLOCKS.add(ForgeRegistries.BLOCKS.getValue(blockLocation));
             }
         }
     }
