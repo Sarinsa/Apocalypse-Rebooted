@@ -19,6 +19,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.world.SleepFinishedTimeEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
@@ -66,9 +67,6 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
     /** Server instance */
     private MinecraftServer server;
 
-    /** Map of all worlds to their respective player-based difficulties. */
-    private static final HashMap<RegistryKey<World>, WorldDifficultyData> WORLD_MAP = new HashMap<>();
-
     /** The current running event. */
     private AbstractEvent currentEvent = null;
 
@@ -78,9 +76,6 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
     /** The world difficulty multiplier */
     private double worldDifficultyRateMul;
     private double lastWorldDifficultyRate;
-
-    /** The recent amount of time that has has been skipped. */
-    private long skippedTime;
 
     /** The collection of players grouped together for difficulty calculations */
     private final Collection<PlayerGroup> playerGroups = new ArrayList<>();
@@ -138,20 +133,33 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                     currentDifficulty += WorldDifficultyManager.TICKS_PER_UPDATE * this.worldDifficultyRateMul;
                 }
 
-                // Handle sleep penalty
-                if (!maxDifficultyReached && this.skippedTime > 20L) {
-                    currentDifficulty += this.skippedTime * SLEEP_PENALTY * this.worldDifficultyRateMul;
-                    // Send skipped time messages
-                    for (PlayerEntity playerEntity : server.getPlayerList().getPlayers()) {
-                        playerEntity.displayClientMessage(new TranslationTextComponent(References.SLEEP_PENALTY), true);
-                    }
-                }
-
                 // Update player difficulty
                 if (!player.getCommandSenderWorld().isClientSide) {
                     ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
                     CapabilityHelper.setPlayerDifficulty(serverPlayer, currentDifficulty);
                     NetworkHelper.sendUpdatePlayerDifficulty(serverPlayer, currentDifficulty);
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onSleepFinished(SleepFinishedTimeEvent event) {
+        if (event.getWorld() instanceof World) {
+            World world = (World) event.getWorld();
+            long timeSkipped = event.getNewTime() - world.getGameTime();
+
+            if (!world.isClientSide && timeSkipped > 20L) {
+                for (PlayerEntity player : world.players()) {
+                    ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
+
+                    long playerDifficulty = CapabilityHelper.getPlayerDifficulty(serverPlayer);
+                    long playerMaxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(serverPlayer);
+
+                    playerDifficulty += (timeSkipped * SLEEP_PENALTY * this.worldDifficultyRateMul);
+                    CapabilityHelper.setPlayerDifficulty(serverPlayer, Math.min(playerDifficulty, playerMaxDifficulty));
+
+                    player.displayClientMessage(new TranslationTextComponent(References.SLEEP_PENALTY), true);
                 }
             }
         }
@@ -195,22 +203,27 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
 
                 // Apply dimension difficulty rate penalty if any player is in a dimension marked for penalty
                 if (DIMENSION_PENALTY > 0.0D) {
+                    boolean applyPenalty = false;
+
                     for (PlayerEntity player : server.getPlayerList().getPlayers()) {
                         if (!player.isSpectator() && DIMENSION_PENALTY_LIST.contains(player.getCommandSenderWorld().dimension())) {
-                            this.worldDifficultyRateMul *= 1.0 + DIMENSION_PENALTY;
+                            applyPenalty = true;
                             break;
                         }
                     }
+                    if (applyPenalty) {
+                        this.worldDifficultyRateMul *= 1.0 + DIMENSION_PENALTY;
+                    }
                 }
-                Iterable<ServerWorld> worlds = server.getAllLevels();
 
                 // Update each world
-                for (ServerWorld world : worlds) {
-                    this.skippedTime = this.updateWorld(world, this.skippedTime);
+                for (ServerWorld world : server.getAllLevels()) {
+                    this.updateWorld(world);
                 }
                 // Update the difficulty rate
                 this.updateDifficultyRate();
             }
+
             // Save event data
             if (++this.timeUntilSave >= TICKS_PER_SAVE) {
                 this.timeUntilSave = 0;
@@ -218,8 +231,8 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
             }
 
             // Tick player groups
-            if (server.getPlayerCount() > 1) {
-                if (++this.timeUntilGroupTick >= TICKS_PER_GROUP_UPDATE) {
+            if (++this.timeUntilGroupTick >= TICKS_PER_GROUP_UPDATE) {
+                if (server.getPlayerCount() > 1) {
                     this.timeUntilGroupTick = 0;
 
                     for (PlayerGroup group : this.playerGroups) {
@@ -259,22 +272,10 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
      * Updates the world and all players and the event in it. Handles difficulty changes.
      *
      * @param world The world to update.
-     * @param mostSkippedTime The largest time difference of any other world since the last update.
-     * @return If the time difference in this world is larger than mostSkippedTime, then that time difference is
-     * 		returned - otherwise mostSkippedTime is returned.
      */
-    public long updateWorld(ServerWorld world, long mostSkippedTime) {
+    public void updateWorld(ServerWorld world) {
         if (world == null)
-            return mostSkippedTime;
-        WorldDifficultyData worldData = WORLD_MAP.get(world.dimension());
-
-        // Check for time jumps (aka sleeping in bed)
-        long skippedTime = 0L;
-        if (world.dimension() == World.OVERWORLD) { // TEST - base time jumps only on overworld
-            if (this.worldDifficultyRateMul > 0.0 && worldData != null && SLEEP_PENALTY > 0.0) {
-                skippedTime = world.getGameTime() - worldData.lastWorldTime; // normally == 5
-            }
-        }
+            return;
 
         // Starts the full moon event
         if (world.getGameTime() > 0L && this.currentEvent != EventRegister.FULL_MOON) {
@@ -296,13 +297,6 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                 this.currentEvent.update(playerEntity);
             }
         }
-
-        if (worldData == null) {
-            RegistryKey<World> dimensionId = world.dimension();
-            WorldDifficultyManager.WORLD_MAP.put(dimensionId, worldData = new WorldDifficultyData(dimensionId));
-        }
-        worldData.lastWorldTime = world.getGameTime();
-        return Math.max(mostSkippedTime, skippedTime);
     }
 
     /** Helper method for logging. */
@@ -410,21 +404,6 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
         catch (Exception e) {
             log(Level.ERROR, "Failed to write world save data! Not cool beans.");
             e.printStackTrace();
-        }
-    }
-
-    /** Contains info related to this mod about a world. */
-    public static class WorldDifficultyData {
-
-        /** The dimension id of the world. */
-        public final RegistryKey<World> worldId;
-        /** The last recorded world time of the world. */
-        public long lastWorldTime;
-
-        /** Constructs WorldDifficultyData for a world to store information needed to manage the world difficulty.
-         * @param worldId The world's dimension id. */
-        public WorldDifficultyData(RegistryKey<World> worldId) {
-            this.worldId = worldId;
         }
     }
 }
