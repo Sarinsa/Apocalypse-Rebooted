@@ -16,6 +16,10 @@ import net.minecraft.command.impl.EffectCommand;
 import net.minecraft.command.impl.GiveCommand;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.storage.WorldSavedData;
+import net.minecraftforge.common.util.WorldCapabilityData;
+
+import java.util.Collection;
 
 public class ApocalypseBaseCommand {
 
@@ -24,6 +28,9 @@ public class ApocalypseBaseCommand {
                 .then(DifficultyBaseCommand.register()));
     }
 
+    /**
+     * Base command for all difficulty related subcommands.
+     */
     private static class DifficultyBaseCommand {
 
         private static ArgumentBuilder<CommandSource, ?> register() {
@@ -34,56 +41,78 @@ public class ApocalypseBaseCommand {
         }
     }
 
+    /**
+     * Setting player difficulty.
+     */
     private static class DifficultySetCommand {
 
         private static ArgumentBuilder<CommandSource, ?> register() {
             return Commands.literal("set")
-                    .then(Commands.argument("player", EntityArgument.player())
+                    .then(Commands.argument("targets", EntityArgument.players())
                             .then(Commands.argument("difficulty", DifficultyArgument.difficulty())
-                                    .executes((context) -> setPlayerDifficulty(context.getSource(), EntityArgument.getPlayer(context, "player"), LongArgumentType.getLong(context, "difficulty")))));
+                                    .executes((context) -> setPlayerDifficulty(context.getSource(), EntityArgument.getPlayers(context, "targets"), LongArgumentType.getLong(context, "difficulty")))));
         }
 
-        private static int setPlayerDifficulty(CommandSource source, ServerPlayerEntity player, long difficulty) {
-            long difficultyCalculated = difficulty * References.DAY_LENGTH;
-            long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
+        private static int setPlayerDifficulty(CommandSource source, Collection<ServerPlayerEntity> players, long difficulty) {
+            for (ServerPlayerEntity player  : players) {
+                long actualDifficulty = difficulty * References.DAY_LENGTH;
+                long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
 
-            if (difficulty > maxDifficulty) {
-                source.sendFailure(new TranslationTextComponent(References.COMMAND_INVALID_DIFFICULTY_VALUE));
-                return 0;
+                if (difficulty > maxDifficulty) {
+                    CapabilityHelper.setMaxPlayerDifficulty(player, difficulty);
+                }
+                CapabilityHelper.setPlayerDifficulty(player, actualDifficulty);
             }
-            CapabilityHelper.setPlayerDifficulty(player, difficultyCalculated);
+            TranslationTextComponent message;
 
-            source.sendSuccess(new TranslationTextComponent(References.DIFFICULTY_UPDATED_MESSAGE), true);
-            return 0;
+            if (players.size() == 1) {
+                message = new TranslationTextComponent(References.DIFFICULTY_SET_SINGLE, difficulty, players.iterator().next().getDisplayName());
+            }
+            else {
+                message = new TranslationTextComponent(References.DIFFICULTY_SET_MULTIPLE, difficulty, players.size());
+            }
+            source.sendSuccess(message, true);
+            return players.size();
         }
     }
 
+    /**
+     * Setting player max difficulty.
+     */
     private static class DifficultySetMaxCommand {
 
         private static ArgumentBuilder<CommandSource, ?> register() {
             return Commands.literal("max")
-                    .then(Commands.argument("player", EntityArgument.player())
+                    .then(Commands.argument("targets", EntityArgument.players())
                             .then(Commands.argument("difficulty", MaxDifficultyArgument.maxDifficulty())
-                                    .executes((context) -> setPlayerMaxDifficulty(context.getSource(), EntityArgument.getPlayer(context, "player"), LongArgumentType.getLong(context, "difficulty")))));
+                                    .executes((context) -> setPlayerMaxDifficulty(context.getSource(), EntityArgument.getPlayers(context, "targets"), LongArgumentType.getLong(context, "difficulty")))));
         }
 
-        private static int setPlayerMaxDifficulty(CommandSource source, ServerPlayerEntity player, long maxDifficulty) {
-            TranslationTextComponent message = new TranslationTextComponent(References.MAX_DIFFICULTY_UPDATED_MESSAGE, String.format("%d", maxDifficulty));
-            source.sendSuccess(message, true);
+        private static int setPlayerMaxDifficulty(CommandSource source, Collection<ServerPlayerEntity> players, long maxDifficulty) {
+            for (ServerPlayerEntity player : players) {
+                if (maxDifficulty == -1) {
+                    CapabilityHelper.setMaxPlayerDifficulty(player, maxDifficulty);
+                }
+                else {
+                    long difficultyScaled = maxDifficulty * References.DAY_LENGTH;
 
-            if (maxDifficulty == -1) {
-                CapabilityHelper.setMaxPlayerDifficulty(player, maxDifficulty);
-            }
-            else {
-                long difficultyScaled = maxDifficulty * References.DAY_LENGTH;
+                    CapabilityHelper.setMaxPlayerDifficulty(player, difficultyScaled);
 
-                CapabilityHelper.setMaxPlayerDifficulty(player, difficultyScaled);
-
-                if (CapabilityHelper.getPlayerDifficulty(player) > difficultyScaled) {
-                    CapabilityHelper.setPlayerDifficulty(player, difficultyScaled);
+                    if (CapabilityHelper.getPlayerDifficulty(player) > difficultyScaled) {
+                        CapabilityHelper.setPlayerDifficulty(player, difficultyScaled);
+                    }
                 }
             }
-            return 0;
+            TranslationTextComponent message;
+
+            if (players.size() == 1) {
+                message = new TranslationTextComponent(References.MAX_DIFFICULTY_SET_SINGLE, maxDifficulty, players.iterator().next().getDisplayName());
+            }
+            else {
+                message = new TranslationTextComponent(References.MAX_DIFFICULTY_SET_MULTIPLE, maxDifficulty, players.size());
+            }
+            source.sendSuccess(message, true);
+            return players.size();
         }
     }
 }

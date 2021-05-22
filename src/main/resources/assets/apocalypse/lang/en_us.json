@@ -2,7 +2,7 @@
   "event.apocalypse.sleep_penalty": "The monsters grow impatient",
   "event.apocalypse.full_moon": "Death lingers in the air, a bad moon rises",
 
-  "tile.bed.apocalypse.full_moon": "You may not rest during a full moon",
+  "title.bed.apocalypse.full_moon": "You may not rest during a full moon",
 
   "death.attack.apocalypse.rain": "%1$s was sprinkled to death",
   "death.attack.apocalypse.rain.player": "%1$s died from rain whilst trying to escape %2$s",
@@ -30,7 +30,9 @@
   "apocalypse.item_desc.bucket_helm": "Protects you from the rain",
 
   "apocalypse.command.argument.difficulty.invalid_value": "Value can not be less than 0 or exceed the configured difficulty limit",
-  "apocalypse.command.set_difficulty.update_message": "World difficulty has been updated!",
-  "apocalypse.command.argument.max_difficulty.invalid_value": "Value can not be less than -1 or exceed 100 000. -1 equals no limit.",
-  "apocalypse.command.max_difficulty.update_message": "Set the new world difficulty limit to %1$s"
+  "apocalypse.command.difficulty.set_message.single": "Set difficulty to %s for %s",
+  "apocalypse.command.difficulty.set_message.multiple": "Set difficulty to %s for %s players",
+  "apocalypse.command.argument.max_difficulty.invalid_value": "Value can not be less than -1 or exceed 100 000. -1 equals no limit",
+  "apocalypse.command.difficulty.max_message.single": "Set max difficulty to %s for %s",
+  "apocalypse.command.difficulty.max_message.multiple": "Set max difficulty to %s for %s players"
 }
