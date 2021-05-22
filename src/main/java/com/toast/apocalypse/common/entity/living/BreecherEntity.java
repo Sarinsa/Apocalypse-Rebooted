@@ -1,9 +1,11 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.monster.CreeperEntity;
+import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 
 /**
@@ -21,5 +23,18 @@ public class BreecherEntity extends CreeperEntity {
         return CreeperEntity.createAttributes()
                 .add(Attributes.MOVEMENT_SPEED, 0.32)
                 .add(Attributes.FOLLOW_RANGE, 40);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        Apocalypse.LOGGER.info("Is breecher stuck: " + this.navigation.isStuck());
+
+        if (this.getTarget() != null) {
+            if (this.navigation.isStuck()) {
+                this.explodeCreeper();
+            }
+        }
     }
 }

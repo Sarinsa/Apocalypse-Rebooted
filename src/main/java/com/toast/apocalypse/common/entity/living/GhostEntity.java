@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
 import net.minecraft.block.BlockState;
@@ -7,15 +8,13 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.controller.MovementController;
-import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.goal.LookAtGoal;
-import net.minecraft.entity.ai.goal.LookRandomlyGoal;
-import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
+import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.MonsterEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.server.SEntityPacket;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
@@ -40,7 +39,8 @@ import java.util.Random;
  */
 public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
-    protected boolean shouldManeuver;
+    /** If the ghost should move away from it's target in a random direction */
+    protected boolean isManeuvering;
 
     public GhostEntity(EntityType<? extends FlyingEntity> entityType, World world) {
         super(entityType, world);
@@ -61,15 +61,19 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new GhostEntity.MeleeAttackGoal<>(this));
         this.goalSelector.addGoal(1, new GhostEntity.ManeuverAttackerGoal<>(this));
-        this.goalSelector.addGoal(5, new LookRandomlyGoal(this));
-        this.goalSelector.addGoal(6, new RandomFlyGoal(this));
-        this.goalSelector.addGoal(6, new LookAtGoal(this, PlayerEntity.class,8.0F));
+        this.goalSelector.addGoal(5, new RandomFlyGoal(this));
+        this.goalSelector.addGoal(5, new LookAtGoal(this, PlayerEntity.class,8.0F));
         this.targetSelector.addGoal(0, new GhostEntity.NearestAttackablePlayerTargetGoal<>(this, PlayerEntity.class));
         this.targetSelector.addGoal(1, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
     }
 
     public static boolean checkGhostSpawnRules(EntityType<? extends GhostEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
         return world.getDifficulty() != Difficulty.PEACEFUL && MonsterEntity.isDarkEnoughToSpawn(world, pos, random);
+    }
+
+    @Override
+    protected boolean shouldDespawnInPeaceful() {
+        return true;
     }
 
     @Override
@@ -80,8 +84,12 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
     @Override
     public boolean hurt(DamageSource damageSource, float damage) {
         if (super.hurt(damageSource, damage)) {
-            if (damageSource.getEntity() != null && this.random.nextInt(2) == 0) {
-                this.shouldManeuver = true;
+            Entity entity = damageSource.getEntity();
+
+            Apocalypse.LOGGER.info("Ghost hurt by: " + (entity == null ? "null" : entity.getType().getRegistryName().getPath()));
+
+            if (entity != null && entity == this.getTarget() && this.random.nextInt(2) == 0) {
+                this.setManeuvering(true);
             }
             return true;
         }
@@ -104,6 +112,8 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
     @Override
     public void aiStep() {
+        Apocalypse.LOGGER.info("Is maneuvering: " + this.isManeuvering);
+
         if (this.isAlive()) {
             boolean flag = this.isSunBurnTick();
 
@@ -119,7 +129,6 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
                     }
                     flag = false;
                 }
-
                 if (flag) {
                     this.setSecondsOnFire(8);
                 }
@@ -162,6 +171,14 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         // Immune to lava
     }
 
+    public boolean isManeuvering() {
+        return this.isManeuvering;
+    }
+
+    protected void setManeuvering(boolean maneuvering) {
+        this.isManeuvering = maneuvering;
+    }
+
     @Override
     protected SoundEvent getAmbientSound() {
         return SoundEvents.BLAZE_AMBIENT;
@@ -194,9 +211,6 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         this.noPhysics = false;
     }
 
-    /**
-     * Essentially a copy of the Vex' movement controller.
-     */
     private static class GhostMovementController<T extends GhostEntity> extends MovementController {
 
         final T ghostEntity;
@@ -246,24 +260,23 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
         @Override
         public boolean canUse() {
-            return this.ghost.getTarget() != null && this.ghost.shouldManeuver && this.ghost.getLastHurtByMob() != null;
+            return this.ghost.getTarget() != null && this.ghost.isManeuvering();
         }
 
         @Override
         public boolean canContinueToUse() {
-            return false;
-        }
-
-        @Override
-        public void stop() {
-            this.ghost.shouldManeuver = false;
+            return this.ghost.getTarget() != null && this.ghost.getTarget().isAlive() && this.ghost.isManeuvering() && this.ghost.moveControl.hasWanted();
         }
 
         @Override
         public void start() {
             Random random = this.ghost.getRandom();
             this.ghost.moveControl.setWantedPosition(this.ghost.getX() + (random.nextGaussian() * 10), this.ghost.getY() + (random.nextGaussian() * 10), this.ghost.getZ() + (random.nextGaussian() * 10), 1.1F);
-            this.ghost.shouldManeuver = false;
+        }
+
+        @Override
+        public void stop() {
+            this.ghost.setManeuvering(false);
         }
     }
 
@@ -285,6 +298,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
     private static class MeleeAttackGoal<T extends GhostEntity> extends Goal {
 
         private final T ghost;
+        private int ticksUntilNextAttack;
 
         public MeleeAttackGoal(T ghost) {
             this.setFlags(EnumSet.of(Goal.Flag.MOVE));
@@ -298,22 +312,17 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
         @Override
         public boolean canUse() {
-            return !this.ghost.shouldManeuver && this.ghost.getTarget() != null && !this.ghost.getMoveControl().hasWanted();
+            return this.ghost.getTarget() != null && !this.ghost.getMoveControl().hasWanted();
         }
 
         @Override
         public boolean canContinueToUse() {
-            return !this.ghost.shouldManeuver && this.ghost.getMoveControl().hasWanted() && this.ghost.getTarget() != null && this.ghost.getTarget().isAlive();
+            return this.ghost.getMoveControl().hasWanted() && this.ghost.getTarget() != null && this.ghost.getTarget().isAlive();
         }
 
         @Override
         public void start() {
-            LivingEntity target = this.ghost.getTarget();
             this.ghost.setAggressive(true);
-
-            if (target != null) {
-                this.setWantedPosition(target);
-            }
         }
 
         @Override
@@ -327,11 +336,18 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
             LivingEntity target = this.ghost.getTarget();
             double distance = this.ghost.distanceToSqr(target);
 
-            if (canAttackReach(target, distance)) {
-                this.ghost.doHurtTarget(target);
+            if (!this.ghost.isManeuvering()) {
+                this.setWantedPosition(target);
+            }
+
+            if (this.ticksUntilNextAttack <= 0) {
+                if (canAttackReach(target, distance)) {
+                    this.ghost.doHurtTarget(target);
+                    this.ticksUntilNextAttack = 20;
+                }
             }
             else {
-                this.setWantedPosition(target);
+                --this.ticksUntilNextAttack;
             }
         }
 
@@ -353,8 +369,12 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         @Override
         public boolean canUse() {
             MovementController movementcontroller = this.ghost.getMoveControl();
+
+            if (this.ghost.getTarget() != null || this.ghost.isManeuvering())
+                return false;
+
             if (!movementcontroller.hasWanted()) {
-                return this.ghost.getTarget() == null;
+                return true;
             }
             else {
                 double x = movementcontroller.getWantedX() - this.ghost.getX();

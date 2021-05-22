@@ -1,14 +1,20 @@
 package com.toast.apocalypse.common.core.difficulty;
 
 import com.toast.apocalypse.common.util.CapabilityHelper;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.math.MathHelper;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Used when determining the effective difficulty to work with
+ * when mobs spawn into the world.
+ */
 public class PlayerGroup {
 
     /** Determines if the players in this group should use
@@ -25,11 +31,9 @@ public class PlayerGroup {
      */
     private long effectiveDifficulty;
 
-    /** The horizontal position in the world where
-     *  this group originates. Used when monsters
-     *  spawn in and need to locate the nearest group.
-     */
-    private GroupPosition position;
+    /** The X and Z position of this group in the world */
+    private double x;
+    private double z;
 
 
     public PlayerGroup(@Nullable ServerPlayerEntity... playerEntities) {
@@ -41,6 +45,7 @@ public class PlayerGroup {
     }
 
     public void tick() {
+        recalculatePosition();
         recalculateDifficulty();
     }
 
@@ -52,11 +57,26 @@ public class PlayerGroup {
         return this.effectiveDifficulty;
     }
 
-    public GroupPosition getPosition() {
-        return this.position;
+    public double getX() {
+        return this.x;
     }
 
-    public void recalculateDifficulty() {
+    public double getZ() {
+        return this.z;
+    }
+
+    /** Only takes horizontal distance into account. */
+    public double distanceTo(Entity entity) {
+        double x = this.getX() - entity.getX();
+        double z = this.getZ() - entity.getZ();
+        return MathHelper.sqrt(x * x + z * z);
+    }
+
+    private void recalculatePosition() {
+
+    }
+
+    private void recalculateDifficulty() {
         long difficulty = 0;
 
         if (USE_AVERAGE_DIFFICULTY) {
@@ -70,30 +90,6 @@ public class PlayerGroup {
                 difficulty = Math.max(CapabilityHelper.getPlayerDifficulty(playerEntity), difficulty);
             }
             this.effectiveDifficulty = difficulty;
-        }
-    }
-
-    public static class GroupPosition {
-
-        private double x;
-        private double z;
-
-        public GroupPosition(double x, double z) {
-            this.x = x;
-            this.z = z;
-        }
-
-        public double getX() {
-            return this.x;
-        }
-
-        public double getZ() {
-            return this.z;
-        }
-
-        public void setPos(double x, double z) {
-            this.x = x;
-            this.z = z;
         }
     }
 }

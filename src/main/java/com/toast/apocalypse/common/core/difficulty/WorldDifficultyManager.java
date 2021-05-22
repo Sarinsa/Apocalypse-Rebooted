@@ -8,11 +8,13 @@ import com.toast.apocalypse.common.event.CommonConfigReloadListener;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.RegistryKey;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
@@ -44,7 +46,7 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
     /** Number of ticks per save. */
     public static final int TICKS_PER_SAVE = 60;
     /** Number of ticks per player group update. */
-    public static final int TICKS_PER_GROUP_UPDATE = 180;
+    public static final int TICKS_PER_GROUP_UPDATE = 100;
 
     /** Time until next server tick update. */
     private int timeUntilUpdate = 0;
@@ -77,8 +79,8 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
     private double worldDifficultyRateMul;
     private double lastWorldDifficultyRate;
 
-    /** The collection of players grouped together for difficulty calculations */
-    private final Collection<PlayerGroup> playerGroups = new ArrayList<>();
+    /** A map containing each world's player group list. */
+    private final HashMap<RegistryKey<World>, List<PlayerGroup>> playerGroups = new HashMap<>();
 
 
     /** Fetch the server */
@@ -109,6 +111,34 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
 
             NetworkHelper.sendUpdatePlayerDifficulty(serverPlayer);
             NetworkHelper.sendUpdatePlayerMaxDifficulty(serverPlayer);
+        }
+    }
+
+    /**
+     * Returns the PlayerGroup in the world closest to the specified entity.
+     *
+     * @param world The world to check for player groups.
+     * @param livingEntity The entity to check distance from.
+     */
+    public PlayerGroup getNearestGroup(World world, LivingEntity livingEntity) {
+        RegistryKey<World> key = world.dimension();
+
+        if (this.playerGroups.containsKey(key)) {
+            PlayerGroup playerGroup = null;
+            double smallestDist = -1.0D;
+
+            for (PlayerGroup group : this.playerGroups.get(key)) {
+                double dist = group.distanceTo(livingEntity);
+
+                if (smallestDist == -1.0D || dist < smallestDist) {
+                    smallestDist = dist;
+                    playerGroup = group;
+                }
+            }
+            return playerGroup;
+        }
+        else {
+            return null;
         }
     }
 
@@ -235,12 +265,14 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                 if (server.getPlayerCount() > 1) {
                     this.timeUntilGroupTick = 0;
 
-                    for (PlayerGroup group : this.playerGroups) {
-                        if (group.getPlayers().isEmpty()) {
-                            this.playerGroups.remove(group);
-                            return;
+                    for (RegistryKey<World> key : this.playerGroups.keySet()) {
+                        for (PlayerGroup group : this.playerGroups.get(key)) {
+                            if (group.getPlayers().isEmpty()) {
+                                this.playerGroups.remove(group);
+                                return;
+                            }
+                            group.tick();
                         }
-                        group.tick();
                     }
                 }
             }
@@ -323,8 +355,8 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
         this.worldDifficultyRateMul = rate;
     }
 
-    public Iterable<PlayerGroup> getPlayerGroups() {
-        return this.playerGroups;
+    public Iterable<PlayerGroup> getPlayerGroups(World world) {
+        return this.playerGroups.get(world.dimension());
     }
 
     /**
@@ -371,6 +403,7 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
         this.timeUntilUpdate = 0;
         this.timeUntilSave = 0;
         this.checkedFullMoon = false;
+        this.playerGroups.clear();
     }
 
     public void load() {
