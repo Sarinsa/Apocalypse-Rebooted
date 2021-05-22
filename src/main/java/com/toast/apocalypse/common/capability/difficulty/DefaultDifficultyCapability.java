@@ -1,10 +1,11 @@
 package com.toast.apocalypse.common.capability.difficulty;
 
+import com.toast.apocalypse.common.util.References;
+
 public class DefaultDifficultyCapability implements IDifficultyCapability {
 
     private long difficulty;
-    // -1 will be treated as no limit.
-    private long maxDifficulty = -1;
+    private long maxDifficulty = 200 * References.DAY_LENGTH;
 
     @Override
     public void setDifficulty(long difficulty) {
@@ -14,11 +15,6 @@ public class DefaultDifficultyCapability implements IDifficultyCapability {
     @Override
     public long getDifficulty() {
         return this.difficulty;
-    }
-
-    @Override
-    public void addDifficulty(long amount) {
-        this.difficulty += amount;
     }
 
     @Override
