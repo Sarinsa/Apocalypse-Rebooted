@@ -8,6 +8,7 @@ import com.toast.apocalypse.common.event.CommonConfigReloadListener;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
+import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -142,6 +143,15 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
         }
     }
 
+    public static long getNearestPlayerDifficulty(IWorld world, LivingEntity livingEntity) {
+        PlayerEntity player = world.getNearestPlayer(livingEntity, Double.MAX_VALUE);
+
+        if (player != null) {
+            return CapabilityHelper.getPlayerDifficulty(player);
+        }
+        return 0;
+    }
+
     /**
      * Updates each player's difficulty.
      */
@@ -262,17 +272,18 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
 
             // Tick player groups
             if (++this.timeUntilGroupTick >= TICKS_PER_GROUP_UPDATE) {
-                if (server.getPlayerCount() > 1) {
-                    this.timeUntilGroupTick = 0;
+                this.timeUntilGroupTick = 0;
 
-                    for (RegistryKey<World> key : this.playerGroups.keySet()) {
-                        for (PlayerGroup group : this.playerGroups.get(key)) {
-                            if (group.getPlayers().isEmpty()) {
-                                this.playerGroups.remove(group);
-                                return;
-                            }
-                            group.tick();
+                if (server.getPlayerCount() == 0)
+                    return;
+
+                for (RegistryKey<World> key : this.playerGroups.keySet()) {
+                    for (PlayerGroup group : this.playerGroups.get(key)) {
+                        if (group.getPlayers().isEmpty()) {
+                            this.playerGroups.get(key).remove(group);
+                            return;
                         }
+                        group.tick();
                     }
                 }
             }

@@ -1,11 +1,14 @@
 package com.toast.apocalypse.common.core.config;
 
+import com.toast.apocalypse.common.entity.living.*;
+import com.toast.apocalypse.common.util.References;
 import net.minecraft.block.Blocks;
 import net.minecraft.world.Dimension;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -30,7 +33,6 @@ public class ApocalypseCommonConfig {
         static {
             PENALTY_DIMENSIONS.add(Dimension.NETHER.location().toString());
             PENALTY_DIMENSIONS.add(Dimension.END.location().toString());
-
             DESTROYER_PROOF_BLOCKS.add(Blocks.BEDROCK.getRegistryName().toString());
         }
 
@@ -46,6 +48,25 @@ public class ApocalypseCommonConfig {
         private final ForgeConfigSpec.ConfigValue<List<? extends String>> dimensionsPenaltyList;
         private final ForgeConfigSpec.DoubleValue dimensionPenalty;
         private final ForgeConfigSpec.BooleanValue averageGroupDifficulty;
+
+        // Full moon stuff
+        private final ForgeConfigSpec.DoubleValue fullMoonSiegeChance;
+        private final ForgeConfigSpec.BooleanValue denySleep;
+        private final ForgeConfigSpec.DoubleValue difficultyUntilNextIncrease;
+        private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.DoubleValue> spawnWeights = new HashMap<>();
+        private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.IntValue> moonMobStartDifficulties = new HashMap<>();
+        private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.DoubleValue> moonMobAdditionalCount = new HashMap<>();
+        private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.DoubleValue> moonMobMinCount = new HashMap<>();
+
+        // Attributes and potions
+        private final ForgeConfigSpec.ConfigValue<List<? extends String>> healthBlacklist;
+        private final ForgeConfigSpec.DoubleValue healthLunarFlatBonus;
+        private final ForgeConfigSpec.DoubleValue healthLunarMultBonus;
+        private final ForgeConfigSpec.DoubleValue healthTimeSpan;
+        private final ForgeConfigSpec.DoubleValue healthFlatBonus;
+        private final ForgeConfigSpec.DoubleValue healthFlatBonusMax;
+        private final ForgeConfigSpec.DoubleValue healthMultBonus;
+        private final ForgeConfigSpec.DoubleValue healthMultBonusMax;
 
         // Misc
         private final ForgeConfigSpec.ConfigValue<List<? extends String>> destroyerProofBlocks;
@@ -88,22 +109,83 @@ public class ApocalypseCommonConfig {
             configBuilder.comment("This section revolves around everything related to the full moon sieges.");
             configBuilder.push("full_moon");
 
+            this.fullMoonSiegeChance = configBuilder.comment("The chance for a full moon to trigger a full moon siege event. Default value is 1.0 (100% chance)")
+                    .defineInRange("full_moon_siege_chance", 1.0, 0.0, 1.0);
+
+            this.denySleep = configBuilder.comment("If enabled, players will not be able to sleep during nights when it is a full moon.")
+                    .define("deny_sleep", true);
+
+            this.difficultyUntilNextIncrease = configBuilder.comment("How many levels of difficulty must pass before the additional full moon mob counts increases. For example, a value of 30.5 will increase the number of full moon mobs spawning during sieges for every 30.5 levels of difficulty passed.")
+                    .defineInRange("difficulty_until_next_increase", 40.0D, 0.1D, 100000.0D);
+
             configBuilder.comment("The spawn weights for all the full moon mobs.");
             configBuilder.push("spawn_chance");
-
-
+            createSpawnWeight(BreecherEntity.class, "breecher", 4.0D, configBuilder);
+            createSpawnWeight(GhostEntity.class, "ghost", 8.0D, configBuilder);
+            createSpawnWeight(DestroyerEntity.class, "destroyer", 2.0D, configBuilder);
+            createSpawnWeight(SeekerEntity.class, "seeker", 2.0D, configBuilder);
+            createSpawnWeight(GrumpEntity.class, "grump", 3.0D, configBuilder);
             configBuilder.pop();
-            configBuilder.comment("The maximum amount of a specific full moon mob that can spawn during a full moon siege.");
+
+            configBuilder.comment("The difficulty at which a specific type of full moon mob can start to spawn during sieges (It might be smart to let at least one type spawn at 0).");
+            configBuilder.push("spawn_start_difficulties");
+            createStartDifficulty(BreecherEntity.class, "breecher", 10, configBuilder);
+            createStartDifficulty(GhostEntity.class, "ghost", 0, configBuilder);
+            createStartDifficulty(DestroyerEntity.class, "destroyer", 75, configBuilder);
+            createStartDifficulty(SeekerEntity.class, "seeker", 50, configBuilder);
+            createStartDifficulty(GrumpEntity.class, "grump", 20, configBuilder);
+            configBuilder.pop();
+
+            configBuilder.comment("The additional amount of a specific full moon mob that can spawn during a full moon siege.");
             configBuilder.push("max_spawn_count");
-
+            createMobAdditionalCount(BreecherEntity.class, "breecher", 2.0D, configBuilder);
+            createMobAdditionalCount(GhostEntity.class, "ghost", 6.0D, configBuilder);
+            createMobAdditionalCount(DestroyerEntity.class, "destroyer", 1.0D, configBuilder);
+            createMobAdditionalCount(SeekerEntity.class, "seeker", 1.0D, configBuilder);
+            createMobAdditionalCount(GrumpEntity.class, "grump", 4.0D, configBuilder);
             configBuilder.pop();
+
             configBuilder.comment("The minimum amount of a specific full moon mob that can spawn during a full moon siege.");
             configBuilder.push("min_spawn_count");
-
+            createMobMinCount(BreecherEntity.class, "breecher", 4.0D, configBuilder);
+            createMobMinCount(GhostEntity.class, "ghost", 4.0D, configBuilder);
+            createMobMinCount(DestroyerEntity.class, "destroyer", 1.0D, configBuilder);
+            createMobMinCount(SeekerEntity.class, "seeker", 1.0D, configBuilder);
+            createMobMinCount(GrumpEntity.class, "grump", 1.5D, configBuilder);
             configBuilder.pop();
+            configBuilder.pop();
+
+            configBuilder.push("attributes_and_potions");
+            configBuilder.comment("This section contains everything related to mob attributes and potion effects.");
+
+            configBuilder.push("health");
+            this.healthBlacklist = configBuilder.comment("A list of entity types that do not gain any health bonuses. Empty by default. Example: [\"minecraft:creeper\", \"abundance:screecher\"]")
+                    .define("health_blacklist", new ArrayList<>());
+
+            this.healthLunarFlatBonus = configBuilder.comment("The flat bonus gained from a full moon in percentage.")
+                    .defineInRange("health_lunar_flat_bonus", 10.0D, 0.0D, 10000.0D);
+
+            this.healthLunarMultBonus = configBuilder.comment("The multiplier bonus gained from a full moon in percentage.")
+                    .defineInRange("health_lunar_mult_bonus", 0.5D, 0.0D, 10000.0D);
+
+            this.healthTimeSpan = configBuilder.comment("The number of days for each application of the below values")
+                    .defineInRange("health_time_span", 40.0D, 0.1D, 10000.0D);
+
+            this.healthFlatBonus = configBuilder.comment("The flat bonus given each \"_time_span\" days.")
+                    .defineInRange("health_flat_bonus", 1.0D, 0.0D, 10000.0D);
+
+            this.healthFlatBonusMax = configBuilder.comment("The maximum flat bonus that can be given over time. Default is -1.0 (no limit).")
+                    .defineInRange("health_flat_bonus_max", -1.0D, -1.0D, 10000.0D);
+
+            this.healthMultBonus = configBuilder.comment("The multiplier bonus given for each \"_time_span\" days. Default is 0.8 (+80%).")
+                    .defineInRange("health_mult_bonus", 0.8D, 0.0D, 10000.0D);
+
+            this.healthMultBonusMax = configBuilder.comment("The maximum multiplier bonus that can be given over time. Default is -1.0 (no limit).")
+                    .defineInRange("health_mult_bonus_max", -1.0D, -1.0D, 10000.0D);
+            configBuilder.pop();
+
             configBuilder.pop();
             configBuilder.push("misc");
-
             this.destroyerProofBlocks = configBuilder.comment("A list of blocks that the destroyer cannot explode. Generally speaking this list should be empty since destroyers are supposed to destroy any block, but if an exception is absolutely needed, the block in question can be whitelisted here.")
                     .define("destroyerProofBlocks", DESTROYER_PROOF_BLOCKS);
 
@@ -112,6 +194,7 @@ public class ApocalypseCommonConfig {
 
             configBuilder.pop();
         }
+
 
         //
         // RAIN DAMAGE
@@ -127,6 +210,7 @@ public class ApocalypseCommonConfig {
         public boolean rainDamageEnabled() {
             return this.rainDamageEnabled.get();
         }
+
 
         //
         // DIFFICULTY
@@ -155,6 +239,75 @@ public class ApocalypseCommonConfig {
             return this.averageGroupDifficulty.get();
         }
 
+
+        //
+        // FULL MOON
+        //
+        public double getFullMoonSiegeChance() {
+            return this.fullMoonSiegeChance.get();
+        }
+
+        public boolean denySleep() {
+            return this.denySleep.get();
+        }
+
+        public double getDifficultyUntilNextIncrease() {
+            return this.difficultyUntilNextIncrease.get();
+        }
+
+        public double getFullMoonMobSpawnWeight(Class<? extends IFullMoonMob> entityClass) {
+            return this.spawnWeights.containsKey(entityClass) ? this.spawnWeights.get(entityClass).get() : 0.0D;
+        }
+
+        public int getMoonMobStartDifficulty(Class<? extends IFullMoonMob> entityClass) {
+            return this.moonMobStartDifficulties.containsKey(entityClass) ? this.moonMobStartDifficulties.get(entityClass).get() : 0;
+        }
+
+        public double getMoonMobAdditionalCount(Class<? extends IFullMoonMob> entityClass) {
+            return this.moonMobAdditionalCount.containsKey(entityClass) ? this.moonMobAdditionalCount.get(entityClass).get() : 0.0D;
+        }
+
+        public double getMoonMobMinCount(Class<? extends IFullMoonMob> entityClass) {
+            return this.moonMobMinCount.containsKey(entityClass) ? this.moonMobMinCount.get(entityClass).get() : 0.0D;
+        }
+
+
+        //
+        // ATTRIBUTES AND POTIONS
+        //
+        public List<? extends String> getHealthBlacklist() {
+            return this.healthBlacklist.get();
+        }
+
+        public double getHealthLunarFlatBonus() {
+            return this.healthLunarFlatBonus.get();
+        }
+
+        public double getHealthLunarMultBonus() {
+            return this.healthLunarMultBonus.get();
+        }
+
+        public double getHealthTimeSpan() {
+            return this.healthTimeSpan.get() * References.DAY_LENGTH;
+        }
+
+        public double getHealthFlatBonus() {
+            return this.healthFlatBonus.get();
+        }
+
+        public double getHealthFlatBonusMax() {
+            return this.healthFlatBonusMax.get();
+        }
+
+        public double getHealthMultBonus() {
+            return this.healthMultBonus.get();
+        }
+
+        public double getHealthMultBonusMax() {
+            return this.healthMultBonusMax.get();
+        }
+
+
         //
         //  MISC
         //
@@ -164,6 +317,26 @@ public class ApocalypseCommonConfig {
 
         public int getGrumpBucketHelmetChance() {
             return this.grumpBucketHelmetChance.get();
+        }
+
+
+        /*
+         * Helper methods and whatnot
+         */
+        private void createSpawnWeight(Class<? extends IFullMoonMob> entityClass, String name, double defaultWeight, ForgeConfigSpec.Builder configBuilder) {
+            this.spawnWeights.put(entityClass, configBuilder.defineInRange(name, defaultWeight, 0, 100));
+        }
+
+        private void createStartDifficulty(Class<? extends IFullMoonMob> entityClass, String name, int defaultStart, ForgeConfigSpec.Builder configBuilder) {
+            this.moonMobStartDifficulties.put(entityClass, configBuilder.defineInRange(name, defaultStart, 0, 100000));
+        }
+
+        private void createMobAdditionalCount(Class<? extends IFullMoonMob> entityClass, String name, double defaultAdditional, ForgeConfigSpec.Builder configBuilder) {
+            this.moonMobAdditionalCount.put(entityClass, configBuilder.defineInRange(name, defaultAdditional, 0, 100));
+        }
+
+        private void createMobMinCount(Class<? extends IFullMoonMob> entityClass, String name, double defaultMin, ForgeConfigSpec.Builder configBuilder) {
+            this.moonMobMinCount.put(entityClass, configBuilder.defineInRange(name, defaultMin, 0, 100));
         }
     }
 }

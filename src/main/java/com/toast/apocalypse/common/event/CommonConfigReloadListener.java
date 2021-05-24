@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.difficulty.MobDifficultyHandler;
 import com.toast.apocalypse.common.core.difficulty.PlayerGroup;
 import com.toast.apocalypse.common.core.difficulty.WorldDifficultyManager;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
@@ -39,6 +40,9 @@ public class CommonConfigReloadListener {
      * Updates static references when needed to
      * avoid accessing the config constantly
      * in the server tick loop and whatnot.
+     *
+     * The config is pretty large, so config reloads
+     * might make the game lag for a sec, I dunno.
      */
     public static void updateInfo() {
         WorldDifficultyManager.MULTIPLAYER_DIFFICULTY_SCALING = ApocalypseCommonConfig.COMMON.multiplayerDifficultyScaling();
@@ -71,5 +75,28 @@ public class CommonConfigReloadListener {
                 DestroyerExplosionContext.DESTROYER_PROOF_BLOCKS.add(ForgeRegistries.BLOCKS.getValue(blockLocation));
             }
         }
+
+        // Clear before refreshing entries
+        MobDifficultyHandler.HEALTH_BLACKLIST.clear();
+
+        for (String blockName : ApocalypseCommonConfig.COMMON.getHealthBlacklist()) {
+            ResourceLocation entityLocation = ResourceLocation.tryParse(blockName);
+
+            if (entityLocation == null) {
+                Apocalypse.LOGGER.warn("Invalid entity type registry name found in the health blacklist. Check your Apocalypse common config! Problematic ResourceLocation: " + "\"" + blockName + "\"");
+            }
+
+            if (ForgeRegistries.ENTITIES.containsKey(entityLocation)) {
+                MobDifficultyHandler.HEALTH_BLACKLIST.add(ForgeRegistries.ENTITIES.getValue(entityLocation));
+            }
+        }
+
+        MobDifficultyHandler.HEALTH_TIME_SPAN = ApocalypseCommonConfig.COMMON.getHealthTimeSpan();
+        MobDifficultyHandler.HEALTH_FLAT_BONUS = ApocalypseCommonConfig.COMMON.getHealthFlatBonus();
+        MobDifficultyHandler.HEALTH_MULT_BONUS = ApocalypseCommonConfig.COMMON.getHealthMultBonus();
+        MobDifficultyHandler.HEALTH_FLAT_BONUS_MAX = ApocalypseCommonConfig.COMMON.getHealthFlatBonusMax();
+        MobDifficultyHandler.HEALTH_MULT_BONUS_MAX = ApocalypseCommonConfig.COMMON.getHealthMultBonusMax();
+        MobDifficultyHandler.HEALTH_LUNAR_FLAT_BONUS = ApocalypseCommonConfig.COMMON.getHealthLunarFlatBonus();
+        MobDifficultyHandler.HEALTH_LUNAR_MULT_BONUS = ApocalypseCommonConfig.COMMON.getHealthLunarMultBonus();
     }
 }
