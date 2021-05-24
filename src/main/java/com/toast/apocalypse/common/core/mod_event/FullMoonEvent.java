@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.core.mod_event;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.server.ServerWorld;
 
 /**
@@ -14,6 +15,16 @@ public class FullMoonEvent extends AbstractEvent {
 
     /** Time until mobs can start spawning. */
     private int gracePeriod, baseGracePeriod;
+
+    /**
+     * Checks if the event should be postponed.
+     * The full moon sieges should for example not
+     * be skippable on servers, so to prevent players
+     * from just logging out during full moons and wait
+     * out the siege event, this is used to pause
+     * the event as long as the server's player count is 0.
+     */
+    private boolean waiting;
 
     public FullMoonEvent(int id) {
         super(id);

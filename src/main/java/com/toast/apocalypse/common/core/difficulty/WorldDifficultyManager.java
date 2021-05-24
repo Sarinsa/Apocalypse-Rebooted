@@ -8,6 +8,7 @@ import com.toast.apocalypse.common.event.CommonConfigReloadListener;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
+import net.minecraft.command.impl.GameRuleCommand;
 import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -17,6 +18,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -219,6 +221,7 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
     public void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             MinecraftServer server = this.server;
+            int playerCount = server.getPlayerCount();
 
             // Counter to update the world
             if (++this.timeUntilUpdate >= TICKS_PER_UPDATE) {
@@ -231,10 +234,9 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
 
                 // Apply a +5% difficulty multiplier per player online
                 if (MULTIPLAYER_DIFFICULTY_SCALING) {
-                    int playerCount = server.getPlayerCount();
 
                     if (playerCount > 1) {
-                        this.worldDifficultyRateMul = 1.0D + ((server.getPlayerCount() - 1.0D) * DIFFICULTY_MULTIPLIER);
+                        this.worldDifficultyRateMul = 1.0D + ((playerCount - 1.0D) * DIFFICULTY_MULTIPLIER);
                     }
                     else {
                         this.worldDifficultyRateMul = 1.0D;
@@ -270,23 +272,6 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
                 this.save();
             }
 
-            // Tick player groups
-            if (++this.timeUntilGroupTick >= TICKS_PER_GROUP_UPDATE) {
-                this.timeUntilGroupTick = 0;
-
-                if (server.getPlayerCount() == 0)
-                    return;
-
-                for (RegistryKey<World> key : this.playerGroups.keySet()) {
-                    for (PlayerGroup group : this.playerGroups.get(key)) {
-                        if (group.getPlayers().isEmpty()) {
-                            this.playerGroups.get(key).remove(group);
-                            return;
-                        }
-                        group.tick();
-                    }
-                }
-            }
             // TODO: Move to separate event listener
             // Initialize any spawned entities
             /*
