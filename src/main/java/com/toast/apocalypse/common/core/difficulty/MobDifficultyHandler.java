@@ -8,7 +8,6 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -55,6 +54,13 @@ public class MobDifficultyHandler {
     public static double DAMAGE_MULT_BONUS_MAX;
     public static double DAMAGE_LUNAR_FLAT_BONUS;
     public static double DAMAGE_LUNAR_MULT_BONUS;
+
+    // Knockback resistance
+    public static List<EntityType<?>> KNOCKBACK_BLACKLIST = new ArrayList<>();
+    public static double KNOCKBACK_RES_TIME_SPAN;
+    public static double KNOCKBACK_RES_FLAT_BONUS;
+    public static double KNOCKBACK_RES_FLAT_BONUS_MAX;
+    public static double KNOCKBACK_RES_LUNAR_FLAT_BONUS;
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onEntitySpawn(LivingSpawnEvent.CheckSpawn event) {
@@ -129,6 +135,27 @@ public class MobDifficultyHandler {
 
             if (mult != 0.0) {
                 attribute.addPermanentModifier(new AttributeModifier("ApocalypseMultSPEED", mult, AttributeModifier.Operation.MULTIPLY_BASE));
+            }
+        }
+
+        // Knockback resistance
+
+        attribute = livingEntity.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
+
+        if (attribute != null && !KNOCKBACK_BLACKLIST.contains(livingEntity.getType())) {
+            effectiveDifficulty = (double) difficulty / KNOCKBACK_RES_TIME_SPAN;
+
+            bonus = KNOCKBACK_RES_FLAT_BONUS * effectiveDifficulty;
+
+            if (KNOCKBACK_RES_FLAT_BONUS_MAX >= 0.0 && bonus > KNOCKBACK_RES_FLAT_BONUS_MAX) {
+                bonus = KNOCKBACK_RES_FLAT_BONUS_MAX;
+            }
+            if (fullMoon) {
+                bonus += KNOCKBACK_RES_LUNAR_FLAT_BONUS;
+            }
+
+            if (bonus != 0.0) {
+                attribute.addPermanentModifier(new AttributeModifier("ApocalypseFlatRESIST", bonus, AttributeModifier.Operation.ADDITION));
             }
         }
     }

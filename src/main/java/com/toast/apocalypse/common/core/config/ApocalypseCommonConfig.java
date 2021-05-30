@@ -51,7 +51,6 @@ public class ApocalypseCommonConfig {
 
         // Full moon stuff
         private final ForgeConfigSpec.DoubleValue fullMoonSiegeChance;
-        private final ForgeConfigSpec.BooleanValue denySleep;
         private final ForgeConfigSpec.DoubleValue difficultyUntilNextIncrease;
         private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.DoubleValue> spawnWeights = new HashMap<>();
         private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.LongValue> moonMobStartDifficulties = new HashMap<>();
@@ -83,13 +82,18 @@ public class ApocalypseCommonConfig {
         private final ForgeConfigSpec.DoubleValue speedMultBonus;
         private final ForgeConfigSpec.DoubleValue speedMultBonusMax;
 
+        private final ForgeConfigSpec.ConfigValue<List<? extends String>> knockbackResBlacklist;
+        private final ForgeConfigSpec.DoubleValue knockbackResLunarFlatBonus;
+        private final ForgeConfigSpec.DoubleValue knockbackResTimeSpan;
+        private final ForgeConfigSpec.DoubleValue knockbackResFlatBonus;
+        private final ForgeConfigSpec.DoubleValue knockbackResFlatBonusMax;
+
         // Misc
         private final ForgeConfigSpec.ConfigValue<List<? extends String>> destroyerProofBlocks;
         private final ForgeConfigSpec.IntValue grumpBucketHelmetChance;
 
         private Common(ForgeConfigSpec.Builder configBuilder) {
             configBuilder.push("rain");
-
             this.rainTickRate = configBuilder.comment("Determines the interval in which rain damage should be dealt in seconds. A value of 2 will inflict rain damage on players every 2 seconds.")
                     .defineInRange("rainTickRate", 3, 1, 1000);
 
@@ -98,10 +102,9 @@ public class ApocalypseCommonConfig {
 
             this.rainDamageEnabled = configBuilder.comment("Set to false to disable rain damage, or to true to turn it on.")
                     .define("enableRainDamage", true);
-
             configBuilder.pop();
-            configBuilder.push("difficulty");
 
+            configBuilder.push("difficulty");
             this.multiplayerDifficultyScaling = configBuilder.comment("If enabled, world difficulty will increased by the configured multiplier")
                     .define("multiplayerDifficultyScaling", true);
 
@@ -119,16 +122,12 @@ public class ApocalypseCommonConfig {
 
             this.averageGroupDifficulty = configBuilder.comment("If enabled, players that are close to eachother will have the average of their difficulty added together used instead of the nearby player with the highest difficulty.")
                     .define("averageGroupDifficulty", false);
-
             configBuilder.pop();
+
             configBuilder.comment("This section revolves around everything related to the full moon sieges.");
             configBuilder.push("full_moon");
-
             this.fullMoonSiegeChance = configBuilder.comment("The chance for a full moon to trigger a full moon siege event. Default value is 1.0 (100% chance)")
                     .defineInRange("full_moon_siege_chance", 1.0, 0.0, 1.0);
-
-            this.denySleep = configBuilder.comment("If enabled, players will not be able to sleep during nights when it is a full moon.")
-                    .define("deny_sleep", true);
 
             this.difficultyUntilNextIncrease = configBuilder.comment("How many levels of difficulty must pass before the additional full moon mob counts increases. For example, a value of 30.5 will increase the number of full moon mobs spawning during sieges for every 30.5 levels of difficulty passed.")
                     .defineInRange("difficulty_until_next_increase", 40.0D, 0.1D, 100000.0D);
@@ -177,10 +176,10 @@ public class ApocalypseCommonConfig {
             this.healthBlacklist = configBuilder.comment("A list of entity types that do not gain any health bonuses. Empty by default. Example: [\"minecraft:creeper\", \"abundance:screecher\"]")
                     .define("health_blacklist", new ArrayList<>());
 
-            this.healthLunarFlatBonus = configBuilder.comment("The flat bonus gained from a full moon in percentage.")
+            this.healthLunarFlatBonus = configBuilder.comment("The flat bonus gained from a full moon. Default is 10.0 (+10 hearts on full moons).")
                     .defineInRange("health_lunar_flat_bonus", 10.0D, 0.0D, 10000.0D);
 
-            this.healthLunarMultBonus = configBuilder.comment("The multiplier bonus gained from a full moon in percentage.")
+            this.healthLunarMultBonus = configBuilder.comment("The multiplier bonus gained from a full moon in percentage. Default is 0.5 (+50% on full moons)")
                     .defineInRange("health_lunar_mult_bonus", 0.5D, 0.0D, 10000.0D);
 
             this.healthTimeSpan = configBuilder.comment("The difficulty value for each application of the below values.")
@@ -203,16 +202,16 @@ public class ApocalypseCommonConfig {
             this.damageBlacklist = configBuilder.comment("A list of entity types that do not gain any damage bonuses. Empty by default. Example: [\"minecraft:creeper\", \"abundance:screecher\"]")
                     .define("damage_blacklist", new ArrayList<>());
 
-            this.damageLunarFlatBonus = configBuilder.comment("The flat bonus gained from a full moon in percentage.")
+            this.damageLunarFlatBonus = configBuilder.comment("The flat bonus gained from a full moon. Default is 1.0 (+1 damage on full moons).")
                     .defineInRange("damage_lunar_flat_bonus", 1.0D, 0.0D, 10000.0D);
 
-            this.damageLunarMultBonus = configBuilder.comment("The multiplier bonus gained from a full moon in percentage.")
+            this.damageLunarMultBonus = configBuilder.comment("The multiplier bonus gained from a full moon. Default is 0.2 (+20% on full moons).")
                     .defineInRange("damage_lunar_mult_bonus", 0.2D, 0.0D, 10000.0D);
 
             this.damageTimeSpan = configBuilder.comment("The difficulty value for each application of the below values.")
                     .defineInRange("damage_time_span", 40.0D, 0.1D, 10000.0D);
 
-            this.damageFlatBonus = configBuilder.comment("The flat bonus given each \"_time_span\" days.")
+            this.damageFlatBonus = configBuilder.comment("The flat bonus given each \"_time_span\" days. Default is 1.0 (+1 damage)")
                     .defineInRange("damage_flat_bonus", 1.0D, 0.0D, 10000.0D);
 
             this.damageFlatBonusMax = configBuilder.comment("The maximum flat bonus that can be given over time. Default is -1.0 (no limit).")
@@ -229,7 +228,7 @@ public class ApocalypseCommonConfig {
             this.speedBlacklist = configBuilder.comment("A list of entity types that do not gain any speed bonuses. Empty by default. Example: [\"minecraft:creeper\", \"abundance:screecher\"]")
                     .define("speed_blacklist", new ArrayList<>());
 
-            this.speedLunarMultBonus = configBuilder.comment("The multiplier bonus gained from a full moon in percentage. Default is 0.1 (+10%)")
+            this.speedLunarMultBonus = configBuilder.comment("The multiplier bonus gained from a full moon in percentage. Default is 0.1 (+10% during full moons)")
                     .defineInRange("speed_lunar_mult_bonus", 0.1D, 0.0D, 1000.0D);
 
             this.speedTimeSpan = configBuilder.comment("The difficulty value for each application of the below values.")
@@ -242,13 +241,22 @@ public class ApocalypseCommonConfig {
                     .defineInRange("damage_mult_bonus_max", 0.2D, -1.0D, 10000.0D);
             configBuilder.pop();
 
-            /*
-       Properties.add(config, Properties.SPEED, "_blacklist", "", "Comma-separated list of string entity ids that will not gain any of these bonuses. Default is none.");
-        Properties.add(config, Properties.SPEED, "_lunar_mult_bonus", 0.1, "The multiplier bonus gained from a full moon. Default is 0.1 (+10% on full moon).");
-        Properties.add(config, Properties.SPEED, "_time_span", 40.0, "The number of days for each application of the below values. Default is 40.0.");
-        Properties.add(config, Properties.SPEED, "mult_bonus", 0.05, "The multiplier bonus given for each \"_time_span\" days. Default is 0.05 (+5%).");
-        Properties.add(config, Properties.SPEED, "mult_bonus_max", 0.2, "The maximum multiplier bonus that can be given over time. Default is 0.2 (+20%).");
-             */
+            configBuilder.push("knockback_resistance");
+            this.knockbackResBlacklist = configBuilder.comment("A list of entity types that do not gain any knockback resistance bonuses. Empty by default. Example: [\"minecraft:creeper\", \"abundance:screecher\"]")
+                    .define("knockback_res_blacklist", new ArrayList<>());
+
+            this.knockbackResLunarFlatBonus = configBuilder.comment("The flat bonus gained from a full moon in percentage. Default is 0.2 (+20% on full moons)")
+                    .defineInRange("damage_lunar_flat_bonus", 0.2D, 0.0D, 10000.0D);
+
+            this.knockbackResTimeSpan = configBuilder.comment("The difficulty value for each application of the below values.")
+                    .defineInRange("damage_time_span", 40.0D, 0.1D, 10000.0D);
+
+            this.knockbackResFlatBonus = configBuilder.comment("The flat bonus given each \"_time_span\" days. Default is 0.05 (+5%).")
+                    .defineInRange("damage_flat_bonus", 0.05D, 0.0D, 10000.0D);
+
+            this.knockbackResFlatBonusMax = configBuilder.comment("The maximum flat bonus that can be given over time. Default is 0.3 (+30%).")
+                    .defineInRange("damage_flat_bonus_max", 0.3D, -1.0D, 10000.0D);
+            configBuilder.pop();
 
             configBuilder.pop();
             configBuilder.push("misc");
@@ -257,7 +265,6 @@ public class ApocalypseCommonConfig {
 
             this.grumpBucketHelmetChance = configBuilder.comment("This is the chance in percentage for grumps to spawn with a bucket helmet equipped. Grumps with bucket helmets are heavily armored against arrows.")
                     .defineInRange("grumpBucketHelmetChance", 5, 0, 100);
-
             configBuilder.pop();
         }
 
@@ -311,10 +318,6 @@ public class ApocalypseCommonConfig {
         //
         public double getFullMoonSiegeChance() {
             return this.fullMoonSiegeChance.get();
-        }
-
-        public boolean denySleep() {
-            return this.denySleep.get();
         }
 
         public double getDifficultyUntilNextIncrease() {
@@ -423,6 +426,26 @@ public class ApocalypseCommonConfig {
 
         public double getSpeedMultBonusMax() {
             return this.speedMultBonusMax.get();
+        }
+
+        public List<? extends String> getKnockbackResBlacklist() {
+            return this.knockbackResBlacklist.get();
+        }
+
+        public double getKnockbackResLunarFlatBonus() {
+            return this.knockbackResLunarFlatBonus.get();
+        }
+
+        public double getKnockbackResTimeSpan() {
+            return this.knockbackResTimeSpan.get() * References.DAY_LENGTH;
+        }
+
+        public double getKnockbackResFlatBonus() {
+            return this.knockbackResFlatBonus.get();
+        }
+
+        public double getKnockbackResFlatBonusMax() {
+            return this.knockbackResFlatBonusMax.get();
         }
 
 

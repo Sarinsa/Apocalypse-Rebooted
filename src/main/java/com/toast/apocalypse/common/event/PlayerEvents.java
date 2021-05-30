@@ -45,10 +45,8 @@ public class PlayerEvents {
             return;
 
         if (world.isNight() && WorldDifficultyManager.isFullMoon(world)) {
-            if (ApocalypseCommonConfig.COMMON.denySleep()) {
-                event.setResult(PlayerEntity.SleepResult.OTHER_PROBLEM);
-                player.displayClientMessage(new TranslationTextComponent(References.TRY_SLEEP_FULL_MOON), true);
-            }
+            event.setResult(PlayerEntity.SleepResult.OTHER_PROBLEM);
+            player.displayClientMessage(new TranslationTextComponent(References.TRY_SLEEP_FULL_MOON), true);
         }
     }
 

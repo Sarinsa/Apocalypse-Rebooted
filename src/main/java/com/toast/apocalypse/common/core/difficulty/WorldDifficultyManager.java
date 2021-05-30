@@ -96,7 +96,7 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
     public void onServerStarted(FMLServerStartedEvent event) {
         // Would this really ever be anything else?
         if (this.server.overworld().dimension() == World.OVERWORLD) {
-            this.load();
+            this.loadEventData();
         }
     }
 
@@ -269,7 +269,7 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
             // Save event data
             if (++this.timeUntilSave >= TICKS_PER_SAVE) {
                 this.timeUntilSave = 0;
-                this.save();
+                this.saveEventData();
             }
 
             // TODO: Move to separate event listener
@@ -317,6 +317,11 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
             }
         }
 
+        // Stop the full moon event when it becomes day time.
+        if (world.isDay() && this.currentEvent == EventRegister.FULL_MOON) {
+            this.endEvent();
+        }
+
         // Update event and players
         if (this.currentEvent != null) {
             this.currentEvent.update(world);
@@ -351,6 +356,11 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
         this.worldDifficultyRateMul = rate;
     }
 
+    @Override
+    public long getPlayerDifficulty(PlayerEntity player) {
+        return CapabilityHelper.getPlayerDifficulty(player);
+    }
+
     public Iterable<PlayerGroup> getPlayerGroups(World world) {
         return this.playerGroups.get(world.dimension());
     }
@@ -370,6 +380,7 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
     public void startEvent(AbstractEvent event) {
         if (event == null)
             return;
+
         if (this.currentEvent != null) {
             if (!this.currentEvent.canBeInterrupted(event))
                 return;
@@ -377,6 +388,7 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
         }
         event.onStart();
         Iterable<ServerWorld> worlds = this.server.getAllLevels();
+
         for (ServerWorld world : worlds) {
             if (world != null) {
                 for (PlayerEntity player : world.players()) {
@@ -389,12 +401,13 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
 
     /** Ends the current active event, if any. */
     public void endEvent() {
+        this.currentEvent.onEnd();
         this.currentEvent = null;
     }
 
     /** Cleans up the references to things in a server when the server stops. */
     public void cleanup() {
-        this.save();
+        this.saveEventData();
         this.server = null;
         this.timeUntilUpdate = 0;
         this.timeUntilSave = 0;
@@ -402,9 +415,9 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
         this.playerGroups.clear();
     }
 
-    public void load() {
+    public void loadEventData() {
         try {
-            // Load difficulty
+            // Load event data
             World world = this.server.overworld();
             CompoundNBT eventData = CapabilityHelper.getEventData(world);
 
@@ -419,9 +432,9 @@ public final class WorldDifficultyManager implements IDifficultyProvider {
         }
     }
 
-    public void save() {
+    public void saveEventData() {
         try {
-            // Save difficulty
+            // Save event data
             World world = this.server.overworld();
             CompoundNBT eventData = new CompoundNBT();
 

@@ -4,8 +4,10 @@ import java.util.List;
 
 /**
  * An easy way for modders to
- * check some of Apocalypse's
- * config settings.
+ * check Apocalypse's config
+ * settings. Note that this
+ * part will likely whenever
+ * we update the config internally.
  */
 public interface IConfigHelper {
 

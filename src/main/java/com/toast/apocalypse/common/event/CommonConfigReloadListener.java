@@ -69,6 +69,7 @@ public class CommonConfigReloadListener {
         refreshList(ApocalypseCommonConfig.COMMON.getHealthBlacklist(), MobDifficultyHandler.HEALTH_BLACKLIST, ForgeRegistries.ENTITIES);
         refreshList(ApocalypseCommonConfig.COMMON.getSpeedBlacklist(), MobDifficultyHandler.SPEED_BLACKLIST, ForgeRegistries.ENTITIES);
         refreshList(ApocalypseCommonConfig.COMMON.getDamageBlacklist(), MobDifficultyHandler.DAMAGE_BLACKLIST, ForgeRegistries.ENTITIES);
+        refreshList(ApocalypseCommonConfig.COMMON.getKnockbackResBlacklist(), MobDifficultyHandler.KNOCKBACK_BLACKLIST, ForgeRegistries.ENTITIES);
 
         MobDifficultyHandler.HEALTH_TIME_SPAN = ApocalypseCommonConfig.COMMON.getHealthTimeSpan();
         MobDifficultyHandler.HEALTH_FLAT_BONUS = ApocalypseCommonConfig.COMMON.getHealthFlatBonus();
@@ -90,6 +91,11 @@ public class CommonConfigReloadListener {
         MobDifficultyHandler.DAMAGE_MULT_BONUS_MAX = ApocalypseCommonConfig.COMMON.getDamageMultBonusMax();
         MobDifficultyHandler.DAMAGE_LUNAR_FLAT_BONUS = ApocalypseCommonConfig.COMMON.getDamageLunarFlatBonus();
         MobDifficultyHandler.DAMAGE_LUNAR_MULT_BONUS = ApocalypseCommonConfig.COMMON.getDamageLunarMultBonus();
+
+        MobDifficultyHandler.KNOCKBACK_RES_TIME_SPAN = ApocalypseCommonConfig.COMMON.getKnockbackResTimeSpan();
+        MobDifficultyHandler.KNOCKBACK_RES_FLAT_BONUS = ApocalypseCommonConfig.COMMON.getKnockbackResFlatBonus();
+        MobDifficultyHandler.KNOCKBACK_RES_FLAT_BONUS_MAX = ApocalypseCommonConfig.COMMON.getKnockbackResFlatBonusMax();
+        MobDifficultyHandler.KNOCKBACK_RES_LUNAR_FLAT_BONUS = ApocalypseCommonConfig.COMMON.getKnockbackResLunarFlatBonus();
     }
 
     /** Tiny helper method for refreshing config lists */

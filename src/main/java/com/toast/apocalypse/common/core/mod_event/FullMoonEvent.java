@@ -37,7 +37,7 @@ public class FullMoonEvent extends AbstractEvent {
 
     @Override
     public void onStart() {
-
+        this.gracePeriod = 320;
     }
 
     @Override
@@ -47,6 +47,20 @@ public class FullMoonEvent extends AbstractEvent {
 
     @Override
     public void update(ServerWorld world) {
+        // Stop the full moon siege when it is day.
+        if (world.isDay()) {
+            this.onEnd();
+            return;
+        }
+
+        // Pause the event if no players are online.
+        // At least ONE player should suffer! >:D
+        this.waiting = world.getServer().getPlayerCount() < 1;
+
+        if (this.waiting) {
+            return;
+        }
+
 
     }
 
