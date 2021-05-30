@@ -54,7 +54,7 @@ public class ApocalypseCommonConfig {
         private final ForgeConfigSpec.BooleanValue denySleep;
         private final ForgeConfigSpec.DoubleValue difficultyUntilNextIncrease;
         private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.DoubleValue> spawnWeights = new HashMap<>();
-        private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.IntValue> moonMobStartDifficulties = new HashMap<>();
+        private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.LongValue> moonMobStartDifficulties = new HashMap<>();
         private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.DoubleValue> moonMobAdditionalCount = new HashMap<>();
         private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.DoubleValue> moonMobMinCount = new HashMap<>();
 
@@ -67,6 +67,21 @@ public class ApocalypseCommonConfig {
         private final ForgeConfigSpec.DoubleValue healthFlatBonusMax;
         private final ForgeConfigSpec.DoubleValue healthMultBonus;
         private final ForgeConfigSpec.DoubleValue healthMultBonusMax;
+
+        private final ForgeConfigSpec.ConfigValue<List<? extends String>> damageBlacklist;
+        private final ForgeConfigSpec.DoubleValue damageLunarFlatBonus;
+        private final ForgeConfigSpec.DoubleValue damageLunarMultBonus;
+        private final ForgeConfigSpec.DoubleValue damageTimeSpan;
+        private final ForgeConfigSpec.DoubleValue damageFlatBonus;
+        private final ForgeConfigSpec.DoubleValue damageFlatBonusMax;
+        private final ForgeConfigSpec.DoubleValue damageMultBonus;
+        private final ForgeConfigSpec.DoubleValue damageMultBonusMax;
+
+        private final ForgeConfigSpec.ConfigValue<List<? extends String>> speedBlacklist;
+        private final ForgeConfigSpec.DoubleValue speedLunarMultBonus;
+        private final ForgeConfigSpec.DoubleValue speedTimeSpan;
+        private final ForgeConfigSpec.DoubleValue speedMultBonus;
+        private final ForgeConfigSpec.DoubleValue speedMultBonusMax;
 
         // Misc
         private final ForgeConfigSpec.ConfigValue<List<? extends String>> destroyerProofBlocks;
@@ -168,7 +183,7 @@ public class ApocalypseCommonConfig {
             this.healthLunarMultBonus = configBuilder.comment("The multiplier bonus gained from a full moon in percentage.")
                     .defineInRange("health_lunar_mult_bonus", 0.5D, 0.0D, 10000.0D);
 
-            this.healthTimeSpan = configBuilder.comment("The number of days for each application of the below values")
+            this.healthTimeSpan = configBuilder.comment("The difficulty value for each application of the below values.")
                     .defineInRange("health_time_span", 40.0D, 0.1D, 10000.0D);
 
             this.healthFlatBonus = configBuilder.comment("The flat bonus given each \"_time_span\" days.")
@@ -183,6 +198,57 @@ public class ApocalypseCommonConfig {
             this.healthMultBonusMax = configBuilder.comment("The maximum multiplier bonus that can be given over time. Default is -1.0 (no limit).")
                     .defineInRange("health_mult_bonus_max", -1.0D, -1.0D, 10000.0D);
             configBuilder.pop();
+
+            configBuilder.push("damage");
+            this.damageBlacklist = configBuilder.comment("A list of entity types that do not gain any damage bonuses. Empty by default. Example: [\"minecraft:creeper\", \"abundance:screecher\"]")
+                    .define("damage_blacklist", new ArrayList<>());
+
+            this.damageLunarFlatBonus = configBuilder.comment("The flat bonus gained from a full moon in percentage.")
+                    .defineInRange("damage_lunar_flat_bonus", 1.0D, 0.0D, 10000.0D);
+
+            this.damageLunarMultBonus = configBuilder.comment("The multiplier bonus gained from a full moon in percentage.")
+                    .defineInRange("damage_lunar_mult_bonus", 0.2D, 0.0D, 10000.0D);
+
+            this.damageTimeSpan = configBuilder.comment("The difficulty value for each application of the below values.")
+                    .defineInRange("damage_time_span", 40.0D, 0.1D, 10000.0D);
+
+            this.damageFlatBonus = configBuilder.comment("The flat bonus given each \"_time_span\" days.")
+                    .defineInRange("damage_flat_bonus", 1.0D, 0.0D, 10000.0D);
+
+            this.damageFlatBonusMax = configBuilder.comment("The maximum flat bonus that can be given over time. Default is -1.0 (no limit).")
+                    .defineInRange("damage_flat_bonus_max", -1.0D, -1.0D, 10000.0D);
+
+            this.damageMultBonus = configBuilder.comment("The multiplier bonus given for each \"_time_span\" days. Default is 0.3 (+30%).")
+                    .defineInRange("damage_mult_bonus", 0.3D, 0.0D, 10000.0D);
+
+            this.damageMultBonusMax = configBuilder.comment("The maximum multiplier bonus that can be given over time. Default is 5.0 (+500%).")
+                    .defineInRange("damage_mult_bonus_max", 5.0D, -1.0D, 10000.0D);
+            configBuilder.pop();
+
+            configBuilder.push("movement_speed");
+            this.speedBlacklist = configBuilder.comment("A list of entity types that do not gain any speed bonuses. Empty by default. Example: [\"minecraft:creeper\", \"abundance:screecher\"]")
+                    .define("speed_blacklist", new ArrayList<>());
+
+            this.speedLunarMultBonus = configBuilder.comment("The multiplier bonus gained from a full moon in percentage. Default is 0.1 (+10%)")
+                    .defineInRange("speed_lunar_mult_bonus", 0.1D, 0.0D, 1000.0D);
+
+            this.speedTimeSpan = configBuilder.comment("The difficulty value for each application of the below values.")
+                    .defineInRange("speed_time_span", 40.0D, 0.1D, 10000.0D);
+
+            this.speedMultBonus = configBuilder.comment("The multiplier bonus given for each \"_time_span\" days. Default is 0.05 (+5%).")
+                    .defineInRange("damage_mult_bonus", 0.05D, 0.0D, 10000.0D);
+
+            this.speedMultBonusMax = configBuilder.comment("The maximum multiplier bonus that can be given over time. Default is 0.2 (+20%).")
+                    .defineInRange("damage_mult_bonus_max", 0.2D, -1.0D, 10000.0D);
+            configBuilder.pop();
+
+            /*
+       Properties.add(config, Properties.SPEED, "_blacklist", "", "Comma-separated list of string entity ids that will not gain any of these bonuses. Default is none.");
+        Properties.add(config, Properties.SPEED, "_lunar_mult_bonus", 0.1, "The multiplier bonus gained from a full moon. Default is 0.1 (+10% on full moon).");
+        Properties.add(config, Properties.SPEED, "_time_span", 40.0, "The number of days for each application of the below values. Default is 40.0.");
+        Properties.add(config, Properties.SPEED, "mult_bonus", 0.05, "The multiplier bonus given for each \"_time_span\" days. Default is 0.05 (+5%).");
+        Properties.add(config, Properties.SPEED, "mult_bonus_max", 0.2, "The maximum multiplier bonus that can be given over time. Default is 0.2 (+20%).");
+             */
 
             configBuilder.pop();
             configBuilder.push("misc");
@@ -259,8 +325,8 @@ public class ApocalypseCommonConfig {
             return this.spawnWeights.containsKey(entityClass) ? this.spawnWeights.get(entityClass).get() : 0.0D;
         }
 
-        public int getMoonMobStartDifficulty(Class<? extends IFullMoonMob> entityClass) {
-            return this.moonMobStartDifficulties.containsKey(entityClass) ? this.moonMobStartDifficulties.get(entityClass).get() : 0;
+        public long getMoonMobStartDifficulty(Class<? extends IFullMoonMob> entityClass) {
+            return this.moonMobStartDifficulties.containsKey(entityClass) ? (this.moonMobStartDifficulties.get(entityClass).get() * References.DAY_LENGTH) : 0;
         }
 
         public double getMoonMobAdditionalCount(Class<? extends IFullMoonMob> entityClass) {
@@ -307,6 +373,58 @@ public class ApocalypseCommonConfig {
             return this.healthMultBonusMax.get();
         }
 
+        public List<? extends String> getDamageBlacklist() {
+            return this.damageBlacklist.get();
+        }
+
+        public double getDamageLunarFlatBonus() {
+            return this.damageLunarFlatBonus.get();
+        }
+
+        public double getDamageLunarMultBonus() {
+            return this.damageLunarMultBonus.get();
+        }
+
+        public double getDamageTimeSpan() {
+            return this.damageTimeSpan.get() * References.DAY_LENGTH;
+        }
+
+        public double getDamageFlatBonus() {
+            return this.damageFlatBonus.get();
+        }
+
+        public double getDamageFlatBonusMax() {
+            return this.damageFlatBonusMax.get();
+        }
+
+        public double getDamageMultBonus() {
+            return this.damageMultBonus.get();
+        }
+
+        public double getDamageMultBonusMax() {
+            return this.damageMultBonusMax.get();
+        }
+
+        public List<? extends String> getSpeedBlacklist() {
+            return this.speedBlacklist.get();
+        }
+
+        public double getSpeedLunarMultBonus() {
+            return this.speedLunarMultBonus.get();
+        }
+
+        public double getSpeedTimeSpan() {
+            return this.speedTimeSpan.get() * References.DAY_LENGTH;
+        }
+
+        public double getSpeedMultBonus() {
+            return this.speedMultBonus.get();
+        }
+
+        public double getSpeedMultBonusMax() {
+            return this.speedMultBonusMax.get();
+        }
+
 
         //
         //  MISC
@@ -327,7 +445,7 @@ public class ApocalypseCommonConfig {
             this.spawnWeights.put(entityClass, configBuilder.defineInRange(name, defaultWeight, 0, 100));
         }
 
-        private void createStartDifficulty(Class<? extends IFullMoonMob> entityClass, String name, int defaultStart, ForgeConfigSpec.Builder configBuilder) {
+        private void createStartDifficulty(Class<? extends IFullMoonMob> entityClass, String name, long defaultStart, ForgeConfigSpec.Builder configBuilder) {
             this.moonMobStartDifficulties.put(entityClass, configBuilder.defineInRange(name, defaultStart, 0, 100000));
         }
 

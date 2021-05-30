@@ -14,7 +14,7 @@ license="GNU General Public License v3.0"
 [[dependencies.apocalypse]]
     modId="forge"
     mandatory=true
-    versionRange="[36,)"
+    versionRange="[36.1.4,)"
     ordering="NONE"
     side="BOTH"
 

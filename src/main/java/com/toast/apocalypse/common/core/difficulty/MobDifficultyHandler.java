@@ -1,11 +1,14 @@
 package com.toast.apocalypse.common.core.difficulty;
 
 import com.toast.apocalypse.common.event.CommonConfigReloadListener;
+import com.toast.apocalypse.common.util.CapabilityHelper;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -26,6 +29,7 @@ public class MobDifficultyHandler {
      *
      * {@link CommonConfigReloadListener#updateInfo()}
      */
+    // Health
     public static List<EntityType<?>> HEALTH_BLACKLIST = new ArrayList<>();
     public static double HEALTH_TIME_SPAN;
     public static double HEALTH_FLAT_BONUS;
@@ -34,6 +38,23 @@ public class MobDifficultyHandler {
     public static double HEALTH_MULT_BONUS_MAX;
     public static double HEALTH_LUNAR_FLAT_BONUS;
     public static double HEALTH_LUNAR_MULT_BONUS;
+
+    // Speed
+    public static List<EntityType<?>> SPEED_BLACKLIST = new ArrayList<>();
+    public static double SPEED_TIME_SPAN;
+    public static double SPEED_MULT_BONUS;
+    public static double SPEED_MULT_BONUS_MAX;
+    public static double SPEED_LUNAR_MULT_BONUS;
+
+    // Damage
+    public static List<EntityType<?>> DAMAGE_BLACKLIST = new ArrayList<>();
+    public static double DAMAGE_TIME_SPAN;
+    public static double DAMAGE_FLAT_BONUS;
+    public static double DAMAGE_MULT_BONUS;
+    public static double DAMAGE_FLAT_BONUS_MAX;
+    public static double DAMAGE_MULT_BONUS_MAX;
+    public static double DAMAGE_LUNAR_FLAT_BONUS;
+    public static double DAMAGE_LUNAR_MULT_BONUS;
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onEntitySpawn(LivingSpawnEvent.CheckSpawn event) {
@@ -90,9 +111,57 @@ public class MobDifficultyHandler {
             }
             livingEntity.setHealth(livingEntity.getHealth() + livingEntity.getMaxHealth() - prevMax);
         }
+
+        // Speed
+        attribute = livingEntity.getAttribute(Attributes.MOVEMENT_SPEED);
+
+        if (attribute != null && !SPEED_BLACKLIST.contains(livingEntity.getType())) {
+            effectiveDifficulty = (double) difficulty / SPEED_TIME_SPAN;
+
+            mult = SPEED_MULT_BONUS * effectiveDifficulty;
+
+            if (SPEED_MULT_BONUS_MAX >= 0.0 && mult > SPEED_MULT_BONUS_MAX) {
+                mult = SPEED_MULT_BONUS_MAX;
+            }
+            if (fullMoon) {
+                mult += SPEED_LUNAR_MULT_BONUS;
+            }
+
+            if (mult != 0.0) {
+                attribute.addPermanentModifier(new AttributeModifier("ApocalypseMultSPEED", mult, AttributeModifier.Operation.MULTIPLY_BASE));
+            }
+        }
     }
 
     private static void handlePotions(LivingEntity livingEntity, long difficulty, boolean fullMoon) {
 
+    }
+
+    /** Used in {@link com.toast.apocalypse.common.mixin.PlayerEntityMixin} */
+    public static float getLivingDamage(LivingEntity attacker, PlayerEntity player, float originalDamage) {
+        long difficulty = CapabilityHelper.getPlayerDifficulty(player);
+
+        if (!DAMAGE_BLACKLIST.contains(attacker.getType()) || difficulty <= 0) {
+            double effectiveDifficulty = (double) difficulty / DAMAGE_TIME_SPAN;
+            boolean fullMoon = WorldDifficultyManager.isFullMoon(player.getCommandSenderWorld()) && player.getCommandSenderWorld().isNight();
+            double bonus, mult;
+
+            bonus = DAMAGE_FLAT_BONUS * effectiveDifficulty;
+            mult = DAMAGE_MULT_BONUS * effectiveDifficulty;
+
+            if (DAMAGE_FLAT_BONUS_MAX >= 0.0 && bonus > DAMAGE_FLAT_BONUS_MAX) {
+                bonus = DAMAGE_FLAT_BONUS_MAX;
+            }
+            if (DAMAGE_MULT_BONUS_MAX >= 0.0 && mult > DAMAGE_MULT_BONUS_MAX) {
+                mult = DAMAGE_MULT_BONUS_MAX;
+            }
+            if (fullMoon) {
+                bonus += DAMAGE_LUNAR_FLAT_BONUS;
+                mult += DAMAGE_LUNAR_MULT_BONUS;
+            }
+            double newDamage = (originalDamage * (mult + 1.0D)) + bonus;
+            return (float) newDamage;
+        }
+        return originalDamage;
     }
 }
