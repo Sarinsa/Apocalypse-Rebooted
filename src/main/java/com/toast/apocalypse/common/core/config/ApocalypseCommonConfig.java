@@ -248,16 +248,16 @@ public class ApocalypseCommonConfig {
                     .define("knockback_res_blacklist", new ArrayList<>());
 
             this.knockbackResLunarFlatBonus = configBuilder.comment("The flat bonus gained from a full moon in percentage. Default is 0.2 (+20% on full moons)")
-                    .defineInRange("damage_lunar_flat_bonus", 0.2D, 0.0D, 10000.0D);
+                    .defineInRange("knockback_res_lunar_flat_bonus", 0.2D, 0.0D, 10000.0D);
 
             this.knockbackResTimeSpan = configBuilder.comment("The difficulty value for each application of the below values.")
-                    .defineInRange("damage_time_span", 40.0D, 0.1D, 10000.0D);
+                    .defineInRange("knockback_res_time_span", 40.0D, 0.1D, 10000.0D);
 
             this.knockbackResFlatBonus = configBuilder.comment("The flat bonus given each \"_time_span\" days. Default is 0.05 (+5%).")
-                    .defineInRange("damage_flat_bonus", 0.05D, 0.0D, 10000.0D);
+                    .defineInRange("knockback_res_flat_bonus", 0.05D, 0.0D, 10000.0D);
 
             this.knockbackResFlatBonusMax = configBuilder.comment("The maximum flat bonus that can be given over time. Default is 0.3 (+30%).")
-                    .defineInRange("damage_flat_bonus_max", 0.3D, -1.0D, 10000.0D);
+                    .defineInRange("knockback_res_flat_bonus_max", 0.3D, -1.0D, 10000.0D);
             configBuilder.pop();
 
             configBuilder.pop();
