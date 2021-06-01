@@ -1,4 +1,4 @@
-package com.toast.apocalypse.client.renderers.entity.seeker;
+package com.toast.apocalypse.client.renderers.entity.living.seeker;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.toast.apocalypse.common.core.Apocalypse;

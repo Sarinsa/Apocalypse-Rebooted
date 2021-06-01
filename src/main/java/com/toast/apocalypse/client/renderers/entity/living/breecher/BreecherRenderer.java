@@ -1,4 +1,4 @@
-package com.toast.apocalypse.client.renderers.entity.breecher;
+package com.toast.apocalypse.client.renderers.entity.living.breecher;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.client.renderer.entity.CreeperRenderer;

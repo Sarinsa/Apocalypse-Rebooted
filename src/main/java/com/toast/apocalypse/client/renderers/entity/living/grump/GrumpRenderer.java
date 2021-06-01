@@ -1,4 +1,4 @@
-package com.toast.apocalypse.client.renderers.entity.grump;
+package com.toast.apocalypse.client.renderers.entity.living.grump;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.living.GrumpEntity;

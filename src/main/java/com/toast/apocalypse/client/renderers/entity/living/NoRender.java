@@ -1,4 +1,4 @@
-package com.toast.apocalypse.client.renderers.entity;
+package com.toast.apocalypse.client.renderers.entity.living;
 
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;

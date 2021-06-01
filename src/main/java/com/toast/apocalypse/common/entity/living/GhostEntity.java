@@ -96,8 +96,6 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         if (super.hurt(damageSource, damage)) {
             Entity entity = damageSource.getEntity();
 
-            Apocalypse.LOGGER.info("Ghost hurt by: " + (entity == null ? "null" : entity.getType().getRegistryName().getPath()));
-
             if (entity != null && entity == this.getTarget() && this.random.nextInt(2) == 0) {
                 this.setManeuvering(true);
             }
@@ -122,8 +120,6 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
     @Override
     public void aiStep() {
-        Apocalypse.LOGGER.info("Is maneuvering: " + this.isManeuvering());
-
         if (this.isAlive()) {
             boolean flag = this.isSunBurnTick();
 

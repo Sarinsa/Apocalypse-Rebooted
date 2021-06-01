@@ -1,4 +1,4 @@
-package com.toast.apocalypse.client.renderers.entity.grump;
+package com.toast.apocalypse.client.renderers.entity.living.grump;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;

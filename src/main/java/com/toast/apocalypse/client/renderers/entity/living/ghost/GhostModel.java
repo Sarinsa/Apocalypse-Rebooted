@@ -1,19 +1,12 @@
-package com.toast.apocalypse.client.renderers.entity.ghost;
+package com.toast.apocalypse.client.renderers.entity.living.ghost;
 
-import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableList;
 import com.toast.apocalypse.client.ApocalypseRenderTypes;
 import com.toast.apocalypse.common.entity.living.GhostEntity;
-import jdk.nashorn.internal.objects.annotations.Constructor;
-import net.minecraft.client.renderer.entity.model.AbstractZombieModel;
 import net.minecraft.client.renderer.entity.model.SegmentedModel;
 import net.minecraft.client.renderer.model.ModelHelper;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.util.math.MathHelper;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.PropertyKey;
-import javax.annotation.Signed;
 
 // Made with Blockbench 3.8.4
 // Exported for Minecraft version 1.15 - 1.16

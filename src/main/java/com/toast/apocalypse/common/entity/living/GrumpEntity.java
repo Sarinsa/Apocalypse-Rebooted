@@ -8,6 +8,7 @@ import com.toast.apocalypse.common.register.ApocalypseItems;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.entity.ai.controller.LookController;
 import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
@@ -150,12 +151,14 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
             if (this.grump.getTarget() == null) {
                 Vector3d vector3d = this.grump.getDeltaMovement();
                 this.grump.yRot = -((float) MathHelper.atan2(vector3d.x, vector3d.z)) * (180F / (float)Math.PI);
+                this.grump.xRot = 0.0F;
             } else {
                 LivingEntity target = this.grump.getTarget();
 
                 double x = target.getX() - this.grump.getX();
                 double z = target.getZ() - this.grump.getZ();
                 this.grump.yRot = -((float)MathHelper.atan2(x, z)) * (180F / (float)Math.PI);
+                this.grump.xRot = (float) target.getEyeY() - (float) this.grump.getEyeY();
             }
             this.grump.yBodyRot = this.grump.yRot;
         }
@@ -186,7 +189,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
             LivingEntity target = this.grump.getTarget();
 
             if (target != null && target.isAlive()) {
-                return this.grump.getMoveHelperController().hasWanted() && this.grump.getMoveHelperController().canReachCurrentWanted();
+                return this.grump.moveControl.hasWanted();
             }
             return false;
         }
@@ -269,8 +272,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
             }
             else {
                 if (grump.fishHook.getHookedIn() != null) {
-                    // The grump might end up
-                    // accidentally hooking itself
+                    // The grump might end up accidentally hooking itself, who knows?
                     if (grump.fishHook.getHookedIn() != this.grump) {
                         grump.fishHook.bringInHookedEntity();
                     }
@@ -278,7 +280,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
                     return;
                 }
 
-                if (++this.timeHookExisted >= 70) {
+                if (++this.timeHookExisted >= 60) {
                     this.timeHookExisted = 0;
                     this.removeMonsterFishHook();
                 }
@@ -324,9 +326,13 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
 
         @Override
         public boolean canUse() {
+            if (this.grump.getTarget() != null) {
+                return false;
+            }
             MovementController movementcontroller = this.grump.getMoveControl();
+
             if (!movementcontroller.hasWanted()) {
-                return this.grump.getTarget() == null;
+                return true;
             }
             else {
                 double x = movementcontroller.getWantedX() - this.grump.getX();

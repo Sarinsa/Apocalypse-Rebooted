@@ -16,11 +16,6 @@ public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements
 
     public AbstractFullMoonGhastEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
-        this.moveControl = new MoveHelperController(this);
-    }
-
-    public MoveHelperController getMoveHelperController() {
-        return (MoveHelperController) this.moveControl;
     }
 
     /**
