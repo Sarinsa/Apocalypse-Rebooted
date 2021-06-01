@@ -60,16 +60,16 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
 
     public MonsterFishHook(MobEntity mobEntity, World world) {
         this(world, mobEntity);
-        float f = mobEntity.xRot;
-        float f1 = mobEntity.yRot;
-        float f2 = MathHelper.cos(-f1 * ((float)Math.PI / 180F) - (float)Math.PI);
-        float f3 = MathHelper.sin(-f1 * ((float)Math.PI / 180F) - (float)Math.PI);
-        float f4 = -MathHelper.cos(-f * ((float)Math.PI / 180F));
-        float f5 = MathHelper.sin(-f * ((float)Math.PI / 180F));
-        double d0 = mobEntity.getX() - (double)f3 * 0.3D;
-        double d1 = mobEntity.getEyeY();
-        double d2 = mobEntity.getZ() - (double)f2 * 0.3D;
-        this.moveTo(d0, d1, d2, f1, f);
+        float pitch = mobEntity.xRot;
+        float yaw = mobEntity.yRot;
+        float f2 = MathHelper.cos(-yaw * ((float)Math.PI / 180F) - (float)Math.PI);
+        float f3 = MathHelper.sin(-yaw * ((float)Math.PI / 180F) - (float)Math.PI);
+        float f4 = -MathHelper.cos(-pitch * ((float)Math.PI / 180F));
+        float f5 = MathHelper.sin(-pitch * ((float)Math.PI / 180F));
+        double x = mobEntity.getX() - (double)f3 * 0.3D;
+        double y = mobEntity.getEyeY();
+        double z = mobEntity.getZ() - (double)f2 * 0.3D;
+        this.moveTo(x, y, z, pitch, yaw);
         Vector3d vector3d = new Vector3d(-f3, MathHelper.clamp(-(f5 / f4), -5.0F, 5.0F), -f2);
         double d3 = vector3d.length();
         vector3d = vector3d.multiply(0.6D / d3 + 0.5D + this.random.nextGaussian() * 0.0045D, 0.6D / d3 + 0.5D + this.random.nextGaussian() * 0.0045D, 0.6D / d3 + 0.5D + this.random.nextGaussian() * 0.0045D);
@@ -109,12 +109,12 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
     @Override
     public void tick() {
         super.tick();
-        MobEntity mobEntity = this.getMobOwner();
+        LivingEntity livingEntity = this.getLivingOwner();
 
-        if (mobEntity == null) {
+        if (livingEntity == null) {
             this.remove();
         }
-        else if (this.level.isClientSide || !this.shouldStopFishing(mobEntity)) {
+        else if (this.level.isClientSide || !this.shouldStopFishing(livingEntity)) {
             if (this.onGround) {
                 ++this.life;
                 if (this.life >= 1200) {
@@ -186,7 +186,7 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
         }
     }
 
-    private boolean shouldStopFishing(MobEntity owner) {
+    private boolean shouldStopFishing(LivingEntity owner) {
         if (!owner.isAlive() || !(this.distanceToSqr(owner) > 1024.0D)) {
             return false;
         } else {
@@ -262,15 +262,15 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
     }
 
     public void bringInHookedEntity() {
-        MobEntity mobEntity = this.getMobOwner();
+        LivingEntity livingEntity = this.getLivingOwner();
 
-        if (mobEntity != null) {
-            this.level.playSound(null, mobEntity.blockPosition(), SoundEvents.FISHING_BOBBER_RETRIEVE, SoundCategory.HOSTILE, 0.6F, 0.4F / (this.level.random.nextFloat() * 0.4F + 0.8F));
+        if (livingEntity != null) {
+            this.level.playSound(null, livingEntity.blockPosition(), SoundEvents.FISHING_BOBBER_RETRIEVE, SoundCategory.HOSTILE, 0.6F, 0.4F / (this.level.random.nextFloat() * 0.4F + 0.8F));
             Entity entity = this.hookedIn;
 
-            double xMotion = mobEntity.getX() - this.getX();
-            double yMotion = mobEntity.getY() - this.getY();
-            double zMotion = mobEntity.getZ() - this.getZ();
+            double xMotion = livingEntity.getX() - this.getX();
+            double yMotion = livingEntity.getY() - this.getY();
+            double zMotion = livingEntity.getZ() - this.getZ();
 
             double v = Math.sqrt(xMotion * xMotion + yMotion * yMotion + zMotion * zMotion);
             double multiplier = 0.3;
@@ -290,9 +290,9 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
     }
 
     @Nullable
-    public MobEntity getMobOwner() {
+    public LivingEntity getLivingOwner() {
         Entity entity = this.getOwner();
-        return entity instanceof MobEntity ? (MobEntity) entity : null;
+        return entity instanceof LivingEntity ? (LivingEntity) entity : null;
     }
 
     @Nullable
