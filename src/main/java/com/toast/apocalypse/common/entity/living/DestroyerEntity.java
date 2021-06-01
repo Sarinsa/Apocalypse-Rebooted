@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import net.minecraft.entity.*;
@@ -11,15 +12,19 @@ import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractFireballEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 
+import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.Random;
 
@@ -85,6 +90,25 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
         }
 
         return super.hurt(damageSource, damage);
+    }
+
+    @Override
+    public int getExplosionPower() {
+        return this.explosionPower == 0 ? ApocalypseCommonConfig.COMMON.getDestroyerExplosionPower() : this.explosionPower;
+    }
+
+    @Override
+    @Nullable
+    public ILivingEntityData finalizeSpawn(IServerWorld serverWorld, DifficultyInstance difficultyInstance, SpawnReason spawnReason, @Nullable ILivingEntityData data, @Nullable CompoundNBT compoundNBT) {
+        data = super.finalizeSpawn(serverWorld, difficultyInstance, spawnReason, data, compoundNBT);
+
+        if (compoundNBT != null && compoundNBT.contains("ExplosionPower", Constants.NBT.TAG_ANY_NUMERIC)) {
+            this.explosionPower = compoundNBT.getInt("ExplosionPower");
+        }
+        else {
+            this.explosionPower = 0;
+        }
+        return data;
     }
 
     private static class DestroyerNearestAttackableTargetGoal<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {
@@ -227,7 +251,7 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
 
         @Override
         public void start() {
-            MoveHelperController controller = this.destroyer.getMoveHelperController();
+            MovementController controller = this.destroyer.getMoveControl();
 
             if (this.destroyer.getTarget() != null) {
                 LivingEntity target = this.destroyer.getTarget();
@@ -235,12 +259,7 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
                 double distanceToTarget = this.destroyer.distanceToSqr(target);
 
                 if (distanceToTarget > maxDistanceBeforeFollow) {
-                    if (!controller.canReachCurrentWanted()) {
-                        this.setRandomWantedPosition();
-                    }
-                    else {
-                        controller.setWantedPosition(target.getX(), target.getY() + 10.0D, target.getZ(), 1.0D);
-                    }
+                    controller.setWantedPosition(target.getX(), target.getY() + 10.0D, target.getZ(), 1.0D);
                 }
                 else {
                     this.setRandomWantedPosition();

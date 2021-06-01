@@ -91,6 +91,8 @@ public class ApocalypseCommonConfig {
         // Misc
         private final ForgeConfigSpec.ConfigValue<List<? extends String>> destroyerProofBlocks;
         private final ForgeConfigSpec.IntValue grumpBucketHelmetChance;
+        private final ForgeConfigSpec.IntValue seekerExplosionPower;
+        private final ForgeConfigSpec.IntValue destroyerExplosionPower;
 
         private Common(ForgeConfigSpec.Builder configBuilder) {
             configBuilder.push("rain");
@@ -265,6 +267,12 @@ public class ApocalypseCommonConfig {
 
             this.grumpBucketHelmetChance = configBuilder.comment("This is the chance in percentage for grumps to spawn with a bucket helmet equipped. Grumps with bucket helmets are heavily armored against arrows.")
                     .defineInRange("grumpBucketHelmetChance", 5, 0, 100);
+
+            this.seekerExplosionPower = configBuilder.comment("The explosion power of Seeker fireballs.")
+                    .defineInRange("seeker_explosion_power", 4, 1, 10);
+
+            this.destroyerExplosionPower = configBuilder.comment("The explosion power of Destroyer fireballs.")
+                    .defineInRange("destroyer_explosion_power", 2, 1, 10);
             configBuilder.pop();
         }
 
@@ -458,6 +466,14 @@ public class ApocalypseCommonConfig {
 
         public int getGrumpBucketHelmetChance() {
             return this.grumpBucketHelmetChance.get();
+        }
+
+        public int getSeekerExplosionPower() {
+            return this.seekerExplosionPower.get();
+        }
+
+        public int getDestroyerExplosionPower() {
+            return this.destroyerExplosionPower.get();
         }
 
 

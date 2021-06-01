@@ -2,11 +2,14 @@ package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.api.impl.SeekerAlertRegister;
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
 import net.minecraft.entity.*;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
@@ -25,9 +28,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 
+import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Random;
@@ -44,7 +50,8 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
     private static final DataParameter<Boolean> ALERTING = EntityDataManager.defineId(SeekerEntity.class, DataSerializers.BOOLEAN);
     private static final BiPredicate<LivingEntity, MobEntity> ALERT_PREDICATE = (livingEntity, seeker) -> !(livingEntity instanceof IFullMoonMob) && seeker.getTarget() != livingEntity;
 
-    private int nextTimeAlerting;
+    /** The seeker's current target. Updated when the seeker alerts. */
+    private LivingEntity currentTarget;
 
     public SeekerEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
@@ -78,7 +85,7 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
     }
 
     public boolean canAlert() {
-        return this.nextTimeAlerting <= 0 && !this.isCharging();
+        return !this.isCharging();
     }
 
     public boolean isAlerting() {
@@ -89,12 +96,13 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         this.entityData.set(ALERTING, alerting);
     }
 
+    /**
+     * Completely ignore line of sight; the target
+     * is always "visible"
+     */
     @Override
-    public void aiStep() {
-        super.aiStep();
-
-        if (this.nextTimeAlerting > 0)
-            --this.nextTimeAlerting;
+    public boolean canSee(Entity entity) {
+        return true;
     }
 
     @Override
@@ -120,36 +128,24 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         return super.hurt(damageSource, damage);
     }
 
-    /**
-     * Completely ignore line of sight; the target
-     * is always "visible"
-     */
-    @Override
-    public boolean canSee(Entity entity) {
-        return true;
-    }
-
     @Override
     public int getExplosionPower() {
-        return 3;
-    }
-
-    public void setNextTimeAlerting(int time) {
-        this.nextTimeAlerting = time;
+        return this.explosionPower == 0 ? ApocalypseCommonConfig.COMMON.getSeekerExplosionPower() : this.explosionPower;
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundNBT compoundNBT) {
-        super.addAdditionalSaveData(compoundNBT);
-        compoundNBT.putInt("NextTimeAlerting", this.nextTimeAlerting);
-    }
+    @Nullable
+    public ILivingEntityData finalizeSpawn(IServerWorld serverWorld, DifficultyInstance difficultyInstance, SpawnReason spawnReason, @Nullable ILivingEntityData data, @Nullable CompoundNBT compoundNBT) {
+        data = super.finalizeSpawn(serverWorld, difficultyInstance, spawnReason, data, compoundNBT);
 
-    @Override
-    public void readAdditionalSaveData(CompoundNBT compoundNBT) {
-        super.readAdditionalSaveData(compoundNBT);
-        this.nextTimeAlerting = compoundNBT.getInt("NextTimeAlerting");
+        if (compoundNBT != null && compoundNBT.contains("ExplosionPower", Constants.NBT.TAG_ANY_NUMERIC)) {
+            this.explosionPower = compoundNBT.getInt("ExplosionPower");
+        }
+        else {
+            this.explosionPower = 0;
+        }
+        return data;
     }
-
 
     private static class SeekerNearestAttackableTargetGoal<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {
 
@@ -176,7 +172,7 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         @Override
         public boolean canUse() {
             if (this.seeker.getTarget() != null) {
-                return !this.seeker.canAlert() && !this.seeker.isAlerting();
+                return !this.seeker.isAlerting();
             }
             return false;
         }
@@ -320,6 +316,8 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
 
     private static class AlertOtherMonstersGoal extends Goal {
 
+        private static final int maxAlertCount = 18;
+
         private final SeekerEntity seeker;
         private int timeAlerting;
 
@@ -330,7 +328,7 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         @Override
         public boolean canUse() {
             if (this.seeker.getTarget() != null) {
-                return this.seeker.canAlert() && this.seeker.canSeeDirectly(this.seeker.getTarget());
+                return this.seeker.canAlert() && this.seeker.canSeeDirectly(this.seeker.getTarget()) && this.seeker.currentTarget != this.seeker.getTarget();
             }
             return false;
         }
@@ -356,8 +354,15 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
                     this.timeAlerting = 0;
                     return;
                 }
+                int alertCount = 0;
 
                 for (LivingEntity livingEntity : toAlert) {
+                    // Stop alerting mobs when the max count is reached.
+                    // Having too many mobs with vastly increased follow range
+                    // might cause performance to suffer when pathfinding, I dunno.
+                    if (alertCount >= maxAlertCount) {
+                        break;
+                    }
                     Class<? extends LivingEntity> entityClass = livingEntity.getClass();
 
                     if (alertRegister.containsEntry(entityClass)) {
@@ -371,11 +376,14 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
                             if (mobEntity.getTarget() != this.seeker.getTarget()) {
                                 mobEntity.setLastHurtByMob(null);
                                 mobEntity.setTarget(this.seeker.getTarget());
-                                mobEntity.getNavigation().moveTo(target, 1.0D);
+                                ModifiableAttributeInstance attributeInstance = mobEntity.getAttribute(Attributes.FOLLOW_RANGE);
+                                attributeInstance.setBaseValue(Math.max(attributeInstance.getValue(), 60.0D));
                             }
                         }
                     }
+                    ++alertCount;
                 }
+                this.seeker.currentTarget = this.seeker.getTarget();
                 this.seeker.setAlerting(true);
                 this.seeker.playSound(SoundEvents.GHAST_SCREAM, 5.0F, 0.6F);
             }
@@ -383,7 +391,6 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
 
         @Override
         public void stop() {
-            this.seeker.setNextTimeAlerting(600);
             this.timeAlerting = 0;
             this.seeker.setAlerting(false);
         }
