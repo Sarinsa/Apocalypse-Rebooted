@@ -57,6 +57,15 @@ public class CapabilityHelper {
         return player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(ApocalypseCapabilities.DIFFICULTY_CAPABILITY.getDefaultInstance()).getMaxDifficulty();
     }
 
+    public static void setPlayerDifficultyMult(@Nonnull ServerPlayerEntity player, double multiplier) {
+        player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(ApocalypseCapabilities.DIFFICULTY_CAPABILITY.getDefaultInstance()).setDifficultyMult(multiplier);
+        NetworkHelper.sendUpdatePlayerDifficultyMult(player, multiplier);
+    }
+
+    public static double getPlayerDifficultyMult(@Nonnull PlayerEntity player) {
+        return player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(ApocalypseCapabilities.DIFFICULTY_CAPABILITY.getDefaultInstance()).getDifficultyMult();
+    }
+
     //
     // EVENT DATA
     //

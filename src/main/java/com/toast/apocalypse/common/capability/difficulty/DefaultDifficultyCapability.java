@@ -5,6 +5,7 @@ import com.toast.apocalypse.common.util.References;
 public class DefaultDifficultyCapability implements IDifficultyCapability {
 
     private long difficulty;
+    private double difficultyMult = 0.0D;
     private long maxDifficulty = 200 * References.DAY_LENGTH;
 
     @Override
@@ -25,5 +26,15 @@ public class DefaultDifficultyCapability implements IDifficultyCapability {
     @Override
     public long getMaxDifficulty() {
         return this.maxDifficulty;
+    }
+
+    @Override
+    public void setDifficultyMult(double multiplier) {
+        this.difficultyMult = multiplier;
+    }
+
+    @Override
+    public double getDifficultyMult() {
+        return this.difficultyMult;
     }
 }

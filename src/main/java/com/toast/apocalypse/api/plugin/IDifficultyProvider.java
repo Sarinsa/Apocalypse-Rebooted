@@ -12,12 +12,17 @@ public interface IDifficultyProvider {
     /**
      * @return The current world difficulty rate.
      */
-    double getDifficultyRate();
+    double getDifficultyRate(PlayerEntity player);
 
     /**
      * @return The current difficulty of the specified player.
      */
     long getPlayerDifficulty(PlayerEntity player);
+
+    /**
+     * @return The current max difficulty of the specified player.
+     */
+    long getMaxPlayerDifficulty(PlayerEntity player);
 
     /**
      * @return The ID of the currently running

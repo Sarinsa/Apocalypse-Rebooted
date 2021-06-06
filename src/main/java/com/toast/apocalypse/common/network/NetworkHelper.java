@@ -1,14 +1,13 @@
 package com.toast.apocalypse.common.network;
 
 import com.toast.apocalypse.common.network.message.S2CUpdateEntityVelocity;
-import com.toast.apocalypse.common.network.message.S2CUpdateWorldDifficulty;
-import com.toast.apocalypse.common.network.message.S2CUpdateWorldDifficultyRate;
-import com.toast.apocalypse.common.network.message.S2CUpdateWorldMaxDifficulty;
+import com.toast.apocalypse.common.network.message.S2CUpdatePlayerDifficulty;
+import com.toast.apocalypse.common.network.message.S2CUpdatePlayerDifficultyRate;
+import com.toast.apocalypse.common.network.message.S2CUpdatePlayerMaxDifficulty;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.fml.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
 
@@ -19,10 +18,14 @@ public class NetworkHelper {
      * Sends a message from the server to client
      * to inform of a change in world difficulty rate.
      *
-     * @param rate The new world difficulty rate.
+     * @param multiplier The new difficulty multiplier.
      */
-    public static void sendUpdateWorldDifficultyRate(double rate) {
-        PacketHandler.CHANNEL.send(PacketDistributor.ALL.noArg(), new S2CUpdateWorldDifficultyRate(rate));
+    public static void sendUpdatePlayerDifficultyMult(@Nonnull ServerPlayerEntity player, double multiplier) {
+        PacketHandler.sendToClient(new S2CUpdatePlayerDifficultyRate(multiplier), player);
+    }
+
+    public static void sendUpdatePlayerDifficultyMult(@Nonnull ServerPlayerEntity player) {
+        PacketHandler.sendToClient(new S2CUpdatePlayerDifficultyRate(CapabilityHelper.getPlayerDifficultyMult(player)), player);
     }
 
     /**
@@ -32,11 +35,11 @@ public class NetworkHelper {
      * @param difficulty The player's new difficulty.
      */
     public static void sendUpdatePlayerDifficulty(@Nonnull ServerPlayerEntity player, long difficulty) {
-        PacketHandler.sendToClient(new S2CUpdateWorldDifficulty(difficulty), player);
+        PacketHandler.sendToClient(new S2CUpdatePlayerDifficulty(difficulty), player);
     }
 
     public static void sendUpdatePlayerDifficulty(@Nonnull ServerPlayerEntity player) {
-        PacketHandler.sendToClient(new S2CUpdateWorldDifficulty(CapabilityHelper.getPlayerDifficulty(player)), player);
+        PacketHandler.sendToClient(new S2CUpdatePlayerDifficulty(CapabilityHelper.getPlayerDifficulty(player)), player);
     }
 
     /**
@@ -46,11 +49,11 @@ public class NetworkHelper {
      * @param maxDifficulty The player's new max difficulty.
      */
     public static void sendUpdatePlayerMaxDifficulty(@Nonnull ServerPlayerEntity player, long maxDifficulty) {
-        PacketHandler.sendToClient(new S2CUpdateWorldMaxDifficulty(maxDifficulty), player);
+        PacketHandler.sendToClient(new S2CUpdatePlayerMaxDifficulty(maxDifficulty), player);
     }
 
     public static void sendUpdatePlayerMaxDifficulty(@Nonnull ServerPlayerEntity player) {
-        PacketHandler.sendToClient(new S2CUpdateWorldMaxDifficulty(CapabilityHelper.getMaxPlayerDifficulty(player)), player);
+        PacketHandler.sendToClient(new S2CUpdatePlayerMaxDifficulty(CapabilityHelper.getMaxPlayerDifficulty(player)), player);
     }
 
     /**

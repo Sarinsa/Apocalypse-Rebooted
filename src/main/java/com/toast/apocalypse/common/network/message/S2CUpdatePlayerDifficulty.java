@@ -6,15 +6,15 @@ import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class S2CUpdateWorldDifficulty {
+public class S2CUpdatePlayerDifficulty {
 
     public final long difficulty;
 
-    public S2CUpdateWorldDifficulty(long difficulty) {
+    public S2CUpdatePlayerDifficulty(long difficulty) {
         this.difficulty = difficulty;
     }
 
-    public static void handle(S2CUpdateWorldDifficulty message, Supplier<NetworkEvent.Context> contextSupplier) {
+    public static void handle(S2CUpdatePlayerDifficulty message, Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
 
         if (context.getDirection().getReceptionSide().isClient()) {
@@ -23,11 +23,11 @@ public class S2CUpdateWorldDifficulty {
         context.setPacketHandled(true);
     }
 
-    public static S2CUpdateWorldDifficulty decode(PacketBuffer buffer) {
-        return new S2CUpdateWorldDifficulty(buffer.readLong());
+    public static S2CUpdatePlayerDifficulty decode(PacketBuffer buffer) {
+        return new S2CUpdatePlayerDifficulty(buffer.readLong());
     }
 
-    public static void encode(S2CUpdateWorldDifficulty message, PacketBuffer buffer) {
+    public static void encode(S2CUpdatePlayerDifficulty message, PacketBuffer buffer) {
         buffer.writeLong(message.difficulty);
     }
 }

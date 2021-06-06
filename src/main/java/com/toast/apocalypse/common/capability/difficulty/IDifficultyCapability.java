@@ -9,4 +9,8 @@ public interface IDifficultyCapability {
     void setMaxDifficulty(long maxDifficulty);
 
     long getMaxDifficulty();
+
+    void setDifficultyMult(double multiplier);
+
+    double getDifficultyMult();
 }

@@ -6,15 +6,15 @@ import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class S2CUpdateWorldMaxDifficulty {
+public class S2CUpdatePlayerMaxDifficulty {
 
     public final long maxDifficulty;
 
-    public S2CUpdateWorldMaxDifficulty(long maxDifficulty) {
+    public S2CUpdatePlayerMaxDifficulty(long maxDifficulty) {
         this.maxDifficulty = maxDifficulty;
     }
 
-    public static void handle(S2CUpdateWorldMaxDifficulty message, Supplier<NetworkEvent.Context> contextSupplier) {
+    public static void handle(S2CUpdatePlayerMaxDifficulty message, Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
 
         if (context.getDirection().getReceptionSide().isClient()) {
@@ -23,11 +23,11 @@ public class S2CUpdateWorldMaxDifficulty {
         context.setPacketHandled(true);
     }
 
-    public static S2CUpdateWorldMaxDifficulty decode(PacketBuffer buffer) {
-        return new S2CUpdateWorldMaxDifficulty(buffer.readLong());
+    public static S2CUpdatePlayerMaxDifficulty decode(PacketBuffer buffer) {
+        return new S2CUpdatePlayerMaxDifficulty(buffer.readLong());
     }
 
-    public static void encode(S2CUpdateWorldMaxDifficulty message, PacketBuffer buffer) {
+    public static void encode(S2CUpdatePlayerMaxDifficulty message, PacketBuffer buffer) {
         buffer.writeLong(message.maxDifficulty);
     }
 }

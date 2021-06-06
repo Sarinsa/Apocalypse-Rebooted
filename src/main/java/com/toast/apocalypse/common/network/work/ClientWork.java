@@ -4,9 +4,9 @@ import com.toast.apocalypse.client.event.ClientEvents;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.network.message.S2CUpdateEntityVelocity;
-import com.toast.apocalypse.common.network.message.S2CUpdateWorldDifficulty;
-import com.toast.apocalypse.common.network.message.S2CUpdateWorldDifficultyRate;
-import com.toast.apocalypse.common.network.message.S2CUpdateWorldMaxDifficulty;
+import com.toast.apocalypse.common.network.message.S2CUpdatePlayerDifficulty;
+import com.toast.apocalypse.common.network.message.S2CUpdatePlayerDifficultyRate;
+import com.toast.apocalypse.common.network.message.S2CUpdatePlayerMaxDifficulty;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -25,7 +25,7 @@ public class ClientWork {
         return player.getCapability(capability).orElse(capability.getDefaultInstance());
     }
 
-    public static void handleDifficultyUpdate(S2CUpdateWorldDifficulty message) {
+    public static void handleDifficultyUpdate(S2CUpdatePlayerDifficulty message) {
         ClientPlayerEntity player = Minecraft.getInstance().player;
 
         if (player != null) {
@@ -33,11 +33,15 @@ public class ClientWork {
         }
     }
 
-    public static void handleDifficultyRateUpdate(S2CUpdateWorldDifficultyRate message) {
-        Apocalypse.INSTANCE.getDifficultyManager().setDifficultyRate(message.difficultyRate);
+    public static void handleDifficultyRateUpdate(S2CUpdatePlayerDifficultyRate message) {
+        ClientPlayerEntity player = Minecraft.getInstance().player;
+
+        if (player != null) {
+            getCapability(player, ApocalypseCapabilities.DIFFICULTY_CAPABILITY).setDifficultyMult(message.multiplier);
+        }
     }
 
-    public static void handleMaxDifficultyUpdate(S2CUpdateWorldMaxDifficulty message) {
+    public static void handleMaxDifficultyUpdate(S2CUpdatePlayerMaxDifficulty message) {
         ClientPlayerEntity player = Minecraft.getInstance().player;
 
         if (player != null) {

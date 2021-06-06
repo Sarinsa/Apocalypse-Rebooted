@@ -43,7 +43,7 @@ public class ApocalypseCommonConfig {
 
         // Difficulty
         private final ForgeConfigSpec.BooleanValue multiplayerDifficultyScaling;
-        private final ForgeConfigSpec.DoubleValue difficultyRateMultiplier;
+        private final ForgeConfigSpec.DoubleValue difficultyMultiplayerRateMult;
         private final ForgeConfigSpec.DoubleValue sleepPenalty;
         private final ForgeConfigSpec.ConfigValue<List<? extends String>> dimensionsPenaltyList;
         private final ForgeConfigSpec.DoubleValue dimensionPenalty;
@@ -110,8 +110,8 @@ public class ApocalypseCommonConfig {
             this.multiplayerDifficultyScaling = configBuilder.comment("If enabled, world difficulty will increased by the configured multiplier")
                     .define("multiplayerDifficultyScaling", true);
 
-            this.difficultyRateMultiplier = configBuilder.comment("Only relevant if multiplayer difficulty scaling is enabled. For example, a value of 0.05 will apply an additional +5% difficulty increment per online player (If only one player is online this multiplier will not be active)")
-                    .defineInRange("difficultyRateMultiplier", 0.05D, 0.01D, 10.0D);
+            this.difficultyMultiplayerRateMult = configBuilder.comment("Only relevant if multiplayer difficulty scaling is enabled. For example, a value of 0.05 will apply an additional +5% difficulty increment per online player (If only one player is online this multiplier will not be active)")
+                    .defineInRange("difficultyMultiplayerRateMult", 0.05D, 0.01D, 10.0D);
 
             this.sleepPenalty = configBuilder.comment("Sets the multiplier used to increase world difficulty when players sleep through a night or thunderstorm.")
                     .defineInRange("sleepPenalty", 2.0D, 0.0D, 1000.0D);
@@ -300,8 +300,8 @@ public class ApocalypseCommonConfig {
             return this.multiplayerDifficultyScaling.get();
         }
 
-        public double getDifficultyRateMultiplier() {
-            return this.difficultyRateMultiplier.get();
+        public double getMultiplayerDifficultyRateMult() {
+            return this.difficultyMultiplayerRateMult.get();
         }
 
         public double getSleepPenalty() {

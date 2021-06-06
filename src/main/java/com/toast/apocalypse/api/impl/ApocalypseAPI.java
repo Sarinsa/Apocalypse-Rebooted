@@ -8,6 +8,12 @@ import com.toast.apocalypse.common.core.Apocalypse;
 
 public final class ApocalypseAPI extends ApocalypseApi {
 
+    private final IDifficultyProvider difficultyProvider;
+
+    public ApocalypseAPI() {
+        this.difficultyProvider = new DifficultyProvider();
+    }
+
     @Override
     public IRegistryHelper getRegistryHelper() {
         return Apocalypse.INSTANCE.getRegistryHelper();
@@ -15,7 +21,7 @@ public final class ApocalypseAPI extends ApocalypseApi {
 
     @Override
     public IDifficultyProvider getDifficultyProvider() {
-        return Apocalypse.INSTANCE.getDifficultyManager();
+        return this.difficultyProvider;
     }
 
     @Override

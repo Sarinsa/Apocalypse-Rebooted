@@ -2,9 +2,9 @@ package com.toast.apocalypse.common.network;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.network.message.S2CUpdateEntityVelocity;
-import com.toast.apocalypse.common.network.message.S2CUpdateWorldDifficulty;
-import com.toast.apocalypse.common.network.message.S2CUpdateWorldDifficultyRate;
-import com.toast.apocalypse.common.network.message.S2CUpdateWorldMaxDifficulty;
+import com.toast.apocalypse.common.network.message.S2CUpdatePlayerDifficulty;
+import com.toast.apocalypse.common.network.message.S2CUpdatePlayerDifficultyRate;
+import com.toast.apocalypse.common.network.message.S2CUpdatePlayerMaxDifficulty;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkRegistry;
@@ -29,9 +29,9 @@ public class PacketHandler {
     }
 
     public void registerMessages() {
-        CHANNEL.registerMessage(messageIndex++, S2CUpdateWorldDifficulty.class, S2CUpdateWorldDifficulty::encode, S2CUpdateWorldDifficulty::decode, S2CUpdateWorldDifficulty::handle);
-        CHANNEL.registerMessage(messageIndex++, S2CUpdateWorldDifficultyRate.class, S2CUpdateWorldDifficultyRate::encode, S2CUpdateWorldDifficultyRate::decode, S2CUpdateWorldDifficultyRate::handle);
-        CHANNEL.registerMessage(messageIndex++, S2CUpdateWorldMaxDifficulty.class, S2CUpdateWorldMaxDifficulty::encode, S2CUpdateWorldMaxDifficulty::decode, S2CUpdateWorldMaxDifficulty::handle);
+        CHANNEL.registerMessage(messageIndex++, S2CUpdatePlayerDifficulty.class, S2CUpdatePlayerDifficulty::encode, S2CUpdatePlayerDifficulty::decode, S2CUpdatePlayerDifficulty::handle);
+        CHANNEL.registerMessage(messageIndex++, S2CUpdatePlayerDifficultyRate.class, S2CUpdatePlayerDifficultyRate::encode, S2CUpdatePlayerDifficultyRate::decode, S2CUpdatePlayerDifficultyRate::handle);
+        CHANNEL.registerMessage(messageIndex++, S2CUpdatePlayerMaxDifficulty.class, S2CUpdatePlayerMaxDifficulty::encode, S2CUpdatePlayerMaxDifficulty::decode, S2CUpdatePlayerMaxDifficulty::handle);
         CHANNEL.registerMessage(messageIndex++, S2CUpdateEntityVelocity.class, S2CUpdateEntityVelocity::encode, S2CUpdateEntityVelocity::decode, S2CUpdateEntityVelocity::handle);
     }
 

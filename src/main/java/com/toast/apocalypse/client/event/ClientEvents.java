@@ -5,6 +5,7 @@ import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.difficulty.WorldDifficultyManager;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -85,7 +86,8 @@ public class ClientEvents {
         if (event.getType() != RenderGameOverlayEvent.ElementType.BOSSHEALTH || OFFSET_X < 0 || OFFSET_Y < 0)
             return;
 
-        long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(this.minecraftClient.player);
+        ClientPlayerEntity player = this.minecraftClient.player;
+        long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
 
         // Don't bother rendering the difficulty
         // when it will constantly be at 0.
@@ -99,7 +101,7 @@ public class ClientEvents {
 
         // Calculate difficulty level in days with 1 decimal point
         int color = COLORS[0];
-        long difficulty = CapabilityHelper.getPlayerDifficulty(this.minecraftClient.player);
+        long difficulty = CapabilityHelper.getPlayerDifficulty(player);
         int partialDifficulty = (int) (difficulty % 24000L / 2400);
 
         if (COLOR_CHANGE >= 0L && difficulty >= 0L) {
@@ -115,7 +117,7 @@ public class ClientEvents {
         String difficultyInfo = "Difficulty: " + difficulty + "." + partialDifficulty;
 
         // Calculate % of increase in difficulty rate
-        double difficultyRate = this.difficultyManager.getDifficultyRate();
+        double difficultyRate = CapabilityHelper.getPlayerDifficultyMult(player);
         if (difficultyRate != 1.0) {
             difficultyInfo = difficultyInfo + " Rate: " + (int)(difficultyRate * 100.0) + "%";
         }
