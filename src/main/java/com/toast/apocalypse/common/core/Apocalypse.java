@@ -17,10 +17,7 @@ import com.toast.apocalypse.common.event.CapabilityAttachEvents;
 import com.toast.apocalypse.common.event.EntityEvents;
 import com.toast.apocalypse.common.event.PlayerEvents;
 import com.toast.apocalypse.common.network.PacketHandler;
-import com.toast.apocalypse.common.register.ApocalypseBlocks;
-import com.toast.apocalypse.common.register.ApocalypseEffects;
-import com.toast.apocalypse.common.register.ApocalypseEntities;
-import com.toast.apocalypse.common.register.ApocalypseItems;
+import com.toast.apocalypse.common.register.*;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -61,15 +58,11 @@ public class Apocalypse {
     /** Packet handler instance */
     private final PacketHandler packetHandler = new PacketHandler();
 
-    // Yay, static init
-    static {
-        EventRegister.init();
-    }
-
     public Apocalypse() {
         INSTANCE = this;
 
         ApocalypseEntities.initTypes();
+        EventRegister.init();
 
         this.packetHandler.registerMessages();
 
@@ -91,6 +84,7 @@ public class Apocalypse {
         ApocalypseItems.ITEMS.register(eventBus);
         ApocalypseEffects.EFFECTS.register(eventBus);
         ApocalypseEntities.ENTITIES.register(eventBus);
+        ApocalypseTileEntities.TILE_ENTITIES.register(eventBus);
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ApocalypseCommonConfig.COMMON_SPEC);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ApocalypseClientConfig.CLIENT_SPEC);
@@ -106,7 +100,7 @@ public class Apocalypse {
 
     public void onLoadComplete(FMLLoadCompleteEvent event) {
         event.enqueueWork(() -> {
-            // Mod plugin post setup
+            // Load mod plugins
             ModList.get().getAllScanData().forEach(scanData -> {
                 scanData.getAnnotations().forEach(annotationData -> {
 

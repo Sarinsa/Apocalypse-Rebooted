@@ -7,6 +7,8 @@
   "death.attack.apocalypse.rain": "%1$s was sprinkled to death",
   "death.attack.apocalypse.rain.player": "%1$s died from rain whilst trying to escape %2$s",
 
+  "block.apocalypse.lunar_phase_sensor": "Lunar Phase Sensor",
+
   "item.apocalypse.fatherly_toast": "Fatherly Toast",
   "item.apocalypse.bucket_helm": "Bucket Helmet",
   "item.apocalypse.ghost_spawn_egg": "Ghost Spawn Egg",

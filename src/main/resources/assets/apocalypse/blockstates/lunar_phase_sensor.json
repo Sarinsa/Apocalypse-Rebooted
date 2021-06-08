@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "inverted=false": {
+      "model": "apocalypse:block/lunar_phase_sensor"
+    },
+    "inverted=true": {
+      "model": "apocalypse:block/lunar_phase_sensor_inverted"
+    }
+  }
+}
