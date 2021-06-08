@@ -1,6 +1,5 @@
 package com.toast.apocalypse.common.event;
 
-import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.core.difficulty.WorldDifficultyManager;
 import com.toast.apocalypse.common.network.NetworkHelper;
@@ -60,13 +59,15 @@ public class PlayerEvents {
     }
 
     /**
-     * Makes player difficulty persist on death and when leaving The End
+     * Make sure difficulty capability data persist on death or when leaving The End.
      */
     @SubscribeEvent
     public void onPlayerCloned(PlayerEvent.Clone event) {
         if (event.getPlayer() instanceof ServerPlayerEntity) {
             long difficulty = CapabilityHelper.getPlayerDifficulty(event.getOriginal());
+            long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(event.getOriginal());
             CapabilityHelper.setPlayerDifficulty((ServerPlayerEntity) event.getPlayer(), difficulty);
+            CapabilityHelper.setMaxPlayerDifficulty((ServerPlayerEntity) event.getPlayer(), maxDifficulty);
         }
     }
 }
