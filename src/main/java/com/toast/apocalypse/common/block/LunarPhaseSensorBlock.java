@@ -1,16 +1,13 @@
 package com.toast.apocalypse.common.block;
 
-import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.tile.LunarPhaseSensorTileEntity;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.DaylightDetectorTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
@@ -24,8 +21,6 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ToolType;
-
-import javax.annotation.Nullable;
 
 public class LunarPhaseSensorBlock extends ContainerBlock {
 
@@ -66,6 +61,10 @@ public class LunarPhaseSensorBlock extends ContainerBlock {
                 power = 15 - power;
             }
             power = MathHelper.clamp(power, 0, 15);
+
+            if (world.getBrightness(LightType.SKY, pos) < 4) {
+                power = 0;
+            }
 
             if (state.getValue(POWER) != power) {
                 world.setBlock(pos, state.setValue(POWER, power), 3);
