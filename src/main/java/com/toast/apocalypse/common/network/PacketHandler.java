@@ -5,10 +5,20 @@ import com.toast.apocalypse.common.network.message.S2CUpdateEntityVelocity;
 import com.toast.apocalypse.common.network.message.S2CUpdatePlayerDifficulty;
 import com.toast.apocalypse.common.network.message.S2CUpdatePlayerDifficultyRate;
 import com.toast.apocalypse.common.network.message.S2CUpdatePlayerMaxDifficulty;
+import net.minecraft.client.renderer.model.ItemModelGenerator;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.client.model.ItemLayerModel;
 import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.NetworkRegistry;
+import net.minecraftforge.fml.network.simple.IndexedMessageCodec;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
+
+import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class PacketHandler {
 
@@ -28,11 +38,15 @@ public class PacketHandler {
                 .simpleChannel();
     }
 
-    public void registerMessages() {
-        CHANNEL.registerMessage(messageIndex++, S2CUpdatePlayerDifficulty.class, S2CUpdatePlayerDifficulty::encode, S2CUpdatePlayerDifficulty::decode, S2CUpdatePlayerDifficulty::handle);
-        CHANNEL.registerMessage(messageIndex++, S2CUpdatePlayerDifficultyRate.class, S2CUpdatePlayerDifficultyRate::encode, S2CUpdatePlayerDifficultyRate::decode, S2CUpdatePlayerDifficultyRate::handle);
-        CHANNEL.registerMessage(messageIndex++, S2CUpdatePlayerMaxDifficulty.class, S2CUpdatePlayerMaxDifficulty::encode, S2CUpdatePlayerMaxDifficulty::decode, S2CUpdatePlayerMaxDifficulty::handle);
-        CHANNEL.registerMessage(messageIndex++, S2CUpdateEntityVelocity.class, S2CUpdateEntityVelocity::encode, S2CUpdateEntityVelocity::decode, S2CUpdateEntityVelocity::handle);
+    public final void registerMessages() {
+        registerMessage(S2CUpdatePlayerDifficulty.class, S2CUpdatePlayerDifficulty::encode, S2CUpdatePlayerDifficulty::decode, S2CUpdatePlayerDifficulty::handle);
+        registerMessage(S2CUpdatePlayerDifficultyRate.class, S2CUpdatePlayerDifficultyRate::encode, S2CUpdatePlayerDifficultyRate::decode, S2CUpdatePlayerDifficultyRate::handle);
+        registerMessage(S2CUpdatePlayerMaxDifficulty.class, S2CUpdatePlayerMaxDifficulty::encode, S2CUpdatePlayerMaxDifficulty::decode, S2CUpdatePlayerMaxDifficulty::handle);
+        registerMessage(S2CUpdateEntityVelocity.class, S2CUpdateEntityVelocity::encode, S2CUpdateEntityVelocity::decode, S2CUpdateEntityVelocity::handle);
+    }
+
+    public <MSG> void registerMessage(Class<MSG> messageType, BiConsumer<MSG, PacketBuffer> encoder, Function<PacketBuffer, MSG> decoder, BiConsumer<MSG, Supplier<NetworkEvent.Context>> messageConsumer) {
+        CHANNEL.registerMessage(this.messageIndex++, messageType, encoder, decoder, messageConsumer, Optional.empty());
     }
 
     /**

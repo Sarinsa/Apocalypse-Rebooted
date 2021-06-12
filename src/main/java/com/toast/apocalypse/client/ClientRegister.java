@@ -10,12 +10,18 @@ import com.toast.apocalypse.client.renderers.entity.projectile.monsterhook.Monst
 import com.toast.apocalypse.client.renderers.model.armor.BucketHelmetModel;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
+import com.toast.apocalypse.common.register.ApocalypseItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.entity.SpriteRenderer;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.IRendersAsItem;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.IItemPropertyGetter;
+import net.minecraft.item.ItemModelsProperties;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -23,6 +29,7 @@ import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
+import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Apocalypse.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -34,6 +41,7 @@ public class ClientRegister {
     public static void onClientSetup(FMLClientSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(new ClientEvents(event.getMinecraftSupplier().get()));
         registerEntityRenderers(event.getMinecraftSupplier());
+        ItemModelProps.register();
     }
 
     private static void registerEntityRenderers(Supplier<Minecraft> minecraftSupplier) {

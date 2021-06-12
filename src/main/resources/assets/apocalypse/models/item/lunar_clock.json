@@ -1,0 +1,13 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "apocalypse:item/lunar_clock_0"
+  },
+  "overrides": [
+    { "predicate": { "apocalypse:moon_phase": 0.0 }, "model": "apocalypse:item/lunar_clock" },
+    { "predicate": { "apocalypse:moon_phase": 0.25 }, "model": "apocalypse:item/lunar_clock_1" },
+    { "predicate": { "apocalypse:moon_phase": 0.5 }, "model": "apocalypse:item/lunar_clock_2" },
+    { "predicate": { "apocalypse:moon_phase": 0.75 }, "model": "apocalypse:item/lunar_clock_3" },
+    { "predicate": { "apocalypse:moon_phase": 1.0 }, "model": "apocalypse:item/lunar_clock_4" }
+  ]
+}

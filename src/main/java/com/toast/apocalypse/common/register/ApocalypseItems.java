@@ -21,6 +21,7 @@ public class ApocalypseItems {
 
     public static final RegistryObject<Item> FATHERLY_TOAST = registerItem("fatherly_toast", FatherlyToastItem::new);
     public static final RegistryObject<Item> BUCKET_HELM = registerItem("bucket_helm", BucketHelmetItem::new);
+    public static final RegistryObject<Item> LUNAR_CLOCK = registerSimpleItem("lunar_clock", ItemGroup.TAB_TOOLS);
     public static final RegistryObject<SpawnEggItem> GHOST_SPAWN_EGG = registerSpawnEgg("ghost", ApocalypseEntities.GHOST_TYPE, 0xBCBCBC, 0x708899);
     public static final RegistryObject<SpawnEggItem> DESTROYER_SPAWN_EGG = registerSpawnEgg("destroyer", ApocalypseEntities.DESTROYER_TYPE, 0x7D7D7D, 0xA80E0E);
     public static final RegistryObject<SpawnEggItem> SEEKER_SPAWN_EGG = registerSpawnEgg("seeker", ApocalypseEntities.SEEKER_TYPE, 0xF9F9F9, 0xA80E0E);
@@ -31,7 +32,11 @@ public class ApocalypseItems {
         return ITEMS.register(name, itemSupplier);
     }
 
-    private static <T extends Item, E extends LivingEntity> RegistryObject<SpawnEggItem> registerSpawnEgg(String name, EntityType<E> entityType, int primaryColor, int secondaryColor) {
+    private static RegistryObject<Item> registerSimpleItem(String name, ItemGroup itemGroup) {
+        return ITEMS.register(name, () -> new Item(new Item.Properties().tab(itemGroup)));
+    }
+
+    private static <E extends LivingEntity> RegistryObject<SpawnEggItem> registerSpawnEgg(String name, EntityType<E> entityType, int primaryColor, int secondaryColor) {
         return ITEMS.register(name + "_spawn_egg", () -> new SpawnEggItem(entityType, primaryColor, secondaryColor, new Item.Properties().tab(ItemGroup.TAB_MISC)));
     }
 }
