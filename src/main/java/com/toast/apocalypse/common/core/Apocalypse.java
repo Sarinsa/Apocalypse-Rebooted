@@ -11,7 +11,7 @@ import com.toast.apocalypse.common.command.argument.ApocalypseArgumentTypes;
 import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.core.difficulty.MobDifficultyHandler;
-import com.toast.apocalypse.common.core.difficulty.WorldDifficultyManager;
+import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventRegister;
 import com.toast.apocalypse.common.event.CapabilityAttachEvents;
 import com.toast.apocalypse.common.event.EntityEvents;
@@ -44,7 +44,7 @@ public class Apocalypse {
     public static Apocalypse INSTANCE;
 
     /** Difficulty manager instance */
-    private final WorldDifficultyManager difficultyManager = new WorldDifficultyManager();
+    private final PlayerDifficultyManager difficultyManager = new PlayerDifficultyManager();
 
     /** Registry helper instance */
     private final RegistryHelper registryHelper = new RegistryHelper();
@@ -136,7 +136,7 @@ public class Apocalypse {
         return new ResourceLocation(MODID, path);
     }
 
-    public WorldDifficultyManager getDifficultyManager() {
+    public PlayerDifficultyManager getDifficultyManager() {
         return this.difficultyManager;
     }
 

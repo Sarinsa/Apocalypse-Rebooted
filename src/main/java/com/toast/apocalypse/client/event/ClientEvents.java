@@ -2,7 +2,7 @@ package com.toast.apocalypse.client.event;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.difficulty.WorldDifficultyManager;
+import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -21,7 +21,7 @@ public class ClientEvents {
             0xFFFFFF, 0x88FFFF, 0x88FF88, 0xFFFF88, 0xFFBB88, 0xFF8888
     };
 
-    private final WorldDifficultyManager difficultyManager;
+    private final PlayerDifficultyManager difficultyManager;
 
     // Rendering properties for quick access.
     public static long COLOR_CHANGE;

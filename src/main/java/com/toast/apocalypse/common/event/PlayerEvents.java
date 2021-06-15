@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
-import com.toast.apocalypse.common.core.difficulty.WorldDifficultyManager;
+import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
@@ -43,7 +43,7 @@ public class PlayerEvents {
         if (player.isSleeping() || !player.isAlive())
             return;
 
-        if (world.isNight() && WorldDifficultyManager.isFullMoon(world)) {
+        if (world.isNight() && PlayerDifficultyManager.isFullMoon(world)) {
             event.setResult(PlayerEntity.SleepResult.OTHER_PROBLEM);
             player.displayClientMessage(new TranslationTextComponent(References.TRY_SLEEP_FULL_MOON), true);
         }

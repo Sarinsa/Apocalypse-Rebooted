@@ -1,6 +1,5 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
 import net.minecraft.block.BlockState;
@@ -8,8 +7,9 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.controller.MovementController;
-import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.monster.CreeperEntity;
+import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.entity.ai.goal.LookAtGoal;
+import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.MonsterEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -18,7 +18,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.network.play.server.SEntityPacket;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
@@ -44,7 +43,7 @@ import java.util.Random;
 public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
     /** If the ghost should move away from it's target in a random direction */
-    private static final DataParameter<Boolean> IS_MANEUVERING = EntityDataManager.defineId(GhostEntity.class, DataSerializers.BOOLEAN);
+    private boolean isManeuvering;
 
     public GhostEntity(EntityType<? extends FlyingEntity> entityType, World world) {
         super(entityType, world);
@@ -63,18 +62,12 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(0, new GhostEntity.MeleeAttackGoal<>(this));
-        this.goalSelector.addGoal(1, new GhostEntity.ManeuverAttackerGoal<>(this));
+        this.goalSelector.addGoal(0, new GhostEntity.ManeuverAttackerGoal<>(this));
+        this.goalSelector.addGoal(1, new GhostEntity.MeleeAttackGoal<>(this));
         this.goalSelector.addGoal(2, new RandomFlyGoal(this));
         this.goalSelector.addGoal(3, new LookAtGoal(this, PlayerEntity.class,8.0F));
         this.targetSelector.addGoal(0, new GhostEntity.NearestAttackablePlayerTargetGoal<>(this, PlayerEntity.class));
         this.targetSelector.addGoal(1, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
-    }
-
-    @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(IS_MANEUVERING, false);
     }
 
     public static boolean checkGhostSpawnRules(EntityType<? extends GhostEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
@@ -178,11 +171,11 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
     }
 
     public boolean isManeuvering() {
-        return this.entityData.get(IS_MANEUVERING);
+        return this.isManeuvering;
     }
 
     protected void setManeuvering(boolean maneuvering) {
-        this.entityData.set(IS_MANEUVERING, maneuvering);
+        this.isManeuvering = maneuvering;
     }
 
     @Override

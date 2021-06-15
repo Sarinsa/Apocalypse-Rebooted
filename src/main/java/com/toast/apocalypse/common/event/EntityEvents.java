@@ -1,29 +1,21 @@
 package com.toast.apocalypse.common.event;
 
-import com.toast.apocalypse.common.core.difficulty.WorldDifficultyManager;
-import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
 import com.toast.apocalypse.common.register.ApocalypseItems;
-import com.toast.apocalypse.common.util.RainDamageTickHelper;
-import com.toast.apocalypse.common.util.References;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
-import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
 
 public class EntityEvents {
 
@@ -32,7 +24,7 @@ public class EntityEvents {
      */
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onDespawnCheck(LivingSpawnEvent.AllowDespawn event) {
-        if (WorldDifficultyManager.isFullMoon(event.getWorld()) && event.getEntityLiving() instanceof IFullMoonMob) {
+        if (PlayerDifficultyManager.isFullMoon(event.getWorld()) && event.getEntityLiving() instanceof IFullMoonMob) {
             event.setResult(Event.Result.DENY);
         }
     }

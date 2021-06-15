@@ -26,17 +26,15 @@ import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.jmx.Server;
 
 import java.util.HashMap;
 import java.util.List;
 
 /**
- * The major backbone of Apocalypse, this class manages everything to do with the world difficulty - increases it over time,
- * saves and loads it to and from the disk, and notifies clients of changes to it.<br>
- * In addition, it houses many helper methods related to world difficulty and save data.
+ * This class manages player difficulty and mod events
+ * like full moon sieges and thunderstorm events.
  */
-public final class WorldDifficultyManager {
+public final class PlayerDifficultyManager {
 
     /** Number of ticks per update. */
     public static final int TICKS_PER_UPDATE = 5;
@@ -182,20 +180,18 @@ public final class WorldDifficultyManager {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onSleepFinished(SleepFinishedTimeEvent event) {
-        if (event.getWorld() instanceof World) {
-            World world = (World) event.getWorld();
-            long timeSkipped = event.getNewTime() - world.getGameTime();
+        if (event.getWorld() instanceof ServerWorld) {
+            ServerWorld world = (ServerWorld) event.getWorld();
+            long timeSkipped = event.getNewTime() - world.getDayTime();
 
-            if (!world.isClientSide && timeSkipped > 20L) {
-                for (PlayerEntity player : world.players()) {
-                    ServerPlayerEntity serverPlayer = (ServerPlayerEntity) player;
+            if (timeSkipped > 20L) {
+                for (ServerPlayerEntity player : world.players()) {
+                    long playerDifficulty = CapabilityHelper.getPlayerDifficulty(player);
+                    long playerMaxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
+                    double difficultyMult = CapabilityHelper.getPlayerDifficultyMult(player);
 
-                    long playerDifficulty = CapabilityHelper.getPlayerDifficulty(serverPlayer);
-                    long playerMaxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(serverPlayer);
-                    double difficultyMult = CapabilityHelper.getPlayerDifficultyMult(serverPlayer);
-
-                    playerDifficulty += (timeSkipped * SLEEP_PENALTY * difficultyMult);
-                    CapabilityHelper.setPlayerDifficulty(serverPlayer, Math.min(playerDifficulty, playerMaxDifficulty));
+                    playerDifficulty += ((timeSkipped * SLEEP_PENALTY) * difficultyMult);
+                    CapabilityHelper.setPlayerDifficulty(player, Math.min(playerDifficulty, playerMaxDifficulty));
 
                     player.displayClientMessage(new TranslationTextComponent(References.SLEEP_PENALTY), true);
                 }
@@ -306,7 +302,7 @@ public final class WorldDifficultyManager {
 
     /** Helper method for logging. */
     private static void log(Level level, String message) {
-        Apocalypse.LOGGER.log(level, "[{}] " + message, WorldDifficultyManager.class.getSimpleName());
+        Apocalypse.LOGGER.log(level, "[{}] " + message, PlayerDifficultyManager.class.getSimpleName());
     }
 
     public Iterable<PlayerGroup> getPlayerGroups(World world) {

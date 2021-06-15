@@ -3,11 +3,10 @@ package com.toast.apocalypse.common.event;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.difficulty.MobDifficultyHandler;
 import com.toast.apocalypse.common.core.difficulty.PlayerGroup;
-import com.toast.apocalypse.common.core.difficulty.WorldDifficultyManager;
+import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.misc.DestroyerExplosionContext;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
-import net.minecraft.block.Block;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
@@ -16,7 +15,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.ForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
@@ -49,17 +47,17 @@ public class CommonConfigReloadListener {
      * might make the game lag for a sec, I dunno.
      */
     public static void updateInfo() {
-        WorldDifficultyManager.MULTIPLAYER_DIFFICULTY_SCALING = ApocalypseCommonConfig.COMMON.multiplayerDifficultyScaling();
-        WorldDifficultyManager.MULTIPLAYER_DIFFICULTY_MULT = ApocalypseCommonConfig.COMMON.getMultiplayerDifficultyRateMult();
-        WorldDifficultyManager.SLEEP_PENALTY = ApocalypseCommonConfig.COMMON.getSleepPenalty();
+        PlayerDifficultyManager.MULTIPLAYER_DIFFICULTY_SCALING = ApocalypseCommonConfig.COMMON.multiplayerDifficultyScaling();
+        PlayerDifficultyManager.MULTIPLAYER_DIFFICULTY_MULT = ApocalypseCommonConfig.COMMON.getMultiplayerDifficultyRateMult();
+        PlayerDifficultyManager.SLEEP_PENALTY = ApocalypseCommonConfig.COMMON.getSleepPenalty();
 
         List<RegistryKey<World>> list = new ArrayList<>();
         ApocalypseCommonConfig.COMMON.getDifficultyPenaltyDimensions().forEach((s -> {
             list.add(RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(s)));
         }));
-        WorldDifficultyManager.DIMENSION_PENALTY_LIST = list;
+        PlayerDifficultyManager.DIMENSION_PENALTY_LIST = list;
 
-        WorldDifficultyManager.DIMENSION_PENALTY = ApocalypseCommonConfig.COMMON.getDimensionPenalty();
+        PlayerDifficultyManager.DIMENSION_PENALTY = ApocalypseCommonConfig.COMMON.getDimensionPenalty();
         PlayerGroup.USE_AVERAGE_DIFFICULTY = ApocalypseCommonConfig.COMMON.getAverageGroupDifficulty();
 
         RainDamageTickHelper.RAIN_TICK_RATE = ApocalypseCommonConfig.COMMON.getRainTickRate();

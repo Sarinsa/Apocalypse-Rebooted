@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This event listener takes care of applying the right
- * attributes, effects and equipment to monsters
+ * This class takes care of applying attribute
+ * increments, effects and equipment to monsters
  * depending on the nearest player's difficulty.
  */
 public class MobDifficultyHandler {
@@ -66,8 +66,8 @@ public class MobDifficultyHandler {
     public void onEntitySpawn(LivingSpawnEvent.CheckSpawn event) {
         LivingEntity spawnedEntity = event.getEntityLiving();
         World world = spawnedEntity.getCommandSenderWorld();
-        long difficulty = WorldDifficultyManager.getNearestPlayerDifficulty(world, spawnedEntity);
-        boolean fullMoon = WorldDifficultyManager.isFullMoon(world) && world.isNight();
+        long difficulty = PlayerDifficultyManager.getNearestPlayerDifficulty(world, spawnedEntity);
+        boolean fullMoon = PlayerDifficultyManager.isFullMoon(world) && world.isNight();
 
         if (difficulty <= 0)
             return;
@@ -170,7 +170,7 @@ public class MobDifficultyHandler {
 
         if (!DAMAGE_BLACKLIST.contains(attacker.getType()) || difficulty <= 0) {
             double effectiveDifficulty = (double) difficulty / DAMAGE_TIME_SPAN;
-            boolean fullMoon = WorldDifficultyManager.isFullMoon(player.getCommandSenderWorld()) && player.getCommandSenderWorld().isNight();
+            boolean fullMoon = PlayerDifficultyManager.isFullMoon(player.getCommandSenderWorld()) && player.getCommandSenderWorld().isNight();
             double bonus, mult;
 
             bonus = DAMAGE_FLAT_BONUS * effectiveDifficulty;

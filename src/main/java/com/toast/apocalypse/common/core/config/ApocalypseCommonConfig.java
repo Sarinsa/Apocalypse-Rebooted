@@ -114,7 +114,7 @@ public class ApocalypseCommonConfig {
                     .defineInRange("difficultyMultiplayerRateMult", 0.05D, 0.01D, 10.0D);
 
             this.sleepPenalty = configBuilder.comment("Sets the multiplier used to increase world difficulty when players sleep through a night or thunderstorm.")
-                    .defineInRange("sleepPenalty", 2.0D, 0.0D, 1000.0D);
+                    .defineInRange("sleepPenalty", 2.0D, 1.0D, 1000.0D);
 
             this.dimensionsPenaltyList = configBuilder.comment("A list of dimensions that should give difficulty penalty. Difficulty increases more in these dimensions.")
                     .define("dimensionPenaltyList", PENALTY_DIMENSIONS);
