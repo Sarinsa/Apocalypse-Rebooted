@@ -24,7 +24,7 @@ public class ApocalypseServerConfig {
         private Server(ForgeConfigSpec.Builder configBuilder) {
             configBuilder.push("difficulty");
 
-            this.defaultPlayerGracePeriod = configBuilder.comment("This is the amount of time that must pass before a player's difficulty starts increasing.")
+            this.defaultPlayerGracePeriod = configBuilder.comment("This is the amount of time that must pass before a player's difficulty starts increasing. Only relevant for players that join a world or server for the first time. A value of 1 is equal to a whole Minecraft day.")
                     .defineInRange("default_player_grace_period", 1.0D, 0.0D, 1000.0D);
 
             this.defaultPlayerMaxDifficulty = configBuilder.comment("The default max difficulty for players. Only relevant for players that join a world or server for the first time.")
