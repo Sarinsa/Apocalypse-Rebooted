@@ -10,6 +10,7 @@ import com.toast.apocalypse.common.command.CommandRegister;
 import com.toast.apocalypse.common.command.argument.ApocalypseArgumentTypes;
 import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.common.core.config.ApocalypseServerConfig;
 import com.toast.apocalypse.common.core.difficulty.MobDifficultyHandler;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventRegister;
@@ -86,8 +87,10 @@ public class Apocalypse {
         ApocalypseEntities.ENTITIES.register(eventBus);
         ApocalypseTileEntities.TILE_ENTITIES.register(eventBus);
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ApocalypseCommonConfig.COMMON_SPEC);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ApocalypseClientConfig.CLIENT_SPEC);
+        ModLoadingContext context = ModLoadingContext.get();
+        context.registerConfig(ModConfig.Type.COMMON, ApocalypseCommonConfig.COMMON_SPEC);
+        context.registerConfig(ModConfig.Type.CLIENT, ApocalypseClientConfig.CLIENT_SPEC);
+        context.registerConfig(ModConfig.Type.SERVER, ApocalypseServerConfig.SERVER_SPEC);
     }
 
     public void onCommonSetup(FMLCommonSetupEvent event) {

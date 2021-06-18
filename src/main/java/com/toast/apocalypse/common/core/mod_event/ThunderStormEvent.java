@@ -1,8 +1,10 @@
 package com.toast.apocalypse.common.core.mod_event;
 
 import com.google.gson.JsonIOException;
+import com.toast.apocalypse.common.util.References;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.server.ServerWorld;
 
 public class ThunderStormEvent extends AbstractEvent {
@@ -13,11 +15,11 @@ public class ThunderStormEvent extends AbstractEvent {
 
     @Override
     public String getEventStartMessage() {
-        return null;
+        return References.THUNDERSTORM;
     }
 
     @Override
-    public void onStart() {
+    public void onStart(MinecraftServer server) {
 
     }
 

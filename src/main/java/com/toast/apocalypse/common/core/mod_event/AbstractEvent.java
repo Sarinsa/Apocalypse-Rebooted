@@ -4,6 +4,7 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.server.ServerWorld;
 
 public abstract class AbstractEvent {
@@ -43,7 +44,7 @@ public abstract class AbstractEvent {
     /** Called when the event starts.
      * Variables should all be set to default values here.
      */
-    public abstract void onStart();
+    public abstract void onStart(MinecraftServer server);
 
     /** Called every 5 ticks to update the event. */
     public abstract void update();

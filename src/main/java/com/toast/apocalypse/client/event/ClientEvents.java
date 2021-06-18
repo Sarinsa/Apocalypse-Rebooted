@@ -21,8 +21,6 @@ public class ClientEvents {
             0xFFFFFF, 0x88FFFF, 0x88FF88, 0xFFFF88, 0xFFBB88, 0xFF8888
     };
 
-    private final PlayerDifficultyManager difficultyManager;
-
     // Rendering properties for quick access.
     public static long COLOR_CHANGE;
     public static int POSITION_X;
@@ -35,7 +33,6 @@ public class ClientEvents {
 
     public ClientEvents(Minecraft minecraft) {
         this.minecraftClient = minecraft;
-        this.difficultyManager = Apocalypse.INSTANCE.getDifficultyManager();
     }
 
     /**
@@ -102,7 +99,7 @@ public class ClientEvents {
         // Calculate difficulty level in days with 1 decimal point
         int color = COLORS[0];
         long difficulty = CapabilityHelper.getPlayerDifficulty(player);
-        int partialDifficulty = (int) (difficulty % 24000L / 2400);
+        int partialDifficulty = difficulty <= 0 ? 0 : (int) (difficulty % 24000L / 2400);
 
         if (COLOR_CHANGE >= 0L && difficulty >= 0L) {
             if (difficulty >= COLOR_CHANGE) {

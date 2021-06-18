@@ -27,15 +27,15 @@ public class ItemModelProps {
                     return 0.0F;
                 }
                 else {
-                    double moonBrightness;
+                    int moonPhase;
 
                     if (clientWorld.dimension() == World.OVERWORLD) {
-                        moonBrightness = clientWorld.getMoonBrightness();
+                        moonPhase = clientWorld.getMoonPhase();
                     }
                     else {
-                        moonBrightness = DimensionType.MOON_BRIGHTNESS_PER_PHASE[clientWorld.random.nextInt(DimensionType.MOON_BRIGHTNESS_PER_PHASE.length)];
+                        moonPhase = clientWorld.random.nextInt(8);
                     }
-                    return (float) moonBrightness;
+                    return (float) moonPhase;
                 }
             }
         });

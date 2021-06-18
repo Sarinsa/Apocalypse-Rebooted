@@ -5,9 +5,12 @@
   },
   "overrides": [
     { "predicate": { "apocalypse:moon_phase": 0.0 }, "model": "apocalypse:item/lunar_clock" },
-    { "predicate": { "apocalypse:moon_phase": 0.25 }, "model": "apocalypse:item/lunar_clock_1" },
-    { "predicate": { "apocalypse:moon_phase": 0.5 }, "model": "apocalypse:item/lunar_clock_2" },
-    { "predicate": { "apocalypse:moon_phase": 0.75 }, "model": "apocalypse:item/lunar_clock_3" },
-    { "predicate": { "apocalypse:moon_phase": 1.0 }, "model": "apocalypse:item/lunar_clock_4" }
+    { "predicate": { "apocalypse:moon_phase": 1.0 }, "model": "apocalypse:item/lunar_clock_1" },
+    { "predicate": { "apocalypse:moon_phase": 2.0 }, "model": "apocalypse:item/lunar_clock_2" },
+    { "predicate": { "apocalypse:moon_phase": 3.0 }, "model": "apocalypse:item/lunar_clock_3" },
+    { "predicate": { "apocalypse:moon_phase": 4.0 }, "model": "apocalypse:item/lunar_clock_4" },
+    { "predicate": { "apocalypse:moon_phase": 5.0 }, "model": "apocalypse:item/lunar_clock_5" },
+    { "predicate": { "apocalypse:moon_phase": 6.0 }, "model": "apocalypse:item/lunar_clock_6" },
+    { "predicate": { "apocalypse:moon_phase": 7.0 }, "model": "apocalypse:item/lunar_clock_7" }
   ]
 }

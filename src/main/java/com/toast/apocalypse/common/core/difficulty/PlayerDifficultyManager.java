@@ -13,6 +13,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.RegistryKey;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
@@ -65,9 +66,6 @@ public final class PlayerDifficultyManager {
 
     /** Used to prevent full moons from constantly happening. */
     private boolean checkedFullMoon;
-
-    /** The world difficulty multiplier */
-    private double lastWorldDifficultyRate;
 
     /** A map containing each world's player group list. */
     private final HashMap<RegistryKey<World>, List<PlayerGroup>> playerGroups = new HashMap<>();
@@ -194,6 +192,7 @@ public final class PlayerDifficultyManager {
                     CapabilityHelper.setPlayerDifficulty(player, Math.min(playerDifficulty, playerMaxDifficulty));
 
                     player.displayClientMessage(new TranslationTextComponent(References.SLEEP_PENALTY), true);
+                    player.playSound(SoundEvents.AMBIENT_CAVE, 1.0F, 0.8F);
                 }
             }
         }
@@ -275,11 +274,7 @@ public final class PlayerDifficultyManager {
 
         // Starts the full moon event
         if (world.getGameTime() > 0L && this.currentEvent != EventRegister.FULL_MOON) {
-            int dayTime = (int) (world.getGameTime() % 24000);
-            if (dayTime < 13000) {
-                this.checkedFullMoon = false;
-            }
-            else if (!this.checkedFullMoon && isFullMoon(world)) {
+            if (isFullMoon(world) && world.isNight()) {
                 this.checkedFullMoon = true;
                 this.startEvent(EventRegister.FULL_MOON);
             }
@@ -288,6 +283,11 @@ public final class PlayerDifficultyManager {
         // Stop the full moon event when it becomes day time.
         if (world.isDay() && this.currentEvent == EventRegister.FULL_MOON) {
             this.endEvent();
+        }
+
+        // Starts the thunderstorm event
+        if (world.isThundering()) {
+            this.startEvent(EventRegister.THUNDER_STORM);
         }
 
         // Update event and players
@@ -322,7 +322,7 @@ public final class PlayerDifficultyManager {
                 return;
             this.currentEvent.onEnd();
         }
-        event.onStart();
+        event.onStart(this.server);
         Iterable<ServerWorld> worlds = this.server.getAllLevels();
 
         for (ServerWorld world : worlds) {
