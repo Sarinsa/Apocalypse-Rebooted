@@ -20,4 +20,6 @@ public class References {
     public static final String DIFFICULTY_SET_MULTIPLE = "apocalypse.command.difficulty.set_message.multiple";
     public static final String MAX_DIFFICULTY_SET_SINGLE = "apocalypse.command.difficulty.max_message.single";
     public static final String MAX_DIFFICULTY_SET_MULTIPLE = "apocalypse.command.difficulty.max_message.multiple";
+    public static final String APOCALYPSE_WORLD_CREATE_BUTTON = "apocalypse.screen.button.create_world_config";
+    public static final String APOCALYPSE_WORLD_CREATE_CONFIG_TITLE = "apocalypse.screen.title.create_world_config";
 }

@@ -1,155 +1,62 @@
 package com.toast.apocalypse.client.event;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.toast.apocalypse.client.screen.ApocalypseWorldCreateConfigScreen;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
-import com.toast.apocalypse.common.util.CapabilityHelper;
+import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.screen.CreateWorldScreen;
+import net.minecraft.client.gui.screen.MainMenuScreen;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.gui.widget.button.ImageButton;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-
-import static com.toast.apocalypse.common.core.config.ApocalypseClientConfig.DifficultyRenderPosHeight;
-import static com.toast.apocalypse.common.core.config.ApocalypseClientConfig.DifficultyRenderPosWidth;
+import net.minecraftforge.fml.config.ConfigTracker;
 
 public class ClientEvents {
 
-    /** The color sequence. */
-    public static final int[] COLORS = {
-            0xFFFFFF, 0x88FFFF, 0x88FF88, 0xFFFF88, 0xFFBB88, 0xFF8888
-    };
-
-    // Rendering properties for quick access.
-    public static long COLOR_CHANGE;
-    public static int POSITION_X;
-    public static int POSITION_Y;
-    public static int OFFSET_X;
-    public static int OFFSET_Y;
-
+    /** The location of the Apocalypse world config button icon */
+    private static final ResourceLocation GRUMP_ICON = Apocalypse.resourceLoc("textures/screen/button/grump_icon.png");
     /** The Minecraft client instance. **/
     private final Minecraft minecraftClient;
+    /** The desired max difficulty and grace period
+     *  values to be used when creating a new world.
+     *  These are refreshed when the world creation
+     *  screen is opened.
+     */
+    private double desiredDefaultMaxDifficulty;
+    private double desiredDefaultGracePeriod;
 
     public ClientEvents(Minecraft minecraft) {
         this.minecraftClient = minecraft;
     }
 
     /**
-     * Updates the render info when rendering the world difficulty in-game.
-     * Called from {@link ClientConfigReloadListener} when the client config is loaded/reloaded */
-    public static void updateInfo(DifficultyRenderPosWidth widthPos, DifficultyRenderPosHeight heightPos, int xOffset, int yOffset) {
-        switch (widthPos) {
-            default:
-            case LEFT:
-                POSITION_X = 0;
-                break;
-            case RIGHT:
-                POSITION_X = 1;
-                break;
-            case MIDDLE:
-                POSITION_X = 2;
-                break;
-        }
-
-        switch (heightPos) {
-            default:
-            case TOP:
-                POSITION_Y = 0;
-                break;
-            case BOTTOM:
-                POSITION_Y = 1;
-                break;
-            case MIDDLE:
-                POSITION_Y = 2;
-                break;
-        }
-        OFFSET_X = xOffset * (POSITION_X == 1 ? -1 : 1);
-        OFFSET_Y = yOffset * (POSITION_Y == 1 ? -1 : 1);
-    }
-
-    /**
-     * Called by ForgeIngameGui.render().
-     * float partialTicks = time since the last game tick.
-     * ScaledResolution resolution = the game resolution.
-     * int mouseX = the x position of the mouse.
-     * int mouseY = the y position of the mouse.
-     * RenderGameOverlayEvent.ElementType type = the type of overlay being rendered
-     *
-     * @param event The event being triggered.
+     * Renders the difficulty seen in-game
      */
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public void afterRenderGameOverlay(RenderGameOverlayEvent.Post event) {
-        if (event.getType() != RenderGameOverlayEvent.ElementType.BOSSHEALTH || OFFSET_X < 0 || OFFSET_Y < 0)
-            return;
+        DifficultyRenderHandler.renderDifficulty(event, this.minecraftClient);
+    }
 
-        ClientPlayerEntity player = this.minecraftClient.player;
-        long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
+    /**
+     * Here we add our own button to the world creation screen
+     * for setting the world's default max player difficulty
+     * and grace period.
+     */
+    @SubscribeEvent
+    public void onScreenOpened(GuiScreenEvent.InitGuiEvent.Post event) {
+        if (event.getGui() instanceof CreateWorldScreen) {
+            this.desiredDefaultGracePeriod = 0;
+            this.desiredDefaultMaxDifficulty = 0;
 
-        // Don't bother rendering the difficulty
-        // when it will constantly be at 0.
-        if (maxDifficulty == 0L)
-            return;
-
-        int width = event.getWindow().getGuiScaledWidth();
-        int height = event.getWindow().getGuiScaledHeight();
-
-        FontRenderer fontRenderer = this.minecraftClient.font;
-
-        // Calculate difficulty level in days with 1 decimal point
-        int color = COLORS[0];
-        long difficulty = CapabilityHelper.getPlayerDifficulty(player);
-        int partialDifficulty = difficulty <= 0 ? 0 : (int) (difficulty % 24000L / 2400);
-
-        if (COLOR_CHANGE >= 0L && difficulty >= 0L) {
-            if (difficulty >= COLOR_CHANGE) {
-                color = COLORS[COLORS.length - 1];
-            }
-            else {
-                color = COLORS[(int) (difficulty / (double) COLOR_CHANGE * COLORS.length)];
-            }
+            CreateWorldScreen screen = (CreateWorldScreen) event.getGui();
+            event.addWidget(new ImageButton(screen.width/ 2 + 165, 100, 20, 20, 0, 0, 1, GRUMP_ICON, 16, 16, (button) -> {
+                this.minecraftClient.setScreen(new ApocalypseWorldCreateConfigScreen(screen));
+            }));
         }
-        difficulty /= 24000L;
-
-        String difficultyInfo = "Difficulty: " + difficulty + "." + partialDifficulty;
-
-        // Calculate % of increase in difficulty rate
-        double difficultyRate = CapabilityHelper.getPlayerDifficultyMult(player);
-        if (difficultyRate != 1.0) {
-            difficultyInfo = difficultyInfo + " Rate: " + (int)(difficultyRate * 100.0) + "%";
-        }
-
-        int x, y;
-        switch (POSITION_X) {
-            case 0:
-                x = 2;
-                break;
-            case 1:
-                x = width - fontRenderer.width(difficultyInfo) - 2;
-                break;
-            case 2:
-                x = (width >> 1) - (fontRenderer.width(difficultyInfo) >> 1);
-                break;
-            default:
-                return;
-        }
-        switch (POSITION_Y) {
-            case 0:
-                y = 2;
-                break;
-            case 1:
-                y = height - 10;
-                break;
-            case 2:
-                y = (height >> 1) - 4;
-                break;
-            default:
-                return;
-        }
-        x += OFFSET_X;
-        y += OFFSET_Y;
-
-        fontRenderer.drawShadow(event.getMatrixStack(), difficultyInfo, x, y, color);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
     }
 }

@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.network.work;
 
 import com.toast.apocalypse.client.event.ClientEvents;
+import com.toast.apocalypse.client.event.DifficultyRenderHandler;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.network.message.S2CUpdateEntityVelocity;
@@ -47,7 +48,7 @@ public class ClientWork {
         if (player != null) {
             long maxDifficulty = message.maxDifficulty;
             getCapability(player, ApocalypseCapabilities.DIFFICULTY_CAPABILITY).setMaxDifficulty(maxDifficulty);
-            ClientEvents.COLOR_CHANGE = maxDifficulty > -1 ? maxDifficulty : References.DEFAULT_COLOR_CHANGE;
+            DifficultyRenderHandler.COLOR_CHANGE = maxDifficulty > -1 ? maxDifficulty : References.DEFAULT_COLOR_CHANGE;
         }
     }
 
