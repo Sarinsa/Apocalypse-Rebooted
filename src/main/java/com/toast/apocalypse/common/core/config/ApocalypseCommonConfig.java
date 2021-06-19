@@ -122,7 +122,7 @@ public class ApocalypseCommonConfig {
             this.dimensionPenalty = configBuilder.comment("The difficulty rate multiplier used when a player enters a dimension with difficulty penalty.")
                     .defineInRange("dimensionPenalty", 1.5D, 0.0D, 1000.0D);
 
-            this.averageGroupDifficulty = configBuilder.comment("If enabled, players that are close to eachother will have the average of their difficulty added together used instead of the nearby player with the highest difficulty.")
+            this.averageGroupDifficulty = configBuilder.comment("(Currently unused) If enabled, players that are close to each other will have the average of their difficulty added together used instead of the nearby player with the highest difficulty.")
                     .define("averageGroupDifficulty", false);
             configBuilder.pop();
 

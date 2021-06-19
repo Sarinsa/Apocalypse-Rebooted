@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+// Currently unused
 /**
  * Used when determining the effective difficulty to work with
  * when mobs spawn into the world.
