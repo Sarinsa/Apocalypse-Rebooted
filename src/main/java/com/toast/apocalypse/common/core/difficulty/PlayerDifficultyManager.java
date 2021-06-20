@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.core.difficulty;
 
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.config.ServerConfigHelper;
 import com.toast.apocalypse.common.core.mod_event.AbstractEvent;
 import com.toast.apocalypse.common.core.mod_event.EventRegister;
 import com.toast.apocalypse.common.event.CommonConfigReloadListener;
@@ -23,6 +24,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.SleepFinishedTimeEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.config.ConfigTracker;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
@@ -46,6 +48,12 @@ public final class PlayerDifficultyManager {
     private int timeUntilUpdate = 0;
     /** Time until next save */
     private int timeUntilSave = 0;
+
+    /** Used when setting the grace period and default
+     *  max difficulty for new worlds upon world creation.
+     */
+    private double desiredDefaultMaxPlayerDifficulty;
+    private double desiredDefaultGracePeriod;
 
     /** These are updated when the mod config is loaded/reloaded
      *
@@ -71,10 +79,11 @@ public final class PlayerDifficultyManager {
     private final HashMap<RegistryKey<World>, List<PlayerGroup>> playerGroups = new HashMap<>();
 
 
-    /** Fetch the server */
+    /** Fetch the server instance update mod server config. */
     @SubscribeEvent
     public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
         this.server = event.getServer();
+        ServerConfigHelper.updateModServerConfig();
     }
 
     @SubscribeEvent
@@ -355,9 +364,9 @@ public final class PlayerDifficultyManager {
         this.playerGroups.clear();
     }
 
+    /** Loads the saved event, if any */
     public void loadEventData() {
         try {
-            // Load event data
             World world = this.server.overworld();
             CompoundNBT eventData = CapabilityHelper.getEventData(world);
 
@@ -372,9 +381,9 @@ public final class PlayerDifficultyManager {
         }
     }
 
+    /** Saves the data of the current event, if any */
     public void saveEventData() {
         try {
-            // Save event data
             World world = this.server.overworld();
             CompoundNBT eventData = new CompoundNBT();
 

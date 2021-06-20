@@ -1,9 +1,6 @@
 package com.toast.apocalypse.common.network;
 
-import com.toast.apocalypse.common.network.message.S2CUpdateEntityVelocity;
-import com.toast.apocalypse.common.network.message.S2CUpdatePlayerDifficulty;
-import com.toast.apocalypse.common.network.message.S2CUpdatePlayerDifficultyRate;
-import com.toast.apocalypse.common.network.message.S2CUpdatePlayerMaxDifficulty;
+import com.toast.apocalypse.common.network.message.*;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -66,5 +63,13 @@ public class NetworkHelper {
      */
     public static void sendEntityVelocityUpdate(@Nonnull ServerPlayerEntity player, Entity entity, Vector3d deltaMovement) {
         PacketHandler.sendToClient(new S2CUpdateEntityVelocity(entity, deltaMovement), player);
+    }
+
+    /**
+     * Sends a message from the client to server
+     * to update the mod server config values.
+     */
+    public static void sendServerConfigUpdate(double maxDifficulty, double gracePeriod) {
+        PacketHandler.CHANNEL.sendToServer(new C2SUpdateServerConfigValues(maxDifficulty, gracePeriod));
     }
 }
