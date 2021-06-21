@@ -64,8 +64,9 @@ public class DifficultyRenderHandler {
         long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
 
         // Don't bother rendering the difficulty
-        // when it will constantly be at 0.
-        if (maxDifficulty == 0L)
+        // when it will constantly be at 0 or if
+        // the player is dead.
+        if (maxDifficulty == 0L || !minecraft.gui.getBossOverlay().events.isEmpty() || player.isDeadOrDying())
             return;
 
         int width = event.getWindow().getGuiScaledWidth();
