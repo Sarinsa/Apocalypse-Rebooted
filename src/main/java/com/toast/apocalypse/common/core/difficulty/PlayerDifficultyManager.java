@@ -39,16 +39,6 @@ import java.util.List;
  */
 public final class PlayerDifficultyManager {
 
-    /** Number of ticks per update. */
-    public static final int TICKS_PER_UPDATE = 5;
-    /** Number of ticks per save. */
-    public static final int TICKS_PER_SAVE = 60;
-
-    /** Time until next server tick update. */
-    private int timeUntilUpdate = 0;
-    /** Time until next save */
-    private int timeUntilSave = 0;
-
     /** These are updated when the mod config is loaded/reloaded
      *
      *  @see CommonConfigReloadListener#updateInfo()
@@ -58,6 +48,16 @@ public final class PlayerDifficultyManager {
     public static double SLEEP_PENALTY;
     public static double DIMENSION_PENALTY;
 
+    /** Number of ticks per update. */
+    public static final int TICKS_PER_UPDATE = 5;
+    /** Number of ticks per save. */
+    public static final int TICKS_PER_SAVE = 120;
+
+    /** Time until next server tick update. */
+    private int timeUntilUpdate = 0;
+    /** Time until next save */
+    private int timeUntilSave = 0;
+
     public static List<RegistryKey<World>> DIMENSION_PENALTY_LIST;
 
     /** Server instance */
@@ -66,9 +66,24 @@ public final class PlayerDifficultyManager {
     /** The current running event. */
     private AbstractEvent currentEvent = null;
 
+    // Unused
     /** A map containing each world's player group list. */
     private final HashMap<RegistryKey<World>, List<PlayerGroup>> playerGroups = new HashMap<>();
 
+
+
+    public static boolean isFullMoon(IWorld world) {
+        return world.getMoonBrightness() == 1.0F;
+    }
+
+    public static long getNearestPlayerDifficulty(IWorld world, LivingEntity livingEntity) {
+        PlayerEntity player = world.getNearestPlayer(livingEntity, Double.MAX_VALUE);
+
+        if (player != null) {
+            return CapabilityHelper.getPlayerDifficulty(player);
+        }
+        return 0;
+    }
 
     /** Fetch the server instance and update integrated server mod server config. */
     @SubscribeEvent
@@ -130,15 +145,6 @@ public final class PlayerDifficultyManager {
         else {
             return null;
         }
-    }
-
-    public static long getNearestPlayerDifficulty(IWorld world, LivingEntity livingEntity) {
-        PlayerEntity player = world.getNearestPlayer(livingEntity, Double.MAX_VALUE);
-
-        if (player != null) {
-            return CapabilityHelper.getPlayerDifficulty(player);
-        }
-        return 0;
     }
 
     private void updatePlayer(ServerPlayerEntity player) {
@@ -260,10 +266,6 @@ public final class PlayerDifficultyManager {
 
              */
         }
-    }
-
-    public static boolean isFullMoon(IWorld world) {
-        return world.getMoonBrightness() == 1.0F;
     }
 
     /**
