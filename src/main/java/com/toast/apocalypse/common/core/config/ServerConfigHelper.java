@@ -2,7 +2,6 @@ package com.toast.apocalypse.common.core.config;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.toast.apocalypse.common.core.Apocalypse;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
@@ -18,8 +17,17 @@ public class ServerConfigHelper {
      *  values are only required for
      *  integrated servers.
      */
-    public static double DESIRED_DEFAULT_MAX_DIFFICULTY = 200.0D;
-    public static double DESIRED_DEFAULT_GRACE_PERIOD = 1.0D;
+    public static double DESIRED_DEFAULT_MAX_DIFFICULTY;
+    public static double DESIRED_DEFAULT_GRACE_PERIOD;
+
+    static {
+        resetValues();
+    }
+
+    private static void resetValues() {
+        DESIRED_DEFAULT_MAX_DIFFICULTY = 200.0D;
+        DESIRED_DEFAULT_GRACE_PERIOD = 1.0D;
+    }
 
     /**
      * Writes the current Apocalypse world settings
@@ -30,7 +38,7 @@ public class ServerConfigHelper {
         String configName = ConfigTracker.INSTANCE.getConfigFileName(modid, ModConfig.Type.SERVER);
 
         if (configName != null && !configName.isEmpty()) {
-            ModContainer modContainer = ModList.get().getModContainerById(modid).orElseThrow(() -> new IllegalStateException("Failed to fetch ModContainer instance for modid " + modid));
+            ModContainer modContainer = ModList.get().getModContainerById(modid).orElseThrow(() -> new IllegalStateException("Failed to fetch ModContainer instance for " + modid + ". The server config will not be updated."));
             Field field = ObfuscationReflectionHelper.findField(ModContainer.class, "configs");
 
             try {
@@ -49,9 +57,7 @@ public class ServerConfigHelper {
                 e.printStackTrace();
             }
         }
-        // Reset values
-        DESIRED_DEFAULT_MAX_DIFFICULTY = 200.0D;
-        DESIRED_DEFAULT_GRACE_PERIOD = 1.0D;
+        resetValues();
     }
 
     /**
