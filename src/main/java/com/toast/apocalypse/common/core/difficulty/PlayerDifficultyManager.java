@@ -147,7 +147,7 @@ public final class PlayerDifficultyManager {
         }
     }
 
-    private void updatePlayer(ServerPlayerEntity player) {
+    private void tickPlayerDifficulty(ServerPlayerEntity player) {
         int playerCount = this.server.getPlayerCount();
         double difficultyMultiplier = CapabilityHelper.getPlayerDifficultyMult(player);
 
@@ -172,7 +172,7 @@ public final class PlayerDifficultyManager {
 
         boolean maxDifficultyReached = maxDifficulty >= 0 && currentDifficulty >= maxDifficulty;
 
-        if (!maxDifficultyReached) {
+        if (!maxDifficultyReached && !player.isSpectator() && !player.isCreative()) {
             currentDifficulty += TICKS_PER_UPDATE * difficultyMultiplier;
         }
 
@@ -228,7 +228,7 @@ public final class PlayerDifficultyManager {
 
                 // Update all the players' difficulty
                 for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
-                    this.updatePlayer(player);
+                    this.tickPlayerDifficulty(player);
                 }
 
                 // Update active event
