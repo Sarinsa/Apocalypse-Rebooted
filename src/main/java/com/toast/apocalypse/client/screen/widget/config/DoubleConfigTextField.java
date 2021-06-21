@@ -56,4 +56,9 @@ public final class DoubleConfigTextField extends AbstractConfigTextField<Double>
         }
         return false;
     }
+
+    @Override
+    protected int maxValueLength() {
+        return 9;
+    }
 }

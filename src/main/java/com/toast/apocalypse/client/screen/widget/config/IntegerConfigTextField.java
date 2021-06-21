@@ -38,4 +38,9 @@ public class IntegerConfigTextField extends AbstractConfigTextField<Integer> {
     protected boolean isValidCharacter(String value, char character, int index) {
         return Character.isDigit(character);
     }
+
+    @Override
+    protected int maxValueLength() {
+        return 9;
+    }
 }

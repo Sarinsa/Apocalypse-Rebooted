@@ -54,7 +54,7 @@ public abstract class AbstractConfigTextField<T> extends TextFieldWidget {
             return false;
         }
         else if (this.isValidCharacter(this.getValue(), character, this.getCursorPosition())) {
-            if (this.isEditable()) {
+            if (this.isEditable() && this.getValue().length() < this.maxValueLength()) {
                 this.insertText(Character.toString(character));
             }
             return true;
@@ -77,6 +77,8 @@ public abstract class AbstractConfigTextField<T> extends TextFieldWidget {
     protected abstract void setCurrentValue(String value);
 
     protected abstract boolean isValidCharacter(String value, char character, int cursorPosition);
+
+    protected abstract int maxValueLength();
 
     @Nullable
     public ITextComponent getDescriptor() {
