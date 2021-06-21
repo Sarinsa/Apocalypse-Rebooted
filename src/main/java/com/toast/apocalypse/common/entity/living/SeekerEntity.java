@@ -4,6 +4,7 @@ import com.toast.apocalypse.api.impl.SeekerAlertRegister;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
+import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -48,9 +49,9 @@ import java.util.function.BiPredicate;
 public class SeekerEntity extends AbstractFullMoonGhastEntity {
 
     private static final DataParameter<Boolean> ALERTING = EntityDataManager.defineId(SeekerEntity.class, DataSerializers.BOOLEAN);
-    private static final BiPredicate<LivingEntity, MobEntity> ALERT_PREDICATE = (livingEntity, seeker) -> !(livingEntity instanceof IFullMoonMob) && seeker.getTarget() != livingEntity;
+    private static final BiPredicate<LivingEntity, MobEntity> ALERT_PREDICATE = (livingEntity, seeker) -> !(livingEntity instanceof IFullMoonMob) && livingEntity instanceof IMob;
 
-    /** The seeker's current target. Updated when the seeker alerts. */
+    /** The seeker's current target. Updated when the seeker alerts nearby mobs. */
     private LivingEntity currentTarget;
 
     public SeekerEntity(EntityType<? extends GhastEntity> entityType, World world) {
@@ -110,16 +111,13 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         if (this.isInvulnerableTo(damageSource)) {
             return false;
         }
-        // Prevent instant fireball death and return to sender advancement
-        else if (damageSource.getDirectEntity() instanceof SeekerFireballEntity || damageSource.getDirectEntity() instanceof FireballEntity) {
-            // Prevent the destroyer from damaging itself
-            // when close up to a wall or solid obstacle
-            if (damageSource.getEntity() == this)
-                return false;
+        else if (damageSource.getDirectEntity() instanceof SeekerFireballEntity || damageSource.getDirectEntity() instanceof DestroyerFireballEntity) {
 
-            if (damageSource.getEntity() instanceof PlayerEntity) {
-                super.hurt(DamageSource.playerAttack((PlayerEntity) damageSource.getEntity()), this.getMaxHealth() / 2.0F);
-                return true;
+            if (damageSource.getEntity() == this) {
+                return false;
+            }
+            else {
+                return super.hurt(damageSource, damage);
             }
         }
         else if (damageSource.isExplosion() && damageSource.getEntity() == this) {
@@ -365,20 +363,20 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
                     }
                     Class<? extends LivingEntity> entityClass = livingEntity.getClass();
 
-                    if (alertRegister.containsEntry(entityClass)) {
-                        alertRegister.getFromEntity(entityClass).accept(livingEntity, target, this.seeker);
-                        return;
-                    }
-                    else {
-                        if (livingEntity instanceof MobEntity && livingEntity instanceof IMob) {
-                            MobEntity mobEntity = (MobEntity) livingEntity;
+                    if (livingEntity instanceof MobEntity || livingEntity instanceof IMob) {
+                        MobEntity mobEntity = (MobEntity) livingEntity;
 
-                            if (mobEntity.getTarget() != this.seeker.getTarget()) {
-                                mobEntity.setLastHurtByMob(null);
-                                mobEntity.setTarget(this.seeker.getTarget());
-                                ModifiableAttributeInstance attributeInstance = mobEntity.getAttribute(Attributes.FOLLOW_RANGE);
-                                attributeInstance.setBaseValue(Math.max(attributeInstance.getValue(), 60.0D));
-                            }
+                        if (mobEntity.getTarget() != this.seeker.getTarget()) {
+                            mobEntity.setLastHurtByMob(null);
+                            mobEntity.setTarget(this.seeker.getTarget());
+                            ModifiableAttributeInstance attributeInstance = mobEntity.getAttribute(Attributes.FOLLOW_RANGE);
+                            attributeInstance.setBaseValue(Math.max(attributeInstance.getValue(), 60.0D));
+                        }
+                        // Perform additional alertion logic, if registered for the entity in question.
+                        // This logic is registered via the Apocalypse API.
+                        if (alertRegister.containsEntry(entityClass)) {
+                            alertRegister.getFromEntity(entityClass).accept(livingEntity, target, this.seeker);
+                            return;
                         }
                     }
                     ++alertCount;
