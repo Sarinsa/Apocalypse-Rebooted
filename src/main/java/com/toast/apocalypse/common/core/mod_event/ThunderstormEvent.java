@@ -7,10 +7,11 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.server.ServerWorld;
 
-public class ThunderStormEvent extends AbstractEvent {
+public class ThunderstormEvent extends AbstractEvent {
 
-    public ThunderStormEvent(int id) {
+    public ThunderstormEvent(int id) {
         super(id);
+        String storm = "Thunderstorm";
     }
 
     @Override

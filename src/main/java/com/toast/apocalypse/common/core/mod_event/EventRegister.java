@@ -10,7 +10,7 @@ public class EventRegister {
     public static final HashMap<Integer, AbstractEvent> EVENTS = new HashMap<>();
 
     public static final AbstractEvent FULL_MOON = registerEvent(new FullMoonEvent(0));
-    public static final AbstractEvent THUNDER_STORM = registerEvent(new ThunderStormEvent(1));
+    public static final AbstractEvent THUNDER_STORM = registerEvent(new ThunderstormEvent(1));
 
     private static <T extends AbstractEvent> T registerEvent(T event) {
         Objects.requireNonNull(event);
