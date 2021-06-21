@@ -35,6 +35,7 @@ public class ApocalypseClientConfig {
         private final ForgeConfigSpec.EnumValue<DifficultyRenderPosHeight> difficultyRenderPosHeight;
         private final ForgeConfigSpec.IntValue difficultyRenderXOffset;
         private final ForgeConfigSpec.IntValue difficultyRenderYOffset;
+        private final ForgeConfigSpec.BooleanValue renderDifficultyInCreative;
 
         private Client(ForgeConfigSpec.Builder configBuilder) {
             configBuilder.push("in_game_gui");
@@ -50,6 +51,9 @@ public class ApocalypseClientConfig {
 
             this.difficultyRenderYOffset = configBuilder.comment("Additional Y offset for where to render difficulty in-game")
                     .defineInRange("difficultyRenderYOffset", 0, 0, 10000);
+
+            this.renderDifficultyInCreative = configBuilder.comment("Toggles difficulty being rendered when the player is in creative mode.")
+                    .define("renderDifficultyInCreative", true);
 
             configBuilder.pop();
         }
@@ -68,6 +72,10 @@ public class ApocalypseClientConfig {
 
         public int getDifficultyRenderYOffset() {
             return this.difficultyRenderYOffset.get();
+        }
+
+        public boolean getRenderDifficultyInCreative() {
+            return this.renderDifficultyInCreative.get();
         }
     }
 }

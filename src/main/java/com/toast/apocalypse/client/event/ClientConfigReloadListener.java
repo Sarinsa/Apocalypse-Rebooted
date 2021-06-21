@@ -37,7 +37,8 @@ public final class ClientConfigReloadListener {
         DifficultyRenderPosHeight renderPosHeight = ApocalypseClientConfig.CLIENT.getDifficultyRenderPosHeight();
         int xOffset = ApocalypseClientConfig.CLIENT.getDifficultyRenderXOffset();
         int yOffset = ApocalypseClientConfig.CLIENT.getDifficultyRenderYOffset();
+        boolean renderInCreative = ApocalypseClientConfig.CLIENT.getRenderDifficultyInCreative();
 
-        DifficultyRenderHandler.updateInfo(renderPosWidth, renderPosHeight, xOffset, yOffset);
+        DifficultyRenderHandler.updateInfo(renderPosWidth, renderPosHeight, xOffset, yOffset, renderInCreative);
     }
 }

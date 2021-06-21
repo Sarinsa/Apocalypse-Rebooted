@@ -21,11 +21,12 @@ public class DifficultyRenderHandler {
     public static int POSITION_Y;
     public static int OFFSET_X;
     public static int OFFSET_Y;
+    public static boolean RENDER_IN_CREATIVE;
 
     /**
      * Updates the render info when rendering the world difficulty in-game.
      * Called from {@link ClientConfigReloadListener} when the client config is loaded/reloaded */
-    public static void updateInfo(ApocalypseClientConfig.DifficultyRenderPosWidth widthPos, ApocalypseClientConfig.DifficultyRenderPosHeight heightPos, int xOffset, int yOffset) {
+    public static void updateInfo(ApocalypseClientConfig.DifficultyRenderPosWidth widthPos, ApocalypseClientConfig.DifficultyRenderPosHeight heightPos, int xOffset, int yOffset, boolean renderInCreative) {
         switch (widthPos) {
             default:
             case LEFT:
@@ -53,6 +54,7 @@ public class DifficultyRenderHandler {
         }
         OFFSET_X = xOffset * (POSITION_X == 1 ? -1 : 1);
         OFFSET_Y = yOffset * (POSITION_Y == 1 ? -1 : 1);
+        RENDER_IN_CREATIVE = renderInCreative;
     }
 
 
@@ -61,6 +63,10 @@ public class DifficultyRenderHandler {
             return;
 
         ClientPlayerEntity player = minecraft.player;
+
+        if (player.isCreative() && !RENDER_IN_CREATIVE)
+            return;
+
         long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
 
         // Don't bother rendering the difficulty
