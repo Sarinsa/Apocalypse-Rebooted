@@ -57,8 +57,19 @@ public class SeekerFireballEntity extends AbstractFireballEntity {
     @Override
     protected void onHitEntity(EntityRayTraceResult result) {
         Entity entity = result.getEntity();
+        World world = entity.getCommandSenderWorld();
 
-        if (!entity.fireImmune()) {
+        if (entity instanceof SeekerEntity) {
+            boolean enableMobGrief = world.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) || net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(world, this.getEntity());
+            Explosion.Mode mode = enableMobGrief ? Explosion.Mode.DESTROY : Explosion.Mode.NONE;
+
+            if (!world.isClientSide) {
+                world.explode(null, this.getX(), this.getY(), this.getZ(), 2.0F, mode);
+                entity.hurt(DamageSource.fireball(this, this.getOwner()), 1000.0F);
+                this.remove();
+            }
+        }
+        else if (!entity.fireImmune()) {
             Entity owner = this.getOwner();
             int remainingFireTicks = entity.getRemainingFireTicks();
             entity.setSecondsOnFire(5);
