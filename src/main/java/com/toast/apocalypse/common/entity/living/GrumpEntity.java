@@ -247,7 +247,12 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
 
         @Override
         public void start() {
-            this.spawnMonsterFishHook();
+            // Wait a bit before launching the hook, as the grump's
+            // body rotation usually don't get updated before
+            // this AI task is started, resulting in the hook
+            // being launched where the Grump was looking before
+            // targeting a player.
+            this.timeNextHookLaunch = 20;
         }
 
         @Override
