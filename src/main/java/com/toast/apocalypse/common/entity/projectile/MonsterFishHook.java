@@ -216,12 +216,7 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
                 PlayerEntity player = (PlayerEntity) entity;
 
                 if (player.isBlocking()) {
-                    if (player.getCommandSenderWorld().getDifficulty() == Difficulty.HARD) {
-                        player.disableShield(true);
-                    }
-                    else {
-                        this.level.playSound(player, player.blockPosition(), SoundEvents.SHIELD_BLOCK, SoundCategory.PLAYERS, 1.0F, 0.8F + this.level.random.nextFloat() * 0.4F);
-                    }
+                    player.disableShield(true);
                     this.remove();
                     return;
                 }
