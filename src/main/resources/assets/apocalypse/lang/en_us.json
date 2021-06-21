@@ -38,5 +38,10 @@
   "apocalypse.command.difficulty.set_message.multiple": "Set difficulty to %s for %s players",
   "apocalypse.command.argument.max_difficulty.invalid_value": "Value can not be less than -1 or exceed 100 000. -1 equals no limit",
   "apocalypse.command.difficulty.max_message.single": "Set max difficulty to %s for %s",
-  "apocalypse.command.difficulty.max_message.multiple": "Set max difficulty to %s for %s players"
+  "apocalypse.command.difficulty.max_message.multiple": "Set max difficulty to %s for %s players",
+
+  "apocalypse.screen.tooltip.create_world_config": "Apocalypse",
+  "apocalypse.screen.title.create_world_config": "Apocalypse World Settings",
+  "apocalypse.screen.text_field.create_world_config.max_difficulty": "Default Max Difficulty",
+  "apocalypse.screen.text_field.create_world_config.grace_period": "Default Grace Period"
 }

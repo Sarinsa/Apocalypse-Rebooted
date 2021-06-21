@@ -64,12 +64,4 @@ public class NetworkHelper {
     public static void sendEntityVelocityUpdate(@Nonnull ServerPlayerEntity player, Entity entity, Vector3d deltaMovement) {
         PacketHandler.sendToClient(new S2CUpdateEntityVelocity(entity, deltaMovement), player);
     }
-
-    /**
-     * Sends a message from the client to server
-     * to update the mod server config values.
-     */
-    public static void sendServerConfigUpdate(double maxDifficulty, double gracePeriod) {
-        PacketHandler.CHANNEL.sendToServer(new C2SUpdateServerConfigValues(maxDifficulty, gracePeriod));
-    }
 }

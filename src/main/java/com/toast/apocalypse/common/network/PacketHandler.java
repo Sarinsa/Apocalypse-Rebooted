@@ -2,6 +2,7 @@ package com.toast.apocalypse.common.network;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.network.message.*;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.ItemModelGenerator;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -40,7 +41,6 @@ public class PacketHandler {
         registerMessage(S2CUpdatePlayerDifficultyRate.class, S2CUpdatePlayerDifficultyRate::encode, S2CUpdatePlayerDifficultyRate::decode, S2CUpdatePlayerDifficultyRate::handle);
         registerMessage(S2CUpdatePlayerMaxDifficulty.class, S2CUpdatePlayerMaxDifficulty::encode, S2CUpdatePlayerMaxDifficulty::decode, S2CUpdatePlayerMaxDifficulty::handle);
         registerMessage(S2CUpdateEntityVelocity.class, S2CUpdateEntityVelocity::encode, S2CUpdateEntityVelocity::decode, S2CUpdateEntityVelocity::handle);
-        registerMessage(C2SUpdateServerConfigValues.class, C2SUpdateServerConfigValues::encode, C2SUpdateServerConfigValues::decode, C2SUpdateServerConfigValues::handle);
     }
 
     public <MSG> void registerMessage(Class<MSG> messageType, BiConsumer<MSG, PacketBuffer> encoder, Function<PacketBuffer, MSG> decoder, BiConsumer<MSG, Supplier<NetworkEvent.Context>> messageConsumer) {

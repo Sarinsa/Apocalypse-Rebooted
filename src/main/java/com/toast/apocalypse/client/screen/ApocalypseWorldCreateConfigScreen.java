@@ -1,8 +1,8 @@
 package com.toast.apocalypse.client.screen;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.toast.apocalypse.client.screen.widget.DoubleConfigTextField;
-import com.toast.apocalypse.common.network.NetworkHelper;
+import com.toast.apocalypse.client.screen.widget.config.DoubleConfigTextField;
+import com.toast.apocalypse.common.core.config.ServerConfigHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
@@ -36,29 +36,35 @@ public class ApocalypseWorldCreateConfigScreen extends Screen {
     public void init() {
         this.maxDifficultyField = new DoubleConfigTextField(
                 this.font,
-                200.0D,
+                ServerConfigHelper.DESIRED_DEFAULT_MAX_DIFFICULTY,
                 0.0D,
                 (double) (References.MAX_DIFFICULTY_HARD_LIMIT / References.DAY_LENGTH),
-                this.width / 2,
+                this.width / 2 - 30,
                 this.height / 2 - 60,
-                new TranslationTextComponent(References.MAX_DIFFICULTY_CONFIG_FIELD));
+                new TranslationTextComponent(References.MAX_DIFFICULTY_CONFIG_FIELD),
+                null);
 
         this.gracePeriodField = new DoubleConfigTextField(
                 this.font,
-                1.0D,
+                ServerConfigHelper.DESIRED_DEFAULT_GRACE_PERIOD,
                 0.0D,
                 (double) (References.MAX_DIFFICULTY_HARD_LIMIT / References.DAY_LENGTH),
-                this.width / 2,
-                this.height / 2 - 20,
-                new TranslationTextComponent(References.GRACE_PERIOD_CONFIG_FIELD));
+                this.width / 2 - 30,
+                this.height / 2 - 10,
+                new TranslationTextComponent(References.GRACE_PERIOD_CONFIG_FIELD),
+                null);
 
-        this.addButton(new Button(this.width / 2 - 40, this.height / 2 + 40, 70, 20, new TranslationTextComponent("gui.done"), (button) -> {
+        // Done button
+        this.addButton(new Button(this.width / 2 - 75, this.height / 2 + 40, 70, 20, new TranslationTextComponent("gui.done"), (button) -> {
             this.minecraft.setScreen(this.parent);
-            NetworkHelper.sendServerConfigUpdate(this.maxDifficultyField.getDoubleValue(), this.gracePeriodField.getDoubleValue());
+            ServerConfigHelper.updateModServerConfigValues(this.maxDifficultyField.getDoubleValue(), this.gracePeriodField.getDoubleValue());
         }));
-        this.addButton(new Button(this.width / 2 + 40, this.height / 2 + 40, 70, 20, new TranslationTextComponent("gui.cancel"), (button) -> {
+
+        // Cancel button
+        this.addButton(new Button(this.width / 2 + 5, this.height / 2 + 40, 70, 20, new TranslationTextComponent("gui.cancel"), (button) -> {
             this.minecraft.setScreen(this.parent);
         }));
+
         this.children.add(this.maxDifficultyField);
         this.children.add(this.gracePeriodField);
     }

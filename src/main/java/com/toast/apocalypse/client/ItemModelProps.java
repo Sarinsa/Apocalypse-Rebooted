@@ -22,7 +22,6 @@ public class ItemModelProps {
                 if (clientWorld == null && entity.level instanceof ClientWorld) {
                     clientWorld = (ClientWorld)entity.level;
                 }
-
                 if (clientWorld == null) {
                     return 0.0F;
                 }

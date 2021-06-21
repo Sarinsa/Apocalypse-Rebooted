@@ -24,7 +24,7 @@ public class References {
     public static final String MAX_DIFFICULTY_SET_SINGLE = "apocalypse.command.difficulty.max_message.single";
     public static final String MAX_DIFFICULTY_SET_MULTIPLE = "apocalypse.command.difficulty.max_message.multiple";
 
-    public static final String APOCALYPSE_WORLD_CREATE_BUTTON = "apocalypse.screen.button.create_world_config";
+    public static final String APOCALYPSE_WORLD_CREATE_BUTTON = "apocalypse.screen.tooltip.create_world_config";
     public static final String APOCALYPSE_WORLD_CREATE_CONFIG_TITLE = "apocalypse.screen.title.create_world_config";
     public static final String MAX_DIFFICULTY_CONFIG_FIELD = "apocalypse.screen.text_field.create_world_config.max_difficulty";
     public static final String GRACE_PERIOD_CONFIG_FIELD = "apocalypse.screen.text_field.create_world_config.grace_period";

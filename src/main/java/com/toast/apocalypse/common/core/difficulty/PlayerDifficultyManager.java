@@ -49,12 +49,6 @@ public final class PlayerDifficultyManager {
     /** Time until next save */
     private int timeUntilSave = 0;
 
-    /** Used when setting the grace period and default
-     *  max difficulty for new worlds upon world creation.
-     */
-    private double desiredDefaultMaxPlayerDifficulty;
-    private double desiredDefaultGracePeriod;
-
     /** These are updated when the mod config is loaded/reloaded
      *
      *  @see CommonConfigReloadListener#updateInfo()
@@ -72,18 +66,17 @@ public final class PlayerDifficultyManager {
     /** The current running event. */
     private AbstractEvent currentEvent = null;
 
-    /** Used to prevent full moons from constantly happening. */
-    private boolean checkedFullMoon;
-
     /** A map containing each world's player group list. */
     private final HashMap<RegistryKey<World>, List<PlayerGroup>> playerGroups = new HashMap<>();
 
 
-    /** Fetch the server instance update mod server config. */
+    /** Fetch the server instance and update integrated server mod server config. */
     @SubscribeEvent
     public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
         this.server = event.getServer();
-        ServerConfigHelper.updateModServerConfig();
+        if (!server.isDedicatedServer()) {
+            ServerConfigHelper.updateModServerConfig();
+        }
     }
 
     @SubscribeEvent
@@ -110,6 +103,7 @@ public final class PlayerDifficultyManager {
         }
     }
 
+    // Unused
     /**
      * Returns the PlayerGroup in the world closest to the specified entity.
      *
@@ -284,7 +278,6 @@ public final class PlayerDifficultyManager {
         // Starts the full moon event
         if (world.getGameTime() > 0L && this.currentEvent != EventRegister.FULL_MOON) {
             if (isFullMoon(world) && world.isNight()) {
-                this.checkedFullMoon = true;
                 this.startEvent(EventRegister.FULL_MOON);
             }
         }
@@ -360,7 +353,6 @@ public final class PlayerDifficultyManager {
         this.server = null;
         this.timeUntilUpdate = 0;
         this.timeUntilSave = 0;
-        this.checkedFullMoon = false;
         this.playerGroups.clear();
     }
 
