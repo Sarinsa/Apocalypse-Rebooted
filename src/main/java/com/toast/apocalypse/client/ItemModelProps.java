@@ -32,7 +32,7 @@ public class ItemModelProps {
                         moonPhase = clientWorld.getMoonPhase();
                     }
                     else {
-                        moonPhase = clientWorld.random.nextInt(8);
+                        moonPhase = 4;
                     }
                     return (float) moonPhase;
                 }
