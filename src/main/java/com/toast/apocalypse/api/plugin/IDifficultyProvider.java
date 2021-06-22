@@ -1,6 +1,7 @@
 package com.toast.apocalypse.api.plugin;
 
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 
 /**
  * A simple interface that lets modders check
@@ -25,8 +26,8 @@ public interface IDifficultyProvider {
     long getMaxPlayerDifficulty(PlayerEntity player);
 
     /**
-     * @return The ID of the currently running
-     *         event, if any.
+     * @return The ID of the given player's
+     *         currently running event.
      *
      * No event: -1
      *
@@ -34,5 +35,5 @@ public interface IDifficultyProvider {
      *
      * Thunderstorm: 1
      */
-    int currentEventId();
+    int currentEventId(ServerPlayerEntity player);
 }

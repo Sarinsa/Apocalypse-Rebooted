@@ -17,12 +17,6 @@ public class CapabilityAttachEvents {
         if (event.getObject() instanceof PlayerEntity) {
             event.addCapability(Apocalypse.resourceLoc("rain_tick"), new RainTickCapabilityProvider());
             event.addCapability(Apocalypse.resourceLoc("difficulty"), new DifficultyCapabilityProvider());
-        }
-    }
-
-    @SubscribeEvent
-    public void onWorldCapabilityAttach(AttachCapabilitiesEvent<World> event) {
-        if (event.getObject().dimension().equals(World.OVERWORLD)) {
             event.addCapability(Apocalypse.resourceLoc("event_data"), new EventDataCapabilityProvider());
         }
     }

@@ -1,16 +1,14 @@
 package com.toast.apocalypse.common.core.mod_event;
 
-import com.google.gson.JsonIOException;
-import com.toast.apocalypse.common.util.References;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.server.ServerWorld;
 
-public class ThunderstormEvent extends AbstractEvent {
+public class EmptyEvent extends AbstractEvent {
 
-    public ThunderstormEvent(EventType<?> type, ServerPlayerEntity player) {
+    public EmptyEvent(EventType<?> type, ServerPlayerEntity player) {
         super(type, player);
     }
 
@@ -41,11 +39,12 @@ public class ThunderstormEvent extends AbstractEvent {
 
     @Override
     public CompoundNBT write(CompoundNBT data) {
-        return null;
+        data.putInt("EventId", this.getType().getId());
+        return data;
     }
 
     @Override
-    public void read(CompoundNBT data) throws JsonIOException {
+    public void read(CompoundNBT data)  {
 
     }
 }

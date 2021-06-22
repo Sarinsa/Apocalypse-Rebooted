@@ -1,6 +1,5 @@
 package com.toast.apocalypse.common.core.mod_event;
 
-import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import com.toast.apocalypse.common.util.References;
@@ -10,8 +9,6 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.server.ServerWorld;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -31,10 +28,10 @@ public class FullMoonEvent extends AbstractEvent {
 
     /** Time until mobs can start spawning. */
     private int gracePeriod;
-    /** The time until the next time a mob should be spawned for a player */
+    /** The time until the next time a mob should be spawned for the player */
     private int timeUntilNextSpawn;
-    /** A map containing all the full moon mobs that will be spawned for each player */
-    private final HashMap<UUID, HashMap<Class<? extends IFullMoonMob>, Integer>> mobsToSpawn = new HashMap<>();
+    /** A map containing all the full moon mobs that will be spawned for the player */
+    private final HashMap<Class<? extends IFullMoonMob>, Integer> mobsToSpawn = new HashMap<>();
 
     /**
      * Checks if the event should be postponed.
@@ -46,18 +43,13 @@ public class FullMoonEvent extends AbstractEvent {
      */
     private boolean waiting;
 
-    public FullMoonEvent(int id) {
-        super(id);
-    }
-
-    @Override
-    public String getEventStartMessage() {
-        return References.FULL_MOON;
+    public FullMoonEvent(EventType<?> type, ServerPlayerEntity player) {
+        super(type, player);
     }
 
     @Override
     public void onStart(MinecraftServer server) {
-        this.gracePeriod = 500;
+        this.gracePeriod = 2000;
         this.timeUntilNextSpawn = 0;
 
         for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
@@ -125,26 +117,14 @@ public class FullMoonEvent extends AbstractEvent {
 
     }
 
+    private void spawnMob(int mobType) {
+
+    }
+
     @Override
     public CompoundNBT write(CompoundNBT data) {
-        data.putInt("EventId", this.getId());
         data.putInt("GracePeriod", this.gracePeriod);
         data.putInt("TimeNextSpawn", this.timeUntilNextSpawn);
-
-        CompoundNBT playerMobs = new CompoundNBT();
-
-        for (UUID uuid : this.mobsToSpawn.keySet()) {
-            HashMap<Class<? extends IFullMoonMob>, Integer> mobCounts = this.mobsToSpawn.get(uuid);
-            CompoundNBT mobCountTag = new CompoundNBT();
-
-            for (Class<?> clazz : mobCounts.keySet()) {
-                mobCountTag.putInt(clazz.getSimpleName(), mobCounts.get(clazz));
-            }
-            playerMobs.put(uuid.toString(), mobCountTag);
-        }
-        data.put("PlayerMobs", playerMobs);
-
-        Apocalypse.LOGGER.info("Event tag: " + data);
         return data;
     }
 
@@ -152,14 +132,5 @@ public class FullMoonEvent extends AbstractEvent {
     public void read(CompoundNBT data) {
         this.gracePeriod = data.getInt("GracePeriod");
         this.timeUntilNextSpawn = data.getInt("TimeNextSpawn");
-
-        CompoundNBT playerMobs = data.getCompound("PlayerMobs");
-        Collection<UUID> uuids = new ArrayList<>();
-
-        for (String s : playerMobs.getAllKeys()) {
-            uuids.add(UUID.fromString(s));
-        }
-
-        
     }
 }

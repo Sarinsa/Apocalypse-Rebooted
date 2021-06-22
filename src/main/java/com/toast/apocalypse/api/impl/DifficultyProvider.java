@@ -4,6 +4,7 @@ import com.toast.apocalypse.api.plugin.IDifficultyProvider;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 
 public class DifficultyProvider implements IDifficultyProvider {
 
@@ -23,7 +24,7 @@ public class DifficultyProvider implements IDifficultyProvider {
     }
 
     @Override
-    public int currentEventId() {
-        return Apocalypse.INSTANCE.getDifficultyManager().getCurrentEventId();
+    public int currentEventId(ServerPlayerEntity player) {
+        return CapabilityHelper.getEventId(player);
     }
 }

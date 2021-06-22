@@ -3,42 +3,30 @@ package com.toast.apocalypse.common.core.mod_event;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.registries.ForgeRegistryEntry;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.IForgeRegistryEntry;
+
+import javax.annotation.Nullable;
 
 public abstract class AbstractEvent {
 
-    /** The ID for this event, must be unique */
-    private final int id;
+    protected final ServerPlayerEntity player;
+    protected final EventType<?> type;
 
-    public AbstractEvent(int id) {
-        this.id = id;
+    public AbstractEvent(EventType<?> type, ServerPlayerEntity player) {
+        this.type = type;
+        this.player = player;
     }
 
-    /**
-     * @return A ResourceLocation representing
-     *         this event's unique ID.
-     */
-    public final int getId() {
-        return this.id;
-    }
-
-    /**
-     * @return The translation key of the message
-     *         that is sent to players when this
-     *         event starts, which will later be
-     *         parsed to a TranslationTextComponent
-     */
-    public abstract String getEventStartMessage();
-
-    /** Whether the passed event can interrupt this one.
-     *  All events should be able to be interrupted by the full moon event.
-     *
-     * @return True if this event can be interrupted.
-     */
-    public boolean canBeInterrupted(AbstractEvent event) {
-        return event == EventRegister.FULL_MOON;
+    public final EventType<?> getType() {
+        return this.type;
     }
 
     /** Called when the event starts.
@@ -76,5 +64,5 @@ public abstract class AbstractEvent {
      *
      * @param data the tag to read from.
      */
-    public abstract void read(CompoundNBT data) throws JsonIOException;
+    public abstract void read(CompoundNBT data);
 }

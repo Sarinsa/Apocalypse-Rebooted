@@ -3,7 +3,8 @@ package com.toast.apocalypse.common.core.difficulty;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ServerConfigHelper;
 import com.toast.apocalypse.common.core.mod_event.AbstractEvent;
-import com.toast.apocalypse.common.core.mod_event.EventRegister;
+import com.toast.apocalypse.common.core.mod_event.EventRegistry;
+import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.event.CommonConfigReloadListener;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.util.CapabilityHelper;
@@ -19,12 +20,12 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.SleepFinishedTimeEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.config.ConfigTracker;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
@@ -63,13 +64,11 @@ public final class PlayerDifficultyManager {
     /** Server instance */
     private MinecraftServer server;
 
-    /** The current running event. */
-    private AbstractEvent currentEvent = null;
+    private final HashMap<ServerPlayerEntity, AbstractEvent> playerEvents = new HashMap<>();
 
     // Unused
     /** A map containing each world's player group list. */
     private final HashMap<RegistryKey<World>, List<PlayerGroup>> playerGroups = new HashMap<>();
-
 
 
     public static boolean isFullMoon(IWorld world) {
@@ -96,25 +95,35 @@ public final class PlayerDifficultyManager {
 
     @SubscribeEvent
     public void onServerStarted(FMLServerStartedEvent event) {
-        // Would this really ever be anything else?
-        if (this.server.overworld().dimension() == World.OVERWORLD) {
-            this.loadEventData();
-        }
+
     }
 
     @SubscribeEvent
     public void onServerStopping(FMLServerStoppingEvent event) {
+        for (ServerPlayerEntity player : this.server.getPlayerList().getPlayers()) {
+            this.saveEventData(player);
+        }
         this.cleanup();
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
-    public void onPlayerJoinWorld(PlayerEvent.PlayerLoggedInEvent event) {
+    public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (!event.getPlayer().getCommandSenderWorld().isClientSide) {
             ServerPlayerEntity serverPlayer = (ServerPlayerEntity) event.getPlayer();
 
             NetworkHelper.sendUpdatePlayerDifficulty(serverPlayer);
             NetworkHelper.sendUpdatePlayerDifficultyMult(serverPlayer);
             NetworkHelper.sendUpdatePlayerMaxDifficulty(serverPlayer);
+
+            this.loadEventData(serverPlayer);
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (!event.getPlayer().getCommandSenderWorld().isClientSide) {
+            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) event.getPlayer();
+            this.saveEventData(serverPlayer);
         }
     }
 
@@ -147,16 +156,17 @@ public final class PlayerDifficultyManager {
         }
     }
 
-    private void tickPlayerDifficulty(ServerPlayerEntity player) {
+    private void updatePlayer(ServerPlayerEntity player) {
         int playerCount = this.server.getPlayerCount();
         double difficultyMultiplier = CapabilityHelper.getPlayerDifficultyMult(player);
+        long currentDifficulty = CapabilityHelper.getPlayerDifficulty(player);
+        long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
 
         // Apply multiplayer difficulty multiplier, if enabled.
         if (MULTIPLAYER_DIFFICULTY_SCALING) {
             if (playerCount > 1) {
                 difficultyMultiplier = 1.0D + ((playerCount - 1.0D) * MULTIPLAYER_DIFFICULTY_MULT);
-            }
-            else {
+            } else {
                 difficultyMultiplier = 1.0D;
             }
         }
@@ -167,22 +177,16 @@ public final class PlayerDifficultyManager {
                 difficultyMultiplier *= 1.0 + DIMENSION_PENALTY;
             }
         }
-        long currentDifficulty = CapabilityHelper.getPlayerDifficulty(player);
-        long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
-
         boolean maxDifficultyReached = maxDifficulty >= 0 && currentDifficulty >= maxDifficulty;
 
-        if (!maxDifficultyReached && !player.isSpectator() && !player.isCreative()) {
+        if (!maxDifficultyReached && !player.isCreative() || !player.isSpectator()) {
             currentDifficulty += TICKS_PER_UPDATE * difficultyMultiplier;
         }
-
         // Update player difficulty stuff
-        if (!player.getCommandSenderWorld().isClientSide) {
-            CapabilityHelper.setPlayerDifficulty(player, currentDifficulty);
-            CapabilityHelper.setPlayerDifficultyMult(player, difficultyMultiplier);
-            NetworkHelper.sendUpdatePlayerDifficulty(player, currentDifficulty);
-            NetworkHelper.sendUpdatePlayerDifficultyMult(player, difficultyMultiplier);
-        }
+        CapabilityHelper.setPlayerDifficulty(player, currentDifficulty);
+        CapabilityHelper.setPlayerDifficultyMult(player, difficultyMultiplier);
+
+        this.playerEvents.get(player).update(player);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -228,79 +232,57 @@ public final class PlayerDifficultyManager {
 
                 // Update all the players' difficulty
                 for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
-                    this.tickPlayerDifficulty(player);
-                }
-
-                // Update active event
-                if (this.currentEvent != null) {
-                    this.currentEvent.update();
+                    this.updatePlayer(player);
                 }
 
                 // Update each world
                 for (ServerWorld world : server.getAllLevels()) {
-                    this.updateWorld(world);
+                    this.updatePlayerEvent(world);
                 }
             }
 
             // Save event data
             if (++this.timeUntilSave >= TICKS_PER_SAVE) {
                 this.timeUntilSave = 0;
-                this.saveEventData();
-            }
 
-            // TODO: Move to separate event listener
-            // Initialize any spawned entities
-            /*
-            if (!WorldDifficultyManager.ENTITY_STACK.isEmpty()) {
-                int count = 10;
-                EntityLivingBase entity;
-                while (count-- > 0) {
-                    entity = WorldDifficultyManager.ENTITY_STACK.pollFirst();
-                    if (entity == null) {
-                        break;
-                    }
-                    EventHandler.initializeEntity(entity);
-                    entity.getEntityData().setByte(WorldDifficultyManager.TAG_INIT, (byte) 1);
+                for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
+                    this.saveEventData(player);
                 }
             }
-
-             */
         }
     }
 
     /**
-     * Updates the world and all players and the event in it. Handles difficulty changes.
+     * Loops through all players in the given world
+     * and updates their event status.
      *
-     * @param world The world to update.
+     * @param world The world being updated.
      */
-    public void updateWorld(ServerWorld world) {
+    public void updatePlayerEvent(ServerWorld world) {
         if (world == null)
             return;
 
-        // Starts the full moon event
-        if (world.getGameTime() > 0L && this.currentEvent != EventRegister.FULL_MOON) {
-            if (isFullMoon(world) && world.isNight()) {
-                this.startEvent(EventRegister.FULL_MOON);
+        for (ServerPlayerEntity player : world.players()) {
+            AbstractEvent currentEvent = this.playerEvents.get(player);
+
+            // Starts the full moon event
+            if (world.getGameTime() > 0L && currentEvent.getType() != EventRegistry.FULL_MOON) {
+                if (isFullMoon(world) && world.isNight()) {
+                    this.startEvent(player, EventRegistry.FULL_MOON);
+                }
             }
-        }
 
-        // Stop the full moon event when it becomes day time.
-        if (world.isDay() && this.currentEvent == EventRegister.FULL_MOON) {
-            this.endEvent();
-        }
-
-        // Starts the thunderstorm event
-        if (world.isThundering()) {
-            this.startEvent(EventRegister.THUNDER_STORM);
-        }
-
-        // Update event and players
-        if (this.currentEvent != null) {
-            this.currentEvent.update(world);
-
-            for (PlayerEntity playerEntity : world.players()) {
-                this.currentEvent.update(playerEntity);
+            // Stop the full moon event when it becomes day time.
+            if (world.isDay() && currentEvent.getType() == EventRegistry.FULL_MOON) {
+                this.endEvent(player);
             }
+
+            // Starts the thunderstorm event
+            if (world.isThundering() && currentEvent.getType() != EventRegistry.THUNDERSTORM) {
+                this.startEvent(player, EventRegistry.THUNDERSTORM);
+            }
+            currentEvent.update(world);
+            currentEvent.update(player);
         }
     }
 
@@ -309,85 +291,87 @@ public final class PlayerDifficultyManager {
         Apocalypse.LOGGER.log(level, "[{}] " + message, PlayerDifficultyManager.class.getSimpleName());
     }
 
+    // Unused
     public Iterable<PlayerGroup> getPlayerGroups(World world) {
         return this.playerGroups.get(world.dimension());
     }
 
 
-    /** Starts an event, if possible.
-     * @param event The event to start.
+    /** Starts an event for the given player, if possible.
+     *
+     * @param player The player to start the event for.
+     * @param eventType The event type for the event to start.
      */
-    public void startEvent(AbstractEvent event) {
-        if (event == null)
+    public void startEvent(ServerPlayerEntity player, EventType<?> eventType) {
+        if (eventType == null)
             return;
 
-        if (this.currentEvent != null) {
-            if (!this.currentEvent.canBeInterrupted(event))
-                return;
-            this.currentEvent.onEnd();
-        }
-        event.onStart(this.server);
-        Iterable<ServerWorld> worlds = this.server.getAllLevels();
+        AbstractEvent currentEvent = this.playerEvents.get(player);
 
-        for (ServerWorld world : worlds) {
-            if (world != null) {
-                for (PlayerEntity player : world.players()) {
-                    player.displayClientMessage(new TranslationTextComponent(event.getEventStartMessage()), true);
-                }
-            }
+        if (currentEvent != null) {
+            if (!currentEvent.getType().canBeInterrupted())
+                return;
+            currentEvent.onEnd();
         }
-        this.currentEvent = event;
+        AbstractEvent newEvent = eventType.createEvent(player);
+        newEvent.onStart(this.server);
+        this.playerEvents.put(player, newEvent);
+
+        if (eventType.getEventStartMessage() != null) {
+            player.displayClientMessage(new TranslationTextComponent(eventType.getEventStartMessage()), true);
+        }
+    }
+
+    public int getEventId(ServerPlayerEntity player) {
+        return this.playerEvents.containsKey(player) ? this.playerEvents.get(player).getType().getId() : -1;
     }
 
     /** Ends the current active event, if any. */
-    public void endEvent() {
-        this.currentEvent.onEnd();
-        this.currentEvent = null;
-    }
-
-    public int getCurrentEventId() {
-        return this.currentEvent == null ? -1 : this.currentEvent.getId();
+    public void endEvent(ServerPlayerEntity player) {
+        this.playerEvents.get(player).onEnd();
+        this.playerEvents.put(player, EventRegistry.NONE.createEvent(player));
     }
 
     /** Cleans up the references to things in a server when the server stops. */
     public void cleanup() {
-        this.saveEventData();
         this.server = null;
         this.timeUntilUpdate = 0;
         this.timeUntilSave = 0;
         this.playerGroups.clear();
+        this.playerEvents.clear();
     }
 
-    /** Loads the saved event, if any */
-    public void loadEventData() {
+    /** Loads the given player's event data. */
+    public void loadEventData(ServerPlayerEntity player) {
         try {
-            World world = this.server.overworld();
-            CompoundNBT eventData = CapabilityHelper.getEventData(world);
+            AbstractEvent currentEvent = EventRegistry.NONE.createEvent(player);
+            CompoundNBT eventData = CapabilityHelper.getEventData(player);
 
-            if (eventData != null && eventData.contains("EventId", 3)) {
-                this.currentEvent = EventRegister.EVENTS.get(eventData.getInt("EventId"));
-                this.currentEvent.read(eventData);
+            if (eventData != null && eventData.contains("EventId", Constants.NBT.TAG_INT)) {
+                currentEvent = EventRegistry.getFromId(eventData.getInt("EventId")).createEvent(player);
+                currentEvent.read(eventData);
             }
+            this.playerEvents.put(player, currentEvent);
         }
         catch (Exception e) {
-            log(Level.ERROR, "Failed to read world save data! That shouldn't happen.");
+            log(Level.ERROR, "Failed to read world save data for player " + player.getName() + ". That shouldn't happen.");
             e.printStackTrace();
         }
     }
 
-    /** Saves the data of the current event, if any */
-    public void saveEventData() {
+    /** Saves the data of the player's current event. */
+    public void saveEventData(ServerPlayerEntity player) {
         try {
-            World world = this.server.overworld();
+            AbstractEvent currentEvent = this.playerEvents.get(player);
             CompoundNBT eventData = new CompoundNBT();
 
-            if (this.currentEvent != null) {
-                eventData = this.currentEvent.write(eventData);
+            if (currentEvent != null) {
+                eventData = currentEvent.write(eventData);
             }
-            CapabilityHelper.setEventData(world, eventData);
+            CapabilityHelper.setEventData(player, eventData);
         }
         catch (Exception e) {
-            log(Level.ERROR, "Failed to write world save data! Not cool beans.");
+            log(Level.ERROR, "Failed to write player event data for player " + player.getName() + "! Not cool beans.");
             e.printStackTrace();
         }
     }

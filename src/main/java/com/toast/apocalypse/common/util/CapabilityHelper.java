@@ -69,17 +69,15 @@ public class CapabilityHelper {
     //
     // EVENT DATA
     //
-    public static void setEventData(@Nonnull World world, CompoundNBT data) {
-        if (!world.dimension().equals(World.OVERWORLD)) {
-            throw new IllegalArgumentException("Cannot save event data to other worlds than the overworld");
-        }
-        world.getCapability(ApocalypseCapabilities.EVENT_DATA_CAPABILITY).orElse(ApocalypseCapabilities.EVENT_DATA_CAPABILITY.getDefaultInstance()).setEventData(data);
+    public static void setEventData(@Nonnull ServerPlayerEntity player, CompoundNBT data) {
+        player.getCapability(ApocalypseCapabilities.EVENT_DATA_CAPABILITY).orElse(ApocalypseCapabilities.EVENT_DATA_CAPABILITY.getDefaultInstance()).setEventData(data);
     }
 
-    public static CompoundNBT getEventData(@Nonnull World world) {
-        if (!world.dimension().equals(World.OVERWORLD)) {
-            throw new IllegalArgumentException("Cannot fetch event data from other worlds than the overworld");
-        }
-        return world.getCapability(ApocalypseCapabilities.EVENT_DATA_CAPABILITY).orElse(ApocalypseCapabilities.EVENT_DATA_CAPABILITY.getDefaultInstance()).getEventData();
+    public static CompoundNBT getEventData(@Nonnull ServerPlayerEntity player) {
+        return player.getCapability(ApocalypseCapabilities.EVENT_DATA_CAPABILITY).orElse(ApocalypseCapabilities.EVENT_DATA_CAPABILITY.getDefaultInstance()).getEventData();
+    }
+
+    public static int getEventId(@Nonnull ServerPlayerEntity player) {
+        return Apocalypse.INSTANCE.getDifficultyManager().getEventId(player);
     }
 }

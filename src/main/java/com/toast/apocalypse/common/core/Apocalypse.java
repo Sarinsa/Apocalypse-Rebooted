@@ -13,7 +13,7 @@ import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.core.config.ApocalypseServerConfig;
 import com.toast.apocalypse.common.core.difficulty.MobDifficultyHandler;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
-import com.toast.apocalypse.common.core.mod_event.EventRegister;
+import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.event.CapabilityAttachEvents;
 import com.toast.apocalypse.common.event.EntityEvents;
 import com.toast.apocalypse.common.event.PlayerEvents;
@@ -63,7 +63,7 @@ public class Apocalypse {
         INSTANCE = this;
 
         ApocalypseEntities.initTypes();
-        EventRegister.init();
+        EventRegistry.init();
 
         this.packetHandler.registerMessages();
 
