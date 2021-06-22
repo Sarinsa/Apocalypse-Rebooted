@@ -4,6 +4,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.monster.GhastEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
@@ -12,10 +13,20 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
+
 public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements IFullMoonMob {
+
+    protected PlayerEntity playerTarget;
 
     public AbstractFullMoonGhastEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
+    }
+
+    @Nullable
+    @Override
+    public PlayerEntity getPlayerTarget() {
+        return this.playerTarget;
     }
 
     /**

@@ -50,12 +50,11 @@ public class ApocalypseCommonConfig {
         private final ForgeConfigSpec.BooleanValue averageGroupDifficulty;
 
         // Full moon stuff
-        private final ForgeConfigSpec.DoubleValue fullMoonSiegeChance;
         private final ForgeConfigSpec.DoubleValue difficultyUntilNextIncrease;
         private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.DoubleValue> spawnWeights = new HashMap<>();
         private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.LongValue> moonMobStartDifficulties = new HashMap<>();
         private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.DoubleValue> moonMobAdditionalCount = new HashMap<>();
-        private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.DoubleValue> moonMobMinCount = new HashMap<>();
+        private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.IntValue> moonMobMinCount = new HashMap<>();
 
         // Attributes and potions
         private final ForgeConfigSpec.ConfigValue<List<? extends String>> healthBlacklist;
@@ -128,8 +127,6 @@ public class ApocalypseCommonConfig {
 
             configBuilder.comment("This section revolves around everything related to the full moon sieges.");
             configBuilder.push("full_moon");
-            this.fullMoonSiegeChance = configBuilder.comment("The chance for a full moon to trigger a full moon siege event. Default value is 1.0 (100% chance)")
-                    .defineInRange("fullMoonSiegeChance", 1.0, 0.0, 1.0);
 
             this.difficultyUntilNextIncrease = configBuilder.comment("How many levels of difficulty must pass before the additional full moon mob counts increases. For example, a value of 30.5 will increase the number of full moon mobs spawning during sieges for every 30.5 levels of difficulty passed.")
                     .defineInRange("difficultyUntilNextIncrease", 40.0D, 0.1D, 100000.0D);
@@ -163,11 +160,11 @@ public class ApocalypseCommonConfig {
 
             configBuilder.comment("The minimum amount of a specific full moon mob that can spawn during a full moon siege.");
             configBuilder.push("min_spawn_count");
-            createMobMinCount(BreecherEntity.class, "breecher", 4.0D, configBuilder);
-            createMobMinCount(GhostEntity.class, "ghost", 4.0D, configBuilder);
-            createMobMinCount(DestroyerEntity.class, "destroyer", 1.0D, configBuilder);
-            createMobMinCount(SeekerEntity.class, "seeker", 1.0D, configBuilder);
-            createMobMinCount(GrumpEntity.class, "grump", 1.5D, configBuilder);
+            createMobMinCount(BreecherEntity.class, "breecher", 4, configBuilder);
+            createMobMinCount(GhostEntity.class, "ghost", 4, configBuilder);
+            createMobMinCount(DestroyerEntity.class, "destroyer", 1, configBuilder);
+            createMobMinCount(SeekerEntity.class, "seeker", 1, configBuilder);
+            createMobMinCount(GrumpEntity.class, "grump", 2, configBuilder);
             configBuilder.pop();
             configBuilder.pop();
 
@@ -324,10 +321,6 @@ public class ApocalypseCommonConfig {
         //
         // FULL MOON
         //
-        public double getFullMoonSiegeChance() {
-            return this.fullMoonSiegeChance.get();
-        }
-
         public double getDifficultyUntilNextIncrease() {
             return this.difficultyUntilNextIncrease.get();
         }
@@ -344,8 +337,8 @@ public class ApocalypseCommonConfig {
             return this.moonMobAdditionalCount.containsKey(entityClass) ? this.moonMobAdditionalCount.get(entityClass).get() : 0.0D;
         }
 
-        public double getMoonMobMinCount(Class<? extends IFullMoonMob> entityClass) {
-            return this.moonMobMinCount.containsKey(entityClass) ? this.moonMobMinCount.get(entityClass).get() : 0.0D;
+        public int getMoonMobMinCount(Class<? extends IFullMoonMob> entityClass) {
+            return this.moonMobMinCount.containsKey(entityClass) ? this.moonMobMinCount.get(entityClass).get() : 0;
         }
 
 
@@ -492,7 +485,7 @@ public class ApocalypseCommonConfig {
             this.moonMobAdditionalCount.put(entityClass, configBuilder.defineInRange(name, defaultAdditional, 0, 100));
         }
 
-        private void createMobMinCount(Class<? extends IFullMoonMob> entityClass, String name, double defaultMin, ForgeConfigSpec.Builder configBuilder) {
+        private void createMobMinCount(Class<? extends IFullMoonMob> entityClass, String name, int defaultMin, ForgeConfigSpec.Builder configBuilder) {
             this.moonMobMinCount.put(entityClass, configBuilder.defineInRange(name, defaultMin, 0, 100));
         }
     }

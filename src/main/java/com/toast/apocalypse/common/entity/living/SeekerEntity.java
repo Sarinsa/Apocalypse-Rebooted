@@ -6,6 +6,7 @@ import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
+import com.toast.apocalypse.common.register.ApocalypseEntities;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -57,6 +58,11 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
     public SeekerEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
         this.xpReward = 5;
+    }
+
+    public SeekerEntity(World world, PlayerEntity playerTarget) {
+        super(ApocalypseEntities.SEEKER.get(), world);
+        this.playerTarget = playerTarget;
     }
 
     public static AttributeModifierMap.MutableAttribute createSeekerAttributes() {
@@ -143,6 +149,11 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
             this.explosionPower = 0;
         }
         return data;
+    }
+
+    @Override
+    public void setPlayerTarget(PlayerEntity playerTarget) {
+        this.playerTarget = playerTarget;
     }
 
     private static class SeekerNearestAttackableTargetGoal<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {

@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.entity.living;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
+import com.toast.apocalypse.common.register.ApocalypseEntities;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -39,6 +40,11 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
         this.xpReward = 5;
     }
 
+    public DestroyerEntity(World world, PlayerEntity playerTarget) {
+        super(ApocalypseEntities.DESTROYER.get(), world);
+        this.playerTarget = playerTarget;
+    }
+
     public static AttributeModifierMap.MutableAttribute createDestroyerAttributes() {
         return MobEntity.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 12.0D)
@@ -52,7 +58,6 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
         this.goalSelector.addGoal(1, new DestroyerEntity.RandomOrRelativeToTargetFlyGoal(this));
         this.targetSelector.addGoal(0, new DestroyerEntity.DestroyerNearestAttackableTargetGoal<>(this, PlayerEntity.class));
         this.targetSelector.addGoal(1, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
-
     }
 
     public static boolean checkDestroyerSpawnRules(EntityType<? extends DestroyerEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
@@ -109,6 +114,11 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
             this.explosionPower = 0;
         }
         return data;
+    }
+
+    @Override
+    public void setPlayerTarget(PlayerEntity playerTarget) {
+        this.playerTarget = playerTarget;
     }
 
     private static class DestroyerNearestAttackableTargetGoal<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {

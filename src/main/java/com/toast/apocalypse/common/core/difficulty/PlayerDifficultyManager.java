@@ -2,7 +2,7 @@ package com.toast.apocalypse.common.core.difficulty;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ServerConfigHelper;
-import com.toast.apocalypse.common.core.mod_event.AbstractEvent;
+import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
 import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.event.CommonConfigReloadListener;
@@ -95,9 +95,10 @@ public final class PlayerDifficultyManager {
 
     @SubscribeEvent
     public void onServerStarted(FMLServerStartedEvent event) {
-
+        // :)
     }
 
+    /** Clean up references and save player event data */
     @SubscribeEvent
     public void onServerStopping(FMLServerStoppingEvent event) {
         for (ServerPlayerEntity player : this.server.getPlayerList().getPlayers()) {
@@ -124,6 +125,7 @@ public final class PlayerDifficultyManager {
         if (!event.getPlayer().getCommandSenderWorld().isClientSide) {
             ServerPlayerEntity serverPlayer = (ServerPlayerEntity) event.getPlayer();
             this.saveEventData(serverPlayer);
+            this.playerEvents.get(serverPlayer).stop();
         }
     }
 
@@ -265,21 +267,23 @@ public final class PlayerDifficultyManager {
         for (ServerPlayerEntity player : world.players()) {
             AbstractEvent currentEvent = this.playerEvents.get(player);
 
-            // Starts the full moon event
-            if (world.getGameTime() > 0L && currentEvent.getType() != EventRegistry.FULL_MOON) {
-                if (isFullMoon(world) && world.isNight()) {
-                    this.startEvent(player, EventRegistry.FULL_MOON);
+            if (CapabilityHelper.getPlayerDifficulty(player) > 0) {
+                // Starts the full moon event
+                if (world.getGameTime() > 0L && currentEvent.getType() != EventRegistry.FULL_MOON) {
+                    if (isFullMoon(world) && world.isNight()) {
+                        this.startEvent(player, EventRegistry.FULL_MOON);
+                    }
                 }
-            }
 
-            // Stop the full moon event when it becomes day time.
-            if (world.isDay() && currentEvent.getType() == EventRegistry.FULL_MOON) {
-                this.endEvent(player);
-            }
+                // Stop the full moon event when it becomes day time.
+                if (world.isDay() && currentEvent.getType() == EventRegistry.FULL_MOON) {
+                    this.endEvent(player);
+                }
 
-            // Starts the thunderstorm event
-            if (world.isThundering() && currentEvent.getType() != EventRegistry.THUNDERSTORM) {
-                this.startEvent(player, EventRegistry.THUNDERSTORM);
+                // Starts the thunderstorm event
+                if (world.isThundering() && currentEvent.getType() != EventRegistry.THUNDERSTORM) {
+                    this.startEvent(player, EventRegistry.THUNDERSTORM);
+                }
             }
             currentEvent.update(world);
             currentEvent.update(player);

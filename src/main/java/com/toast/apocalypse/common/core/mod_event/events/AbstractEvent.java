@@ -1,19 +1,11 @@
-package com.toast.apocalypse.common.core.mod_event;
+package com.toast.apocalypse.common.core.mod_event.events;
 
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonObject;
+import com.toast.apocalypse.common.core.mod_event.EventType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.registries.ForgeRegistryEntry;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
-
-import javax.annotation.Nullable;
 
 public abstract class AbstractEvent {
 
@@ -34,9 +26,6 @@ public abstract class AbstractEvent {
      */
     public abstract void onStart(MinecraftServer server);
 
-    /** Called every 5 ticks to update the event. */
-    public abstract void update();
-
     /** Called every 5 ticks for each world to update the event.
      *
      * @param world The world to update for this event.
@@ -52,17 +41,27 @@ public abstract class AbstractEvent {
     /** Called when the event ends. */
     public abstract void onEnd();
 
+    /** Called when the player disconnects
+     *  before the event should be over.
+     */
+    public abstract void stop();
+
     /**
      * Saves this event.
      *
      * @param data The tag to write to.
      */
-    public abstract CompoundNBT write(CompoundNBT data);
+    public CompoundNBT write(CompoundNBT data) {
+        data.putInt("EventId", this.getType().getId());
+        return data;
+    }
 
     /**
      * Loads this event.
      *
      * @param data the tag to read from.
      */
-    public abstract void read(CompoundNBT data);
+    public void read(CompoundNBT data) {
+
+    }
 }

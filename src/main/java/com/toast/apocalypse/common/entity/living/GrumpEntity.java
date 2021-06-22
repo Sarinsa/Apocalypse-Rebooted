@@ -4,6 +4,7 @@ import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
+import com.toast.apocalypse.common.register.ApocalypseEntities;
 import com.toast.apocalypse.common.register.ApocalypseItems;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -30,6 +31,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -53,6 +55,11 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
     public GrumpEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
         this.xpReward = 3;
+    }
+
+    public GrumpEntity(World world, PlayerEntity playerTarget) {
+        super(ApocalypseEntities.GRUMP.get(), world);
+        this.playerTarget = playerTarget;
     }
 
     public static AttributeModifierMap.MutableAttribute createGrumpAttributes() {
@@ -131,6 +138,17 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
         spawnData = super.finalizeSpawn(serverWorld, difficultyInstance, spawnReason, spawnData, compoundNBT);
         this.populateDefaultEquipmentSlots(difficultyInstance);
         return spawnData;
+    }
+
+    @Nullable
+    @Override
+    public PlayerEntity getPlayerTarget() {
+        return this.playerTarget;
+    }
+
+    @Override
+    public void setPlayerTarget(PlayerEntity playerTarget) {
+        this.playerTarget = playerTarget;
     }
 
     /** Copied from ghast */

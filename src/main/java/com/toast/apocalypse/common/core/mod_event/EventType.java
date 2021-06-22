@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.core.mod_event;
 
+import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
 import net.minecraft.entity.player.ServerPlayerEntity;
 
 public class EventType<T extends AbstractEvent> {
@@ -41,7 +42,7 @@ public class EventType<T extends AbstractEvent> {
      * @return True if this event can be interrupted.
      */
     public final boolean canBeInterrupted() {
-        return false;
+        return this.canBeInterrupted;
     }
 
     public interface IEventFactory<T> {

@@ -69,6 +69,7 @@ public class MobDifficultyHandler {
         long difficulty = PlayerDifficultyManager.getNearestPlayerDifficulty(world, spawnedEntity);
         boolean fullMoon = PlayerDifficultyManager.isFullMoon(world) && world.isNight();
 
+        // Don't do anything if the player is still on grace period.
         if (difficulty <= 0)
             return;
 

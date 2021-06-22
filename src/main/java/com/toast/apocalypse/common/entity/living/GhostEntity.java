@@ -2,6 +2,7 @@ package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
+import com.toast.apocalypse.common.register.ApocalypseEntities;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -31,6 +32,7 @@ import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeMod;
 
+import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.Random;
 
@@ -42,13 +44,21 @@ import java.util.Random;
  */
 public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
+    /** The constant player target, if this mob was spawned by the full moon event */
+    private PlayerEntity playerTarget;
     /** If the ghost should move away from it's target in a random direction */
     private boolean isManeuvering;
 
     public GhostEntity(EntityType<? extends FlyingEntity> entityType, World world) {
         super(entityType, world);
+        this.playerTarget = null;
         this.moveControl = new GhostMovementController<>(this);
         this.xpReward = 3;
+    }
+
+    public GhostEntity(World world, PlayerEntity target) {
+        super(ApocalypseEntities.GHOST.get(), world);
+        this.playerTarget = target;
     }
 
     public static AttributeModifierMap.MutableAttribute createGhostAttributes() {
@@ -208,6 +218,17 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         this.noPhysics = true;
         super.tick();
         this.noPhysics = false;
+    }
+
+    @Nullable
+    @Override
+    public PlayerEntity getPlayerTarget() {
+        return this.playerTarget;
+    }
+
+    @Override
+    public void setPlayerTarget(PlayerEntity playerTarget) {
+        this.playerTarget = playerTarget;
     }
 
     private static class GhostMovementController<T extends GhostEntity> extends MovementController {

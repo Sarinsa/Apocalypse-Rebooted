@@ -43,11 +43,11 @@ public class ApocalypseEntities {
      * Probably better ways of doing this, but it works.
      */
     public static void initTypes() {
-        GHOST_TYPE = create("ghost", EntityType.Builder.of(GhostEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.95F));
-        DESTROYER_TYPE = create("destroyer", EntityType.Builder.of(DestroyerEntity::new, EntityClassification.MONSTER).sized(4.5F, 4.5F).clientTrackingRange(10).fireImmune());
-        SEEKER_TYPE = create("seeker", EntityType.Builder.of(SeekerEntity::new, EntityClassification.MONSTER).sized(4.5F, 4.5F).clientTrackingRange(10).fireImmune());
-        GRUMP_TYPE = create("grump", EntityType.Builder.of(GrumpEntity::new, EntityClassification.MONSTER).sized(1.0F, 1.0F));
-        BREECHER_TYPE = create("breecher", EntityType.Builder.of(BreecherEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.7F).clientTrackingRange(8));
+        GHOST_TYPE = create("ghost", EntityType.Builder.<GhostEntity>of(GhostEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.95F));
+        DESTROYER_TYPE = create("destroyer", EntityType.Builder.<DestroyerEntity>of(DestroyerEntity::new, EntityClassification.MONSTER).sized(4.5F, 4.5F).clientTrackingRange(10).fireImmune());
+        SEEKER_TYPE = create("seeker", EntityType.Builder.<SeekerEntity>of(SeekerEntity::new, EntityClassification.MONSTER).sized(4.5F, 4.5F).clientTrackingRange(10).fireImmune());
+        GRUMP_TYPE = create("grump", EntityType.Builder.<GrumpEntity>of(GrumpEntity::new, EntityClassification.MONSTER).sized(1.0F, 1.0F));
+        BREECHER_TYPE = create("breecher", EntityType.Builder.<BreecherEntity>of(BreecherEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.7F).clientTrackingRange(8));
     }
 
 
