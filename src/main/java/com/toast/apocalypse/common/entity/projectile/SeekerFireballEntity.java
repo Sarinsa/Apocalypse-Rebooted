@@ -64,8 +64,8 @@ public class SeekerFireballEntity extends AbstractFireballEntity {
             Explosion.Mode mode = enableMobGrief ? Explosion.Mode.DESTROY : Explosion.Mode.NONE;
 
             if (!world.isClientSide) {
-                world.explode(null, this.getX(), this.getY(), this.getZ(), 2.0F, mode);
                 entity.hurt(DamageSource.fireball(this, this.getOwner()), 1000.0F);
+                world.explode(null, this.getX(), this.getY(), this.getZ(), 2.0F, mode);
                 this.remove();
             }
         }
