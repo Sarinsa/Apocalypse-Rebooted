@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.core.mod_event.events;
 
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.entity.living.*;
 import com.toast.apocalypse.common.util.CapabilityHelper;
@@ -13,6 +14,7 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.event.world.NoteBlockEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -89,10 +91,10 @@ public class FullMoonEvent extends AbstractEvent {
     @Override
     public void update(ServerWorld world) {
         if (this.gracePeriod > 0) {
-            --this.gracePeriod;
+            this.gracePeriod -= PlayerDifficultyManager.TICKS_PER_UPDATE;
         }
         if (this.timeUntilNextSpawn > 0) {
-            --timeUntilNextSpawn;
+            timeUntilNextSpawn -= PlayerDifficultyManager.TICKS_PER_UPDATE;
         }
 
         if (this.canSpawn()) {
