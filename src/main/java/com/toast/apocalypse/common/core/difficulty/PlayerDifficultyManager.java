@@ -358,7 +358,7 @@ public final class PlayerDifficultyManager {
             this.playerEvents.put(player, currentEvent);
         }
         catch (Exception e) {
-            log(Level.ERROR, "Failed to read world save data for player " + player.getName() + ". That shouldn't happen.");
+            log(Level.ERROR, "Failed to read world save data for player " + player.getName().getString() + ". That shouldn't happen.");
             e.printStackTrace();
         }
     }
@@ -375,7 +375,7 @@ public final class PlayerDifficultyManager {
             CapabilityHelper.setEventData(player, eventData);
         }
         catch (Exception e) {
-            log(Level.ERROR, "Failed to write player event data for player " + player.getName() + "! Not cool beans.");
+            log(Level.ERROR, "Failed to write player event data for player " + player.getName().getString() + "! Not cool beans.");
             e.printStackTrace();
         }
     }
