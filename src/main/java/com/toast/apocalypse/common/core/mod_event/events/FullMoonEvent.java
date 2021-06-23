@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.core.mod_event.events;
 
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.entity.living.*;
 import com.toast.apocalypse.common.util.CapabilityHelper;
@@ -87,6 +88,9 @@ public class FullMoonEvent extends AbstractEvent {
 
     @Override
     public void update(ServerWorld world) {
+        if (this.gracePeriod > 0) {
+            --this.gracePeriod;
+        }
         if (this.timeUntilNextSpawn > 0) {
             --timeUntilNextSpawn;
         }
@@ -128,11 +132,18 @@ public class FullMoonEvent extends AbstractEvent {
     }
 
     private boolean canSpawn() {
-        return this.gracePeriod <= 0 && this.timeUntilNextSpawn <= 0 && !this.mobsToSpawn.isEmpty();
+        boolean canSpawn = this.gracePeriod <= 0 && this.timeUntilNextSpawn <= 0 && !this.mobsToSpawn.isEmpty();
+        Apocalypse.LOGGER.info("Can spawn: " + canSpawn);
+        return canSpawn;
     }
 
     private void calculateMobs(long difficulty) {
         double effectiveDifficulty;
+        this.mobsToSpawn.put(GHOST_ID, 0);
+        this.mobsToSpawn.put(BREECHER_ID, 0);
+        this.mobsToSpawn.put(GRUMP_ID, 0);
+        this.mobsToSpawn.put(SEEKER_ID, 0);
+        this.mobsToSpawn.put(DESTROYER_ID, 0);
 
         if (GHOST_START >= 0L && GHOST_START <= difficulty) {
             effectiveDifficulty = (double) (difficulty - GHOST_START) / MOB_COUNT_TIME_SPAN;
@@ -202,11 +213,11 @@ public class FullMoonEvent extends AbstractEvent {
         data.putInt("GracePeriod", this.gracePeriod);
 
         CompoundNBT mobsToSpawn = new CompoundNBT();
-        mobsToSpawn.putInt("Ghost", this.mobsToSpawn.get(GHOST_ID));
-        mobsToSpawn.putInt("Breecher", this.mobsToSpawn.get(BREECHER_ID));
-        mobsToSpawn.putInt("Grump", this.mobsToSpawn.get(GRUMP_ID));
-        mobsToSpawn.putInt("Seeker", this.mobsToSpawn.get(SEEKER_ID));
-        mobsToSpawn.putInt("Destroyer", this.mobsToSpawn.get(DESTROYER_ID));
+        mobsToSpawn.putInt("Ghost", this.mobsToSpawn.getOrDefault(GHOST_ID, 0));
+        mobsToSpawn.putInt("Breecher", this.mobsToSpawn.getOrDefault(BREECHER_ID, 0));
+        mobsToSpawn.putInt("Grump", this.mobsToSpawn.getOrDefault(GRUMP_ID, 0));
+        mobsToSpawn.putInt("Seeker", this.mobsToSpawn.getOrDefault(SEEKER_ID, 0));
+        mobsToSpawn.putInt("Destroyer", this.mobsToSpawn.getOrDefault(DESTROYER_ID, 0));
 
         CompoundNBT currentMobs = new CompoundNBT();
         int id = 0;
