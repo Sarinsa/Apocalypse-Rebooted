@@ -53,21 +53,6 @@ public class BreecherEntity extends CreeperEntity implements IFullMoonMob {
         }
     }
 
-    @Override
-    public void addAdditionalSaveData(CompoundNBT compound) {
-        super.addAdditionalSaveData(compound);
-        this.writePlayerTargetData(compound);
-    }
-
-    @Override
-    public void readAdditionalSaveData(CompoundNBT compound) {
-        super.readAdditionalSaveData(compound);
-
-        if (!this.level.isClientSide) {
-            this.readPlayerTargetData(compound, (ServerWorld) this.level);
-        }
-    }
-
     /** @return True if this breecher should explode. */
     public boolean shouldExplode() {
         if (this.getTarget() != null && this.navigation.getPath() != null) {

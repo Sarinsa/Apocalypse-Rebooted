@@ -16,19 +16,4 @@ public interface IFullMoonMob {
     PlayerEntity getPlayerTarget();
 
     void setPlayerTarget(PlayerEntity playerTarget);
-
-    default void writePlayerTargetData(CompoundNBT compound) {
-        compound.putUUID("PlayerTargetUUID", this.getPlayerTarget() == null ? UUID.fromString("") : this.getPlayerTarget().getUUID());
-    }
-
-    default void readPlayerTargetData(CompoundNBT compound, ServerWorld world) {
-        if (compound.contains("PlayerTargetUUID")) {
-            UUID uuid = compound.getUUID("PlayerTargetUUID");
-            ServerPlayerEntity player = world.getServer().getPlayerList().getPlayer(uuid);
-
-            if (player != null) {
-                this.setPlayerTarget(player);
-            }
-        }
-    }
 }

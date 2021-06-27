@@ -3,7 +3,7 @@ package com.toast.apocalypse.common.core.mod_event.events;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
-import com.toast.apocalypse.common.entity.living.*;
+import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
@@ -12,30 +12,20 @@ import net.minecraft.entity.EntitySpawnPlacementRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.monster.CreeperEntity;
-import net.minecraft.entity.passive.CowEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.gen.Heightmap;
-import net.minecraft.world.server.ChunkManager;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.spawner.WanderingTraderSpawner;
 import net.minecraft.world.spawner.WorldEntitySpawner;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.ChunkCoordComparator;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.world.NoteBlockEvent;
-import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 
 /**
  * The full moon event. This event can occur every 8 days in game and will interrupt any other event and can not be interrupted
@@ -107,6 +97,8 @@ public final class FullMoonEvent extends AbstractEvent {
         this.calculateMobs(difficulty);
         this.calculateSpawnTime();
         this.gracePeriod = MAX_GRACE_PERIOD;
+
+        this.mobsToSpawn.forEach((id, count) -> Apocalypse.LOGGER.info(id + ": " + count));
     }
 
     @Override
@@ -133,7 +125,7 @@ public final class FullMoonEvent extends AbstractEvent {
             }
             this.hasMobsLeft = hasMobsLeft;
 
-            if (hasMobsLeft)
+            if (!hasMobsLeft)
                 return;
 
             Random random = world.getRandom();
@@ -296,7 +288,7 @@ public final class FullMoonEvent extends AbstractEvent {
             }
         }
         else {
-            EntitySpawnPlacementRegistry.PlacementType placementType = entityType == ApocalypseEntities.BREECHER.get() ? EntitySpawnPlacementRegistry.PlacementType.ON_GROUND : EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS;
+            EntitySpawnPlacementRegistry.PlacementType placementType = EntitySpawnPlacementRegistry.PlacementType.ON_GROUND;
             Random random = world.getRandom();
             final int minDist = 25;
 

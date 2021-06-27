@@ -69,21 +69,6 @@ public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements
         return this.level.clip(new RayTraceContext(vector3d, vector3d1, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, this)).getType() == RayTraceResult.Type.MISS;
     }
 
-    @Override
-    public void addAdditionalSaveData(CompoundNBT compound) {
-        super.addAdditionalSaveData(compound);
-        this.writePlayerTargetData(compound);
-    }
-
-    @Override
-    public void readAdditionalSaveData(CompoundNBT compound) {
-        super.readAdditionalSaveData(compound);
-
-        if (!this.level.isClientSide) {
-            this.readPlayerTargetData(compound, (ServerWorld) this.level);
-        }
-    }
-
     /** Slightly modified version of the ghast's movement controller */
     protected static class MoveHelperController extends MovementController {
 

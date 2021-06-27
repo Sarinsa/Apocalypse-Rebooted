@@ -235,21 +235,6 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         this.playerTarget = playerTarget;
     }
 
-    @Override
-    public void addAdditionalSaveData(CompoundNBT compound) {
-        super.addAdditionalSaveData(compound);
-        this.writePlayerTargetData(compound);
-    }
-
-    @Override
-    public void readAdditionalSaveData(CompoundNBT compound) {
-        super.readAdditionalSaveData(compound);
-
-        if (!this.level.isClientSide) {
-            this.readPlayerTargetData(compound, (ServerWorld) this.level);
-        }
-    }
-
     private static class GhostMovementController<T extends GhostEntity> extends MovementController {
 
         final T ghostEntity;
