@@ -8,7 +8,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.AbstractFireballEntity;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.util.DamageSource;
@@ -56,17 +59,35 @@ public class DestroyerFireballEntity extends AbstractFireballEntity {
         if (result.getType() == RayTraceResult.Type.ENTITY) {
             EntityRayTraceResult entityResult = (EntityRayTraceResult) result;
             Entity entity = entityResult.getEntity();
-            entity.hurt(DamageSource.fireball(this, this.getOwner()), 4.0F);
+            DamageSource directImpact = DamageSource.fireball(this, this.getOwner());
+            entity.hurt(directImpact, 4.0F);
 
-            // Deals heavy damage to shields
             if (entity instanceof LivingEntity) {
                 LivingEntity livingEntity = (LivingEntity) entity;
+                boolean damageBlocked = livingEntity.isDamageSourceBlocked(directImpact);
+                final int armorDamage = 100;
 
-                if (livingEntity.isBlocking()) {
-                    livingEntity.hurtCurrentlyUsedShield(100.0F);
+                // Deal heavy damage to shield, if blocking
+                if (damageBlocked) {
+                    livingEntity.hurtCurrentlyUsedShield(armorDamage);
                 }
+                // Deal heavy damage to armor, if not blocking
                 else {
-                    livingEntity.setSecondsOnFire(5);
+                    if (livingEntity instanceof ServerPlayerEntity) {
+                        ServerPlayerEntity player = (ServerPlayerEntity) livingEntity;
+
+                        for (ItemStack armorStack : livingEntity.getArmorSlots()) {
+                            armorStack.hurt(armorDamage, player.getRandom(), player);
+                        }
+                    }
+                    else {
+                        for (ItemStack armorStack : livingEntity.getArmorSlots()) {
+                            armorStack.hurtAndBreak(armorDamage, livingEntity, (e) -> {
+                                if (armorStack.getEquipmentSlot() != null)
+                                    e.broadcastBreakEvent(armorStack.getEquipmentSlot());
+                            });
+                        }
+                    }
                 }
             }
         }
