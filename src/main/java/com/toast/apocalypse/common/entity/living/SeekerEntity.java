@@ -60,11 +60,6 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         this.xpReward = 5;
     }
 
-    public SeekerEntity(World world, PlayerEntity playerTarget) {
-        super(ApocalypseEntities.SEEKER.get(), world);
-        this.playerTarget = playerTarget;
-    }
-
     public static AttributeModifierMap.MutableAttribute createSeekerAttributes() {
         return MobEntity.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 12.0D)
@@ -267,7 +262,7 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
 
     static class RandomOrRelativeToTargetFlyGoal extends Goal {
 
-        private static final double maxDistanceBeforeFollow = 1400.0D;
+        private static final double maxDistanceBeforeFollow = 3000.0D;
         private final SeekerEntity seeker;
 
         public RandomOrRelativeToTargetFlyGoal(SeekerEntity seeker) {

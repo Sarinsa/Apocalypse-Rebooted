@@ -57,6 +57,8 @@ public class ApocalypseCommonConfig {
         private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.IntValue> moonMobMinCount = new HashMap<>();
 
         // Attributes and potions
+        private final ForgeConfigSpec.BooleanValue mobsOnly;
+
         private final ForgeConfigSpec.ConfigValue<List<? extends String>> healthBlacklist;
         private final ForgeConfigSpec.DoubleValue healthLunarFlatBonus;
         private final ForgeConfigSpec.DoubleValue healthLunarMultBonus;
@@ -149,13 +151,13 @@ public class ApocalypseCommonConfig {
             createStartDifficulty(GrumpEntity.class, "grump", 20, configBuilder);
             configBuilder.pop();
 
-            configBuilder.comment("The additional amount of a specific full moon mob that can spawn during a full moon siege.");
-            configBuilder.push("max_spawn_count");
+            configBuilder.comment("The additional amount of a specific full moon mob that can spawn during a full moon siege. Increases with difficulty.");
+            configBuilder.push("additional_spawn_count");
             createMobAdditionalCount(BreecherEntity.class, "breecher", 2.0D, configBuilder);
             createMobAdditionalCount(GhostEntity.class, "ghost", 6.0D, configBuilder);
             createMobAdditionalCount(DestroyerEntity.class, "destroyer", 1.0D, configBuilder);
             createMobAdditionalCount(SeekerEntity.class, "seeker", 1.0D, configBuilder);
-            createMobAdditionalCount(GrumpEntity.class, "grump", 4.0D, configBuilder);
+            createMobAdditionalCount(GrumpEntity.class, "grump", 2.5D, configBuilder);
             configBuilder.pop();
 
             configBuilder.comment("The minimum amount of a specific full moon mob that can spawn during a full moon siege.");
@@ -170,6 +172,9 @@ public class ApocalypseCommonConfig {
 
             configBuilder.push("attributes_and_potions");
             configBuilder.comment("This section contains everything related to mob attributes and potion effects.");
+
+            this.mobsOnly = configBuilder.comment("If enabled, only hostile mobs will be given attribute bonuses and potion effects.")
+                    .define("mobsOnly", true);
 
             configBuilder.push("health");
             this.healthBlacklist = configBuilder.comment("A list of entity types that do not gain any health bonuses. Empty by default. Example: [\"minecraft:creeper\", \"abundance:screecher\"]")
@@ -330,7 +335,7 @@ public class ApocalypseCommonConfig {
         }
 
         public long getMoonMobStartDifficulty(Class<? extends IFullMoonMob> entityClass) {
-            return this.moonMobStartDifficulties.containsKey(entityClass) ? (this.moonMobStartDifficulties.get(entityClass).get() * References.DAY_LENGTH) : 0;
+            return this.moonMobStartDifficulties.containsKey(entityClass) ? (this.moonMobStartDifficulties.get(entityClass).get()) : 0;
         }
 
         public double getMoonMobAdditionalCount(Class<? extends IFullMoonMob> entityClass) {
@@ -345,6 +350,10 @@ public class ApocalypseCommonConfig {
         //
         // ATTRIBUTES AND POTIONS
         //
+        public boolean getMobsOnly() {
+            return this.mobsOnly.get();
+        }
+
         public List<? extends String> getHealthBlacklist() {
             return this.healthBlacklist.get();
         }

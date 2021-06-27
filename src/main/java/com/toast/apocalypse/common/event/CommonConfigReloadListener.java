@@ -66,6 +66,8 @@ public class CommonConfigReloadListener {
         RainDamageTickHelper.RAIN_TICK_RATE = COMMON.getRainTickRate();
         RainDamageTickHelper.RAIN_DAMAGE = COMMON.getRainDamage();
 
+        MobDifficultyHandler.MOBS_ONLY = COMMON.getMobsOnly();
+
         refreshList(COMMON.getDestroyerProofBlocks(), DestroyerExplosionContext.DESTROYER_PROOF_BLOCKS, ForgeRegistries.BLOCKS);
         refreshList(COMMON.getHealthBlacklist(), MobDifficultyHandler.HEALTH_BLACKLIST, ForgeRegistries.ENTITIES);
         refreshList(COMMON.getSpeedBlacklist(), MobDifficultyHandler.SPEED_BLACKLIST, ForgeRegistries.ENTITIES);

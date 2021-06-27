@@ -67,7 +67,7 @@ public class DifficultyRenderHandler {
         if (player.isCreative() && !RENDER_IN_CREATIVE)
             return;
 
-        long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
+        final long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
 
         // Don't bother rendering the difficulty
         // when it will constantly be at 0 or if
@@ -80,7 +80,7 @@ public class DifficultyRenderHandler {
 
         FontRenderer fontRenderer = minecraft.font;
 
-        // Calculate difficulty level in days with 1 decimal point
+        // Calculate difficulty level in days with one decimal.
         int color = COLORS[0];
         long difficulty = CapabilityHelper.getPlayerDifficulty(player);
         int partialDifficulty = difficulty <= 0 ? 0 : (int) (difficulty % 24000L / 2400);

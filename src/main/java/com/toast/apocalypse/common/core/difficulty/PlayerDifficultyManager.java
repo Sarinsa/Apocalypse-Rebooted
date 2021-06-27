@@ -33,6 +33,7 @@ import org.apache.logging.log4j.Level;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * This class manages player difficulty and mod events
@@ -64,7 +65,7 @@ public final class PlayerDifficultyManager {
     /** Server instance */
     private MinecraftServer server;
 
-    private final HashMap<ServerPlayerEntity, AbstractEvent> playerEvents = new HashMap<>();
+    private final HashMap<UUID, AbstractEvent> playerEvents = new HashMap<>();
 
     // Unused
     /** A map containing each world's player group list. */
@@ -125,7 +126,8 @@ public final class PlayerDifficultyManager {
         if (!event.getPlayer().getCommandSenderWorld().isClientSide) {
             ServerPlayerEntity serverPlayer = (ServerPlayerEntity) event.getPlayer();
             this.saveEventData(serverPlayer);
-            this.playerEvents.get(serverPlayer).stop();
+            this.playerEvents.get(serverPlayer.getUUID()).stop(serverPlayer.getLevel());
+            this.playerEvents.remove(serverPlayer.getUUID());
         }
     }
 
@@ -187,8 +189,6 @@ public final class PlayerDifficultyManager {
         // Update player difficulty stuff
         CapabilityHelper.setPlayerDifficulty(player, currentDifficulty);
         CapabilityHelper.setPlayerDifficultyMult(player, difficultyMultiplier);
-
-        this.playerEvents.get(player).update(player);
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -232,12 +232,12 @@ public final class PlayerDifficultyManager {
             if (++this.timeUntilUpdate >= TICKS_PER_UPDATE) {
                 this.timeUntilUpdate = 0;
 
-                // Update all the players' difficulty
+                // Update player difficulty
                 for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
                     this.updatePlayer(player);
                 }
 
-                // Update each world
+                // Update player events
                 for (ServerWorld world : server.getAllLevels()) {
                     this.updatePlayerEvent(world);
                 }
@@ -265,28 +265,29 @@ public final class PlayerDifficultyManager {
             return;
 
         for (ServerPlayerEntity player : world.players()) {
-            AbstractEvent currentEvent = this.playerEvents.get(player);
+            AbstractEvent currentEvent = this.playerEvents.get(player.getUUID());
+            EventType<?> eventType = currentEvent.getType();
 
             if (CapabilityHelper.getPlayerDifficulty(player) > 0) {
                 // Starts the full moon event
-                if (world.getGameTime() > 0L && currentEvent.getType() != EventRegistry.FULL_MOON) {
-                    if (isFullMoon(world) && world.isNight()) {
+                if (world.getGameTime() > 0L && eventType != EventRegistry.FULL_MOON) {
+                    if (isFullMoon(world) && world.getDayTime() > 13000L) {
                         this.startEvent(player, EventRegistry.FULL_MOON);
                     }
                 }
 
                 // Stop the full moon event when it becomes day time.
-                if (world.isDay() && currentEvent.getType() == EventRegistry.FULL_MOON) {
+                if (world.getDayTime() < 13000L && eventType == EventRegistry.FULL_MOON) {
                     this.endEvent(player);
                 }
 
                 // Starts the thunderstorm event
-                if (world.isThundering() && currentEvent.getType() != EventRegistry.THUNDERSTORM) {
+                if (world.isThundering() && eventType != EventRegistry.THUNDERSTORM) {
                     this.startEvent(player, EventRegistry.THUNDERSTORM);
                 }
             }
-            currentEvent.update(world);
-            currentEvent.update(player);
+            // Update current event
+            currentEvent.update(world, player);
         }
     }
 
@@ -310,16 +311,16 @@ public final class PlayerDifficultyManager {
         if (eventType == null)
             return;
 
-        AbstractEvent currentEvent = this.playerEvents.get(player);
+        AbstractEvent currentEvent = this.playerEvents.get(player.getUUID());
 
         if (currentEvent != null) {
             if (!currentEvent.getType().canBeInterrupted())
                 return;
             currentEvent.onEnd();
         }
-        AbstractEvent newEvent = eventType.createEvent(player);
-        newEvent.onStart(this.server);
-        this.playerEvents.put(player, newEvent);
+        AbstractEvent newEvent = eventType.createEvent();
+        newEvent.onStart(this.server, player);
+        this.playerEvents.put(player.getUUID(), newEvent);
 
         if (eventType.getEventStartMessage() != null) {
             player.displayClientMessage(new TranslationTextComponent(eventType.getEventStartMessage()), true);
@@ -327,13 +328,15 @@ public final class PlayerDifficultyManager {
     }
 
     public int getEventId(ServerPlayerEntity player) {
-        return this.playerEvents.containsKey(player) ? this.playerEvents.get(player).getType().getId() : -1;
+        UUID uuid = player.getUUID();
+        return this.playerEvents.containsKey(uuid) ? this.playerEvents.get(uuid).getType().getId() : -1;
     }
 
     /** Ends the current active event, if any. */
     public void endEvent(ServerPlayerEntity player) {
-        this.playerEvents.get(player).onEnd();
-        this.playerEvents.put(player, EventRegistry.NONE.createEvent(player));
+        UUID uuid = player.getUUID();
+        this.playerEvents.get(uuid).onEnd();
+        this.playerEvents.put(uuid, EventRegistry.NONE.createEvent());
     }
 
     /** Cleans up the references to things in a server when the server stops. */
@@ -348,14 +351,14 @@ public final class PlayerDifficultyManager {
     /** Loads the given player's event data. */
     public void loadEventData(ServerPlayerEntity player) {
         try {
-            AbstractEvent currentEvent = EventRegistry.NONE.createEvent(player);
+            AbstractEvent currentEvent = EventRegistry.NONE.createEvent();
             CompoundNBT eventData = CapabilityHelper.getEventData(player);
 
             if (eventData != null && eventData.contains("EventId", Constants.NBT.TAG_INT)) {
-                currentEvent = EventRegistry.getFromId(eventData.getInt("EventId")).createEvent(player);
-                currentEvent.read(eventData);
+                currentEvent = EventRegistry.getFromId(eventData.getInt("EventId")).createEvent();
+                currentEvent.read(eventData, player.getLevel());
             }
-            this.playerEvents.put(player, currentEvent);
+            this.playerEvents.put(player.getUUID(), currentEvent);
         }
         catch (Exception e) {
             log(Level.ERROR, "Failed to read world save data for player " + player.getName().getString() + ". That shouldn't happen.");
@@ -366,7 +369,7 @@ public final class PlayerDifficultyManager {
     /** Saves the data of the player's current event. */
     public void saveEventData(ServerPlayerEntity player) {
         try {
-            AbstractEvent currentEvent = this.playerEvents.get(player);
+            AbstractEvent currentEvent = this.playerEvents.get(player.getUUID());
             CompoundNBT eventData = new CompoundNBT();
 
             if (currentEvent != null) {

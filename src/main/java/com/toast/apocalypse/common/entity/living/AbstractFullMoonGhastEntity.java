@@ -5,6 +5,8 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
@@ -12,8 +14,10 @@ import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
 import javax.annotation.Nullable;
+import java.util.UUID;
 
 public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements IFullMoonMob {
 
@@ -63,6 +67,21 @@ public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements
         Vector3d vector3d = new Vector3d(this.getX(), this.getEyeY(), this.getZ());
         Vector3d vector3d1 = new Vector3d(entity.getX(), entity.getEyeY(), entity.getZ());
         return this.level.clip(new RayTraceContext(vector3d, vector3d1, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, this)).getType() == RayTraceResult.Type.MISS;
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundNBT compound) {
+        super.addAdditionalSaveData(compound);
+        this.writePlayerTargetData(compound);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundNBT compound) {
+        super.readAdditionalSaveData(compound);
+
+        if (!this.level.isClientSide) {
+            this.readPlayerTargetData(compound, (ServerWorld) this.level);
+        }
     }
 
     /** Slightly modified version of the ghast's movement controller */

@@ -40,11 +40,6 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
         this.xpReward = 5;
     }
 
-    public DestroyerEntity(World world, PlayerEntity playerTarget) {
-        super(ApocalypseEntities.DESTROYER.get(), world);
-        this.playerTarget = playerTarget;
-    }
-
     public static AttributeModifierMap.MutableAttribute createDestroyerAttributes() {
         return MobEntity.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 12.0D)
@@ -86,14 +81,13 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
                 return false;
 
             if (damageSource.getEntity() instanceof PlayerEntity) {
-                super.hurt(DamageSource.playerAttack((PlayerEntity) damageSource.getEntity()), this.getMaxHealth() / 2.0F);
+                super.hurt(DamageSource.playerAttack((PlayerEntity) damageSource.getEntity()), 7.0F);
                 return true;
             }
         }
         else if (damageSource.isExplosion() && damageSource.getEntity() == this) {
             return false;
         }
-
         return super.hurt(damageSource, damage);
     }
 
@@ -222,7 +216,7 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
 
     static class RandomOrRelativeToTargetFlyGoal extends Goal {
 
-        private static final double maxDistanceBeforeFollow = 1400.0D;
+        private static final double maxDistanceBeforeFollow = 3000.0D;
         private final DestroyerEntity destroyer;
 
         public RandomOrRelativeToTargetFlyGoal(DestroyerEntity destroyer) {
@@ -265,7 +259,6 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
 
             if (this.destroyer.getTarget() != null) {
                 LivingEntity target = this.destroyer.getTarget();
-                boolean canSeeDirectly = this.destroyer.canSeeDirectly(target);
                 double distanceToTarget = this.destroyer.distanceToSqr(target);
 
                 if (distanceToTarget > maxDistanceBeforeFollow) {

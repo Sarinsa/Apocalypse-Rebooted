@@ -28,7 +28,7 @@ public class ApocalypseServerConfig {
                     .defineInRange("defaultPlayerGracePeriod", 1.0D, 0.0D, 1000.0D);
 
             this.defaultPlayerMaxDifficulty = configBuilder.comment("The default max difficulty for players. Only relevant for players that join a world or server for the first time.")
-                    .defineInRange("defaultPlayerMaxDifficulty", 200.0D, 0.0D, (double) References.MAX_DIFFICULTY_HARD_LIMIT / References.DAY_LENGTH);
+                    .defineInRange("defaultPlayerMaxDifficulty", 150.0D, 0.0D, (double) References.MAX_DIFFICULTY_HARD_LIMIT / References.DAY_LENGTH);
 
             configBuilder.pop();
         }

@@ -7,6 +7,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
+import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
@@ -21,13 +22,15 @@ import java.util.List;
  * increments, effects and equipment to monsters
  * depending on the nearest player's difficulty.
  */
-public class MobDifficultyHandler {
+public final class MobDifficultyHandler {
 
     /**
      * These values are updated during common config reload.
      *
      * {@link CommonConfigReloadListener#updateInfo()}
      */
+    public static boolean MOBS_ONLY;
+
     // Health
     public static List<EntityType<?>> HEALTH_BLACKLIST = new ArrayList<>();
     public static double HEALTH_TIME_SPAN;
@@ -63,14 +66,17 @@ public class MobDifficultyHandler {
     public static double KNOCKBACK_RES_LUNAR_FLAT_BONUS;
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onEntitySpawn(LivingSpawnEvent.CheckSpawn event) {
+    public void onEntitySpawn(LivingSpawnEvent.SpecialSpawn event) {
         LivingEntity spawnedEntity = event.getEntityLiving();
         World world = spawnedEntity.getCommandSenderWorld();
-        long difficulty = PlayerDifficultyManager.getNearestPlayerDifficulty(world, spawnedEntity);
-        boolean fullMoon = PlayerDifficultyManager.isFullMoon(world) && world.isNight();
+        final long difficulty = PlayerDifficultyManager.getNearestPlayerDifficulty(world, spawnedEntity);
+        final boolean fullMoon = PlayerDifficultyManager.isFullMoon(world) && world.isNight();
 
         // Don't do anything if the player is still on grace period.
         if (difficulty <= 0)
+            return;
+
+        if (!(spawnedEntity instanceof IMob) && MOBS_ONLY)
             return;
 
         handleAttributes(spawnedEntity, difficulty, fullMoon);
@@ -85,9 +91,10 @@ public class MobDifficultyHandler {
      * @param fullMoon Whether or not it is night time and a full moon in the world that this entity spawns in.
      */
     private static void handleAttributes(LivingEntity livingEntity, long difficulty, boolean fullMoon) {
-        double effectiveDifficulty;
-        double bonus, mult;
         ModifiableAttributeInstance attribute;
+        double effectiveDifficulty;
+        double bonus;
+        double mult;
 
         // Health
         attribute = livingEntity.getAttribute(Attributes.MAX_HEALTH);
@@ -167,7 +174,7 @@ public class MobDifficultyHandler {
 
     /** Used in {@link com.toast.apocalypse.common.mixin.PlayerEntityMixin} */
     public static float getLivingDamage(LivingEntity attacker, PlayerEntity player, float originalDamage) {
-        long difficulty = CapabilityHelper.getPlayerDifficulty(player);
+        final long difficulty = CapabilityHelper.getPlayerDifficulty(player);
 
         if (!DAMAGE_BLACKLIST.contains(attacker.getType()) || difficulty <= 0) {
             double effectiveDifficulty = (double) difficulty / DAMAGE_TIME_SPAN;

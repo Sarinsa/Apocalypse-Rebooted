@@ -17,8 +17,8 @@ public class EventType<T extends AbstractEvent> {
         this.canBeInterrupted = canBeInterrupted;
     }
 
-    public final T createEvent(ServerPlayerEntity player) {
-        return this.factory.create(this, player);
+    public final T createEvent() {
+        return this.factory.create(this);
     }
 
     public final int getId() {
@@ -46,6 +46,6 @@ public class EventType<T extends AbstractEvent> {
     }
 
     public interface IEventFactory<T> {
-        T create(EventType<?> type, ServerPlayerEntity player);
+        T create(EventType<?> type);
     }
 }

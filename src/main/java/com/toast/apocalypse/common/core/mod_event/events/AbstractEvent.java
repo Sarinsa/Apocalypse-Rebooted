@@ -9,12 +9,10 @@ import net.minecraft.world.server.ServerWorld;
 
 public abstract class AbstractEvent {
 
-    protected final ServerPlayerEntity player;
     protected final EventType<?> type;
 
-    public AbstractEvent(EventType<?> type, ServerPlayerEntity player) {
+    public AbstractEvent(EventType<?> type) {
         this.type = type;
-        this.player = player;
     }
 
     public final EventType<?> getType() {
@@ -24,19 +22,13 @@ public abstract class AbstractEvent {
     /** Called when the event starts.
      * Variables should all be set to default values here.
      */
-    public abstract void onStart(MinecraftServer server);
-
-    /** Called every 5 ticks for each world to update the event.
-     *
-     * @param world The world to update for this event.
-     */
-    public abstract void update(ServerWorld world);
+    public abstract void onStart(MinecraftServer server, ServerPlayerEntity player);
 
     /** Called every 5 ticks for each player to update the event.
      *
-     * @param player The player to update for this event.
+     * @param player The player to update this event for.
      */
-    public abstract void update(PlayerEntity player);
+    public abstract void update(ServerWorld world, ServerPlayerEntity player);
 
     /** Called when the event ends. */
     public abstract void onEnd();
@@ -44,7 +36,7 @@ public abstract class AbstractEvent {
     /** Called when the player disconnects
      *  before the event should be over.
      */
-    public abstract void stop();
+    public abstract void stop(ServerWorld world);
 
     /**
      * Saves this event.
@@ -61,7 +53,7 @@ public abstract class AbstractEvent {
      *
      * @param data the tag to read from.
      */
-    public void read(CompoundNBT data) {
+    public void read(CompoundNBT data, ServerWorld world) {
 
     }
 }

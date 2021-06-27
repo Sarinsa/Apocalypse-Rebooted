@@ -1,24 +1,18 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.common.register.ApocalypseEntities;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.monster.CreeperEntity;
-import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.pathfinding.GroundPathNavigator;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathNavigator;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * This is a full moon mob identical to a creeper in almost every way, except that it has a much farther aggro range
@@ -32,11 +26,6 @@ public class BreecherEntity extends CreeperEntity implements IFullMoonMob {
 
     public BreecherEntity(EntityType<? extends CreeperEntity> entityType, World world) {
         super(entityType, world);
-    }
-
-    public BreecherEntity(World world, PlayerEntity playerTarget) {
-        super(ApocalypseEntities.BREECHER.get(), world);
-        this.playerTarget = playerTarget;
     }
 
     public static AttributeModifierMap.MutableAttribute createBreecherAttributes() {
@@ -61,6 +50,21 @@ public class BreecherEntity extends CreeperEntity implements IFullMoonMob {
 
         if (this.shouldExplode() && this.isAlive()) {
             this.ignite();
+        }
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundNBT compound) {
+        super.addAdditionalSaveData(compound);
+        this.writePlayerTargetData(compound);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundNBT compound) {
+        super.readAdditionalSaveData(compound);
+
+        if (!this.level.isClientSide) {
+            this.readPlayerTargetData(compound, (ServerWorld) this.level);
         }
     }
 

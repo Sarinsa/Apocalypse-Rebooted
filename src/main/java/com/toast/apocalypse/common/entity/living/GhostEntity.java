@@ -14,8 +14,10 @@ import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.MonsterEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -30,11 +32,13 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeMod;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * This is a full moon mob that has the odd ability to completely ignore blocks. To compliment this, it has
@@ -54,11 +58,6 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         this.playerTarget = null;
         this.moveControl = new GhostMovementController<>(this);
         this.xpReward = 3;
-    }
-
-    public GhostEntity(World world, PlayerEntity target) {
-        super(ApocalypseEntities.GHOST.get(), world);
-        this.playerTarget = target;
     }
 
     public static AttributeModifierMap.MutableAttribute createGhostAttributes() {
@@ -172,7 +171,12 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
     @Override
     public boolean isPushedByFluid() {
-        return false; // Not affected by fluid motion
+        return false; // Not pushed by fluids
+    }
+
+    @Override
+    protected boolean isAffectedByFluids() {
+        return false; // Not affected by fluids
     }
 
     @Override
@@ -229,6 +233,21 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
     @Override
     public void setPlayerTarget(PlayerEntity playerTarget) {
         this.playerTarget = playerTarget;
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundNBT compound) {
+        super.addAdditionalSaveData(compound);
+        this.writePlayerTargetData(compound);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundNBT compound) {
+        super.readAdditionalSaveData(compound);
+
+        if (!this.level.isClientSide) {
+            this.readPlayerTargetData(compound, (ServerWorld) this.level);
+        }
     }
 
     private static class GhostMovementController<T extends GhostEntity> extends MovementController {

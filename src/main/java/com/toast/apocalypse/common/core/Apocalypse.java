@@ -17,6 +17,7 @@ import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.event.CapabilityAttachEvents;
 import com.toast.apocalypse.common.event.EntityEvents;
 import com.toast.apocalypse.common.event.PlayerEvents;
+import com.toast.apocalypse.common.event.VillagerTradeEvents;
 import com.toast.apocalypse.common.network.PacketHandler;
 import com.toast.apocalypse.common.register.*;
 import net.minecraft.util.ResourceLocation;
@@ -79,6 +80,7 @@ public class Apocalypse {
         MinecraftForge.EVENT_BUS.register(new CapabilityAttachEvents());
         MinecraftForge.EVENT_BUS.register(this.getDifficultyManager());
         MinecraftForge.EVENT_BUS.register(new MobDifficultyHandler());
+        MinecraftForge.EVENT_BUS.register(new VillagerTradeEvents());
         MinecraftForge.EVENT_BUS.addListener(CommandRegister::registerCommands);
 
         ApocalypseBlocks.BLOCKS.register(eventBus);

@@ -31,7 +31,7 @@ public interface IDifficultyProvider {
      *
      * No event: -1
      *
-     * Full moon: 0
+     * Full Moon Siege: 0
      *
      * Thunderstorm: 1
      */

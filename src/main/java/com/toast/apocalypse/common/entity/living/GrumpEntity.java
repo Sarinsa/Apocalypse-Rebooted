@@ -57,11 +57,6 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
         this.xpReward = 3;
     }
 
-    public GrumpEntity(World world, PlayerEntity playerTarget) {
-        super(ApocalypseEntities.GRUMP.get(), world);
-        this.playerTarget = playerTarget;
-    }
-
     public static AttributeModifierMap.MutableAttribute createGrumpAttributes() {
         return MobEntity.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 10.0D)
@@ -251,9 +246,13 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
 
         @Override
         public boolean canUse() {
-            if (grump.getTarget() != null) {
-                LivingEntity target = grump.getTarget();
-                return grump.canSee(target) && grump.distanceToSqr(target) < 180.0D;
+            if (this.grump.fluidOnEyes != null) {
+                return false;
+            }
+
+            if (this.grump.getTarget() != null) {
+                LivingEntity target = this.grump.getTarget();
+                return this.grump.canSee(target) && this.grump.distanceToSqr(target) < 180.0D;
             }
             return false;
         }

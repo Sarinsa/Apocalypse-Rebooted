@@ -25,7 +25,7 @@ public class ServerConfigHelper {
     }
 
     private static void resetValues() {
-        DESIRED_DEFAULT_MAX_DIFFICULTY = 200.0D;
+        DESIRED_DEFAULT_MAX_DIFFICULTY = 150.0D;
         DESIRED_DEFAULT_GRACE_PERIOD = 1.0D;
     }
 
