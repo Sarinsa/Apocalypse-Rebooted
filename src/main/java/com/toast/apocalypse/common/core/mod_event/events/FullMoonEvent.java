@@ -298,17 +298,16 @@ public final class FullMoonEvent extends AbstractEvent {
         else {
             EntitySpawnPlacementRegistry.PlacementType placementType = entityType == ApocalypseEntities.BREECHER.get() ? EntitySpawnPlacementRegistry.PlacementType.ON_GROUND : EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS;
             Random random = world.getRandom();
-            final int radius = 80;
+            final int minDist = 25;
 
-            // Look for a spawn position with a 70 block radius (Must be at least 30 blocks away from the player)
+            // Look for a spawn position with a 70 block radius (Must be at least 25 blocks away from the player)
             for (int i = 0; i < 10; i++) {
-                int startX = random.nextInt(2) == 0 ? 30 : -30;
-                int startZ = random.nextInt(2) == 0 ? 30 : -30;
-                int x = (int) player.getX() + startX + startX < 0 ? -random.nextInt(50) : random.nextInt(50);
-                int z = (int) player.getZ() + startZ + startZ < 0 ? -random.nextInt(50) : random.nextInt(50);
+                int startX = random.nextInt(2) == 0 ? minDist : -minDist;
+                int startZ = random.nextInt(2) == 0 ? minDist : -minDist;
+                int x = (int) player.getX() + startX + startX < 0 ? -random.nextInt(46) : random.nextInt(46);
+                int z = (int) player.getZ() + startZ + startZ < 0 ? -random.nextInt(46) : random.nextInt(46);
                 int y = world.getHeight(Heightmap.Type.WORLD_SURFACE, x, z);
                 BlockPos pos = new BlockPos(x, y, z);
-
 
                 if (world.isLoaded(pos) && WorldEntitySpawner.isSpawnPositionOk(placementType, world, pos, entityType)) {
                     spawnPos = pos;
