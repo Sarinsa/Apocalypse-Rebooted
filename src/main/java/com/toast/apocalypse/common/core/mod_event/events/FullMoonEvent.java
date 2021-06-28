@@ -112,7 +112,7 @@ public final class FullMoonEvent extends AbstractEvent {
             timeUntilNextSpawn -= PlayerDifficultyManager.TICKS_PER_UPDATE;
         }
         // Update the list of current mobs. Remove any entries of null or dead mobs.
-        this.currentMobs.removeIf(mob -> mob == null || mob.isDeadOrDying());
+        this.currentMobs.removeIf(mob -> mob == null || !mob.isAlive());
 
         if (this.canSpawn()) {
             boolean hasMobsLeft = false;
@@ -144,7 +144,7 @@ public final class FullMoonEvent extends AbstractEvent {
 
     @Override
     public void onEnd() {
-
+        this.currentMobs.clear();
     }
 
     @Override
@@ -271,15 +271,18 @@ public final class FullMoonEvent extends AbstractEvent {
     @Nullable
     private <T extends MobEntity> T createMob(EntityType<T> entityType, ServerPlayerEntity player, ServerWorld world) {
         BlockPos spawnPos = player.blockPosition();
+        final int minDist = 25;
 
-        // Ghosts clip through blocks, so no need to do anything
-        // big for finding a spawn location.
         if (entityType == ApocalypseEntities.GHOST.get()) {
             Random random = world.getRandom();
             BlockPos pos;
 
             for (int i = 0; i < 10; i++) {
-                pos = new BlockPos(random.nextGaussian() * 60, 20 + random.nextInt(60), player.getZ() + random.nextGaussian() * 60);
+                int startX = random.nextInt(2) == 1 ? minDist : -minDist;
+                int startZ = random.nextInt(2) == 1 ? minDist : -minDist;
+                int x = spawnPos.getX() + startX + (startX < 1 ? -random.nextInt(46) : random.nextInt(46));
+                int z = spawnPos.getZ() + startZ + (startZ < 1 ? -random.nextInt(46) : random.nextInt(46));
+                pos = new BlockPos(x, 20 + random.nextInt(60), z);
 
                 if (world.isLoaded(pos)) {
                     spawnPos = pos;
@@ -288,22 +291,22 @@ public final class FullMoonEvent extends AbstractEvent {
             }
         }
         else {
-            EntitySpawnPlacementRegistry.PlacementType placementType = EntitySpawnPlacementRegistry.PlacementType.ON_GROUND;
+            EntitySpawnPlacementRegistry.PlacementType placementType = entityType == ApocalypseEntities.BREECHER.get() ? EntitySpawnPlacementRegistry.PlacementType.ON_GROUND : EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS;
             Random random = world.getRandom();
-            final int minDist = 25;
 
-            // Look for a spawn position with a 70 block radius (Must be at least 25 blocks away from the player)
             for (int i = 0; i < 10; i++) {
-                int startX = random.nextInt(2) == 0 ? minDist : -minDist;
-                int startZ = random.nextInt(2) == 0 ? minDist : -minDist;
-                int x = (int) player.getX() + startX + startX < 0 ? -random.nextInt(46) : random.nextInt(46);
-                int z = (int) player.getZ() + startZ + startZ < 0 ? -random.nextInt(46) : random.nextInt(46);
+                int startX = random.nextInt(2) == 1 ? minDist : -minDist;
+                int startZ = random.nextInt(2) == 1 ? minDist : -minDist;
+                int x = (int) player.getX() + startX + (startX < 1 ? -random.nextInt(46) : random.nextInt(46));
+                int z = (int) player.getZ() + startZ + (startZ < 1 ? -random.nextInt(46) : random.nextInt(46));
                 int y = world.getHeight(Heightmap.Type.WORLD_SURFACE, x, z);
                 BlockPos pos = new BlockPos(x, y, z);
 
                 if (world.isLoaded(pos) && WorldEntitySpawner.isSpawnPositionOk(placementType, world, pos, entityType)) {
-                    spawnPos = pos;
-                    break;
+                    if (world.noCollision(entityType.getAABB((double) pos.getX() + 0.5D, pos.getY(), (double) pos.getZ() + 0.5D))) {
+                        spawnPos = pos;
+                        break;
+                    }
                 }
             }
         }
@@ -327,7 +330,7 @@ public final class FullMoonEvent extends AbstractEvent {
         CompoundNBT currentMobs = new CompoundNBT();
         int id = 0;
         for (MobEntity mobEntity : this.currentMobs) {
-            if (mobEntity != null && !mobEntity.isDeadOrDying()) {
+            if (mobEntity != null && mobEntity.isAlive()) {
                 currentMobs.put(String.valueOf(id), mobEntity.serializeNBT());
                 ++id;
             }
