@@ -80,10 +80,15 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
         return 0.60F;
     }
 
-    // Not nearly as loud as a ghast since it is much smaller.
     @Override
     protected float getSoundVolume() {
-        return 2.5F;
+        // Not nearly as loud as a ghast since it is much smaller.
+        return 2.0F;
+    }
+
+    @Override
+    public boolean isPushedByFluid() {
+        return false; // Not pushed by fluids
     }
 
     public static boolean checkGrumpSpawnRules(EntityType<? extends GrumpEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
