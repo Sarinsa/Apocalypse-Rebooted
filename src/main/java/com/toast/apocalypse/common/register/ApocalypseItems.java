@@ -19,6 +19,8 @@ public class ApocalypseItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Apocalypse.MODID);
 
 
+    public static final RegistryObject<Item> SOUL_FRAGMENT = registerSimpleItem("soul_fragment", ItemGroup.TAB_MATERIALS);
+    public static final RegistryObject<Item> LUNARIUM_INGOT = registerSimpleItem("lunarium_ingot", ItemGroup.TAB_MATERIALS);
     public static final RegistryObject<Item> FATHERLY_TOAST = registerItem("fatherly_toast", FatherlyToastItem::new);
     public static final RegistryObject<Item> BUCKET_HELM = registerItem("bucket_helm", BucketHelmetItem::new);
     public static final RegistryObject<Item> LUNAR_CLOCK = registerSimpleItem("lunar_clock", ItemGroup.TAB_TOOLS);
