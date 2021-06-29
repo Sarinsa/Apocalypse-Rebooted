@@ -47,10 +47,6 @@ public class BreecherEntity extends CreeperEntity implements IFullMoonMob {
     @Override
     public void tick() {
         super.tick();
-
-        if (this.shouldExplode() && this.isAlive()) {
-            this.ignite();
-        }
     }
 
     /** @return True if this breecher should explode. */
