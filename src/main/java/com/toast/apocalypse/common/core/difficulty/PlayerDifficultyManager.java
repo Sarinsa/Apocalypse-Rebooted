@@ -235,11 +235,7 @@ public final class PlayerDifficultyManager {
                 // Update player difficulty
                 for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
                     this.updatePlayer(player);
-                }
-
-                // Update player events
-                for (ServerWorld world : server.getAllLevels()) {
-                    this.updatePlayerEvent(world);
+                    this.updatePlayerEvent(player);
                 }
             }
 
@@ -255,40 +251,38 @@ public final class PlayerDifficultyManager {
     }
 
     /**
-     * Loops through all players in the given world
-     * and updates their event status.
+     * Updates the given player's current event
+     * and checks what event should be active.
      *
-     * @param world The world being updated.
+     * @param player The player to update event for.
      */
-    public void updatePlayerEvent(ServerWorld world) {
-        if (world == null)
-            return;
+    public void updatePlayerEvent(ServerPlayerEntity player) {
+        ServerWorld world = player.getLevel();
+        ServerWorld overworld = this.server.overworld();
+        AbstractEvent currentEvent = this.playerEvents.get(player.getUUID());
+        EventType<?> eventType = currentEvent.getType();
 
-        for (ServerPlayerEntity player : world.players()) {
-            AbstractEvent currentEvent = this.playerEvents.get(player.getUUID());
-            EventType<?> eventType = currentEvent.getType();
-
-            if (CapabilityHelper.getPlayerDifficulty(player) > 0) {
-                // Starts the full moon event
-                if (world.getGameTime() > 0L && eventType != EventRegistry.FULL_MOON) {
-                    if (isFullMoon(world) && world.getDayTime() > 13000L) {
-                        this.startEvent(player, EventRegistry.FULL_MOON);
-                    }
-                }
-
-                // Stop the full moon event when it becomes day time.
-                if (world.getDayTime() < 13000L && eventType == EventRegistry.FULL_MOON) {
-                    this.endEvent(player);
-                }
-
-                // Starts the thunderstorm event
-                if (world.isThundering() && eventType != EventRegistry.THUNDERSTORM) {
-                    this.startEvent(player, EventRegistry.THUNDERSTORM);
+        if (CapabilityHelper.getPlayerDifficulty(player) > 0 && overworld.getGameTime() > 0L) {
+            // Starts the full moon event
+            if (eventType != EventRegistry.FULL_MOON) {
+                if (isFullMoon(overworld) && overworld.getDayTime() > 13000L) {
+                    this.startEvent(player, EventRegistry.FULL_MOON);
                 }
             }
-            // Update current event
-            currentEvent.update(world, player);
+            Apocalypse.LOGGER.info("Day time: " + overworld.getDayTime());
+
+            // Stop the full moon event when it becomes day time.
+            if (overworld.getDayTime() <= 13000L && eventType == EventRegistry.FULL_MOON) {
+                this.endEvent(player);
+            }
+
+            // Starts the thunderstorm event
+            if (world.isThundering() && eventType != EventRegistry.THUNDERSTORM) {
+                this.startEvent(player, EventRegistry.THUNDERSTORM);
+            }
         }
+        // Update current event
+        currentEvent.update(world, player);
     }
 
     /** Helper method for logging. */
@@ -321,6 +315,7 @@ public final class PlayerDifficultyManager {
         AbstractEvent newEvent = eventType.createEvent();
         newEvent.onStart(this.server, player);
         this.playerEvents.put(player.getUUID(), newEvent);
+        this.saveEventData(player);
 
         if (eventType.getEventStartMessage() != null) {
             player.displayClientMessage(new TranslationTextComponent(eventType.getEventStartMessage()), true);
@@ -337,6 +332,7 @@ public final class PlayerDifficultyManager {
         UUID uuid = player.getUUID();
         this.playerEvents.get(uuid).onEnd();
         this.playerEvents.put(uuid, EventRegistry.NONE.createEvent());
+        this.saveEventData(player);
     }
 
     /** Cleans up the references to things in a server when the server stops. */
