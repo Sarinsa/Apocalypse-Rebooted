@@ -55,6 +55,7 @@ public class ApocalypseCommonConfig {
         private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.LongValue> moonMobStartDifficulties = new HashMap<>();
         private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.DoubleValue> moonMobAdditionalCount = new HashMap<>();
         private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.IntValue> moonMobMinCount = new HashMap<>();
+        private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.IntValue> moonMobCountCap = new HashMap<>();
 
         // Attributes and potions
         private final ForgeConfigSpec.BooleanValue mobsOnly;
@@ -168,6 +169,16 @@ public class ApocalypseCommonConfig {
             createMobMinCount(SeekerEntity.class, "seeker", 1, configBuilder);
             createMobMinCount(GrumpEntity.class, "grump", 2, configBuilder);
             configBuilder.pop();
+
+            configBuilder.comment("The maximum amount of a specific full moon mob that can spawn during a full moon siege. Keep in mind that since the additional moon mob count increases over time, these values should be carefully considered. Too many mobs will definitely cause problems.");
+            configBuilder.push("max_spawn_count");
+            createMobMaxCap(BreecherEntity.class, "breecher", 20, configBuilder);
+            createMobMaxCap(GhostEntity.class, "ghost", 25, configBuilder);
+            createMobMaxCap(DestroyerEntity.class, "destroyer", 8, configBuilder);
+            createMobMaxCap(SeekerEntity.class, "seeker", 8, configBuilder);
+            createMobMaxCap(GrumpEntity.class, "grump", 18, configBuilder);
+            configBuilder.pop();
+
             configBuilder.pop();
 
             configBuilder.push("attributes_and_potions");
@@ -346,6 +357,10 @@ public class ApocalypseCommonConfig {
             return this.moonMobMinCount.containsKey(entityClass) ? this.moonMobMinCount.get(entityClass).get() : 0;
         }
 
+        public int getMoonMobMaxCount(Class<? extends IFullMoonMob> entityClass) {
+            return this.moonMobCountCap.containsKey(entityClass) ? this.moonMobCountCap.get(entityClass).get() : 0;
+        }
+
 
         //
         // ATTRIBUTES AND POTIONS
@@ -496,6 +511,10 @@ public class ApocalypseCommonConfig {
 
         private void createMobMinCount(Class<? extends IFullMoonMob> entityClass, String name, int defaultMin, ForgeConfigSpec.Builder configBuilder) {
             this.moonMobMinCount.put(entityClass, configBuilder.defineInRange(name, defaultMin, 0, 100));
+        }
+
+        private void createMobMaxCap(Class<? extends IFullMoonMob> entityClass, String name, int defaultMax, ForgeConfigSpec.Builder configBuilder) {
+            this.moonMobCountCap.put(entityClass, configBuilder.defineInRange(name, defaultMax, 0, 100));
         }
     }
 }

@@ -67,6 +67,14 @@ public final class FullMoonEvent extends AbstractEvent {
     public static double SEEKER_ADDITIONAL_COUNT;
     public static double DESTROYER_ADDITIONAL_COUNT;
 
+    /** The maximum amount of each mob type that can spawn */
+    public static int GHOST_MAX_COUNT;
+    public static int BREECHER_MAX_COUNT;
+    public static int GRUMP_MAX_COUNT;
+    public static int SEEKER_MAX_COUNT;
+    public static int DESTROYER_MAX_COUNT;
+
+
     /** Numeric IDs representing each full moon mob */
     private static final int GHOST_ID = 0;
     private static final int BREECHER_ID = 1;
@@ -190,27 +198,27 @@ public final class FullMoonEvent extends AbstractEvent {
         if (GHOST_START >= 0L && GHOST_START <= scaledDifficulty) {
             effectiveDifficulty = (scaledDifficulty - GHOST_START) / MOB_COUNT_TIME_SPAN;
             count = GHOST_MIN_COUNT + (int) (GHOST_ADDITIONAL_COUNT * effectiveDifficulty);
-            this.mobsToSpawn.put(GHOST_ID, count);
+            this.mobsToSpawn.put(GHOST_ID, Math.min(count, GHOST_MAX_COUNT));
         }
         if (BREECHER_START >= 0L && BREECHER_START <= scaledDifficulty) {
             effectiveDifficulty = (scaledDifficulty - BREECHER_START) / MOB_COUNT_TIME_SPAN;
             count = BREECHER_MIN_COUNT + (int) (BREECHER_ADDITIONAL_COUNT * effectiveDifficulty);
-            this.mobsToSpawn.put(BREECHER_ID, count);
+            this.mobsToSpawn.put(BREECHER_ID, Math.min(count, BREECHER_MAX_COUNT));
         }
         if (GRUMP_START >= 0L && GRUMP_START <= scaledDifficulty) {
             effectiveDifficulty = (scaledDifficulty - GRUMP_START) / MOB_COUNT_TIME_SPAN;
             count = GRUMP_MIN_COUNT + (int) (GRUMP_ADDITIONAL_COUNT * effectiveDifficulty);
-            this.mobsToSpawn.put(GRUMP_ID, count);
+            this.mobsToSpawn.put(GRUMP_ID, Math.min(count, GRUMP_MAX_COUNT));
         }
         if (SEEKER_START >= 0L && SEEKER_START <= scaledDifficulty) {
             effectiveDifficulty = (scaledDifficulty - SEEKER_START) / MOB_COUNT_TIME_SPAN;
             count = SEEKER_MIN_COUNT + (int) (SEEKER_ADDITIONAL_COUNT * effectiveDifficulty);
-            this.mobsToSpawn.put(SEEKER_ID, count);
+            this.mobsToSpawn.put(SEEKER_ID, Math.min(count, SEEKER_MAX_COUNT));
         }
         if (DESTROYER_START >= 0L && DESTROYER_START <= scaledDifficulty) {
             effectiveDifficulty = (scaledDifficulty - DESTROYER_START) / MOB_COUNT_TIME_SPAN;
             count = DESTROYER_MIN_COUNT + (int) (DESTROYER_ADDITIONAL_COUNT * effectiveDifficulty);
-            this.mobsToSpawn.put(DESTROYER_ID, count);
+            this.mobsToSpawn.put(DESTROYER_ID, Math.min(count, DESTROYER_MAX_COUNT));
         }
     }
 

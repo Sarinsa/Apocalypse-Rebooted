@@ -120,6 +120,12 @@ public class CommonConfigReloadListener {
         FullMoonEvent.SEEKER_ADDITIONAL_COUNT = COMMON.getMoonMobAdditionalCount(SeekerEntity.class);
         FullMoonEvent.DESTROYER_ADDITIONAL_COUNT = COMMON.getMoonMobAdditionalCount(DestroyerEntity.class);
 
+        FullMoonEvent.GHOST_MAX_COUNT = COMMON.getMoonMobMaxCount(GhostEntity.class);
+        FullMoonEvent.BREECHER_MAX_COUNT = COMMON.getMoonMobMaxCount(BreecherEntity.class);
+        FullMoonEvent.GRUMP_MAX_COUNT = COMMON.getMoonMobMaxCount(GrumpEntity.class);
+        FullMoonEvent.SEEKER_MAX_COUNT = COMMON.getMoonMobMaxCount(SeekerEntity.class);
+        FullMoonEvent.DESTROYER_MAX_COUNT = COMMON.getMoonMobMaxCount(DestroyerEntity.class);
+
         FullMoonEvent.GHOST_START = COMMON.getMoonMobStartDifficulty(GhostEntity.class);
         FullMoonEvent.BREECHER_START = COMMON.getMoonMobStartDifficulty(BreecherEntity.class);
         FullMoonEvent.GRUMP_START = COMMON.getMoonMobStartDifficulty(GrumpEntity.class);
