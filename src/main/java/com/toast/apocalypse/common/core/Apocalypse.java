@@ -20,6 +20,7 @@ import com.toast.apocalypse.common.event.PlayerEvents;
 import com.toast.apocalypse.common.event.VillagerTradeEvents;
 import com.toast.apocalypse.common.network.PacketHandler;
 import com.toast.apocalypse.common.register.*;
+import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -65,6 +66,7 @@ public class Apocalypse {
 
         ApocalypseEntities.initTypes();
         EventRegistry.init();
+        ApocalypseTriggers.init();
 
         this.packetHandler.registerMessages();
 

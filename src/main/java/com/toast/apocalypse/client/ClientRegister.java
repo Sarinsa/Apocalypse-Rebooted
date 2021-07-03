@@ -35,8 +35,6 @@ import java.util.function.Supplier;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Apocalypse.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientRegister {
 
-    public static final BucketHelmetModel BUCKET_HELMET_MODEL = new BucketHelmetModel();
-
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(new ClientEvents(event.getMinecraftSupplier().get()));

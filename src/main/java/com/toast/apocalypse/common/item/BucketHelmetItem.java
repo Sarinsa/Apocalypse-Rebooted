@@ -1,11 +1,8 @@
 package com.toast.apocalypse.common.item;
 
-import com.toast.apocalypse.client.ClientRegister;
 import com.toast.apocalypse.client.ClientUtil;
-import com.toast.apocalypse.client.renderers.model.armor.BucketHelmetModel;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.util.References;
-import net.minecraft.block.CarvedPumpkinBlock;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
@@ -43,7 +40,7 @@ public class BucketHelmetItem extends ArmorItem {
     @Nullable
     @SuppressWarnings("unchecked")
     public <A extends BipedModel<?>> A getArmorModel(LivingEntity entityLiving, ItemStack itemStack, EquipmentSlotType armorSlot, A defaultModel) {
-        return armorSlot == EquipmentSlotType.HEAD ? (A) ClientRegister.BUCKET_HELMET_MODEL : defaultModel;
+        return armorSlot == EquipmentSlotType.HEAD ? (A) ClientUtil.BUCKET_HELMET_MODEL : defaultModel;
     }
 
     @OnlyIn(Dist.CLIENT)

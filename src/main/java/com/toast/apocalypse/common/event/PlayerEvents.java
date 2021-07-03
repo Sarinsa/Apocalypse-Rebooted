@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.event;
 
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.network.NetworkHelper;
@@ -38,12 +39,11 @@ public class PlayerEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerTrySleep(PlayerSleepInBedEvent event) {
         PlayerEntity player = event.getPlayer();
-        World world = player.getCommandSenderWorld();
 
         if (player.isSleeping() || !player.isAlive())
             return;
 
-        if (world.isNight() && PlayerDifficultyManager.isFullMoon(world)) {
+        if (!player.getCommandSenderWorld().isClientSide && Apocalypse.INSTANCE.getDifficultyManager().isFullMoonNight()) {
             event.setResult(PlayerEntity.SleepResult.OTHER_PROBLEM);
             player.displayClientMessage(new TranslationTextComponent(References.TRY_SLEEP_FULL_MOON), true);
         }

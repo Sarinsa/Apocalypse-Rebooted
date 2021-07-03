@@ -1,13 +1,11 @@
 package com.toast.apocalypse.common.network.work;
 
+import com.toast.apocalypse.client.ClientUtil;
 import com.toast.apocalypse.client.event.ClientEvents;
 import com.toast.apocalypse.client.event.DifficultyRenderHandler;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.network.message.S2CUpdateEntityVelocity;
-import com.toast.apocalypse.common.network.message.S2CUpdatePlayerDifficulty;
-import com.toast.apocalypse.common.network.message.S2CUpdatePlayerDifficultyRate;
-import com.toast.apocalypse.common.network.message.S2CUpdatePlayerMaxDifficulty;
+import com.toast.apocalypse.common.network.message.*;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -22,6 +20,7 @@ import net.minecraftforge.common.capabilities.Capability;
  */
 public class ClientWork {
 
+    @SuppressWarnings("all")
     private static <T> T getCapability(ClientPlayerEntity player, Capability<T> capability) {
         return player.getCapability(capability).orElse(capability.getDefaultInstance());
     }
@@ -62,5 +61,9 @@ public class ClientWork {
                 entity.setDeltaMovement(message.xMotion, message.yMotion, message.zMotion);
             }
         }
+    }
+
+    public static void handleMoonPhaseUpdate(S2CUpdateMoonPhase message) {
+        ClientUtil.OVERWORLD_MOON_PHASE = message.moonPhase;
     }
 }

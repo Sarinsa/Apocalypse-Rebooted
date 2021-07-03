@@ -45,5 +45,8 @@
   "apocalypse.screen.tooltip.create_world_config": "Apocalypse",
   "apocalypse.screen.title.create_world_config": "Apocalypse World Settings",
   "apocalypse.screen.text_field.create_world_config.max_difficulty": "Default Max Difficulty",
-  "apocalypse.screen.text_field.create_world_config.grace_period": "Default Grace Period"
+  "apocalypse.screen.text_field.create_world_config.grace_period": "Default Grace Period",
+
+  "apocalypse.advancements.root.title": "It Begins",
+  "apocalypse.advancements.root.description": "The grace period is over. Stay on your toes!"
 }

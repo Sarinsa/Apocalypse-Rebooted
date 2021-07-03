@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.core.mod_event.events;
 
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.difficulty.MobDifficultyHandler;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
@@ -250,6 +251,7 @@ public final class FullMoonEvent extends AbstractEvent {
      */
     private void spawnMob(int mobType, ServerWorld world, ServerPlayerEntity player) {
         MobEntity mob;
+        long difficulty = CapabilityHelper.getPlayerDifficulty(player);
 
         switch (mobType) {
             default:
@@ -272,13 +274,16 @@ public final class FullMoonEvent extends AbstractEvent {
         if (mob == null)
             return;
 
+        MobDifficultyHandler.handleAttributes(mob, difficulty, true);
+
         ((IFullMoonMob) mob).setPlayerTarget(player);
         this.currentMobs.add(mob);
     }
 
     @Nullable
     private <T extends MobEntity> T createMob(EntityType<T> entityType, ServerPlayerEntity player, ServerWorld world) {
-        BlockPos spawnPos = player.blockPosition();
+        BlockPos playerPos = player.blockPosition();
+        BlockPos spawnPos = null;
         final int minDist = 25;
 
         if (entityType == ApocalypseEntities.GHOST.get()) {
@@ -288,8 +293,8 @@ public final class FullMoonEvent extends AbstractEvent {
             for (int i = 0; i < 10; i++) {
                 int startX = random.nextInt(2) == 1 ? minDist : -minDist;
                 int startZ = random.nextInt(2) == 1 ? minDist : -minDist;
-                int x = spawnPos.getX() + startX + (startX < 1 ? -random.nextInt(46) : random.nextInt(46));
-                int z = spawnPos.getZ() + startZ + (startZ < 1 ? -random.nextInt(46) : random.nextInt(46));
+                int x = playerPos.getX() + startX + (startX < 1 ? -random.nextInt(46) : random.nextInt(46));
+                int z = playerPos.getZ() + startZ + (startZ < 1 ? -random.nextInt(46) : random.nextInt(46));
                 pos = new BlockPos(x, 20 + random.nextInt(60), z);
 
                 if (world.isLoaded(pos)) {
@@ -305,8 +310,8 @@ public final class FullMoonEvent extends AbstractEvent {
             for (int i = 0; i < 10; i++) {
                 int startX = random.nextInt(2) == 1 ? minDist : -minDist;
                 int startZ = random.nextInt(2) == 1 ? minDist : -minDist;
-                int x = (int) player.getX() + startX + (startX < 1 ? -random.nextInt(46) : random.nextInt(46));
-                int z = (int) player.getZ() + startZ + (startZ < 1 ? -random.nextInt(46) : random.nextInt(46));
+                int x = playerPos.getX() + startX + (startX < 1 ? -random.nextInt(46) : random.nextInt(46));
+                int z = playerPos.getZ() + startZ + (startZ < 1 ? -random.nextInt(46) : random.nextInt(46));
                 int y = world.getHeight(Heightmap.Type.WORLD_SURFACE, x, z);
                 BlockPos pos = new BlockPos(x, y, z);
 
@@ -318,6 +323,9 @@ public final class FullMoonEvent extends AbstractEvent {
                 }
             }
         }
+        if (spawnPos == null)
+            return null;
+
         return entityType.spawn(world, null, null, null, spawnPos, SpawnReason.EVENT, true, true);
     }
 

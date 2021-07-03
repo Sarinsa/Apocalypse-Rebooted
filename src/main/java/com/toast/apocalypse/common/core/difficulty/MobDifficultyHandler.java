@@ -1,5 +1,7 @@
 package com.toast.apocalypse.common.core.difficulty;
 
+import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import com.toast.apocalypse.common.event.CommonConfigReloadListener;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import net.minecraft.entity.EntityType;
@@ -70,10 +72,11 @@ public final class MobDifficultyHandler {
         LivingEntity spawnedEntity = event.getEntityLiving();
         World world = spawnedEntity.getCommandSenderWorld();
         final long difficulty = PlayerDifficultyManager.getNearestPlayerDifficulty(world, spawnedEntity);
-        final boolean fullMoon = PlayerDifficultyManager.isFullMoon(world) && world.isNight();
+        final boolean fullMoon = Apocalypse.INSTANCE.getDifficultyManager().isFullMoonNight();
 
-        // Don't do anything if the player is still on grace period.
-        if (difficulty <= 0)
+        // Don't do anything if the player is still on grace period
+        // or if the entity is a full moon mob.
+        if (difficulty <= 0L || spawnedEntity instanceof IFullMoonMob)
             return;
 
         if (!(spawnedEntity instanceof IMob) && MOBS_ONLY)
@@ -90,7 +93,7 @@ public final class MobDifficultyHandler {
      * @param difficulty The difficulty of the nearest player.
      * @param fullMoon Whether or not it is night time and a full moon in the world that this entity spawns in.
      */
-    private static void handleAttributes(LivingEntity livingEntity, long difficulty, boolean fullMoon) {
+    public static void handleAttributes(LivingEntity livingEntity, long difficulty, boolean fullMoon) {
         ModifiableAttributeInstance attribute;
         double effectiveDifficulty;
         double bonus;
@@ -178,7 +181,7 @@ public final class MobDifficultyHandler {
 
         if (!DAMAGE_BLACKLIST.contains(attacker.getType()) || difficulty <= 0) {
             double effectiveDifficulty = (double) difficulty / DAMAGE_TIME_SPAN;
-            boolean fullMoon = PlayerDifficultyManager.isFullMoon(player.getCommandSenderWorld()) && player.getCommandSenderWorld().isNight();
+            boolean fullMoon = Apocalypse.INSTANCE.getDifficultyManager().isFullMoonNight();
             double bonus, mult;
 
             bonus = DAMAGE_FLAT_BONUS * effectiveDifficulty;

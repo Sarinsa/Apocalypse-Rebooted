@@ -7,6 +7,7 @@ import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.event.CommonConfigReloadListener;
 import com.toast.apocalypse.common.network.NetworkHelper;
+import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.entity.LivingEntity;
@@ -29,6 +30,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
+import net.minecraftforge.fml.network.FMLStatusPing;
 import org.apache.logging.log4j.Level;
 
 import java.util.HashMap;
@@ -72,8 +74,9 @@ public final class PlayerDifficultyManager {
     private final HashMap<RegistryKey<World>, List<PlayerGroup>> playerGroups = new HashMap<>();
 
 
-    public static boolean isFullMoon(IWorld world) {
-        return world.getMoonBrightness() == 1.0F;
+    public boolean isFullMoonNight() {
+        ServerWorld world = this.server.overworld();
+        return world.getMoonBrightness() >= 1.0F && world.getDayTime() > 13000L;
     }
 
     public static long getNearestPlayerDifficulty(IWorld world, LivingEntity livingEntity) {
@@ -116,6 +119,7 @@ public final class PlayerDifficultyManager {
             NetworkHelper.sendUpdatePlayerDifficulty(serverPlayer);
             NetworkHelper.sendUpdatePlayerDifficultyMult(serverPlayer);
             NetworkHelper.sendUpdatePlayerMaxDifficulty(serverPlayer);
+            NetworkHelper.sendMoonPhaseUpdate(serverPlayer, this.server.overworld().getMoonPhase());
 
             this.loadEventData(serverPlayer);
         }
@@ -128,6 +132,68 @@ public final class PlayerDifficultyManager {
             this.saveEventData(serverPlayer);
             this.playerEvents.get(serverPlayer.getUUID()).stop(serverPlayer.getLevel());
             this.playerEvents.remove(serverPlayer.getUUID());
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onSleepFinished(SleepFinishedTimeEvent event) {
+        if (event.getWorld() instanceof ServerWorld) {
+            ServerWorld world = (ServerWorld) event.getWorld();
+            long timeSkipped = event.getNewTime() - world.getDayTime();
+
+            if (timeSkipped > 20L) {
+                for (ServerPlayerEntity player : world.players()) {
+                    long playerDifficulty = CapabilityHelper.getPlayerDifficulty(player);
+                    long playerMaxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
+                    double difficultyMult = CapabilityHelper.getPlayerDifficultyMult(player);
+
+                    playerDifficulty += ((timeSkipped * SLEEP_PENALTY) * difficultyMult);
+                    CapabilityHelper.setPlayerDifficulty(player, Math.min(playerDifficulty, playerMaxDifficulty));
+
+                    player.displayClientMessage(new TranslationTextComponent(References.SLEEP_PENALTY), true);
+                    player.playSound(SoundEvents.AMBIENT_CAVE, 1.0F, 0.8F);
+                }
+            }
+        }
+    }
+
+    /**
+     * Called each game tick to update world difficulty rate
+     * and the currently running Apocalypse event.
+     *
+     * TickEvent.Type type = the type of tick.
+     * Side side = the side this tick is on.
+     * TickEvent.Phase phase = the phase of this tick (START, END).
+     *
+     * @param event The event being triggered.
+     */
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public void onServerTick(TickEvent.ServerTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) {
+            MinecraftServer server = this.server;
+
+            // Counter to update the world
+            if (++this.timeUntilUpdate >= TICKS_PER_UPDATE) {
+                this.timeUntilUpdate = 0;
+
+                // Update player difficulty
+                for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
+                    this.updatePlayer(player);
+                    this.updatePlayerEvent(player);
+                }
+            }
+
+            // Save event data
+            if (++this.timeUntilSave >= TICKS_PER_SAVE) {
+                this.timeUntilSave = 0;
+
+                for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
+                    this.saveEventData(player);
+                    // Cheekily sneak in a moon phase update here, since
+                    // it doesn't exactly need to happen often.
+                    NetworkHelper.sendMoonPhaseUpdate(player, server.overworld().getMoonPhase());
+                }
+            }
         }
     }
 
@@ -186,68 +252,13 @@ public final class PlayerDifficultyManager {
         if (!maxDifficultyReached && !player.isCreative() || !player.isSpectator()) {
             currentDifficulty += TICKS_PER_UPDATE * difficultyMultiplier;
         }
+
+        if (currentDifficulty >= 0L)  {
+            ApocalypseTriggers.CHANGED_DIFFICULTY.trigger(player, currentDifficulty, 0L);
+        }
         // Update player difficulty stuff
         CapabilityHelper.setPlayerDifficulty(player, currentDifficulty);
         CapabilityHelper.setPlayerDifficultyMult(player, difficultyMultiplier);
-    }
-
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onSleepFinished(SleepFinishedTimeEvent event) {
-        if (event.getWorld() instanceof ServerWorld) {
-            ServerWorld world = (ServerWorld) event.getWorld();
-            long timeSkipped = event.getNewTime() - world.getDayTime();
-
-            if (timeSkipped > 20L) {
-                for (ServerPlayerEntity player : world.players()) {
-                    long playerDifficulty = CapabilityHelper.getPlayerDifficulty(player);
-                    long playerMaxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
-                    double difficultyMult = CapabilityHelper.getPlayerDifficultyMult(player);
-
-                    playerDifficulty += ((timeSkipped * SLEEP_PENALTY) * difficultyMult);
-                    CapabilityHelper.setPlayerDifficulty(player, Math.min(playerDifficulty, playerMaxDifficulty));
-
-                    player.displayClientMessage(new TranslationTextComponent(References.SLEEP_PENALTY), true);
-                    player.playSound(SoundEvents.AMBIENT_CAVE, 1.0F, 0.8F);
-                }
-            }
-        }
-    }
-
-    /**
-     * Called each game tick to update world difficulty rate
-     * and the currently running Apocalypse event.
-     *
-     * TickEvent.Type type = the type of tick.
-     * Side side = the side this tick is on.
-     * TickEvent.Phase phase = the phase of this tick (START, END).
-     *
-     * @param event The event being triggered.
-     */
-    @SubscribeEvent(priority = EventPriority.HIGH)
-    public void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase == TickEvent.Phase.END) {
-            MinecraftServer server = this.server;
-
-            // Counter to update the world
-            if (++this.timeUntilUpdate >= TICKS_PER_UPDATE) {
-                this.timeUntilUpdate = 0;
-
-                // Update player difficulty
-                for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
-                    this.updatePlayer(player);
-                    this.updatePlayerEvent(player);
-                }
-            }
-
-            // Save event data
-            if (++this.timeUntilSave >= TICKS_PER_SAVE) {
-                this.timeUntilSave = 0;
-
-                for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
-                    this.saveEventData(player);
-                }
-            }
-        }
     }
 
     /**
@@ -263,22 +274,24 @@ public final class PlayerDifficultyManager {
         EventType<?> eventType = currentEvent.getType();
 
         if (CapabilityHelper.getPlayerDifficulty(player) > 0 && overworld.getGameTime() > 0L) {
-            // Starts the full moon event
-            if (eventType != EventRegistry.FULL_MOON) {
-                if (isFullMoon(overworld) && overworld.getDayTime() > 13000L) {
-                    this.startEvent(player, EventRegistry.FULL_MOON);
-                }
+            // Starts the full moon event.
+            if (this.isFullMoonNight() && eventType != EventRegistry.FULL_MOON) {
+                eventType = this.startEvent(player, currentEvent, EventRegistry.FULL_MOON);
             }
-            Apocalypse.LOGGER.info("Day time: " + overworld.getDayTime());
 
             // Stop the full moon event when it becomes day time.
-            if (overworld.getDayTime() <= 13000L && eventType == EventRegistry.FULL_MOON) {
-                this.endEvent(player);
+            if (!this.isFullMoonNight() && eventType == EventRegistry.FULL_MOON) {
+                eventType = this.endEvent(player);
             }
 
-            // Starts the thunderstorm event
+            // Starts the thunderstorm event.
             if (world.isThundering() && eventType != EventRegistry.THUNDERSTORM) {
-                this.startEvent(player, EventRegistry.THUNDERSTORM);
+                eventType = this.startEvent(player, currentEvent, EventRegistry.THUNDERSTORM);
+            }
+
+            // Stop the thunderstorm event when the weather clears up.
+            if (!world.isThundering() && eventType == EventRegistry.THUNDERSTORM) {
+                this.endEvent(player);
             }
         }
         // Update current event
@@ -301,15 +314,13 @@ public final class PlayerDifficultyManager {
      * @param player The player to start the event for.
      * @param eventType The event type for the event to start.
      */
-    public void startEvent(ServerPlayerEntity player, EventType<?> eventType) {
+    public EventType<?> startEvent(ServerPlayerEntity player, AbstractEvent currentEvent, EventType<?> eventType) {
         if (eventType == null)
-            return;
-
-        AbstractEvent currentEvent = this.playerEvents.get(player.getUUID());
+            return currentEvent.getType();
 
         if (currentEvent != null) {
             if (!currentEvent.getType().canBeInterrupted())
-                return;
+                return currentEvent.getType();
             currentEvent.onEnd();
         }
         AbstractEvent newEvent = eventType.createEvent();
@@ -320,6 +331,7 @@ public final class PlayerDifficultyManager {
         if (eventType.getEventStartMessage() != null) {
             player.displayClientMessage(new TranslationTextComponent(eventType.getEventStartMessage()), true);
         }
+        return eventType;
     }
 
     public int getEventId(ServerPlayerEntity player) {
@@ -328,11 +340,12 @@ public final class PlayerDifficultyManager {
     }
 
     /** Ends the current active event, if any. */
-    public void endEvent(ServerPlayerEntity player) {
+    public EventType<?> endEvent(ServerPlayerEntity player) {
         UUID uuid = player.getUUID();
         this.playerEvents.get(uuid).onEnd();
         this.playerEvents.put(uuid, EventRegistry.NONE.createEvent());
         this.saveEventData(player);
+        return EventRegistry.NONE;
     }
 
     /** Cleans up the references to things in a server when the server stops. */

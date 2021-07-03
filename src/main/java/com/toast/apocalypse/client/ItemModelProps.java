@@ -19,23 +19,7 @@ public class ItemModelProps {
                 return 0.0F;
             }
             else {
-                if (clientWorld == null && entity.level instanceof ClientWorld) {
-                    clientWorld = (ClientWorld)entity.level;
-                }
-                if (clientWorld == null) {
-                    return 0.0F;
-                }
-                else {
-                    int moonPhase;
-
-                    if (clientWorld.dimension() == World.OVERWORLD) {
-                        moonPhase = clientWorld.getMoonPhase();
-                    }
-                    else {
-                        moonPhase = 4;
-                    }
-                    return (float) moonPhase;
-                }
+                return (float) ClientUtil.OVERWORLD_MOON_PHASE;
             }
         });
     }

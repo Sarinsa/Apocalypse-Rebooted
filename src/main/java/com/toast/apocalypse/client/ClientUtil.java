@@ -1,6 +1,7 @@
 package com.toast.apocalypse.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.toast.apocalypse.client.renderers.model.armor.BucketHelmetModel;
 import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -11,6 +12,9 @@ import net.minecraft.util.ResourceLocation;
 public class ClientUtil {
 
     private static final ResourceLocation BUCKET_HELM_OVERLAY_TEXTURE = Apocalypse.resourceLoc("textures/misc/bucket_blur.png");
+    public static final BucketHelmetModel BUCKET_HELMET_MODEL = new BucketHelmetModel();
+
+    public static int OVERWORLD_MOON_PHASE = 0;
 
     public static void renderBucketHelmOverlay(int screenWidth, int screenHeight) {
         RenderSystem.disableDepthTest();

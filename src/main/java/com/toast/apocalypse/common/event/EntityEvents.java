@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.event;
 
-import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
 import com.toast.apocalypse.common.register.ApocalypseItems;
@@ -24,8 +24,10 @@ public class EntityEvents {
      */
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onDespawnCheck(LivingSpawnEvent.AllowDespawn event) {
-        if (PlayerDifficultyManager.isFullMoon(event.getWorld()) && event.getEntityLiving() instanceof IFullMoonMob) {
-            event.setResult(Event.Result.DENY);
+        if (!event.getWorld().isClientSide()) {
+            if (event.getEntityLiving() instanceof IFullMoonMob && Apocalypse.INSTANCE.getDifficultyManager().isFullMoonNight()) {
+                event.setResult(Event.Result.DENY);
+            }
         }
     }
 

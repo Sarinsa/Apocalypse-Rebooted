@@ -86,10 +86,6 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         this.entityData.define(ALERTING, false);
     }
 
-    public boolean canAlert() {
-        return !this.isCharging();
-    }
-
     public boolean isAlerting() {
         return this.entityData.get(ALERTING);
     }
@@ -332,7 +328,7 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         @Override
         public boolean canUse() {
             if (this.seeker.getTarget() != null) {
-                return this.seeker.canAlert() && this.seeker.canSeeDirectly(this.seeker.getTarget()) && this.seeker.currentTarget != this.seeker.getTarget();
+                return !this.seeker.isCharging() && this.seeker.distanceToSqr(this.seeker.getTarget()) < 4096.0D && this.seeker.canSeeDirectly(this.seeker.getTarget()) && this.seeker.currentTarget != this.seeker.getTarget();
             }
             return false;
         }
