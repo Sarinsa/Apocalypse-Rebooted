@@ -32,6 +32,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.ForgeMod;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -62,6 +63,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
                 .add(Attributes.MAX_HEALTH, 10.0D)
                 .add(Attributes.ATTACK_DAMAGE, 4.0D)
                 .add(Attributes.FLYING_SPEED, 0.8D)
+                .add(ForgeMod.SWIM_SPEED.get(), 1.1D)
                 .add(Attributes.FOLLOW_RANGE, Double.POSITIVE_INFINITY);
     }
 
@@ -192,7 +194,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
         }
 
         private void setWantedPosition(LivingEntity target) {
-            Vector3d vector = target.getEyePosition(1.0F).add(0.0D, -(this.grump.getBbHeight() / 1.3), 0.0D);
+            Vector3d vector = target.getEyePosition(1.0F).add(0.0D, -(this.grump.getBbHeight() / 2), 0.0D);
             this.grump.moveControl.setWantedPosition(vector.x, vector.y, vector.z, 1.0D);
         }
 

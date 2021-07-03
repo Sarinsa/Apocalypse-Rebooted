@@ -51,7 +51,6 @@ public class ApocalypseCommonConfig {
 
         // Full moon stuff
         private final ForgeConfigSpec.DoubleValue difficultyUntilNextIncrease;
-        private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.DoubleValue> spawnWeights = new HashMap<>();
         private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.LongValue> moonMobStartDifficulties = new HashMap<>();
         private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.DoubleValue> moonMobAdditionalCount = new HashMap<>();
         private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.IntValue> moonMobMinCount = new HashMap<>();
@@ -113,7 +112,7 @@ public class ApocalypseCommonConfig {
                     .define("multiplayerDifficultyScaling", true);
 
             this.difficultyMultiplayerRateMult = configBuilder.comment("Only relevant if multiplayer difficulty scaling is enabled. For example, a value of 0.05 will apply an additional +5% difficulty increment per online player (If only one player is online this multiplier will not be active)")
-                    .defineInRange("difficultyMultiplayerRateMult", 0.05D, 0.01D, 10.0D);
+                    .defineInRange("difficultyMultiplayerRateMult", 0.0D, 0.0D, 10.0D);
 
             this.sleepPenalty = configBuilder.comment("Sets the multiplier used to increase world difficulty when players sleep through a night or thunderstorm.")
                     .defineInRange("sleepPenalty", 2.0D, 1.0D, 1000.0D);
@@ -122,7 +121,7 @@ public class ApocalypseCommonConfig {
                     .define("dimensionPenaltyList", PENALTY_DIMENSIONS);
 
             this.dimensionPenalty = configBuilder.comment("The difficulty rate multiplier used when a player enters a dimension with difficulty penalty.")
-                    .defineInRange("dimensionPenalty", 1.5D, 0.0D, 1000.0D);
+                    .defineInRange("dimensionPenalty", 0.5D, 0.0D, 1000.0D);
 
             this.averageGroupDifficulty = configBuilder.comment("(Currently unused) If enabled, players that are close to each other will have the average of their difficulty added together used instead of the nearby player with the highest difficulty.")
                     .define("averageGroupDifficulty", false);
@@ -133,15 +132,6 @@ public class ApocalypseCommonConfig {
 
             this.difficultyUntilNextIncrease = configBuilder.comment("How many levels of difficulty must pass before the additional full moon mob counts increases. For example, a value of 30.5 will increase the number of full moon mobs spawning during sieges for every 30.5 levels of difficulty passed.")
                     .defineInRange("difficultyUntilNextIncrease", 40.0D, 0.1D, 100000.0D);
-
-            configBuilder.comment("The spawn weights for all the full moon mobs.");
-            configBuilder.push("spawn_chance");
-            createSpawnWeight(BreecherEntity.class, "breecher", 4.0D, configBuilder);
-            createSpawnWeight(GhostEntity.class, "ghost", 8.0D, configBuilder);
-            createSpawnWeight(DestroyerEntity.class, "destroyer", 2.0D, configBuilder);
-            createSpawnWeight(SeekerEntity.class, "seeker", 2.0D, configBuilder);
-            createSpawnWeight(GrumpEntity.class, "grump", 3.0D, configBuilder);
-            configBuilder.pop();
 
             configBuilder.comment("The difficulty at which a specific type of full moon mob can start to spawn during sieges (It might be smart to let at least one type spawn at 0).");
             configBuilder.push("spawn_start_difficulties");
@@ -341,10 +331,6 @@ public class ApocalypseCommonConfig {
             return this.difficultyUntilNextIncrease.get();
         }
 
-        public double getFullMoonMobSpawnWeight(Class<? extends IFullMoonMob> entityClass) {
-            return this.spawnWeights.containsKey(entityClass) ? this.spawnWeights.get(entityClass).get() : 0.0D;
-        }
-
         public long getMoonMobStartDifficulty(Class<? extends IFullMoonMob> entityClass) {
             return this.moonMobStartDifficulties.containsKey(entityClass) ? (this.moonMobStartDifficulties.get(entityClass).get()) : 0;
         }
@@ -491,14 +477,6 @@ public class ApocalypseCommonConfig {
 
         public int getDestroyerExplosionPower() {
             return this.destroyerExplosionPower.get();
-        }
-
-
-        /*
-         * Helper methods and whatnot
-         */
-        private void createSpawnWeight(Class<? extends IFullMoonMob> entityClass, String name, double defaultWeight, ForgeConfigSpec.Builder configBuilder) {
-            this.spawnWeights.put(entityClass, configBuilder.defineInRange(name, defaultWeight, 0, 100));
         }
 
         private void createStartDifficulty(Class<? extends IFullMoonMob> entityClass, String name, long defaultStart, ForgeConfigSpec.Builder configBuilder) {

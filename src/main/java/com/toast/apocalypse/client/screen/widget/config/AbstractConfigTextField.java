@@ -31,7 +31,7 @@ public abstract class AbstractConfigTextField<T> extends TextFieldWidget {
         this.setValue(String.valueOf(defaultValue));
         this.currentValue = defaultValue;
         this.descriptor = descriptor == null ? null : (TranslationTextComponent) descriptor.withStyle(TextFormatting.ITALIC).withStyle(TextFormatting.GRAY);
-        this.tooltip = null;
+        this.tooltip = tooltip;
     }
 
     @Override
@@ -85,12 +85,19 @@ public abstract class AbstractConfigTextField<T> extends TextFieldWidget {
         return this.descriptor;
     }
 
+    @Nullable
+    public Button.ITooltip getTooltip() {
+        return this.tooltip;
+    }
+
     @Override
     public void render(MatrixStack matrixStack, int x, int y, float partialTick) {
         super.render(matrixStack, x, y, partialTick);
 
         if (this.visible && this.descriptor != null) {
             Screen.drawCenteredString(matrixStack, Minecraft.getInstance().font, this.descriptor, this.x + this.width / 2, this.y - (this.height / 2) - 3, -1);
+
+
         }
     }
 }

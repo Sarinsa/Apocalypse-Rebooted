@@ -17,13 +17,7 @@ public final class DoubleConfigTextField extends AbstractConfigTextField<Double>
     protected boolean checkIsValidValue(String value) {
         try {
             double doubleValue = Double.parseDouble(value);
-
-            if (doubleValue < this.minValue || doubleValue > this.maxValue) {
-                return false;
-            }
-            else {
-                return true;
-            }
+            return doubleValue >= this.minValue && doubleValue <= this.maxValue;
         }
         catch (Exception ignored) {
             return false;

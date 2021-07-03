@@ -2,6 +2,7 @@ package com.toast.apocalypse.common.misc.mixin_work;
 
 import com.toast.apocalypse.common.core.difficulty.MobDifficultyHandler;
 import com.toast.apocalypse.common.misc.EntityAttributeModifiers;
+import com.toast.apocalypse.common.mixin.LivingEntityMixin;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
 import com.toast.apocalypse.common.register.ApocalypseItems;
 import net.minecraft.entity.Entity;
@@ -14,8 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 public class CommonMixinHooks {
 
-    public static ModifiableAttributeInstance livingEntityOnTravelModifyVariable(ModifiableAttributeInstance attributeInstance, boolean hasHeavyEffect) {
-        if (hasHeavyEffect) {
+    public static ModifiableAttributeInstance livingEntityOnTravelModifyVariable(ModifiableAttributeInstance attributeInstance, LivingEntity entity, long airborneTime) {
+        if (entity.hasEffect(ApocalypseEffects.HEAVY.get()) && airborneTime >= 15) {
             if (!attributeInstance.hasModifier(EntityAttributeModifiers.HEAVY)) {
                 attributeInstance.addTransientModifier(EntityAttributeModifiers.HEAVY);
             }

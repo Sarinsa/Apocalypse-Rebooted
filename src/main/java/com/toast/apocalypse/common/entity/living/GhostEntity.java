@@ -65,7 +65,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
                 .add(Attributes.ATTACK_DAMAGE, 1.0D)
                 .add(Attributes.MAX_HEALTH, 4.0D)
                 .add(Attributes.FLYING_SPEED, 1.0D)
-                .add(ForgeMod.SWIM_SPEED.get(), 1.0F)
+                .add(ForgeMod.SWIM_SPEED.get(), 1.1F)
                 .add(Attributes.FOLLOW_RANGE, Double.POSITIVE_INFINITY);
     }
 

@@ -227,10 +227,10 @@ public final class PlayerDifficultyManager {
     }
 
     private void updatePlayer(ServerPlayerEntity player) {
-        int playerCount = this.server.getPlayerCount();
+        final int playerCount = this.server.getPlayerCount();
+        final long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
         double difficultyMultiplier = CapabilityHelper.getPlayerDifficultyMult(player);
         long currentDifficulty = CapabilityHelper.getPlayerDifficulty(player);
-        long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
 
         // Apply multiplayer difficulty multiplier, if enabled.
         if (MULTIPLAYER_DIFFICULTY_SCALING) {
@@ -251,10 +251,6 @@ public final class PlayerDifficultyManager {
 
         if (!maxDifficultyReached && !player.isCreative() || !player.isSpectator()) {
             currentDifficulty += TICKS_PER_UPDATE * difficultyMultiplier;
-        }
-
-        if (currentDifficulty >= 0L)  {
-            ApocalypseTriggers.CHANGED_DIFFICULTY.trigger(player, currentDifficulty, 0L);
         }
         // Update player difficulty stuff
         CapabilityHelper.setPlayerDifficulty(player, currentDifficulty);

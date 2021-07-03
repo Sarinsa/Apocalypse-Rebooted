@@ -100,12 +100,6 @@ public class CommonConfigReloadListener {
         MobDifficultyHandler.KNOCKBACK_RES_FLAT_BONUS_MAX = COMMON.getKnockbackResFlatBonusMax();
         MobDifficultyHandler.KNOCKBACK_RES_LUNAR_FLAT_BONUS = COMMON.getKnockbackResLunarFlatBonus();
 
-        FullMoonEvent.GHOST_SPAWN_WEIGHT = COMMON.getFullMoonMobSpawnWeight(GhostEntity.class);
-        FullMoonEvent.BREECHER_SPAWN_WEIGHT = COMMON.getFullMoonMobSpawnWeight(BreecherEntity.class);
-        FullMoonEvent.GRUMP_SPAWN_WEIGHT = COMMON.getFullMoonMobSpawnWeight(GrumpEntity.class);
-        FullMoonEvent.SEEKER_SPAWN_WEIGHT = COMMON.getFullMoonMobSpawnWeight(SeekerEntity.class);
-        FullMoonEvent.DESTROYER_SPAWN_WEIGHT = COMMON.getFullMoonMobSpawnWeight(DestroyerEntity.class);
-
         FullMoonEvent.MOB_COUNT_TIME_SPAN = COMMON.getDifficultyUntilNextIncrease();
 
         FullMoonEvent.GHOST_MIN_COUNT = COMMON.getMoonMobMinCount(GhostEntity.class);

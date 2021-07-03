@@ -17,12 +17,7 @@ public class IntegerConfigTextField extends AbstractConfigTextField<Integer> {
         try {
             int intValue = Integer.parseInt(value);
 
-            if (intValue < this.minValue || intValue > this.maxValue) {
-                return false;
-            }
-            else {
-                return true;
-            }
+            return intValue >= this.minValue && intValue <= this.maxValue;
         }
         catch (Exception ignored) {
             return false;

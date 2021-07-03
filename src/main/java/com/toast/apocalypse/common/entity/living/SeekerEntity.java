@@ -33,6 +33,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
@@ -63,7 +64,8 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
     public static AttributeModifierMap.MutableAttribute createSeekerAttributes() {
         return MobEntity.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 12.0D)
-                .add(Attributes.FOLLOW_RANGE, Double.POSITIVE_INFINITY);
+                .add(Attributes.FOLLOW_RANGE, Double.POSITIVE_INFINITY)
+                .add(ForgeMod.SWIM_SPEED.get(), 1.1D);
     }
 
     @Override
