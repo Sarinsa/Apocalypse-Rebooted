@@ -1,6 +1,7 @@
 modLoader="javafml"
 loaderVersion="[36,)"
-license="GNU General Public License v3.0"
+license="MIT License"
+issueTrackerURL="https://github.com/Sarinsa/Apocalypse-Rebooted/issues"
 
 [[mods]]
     modId="apocalypse"
