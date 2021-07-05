@@ -3,6 +3,7 @@ package com.toast.apocalypse.client.screen;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.toast.apocalypse.client.screen.widget.config.DoubleConfigTextField;
 import com.toast.apocalypse.client.screen.widget.config.InfoPoint;
+import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
 import com.toast.apocalypse.common.core.config.ServerConfigHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;

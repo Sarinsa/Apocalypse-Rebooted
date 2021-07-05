@@ -1,5 +1,6 @@
 package com.toast.apocalypse.client.event;
 
+import com.toast.apocalypse.client.screen.ApocalypseWorldCreateConfigScreen;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
 import net.minecraftforge.api.distmarker.Dist;
@@ -7,8 +8,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 
-import static com.toast.apocalypse.common.core.config.ApocalypseClientConfig.DifficultyRenderPosHeight;
-import static com.toast.apocalypse.common.core.config.ApocalypseClientConfig.DifficultyRenderPosWidth;
+import static com.toast.apocalypse.common.core.config.ApocalypseClientConfig.PositionWidthAnchor;
+import static com.toast.apocalypse.common.core.config.ApocalypseClientConfig.PositionHeightAnchor;
 
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Apocalypse.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -19,7 +20,7 @@ public final class ClientConfigReloadListener {
         ModConfig.Type type = event.getConfig().getType();
 
         if (type == ModConfig.Type.CLIENT) {
-            updateDifficultyRenderInfo();
+            updateClientConfigInfo();
         }
     }
 
@@ -28,17 +29,22 @@ public final class ClientConfigReloadListener {
         ModConfig.Type type = event.getConfig().getType();
 
         if (type == ModConfig.Type.CLIENT) {
-            updateDifficultyRenderInfo();
+            updateClientConfigInfo();
         }
     }
 
-    private static void updateDifficultyRenderInfo() {
-        DifficultyRenderPosWidth renderPosWidth = ApocalypseClientConfig.CLIENT.getDifficultyRenderPosWidth();
-        DifficultyRenderPosHeight renderPosHeight = ApocalypseClientConfig.CLIENT.getDifficultyRenderPosHeight();
+    private static void updateClientConfigInfo() {
+        DifficultyRenderHandler.RENDER_IN_CREATIVE = ApocalypseClientConfig.CLIENT.getRenderDifficultyInCreative();
+        PositionWidthAnchor renderPosWidth = ApocalypseClientConfig.CLIENT.getDifficultyRenderPosWidth();
+        PositionHeightAnchor renderPosHeight = ApocalypseClientConfig.CLIENT.getDifficultyRenderPosHeight();
         int xOffset = ApocalypseClientConfig.CLIENT.getDifficultyRenderXOffset();
         int yOffset = ApocalypseClientConfig.CLIENT.getDifficultyRenderYOffset();
-        boolean renderInCreative = ApocalypseClientConfig.CLIENT.getRenderDifficultyInCreative();
 
-        DifficultyRenderHandler.updateInfo(renderPosWidth, renderPosHeight, xOffset, yOffset, renderInCreative);
+        DifficultyRenderHandler.updateRenderPos(renderPosWidth, renderPosHeight, xOffset, yOffset);
+
+        ClientEvents.WIDTH = ApocalypseClientConfig.CLIENT.getWorldConfigButtonPosWidth();
+        ClientEvents.HEIGHT = ApocalypseClientConfig.CLIENT.getWorldConfigButtonPosHeight();
+        ClientEvents.X_OFFSET = ApocalypseClientConfig.CLIENT.getWorldConfigButtonXOffset();
+        ClientEvents.Y_OFFSET = ApocalypseClientConfig.CLIENT.getWorldConfigButtonYOffset();
     }
 }

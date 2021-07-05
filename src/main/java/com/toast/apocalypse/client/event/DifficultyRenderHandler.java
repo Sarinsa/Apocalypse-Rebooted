@@ -26,7 +26,7 @@ public class DifficultyRenderHandler {
     /**
      * Updates the render info when rendering the world difficulty in-game.
      * Called from {@link ClientConfigReloadListener} when the client config is loaded/reloaded */
-    public static void updateInfo(ApocalypseClientConfig.DifficultyRenderPosWidth widthPos, ApocalypseClientConfig.DifficultyRenderPosHeight heightPos, int xOffset, int yOffset, boolean renderInCreative) {
+    public static void updateRenderPos(ApocalypseClientConfig.PositionWidthAnchor widthPos, ApocalypseClientConfig.PositionHeightAnchor heightPos, int xOffset, int yOffset) {
         switch (widthPos) {
             default:
             case LEFT:
@@ -54,7 +54,6 @@ public class DifficultyRenderHandler {
         }
         OFFSET_X = xOffset * (POSITION_X == 1 ? -1 : 1);
         OFFSET_Y = yOffset * (POSITION_Y == 1 ? -1 : 1);
-        RENDER_IN_CREATIVE = renderInCreative;
     }
 
 
@@ -99,11 +98,13 @@ public class DifficultyRenderHandler {
 
         // Calculate % of increase in difficulty rate
         double difficultyRate = CapabilityHelper.getPlayerDifficultyMult(player);
+
         if (difficultyRate != 1.0) {
             difficultyInfo = difficultyInfo + " Rate: " + (int)(difficultyRate * 100.0) + "%";
         }
+        int x;
+        int y;
 
-        int x, y;
         switch (POSITION_X) {
             case 0:
                 x = 2;

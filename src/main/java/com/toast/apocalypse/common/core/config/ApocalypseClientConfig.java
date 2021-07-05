@@ -8,13 +8,13 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 public class ApocalypseClientConfig {
 
-    public enum DifficultyRenderPosWidth {
+    public enum PositionWidthAnchor {
         MIDDLE,
         RIGHT,
         LEFT
     }
 
-    public enum DifficultyRenderPosHeight {
+    public enum PositionHeightAnchor {
         MIDDLE,
         TOP,
         BOTTOM
@@ -31,38 +31,56 @@ public class ApocalypseClientConfig {
 
     public static final class Client {
 
-        private final ForgeConfigSpec.EnumValue<DifficultyRenderPosWidth> difficultyRenderPosWidth;
-        private final ForgeConfigSpec.EnumValue<DifficultyRenderPosHeight> difficultyRenderPosHeight;
+        private final ForgeConfigSpec.EnumValue<PositionWidthAnchor> difficultyRenderPosWidth;
+        private final ForgeConfigSpec.EnumValue<PositionHeightAnchor> difficultyRenderPosHeight;
         private final ForgeConfigSpec.IntValue difficultyRenderXOffset;
         private final ForgeConfigSpec.IntValue difficultyRenderYOffset;
+
+        private final ForgeConfigSpec.EnumValue<PositionWidthAnchor> worldConfigButtonPosWidth;
+        private final ForgeConfigSpec.EnumValue<PositionHeightAnchor> worldConfigButtonPosHeight;
+        private final ForgeConfigSpec.IntValue worldConfigButtonXOffset;
+        private final ForgeConfigSpec.IntValue worldConfigButtonYOffset;
+
         private final ForgeConfigSpec.BooleanValue renderDifficultyInCreative;
 
         private Client(ForgeConfigSpec.Builder configBuilder) {
             configBuilder.push("in_game_gui");
-
             this.difficultyRenderPosWidth = configBuilder.comment("Determines the base X position on the screen where the world difficulty count should render")
-                    .defineEnum("difficultyRenderPosWidth", DifficultyRenderPosWidth.MIDDLE, DifficultyRenderPosWidth.values());
+                    .defineEnum("difficultyRenderPosWidth", PositionWidthAnchor.MIDDLE, PositionWidthAnchor.values());
 
             this.difficultyRenderPosHeight = configBuilder.comment("Determines the base Y position on the screen where the world difficulty count should render")
-                    .defineEnum("difficultyRenderPosHeight", DifficultyRenderPosHeight.TOP, DifficultyRenderPosHeight.values());
+                    .defineEnum("difficultyRenderPosHeight", PositionHeightAnchor.TOP, PositionHeightAnchor.values());
 
             this.difficultyRenderXOffset = configBuilder.comment("Additional X offset for where to render difficulty in-game")
-                    .defineInRange("difficultyRenderXOffset", 0, 0, 10000);
+                    .defineInRange("difficultyRenderXOffset", 0, -10000, 10000);
 
             this.difficultyRenderYOffset = configBuilder.comment("Additional Y offset for where to render difficulty in-game")
-                    .defineInRange("difficultyRenderYOffset", 0, 0, 10000);
+                    .defineInRange("difficultyRenderYOffset", 0, -10000, 10000);
 
             this.renderDifficultyInCreative = configBuilder.comment("Toggles difficulty being rendered when the player is in creative mode.")
                     .define("renderDifficultyInCreative", true);
+            configBuilder.pop();
 
+            configBuilder.push("world_config_button");
+            this.worldConfigButtonPosWidth = configBuilder.comment("Determines the base X position of the Apocalypse world config button.")
+                    .defineEnum("worldConfigButtonPosWidth", PositionWidthAnchor.MIDDLE, PositionWidthAnchor.values());
+
+            this.worldConfigButtonPosHeight = configBuilder.comment("Determines the base Y position of the Apocalypse world config button.")
+                    .defineEnum("worldConfigButtonPosHeight", PositionHeightAnchor.TOP, PositionHeightAnchor.values());
+
+            this.worldConfigButtonXOffset = configBuilder.comment("Additional X offset.")
+                    .defineInRange("worldConfigButtonXOffset", 175, -10000, 10000);
+
+            this.worldConfigButtonYOffset = configBuilder.comment("Additional Y offset.")
+                    .defineInRange("worldConfigButtonYOffset", 100, -10000, 10000);
             configBuilder.pop();
         }
 
-        public DifficultyRenderPosWidth getDifficultyRenderPosWidth() {
+        public PositionWidthAnchor getDifficultyRenderPosWidth() {
             return this.difficultyRenderPosWidth.get();
         }
 
-        public DifficultyRenderPosHeight getDifficultyRenderPosHeight() {
+        public PositionHeightAnchor getDifficultyRenderPosHeight() {
             return this.difficultyRenderPosHeight.get();
         }
 
@@ -72,6 +90,22 @@ public class ApocalypseClientConfig {
 
         public int getDifficultyRenderYOffset() {
             return this.difficultyRenderYOffset.get();
+        }
+
+        public PositionWidthAnchor getWorldConfigButtonPosWidth() {
+            return this.worldConfigButtonPosWidth.get();
+        }
+
+        public PositionHeightAnchor getWorldConfigButtonPosHeight() {
+            return this.worldConfigButtonPosHeight.get();
+        }
+
+        public int getWorldConfigButtonXOffset() {
+            return this.worldConfigButtonXOffset.get();
+        }
+
+        public int getWorldConfigButtonYOffset() {
+            return this.worldConfigButtonYOffset.get();
         }
 
         public boolean getRenderDifficultyInCreative() {

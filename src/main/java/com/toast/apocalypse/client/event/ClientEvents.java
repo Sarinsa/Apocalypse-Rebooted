@@ -2,6 +2,7 @@ package com.toast.apocalypse.client.event;
 
 import com.toast.apocalypse.client.screen.ApocalypseWorldCreateConfigScreen;
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.CreateWorldScreen;
@@ -21,14 +22,21 @@ import net.minecraftforge.fml.config.ConfigTracker;
 
 public class ClientEvents {
 
+    public static ApocalypseClientConfig.PositionWidthAnchor WIDTH;
+    public static ApocalypseClientConfig.PositionHeightAnchor HEIGHT;
+    public static int X_OFFSET;
+    public static int Y_OFFSET;
+
     /** The location of the Apocalypse world config button icon */
-    private static final ResourceLocation GRUMP_ICON = Apocalypse.resourceLoc("textures/screen/button/ghostly.png");
+    private static final ResourceLocation GHOSTLY_ICON = Apocalypse.resourceLoc("textures/screen/button/ghostly.png");
     /** The Minecraft client instance. **/
     private final Minecraft minecraftClient;
+
 
     public ClientEvents(Minecraft minecraft) {
         this.minecraftClient = minecraft;
     }
+
 
     /**
      * Renders the difficulty seen in-game
@@ -47,9 +55,48 @@ public class ClientEvents {
     public void onScreenOpened(GuiScreenEvent.InitGuiEvent.Post event) {
         if (event.getGui() instanceof CreateWorldScreen) {
             Screen screen = event.getGui();
-            event.addWidget(new ImageButton(screen.width/ 2 + 165, 100, 20, 20, 0, 0, 20, GRUMP_ICON, 32, 64, (button) -> {
+
+            int x;
+            int y;
+
+            switch (WIDTH) {
+                default:
+                case LEFT:
+                    x = 0;
+                    break;
+                case MIDDLE:
+                    x = (screen.width / 2) - 10;
+                    break;
+                case RIGHT:
+                    x = screen.width - 20;
+                    break;
+            }
+
+            switch (HEIGHT) {
+                default:
+                case TOP:
+                    y = 0;
+                    break;
+                case MIDDLE:
+                    y = (screen.height / 2) - 10;
+                    break;
+                case BOTTOM:
+                    y = screen.height - 20;
+                    break;
+            }
+            x += X_OFFSET;
+            y += Y_OFFSET;
+
+            event.addWidget(new ImageButton(x, y, 20, 20, 0, 0, 20, GHOSTLY_ICON, 32, 64, (button) -> {
                 this.minecraftClient.setScreen(new ApocalypseWorldCreateConfigScreen(screen));
             }));
+
+            /*
+            event.addWidget(new ImageButton(screen.width / 2 + 165, 100, 20, 20, 0, 0, 20, GRUMP_ICON, 32, 64, (button) -> {
+                this.minecraftClient.setScreen(new ApocalypseWorldCreateConfigScreen(screen));
+            }));
+
+             */
         }
     }
 }
