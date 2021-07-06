@@ -120,7 +120,7 @@ public final class PlayerDifficultyManager {
             NetworkHelper.sendUpdatePlayerDifficulty(serverPlayer);
             NetworkHelper.sendUpdatePlayerDifficultyMult(serverPlayer);
             NetworkHelper.sendUpdatePlayerMaxDifficulty(serverPlayer);
-            NetworkHelper.sendMoonPhaseUpdate(serverPlayer, overworld.dimensionType().moonPhase(overworld.getDayTime()));
+            NetworkHelper.sendMoonPhaseUpdate(serverPlayer, overworld);
 
             this.loadEventData(serverPlayer);
         }
@@ -192,7 +192,7 @@ public final class PlayerDifficultyManager {
                     this.saveEventData(player);
                     // Cheekily sneak in a moon phase update here, since
                     // it doesn't exactly need to happen often.
-                    NetworkHelper.sendMoonPhaseUpdate(player, server.overworld().dimensionType().moonPhase(server.overworld().getDayTime()));
+                    NetworkHelper.sendMoonPhaseUpdate(player, server.overworld());
                 }
             }
         }

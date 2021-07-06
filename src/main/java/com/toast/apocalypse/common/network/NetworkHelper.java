@@ -5,6 +5,7 @@ import com.toast.apocalypse.common.util.CapabilityHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
@@ -71,7 +72,7 @@ public class NetworkHelper {
      * to update the overworld moon phase
      * value in {@link com.toast.apocalypse.client.ClientUtil}
      */
-    public static void sendMoonPhaseUpdate(@Nonnull ServerPlayerEntity player, int moonPhase) {
-        PacketHandler.sendToClient(new S2CUpdateMoonPhase(moonPhase), player);
+    public static void sendMoonPhaseUpdate(@Nonnull ServerPlayerEntity player, ServerWorld overworld) {
+        PacketHandler.sendToClient(new S2CUpdateMoonPhase(overworld.dimensionType().moonPhase(overworld.getDayTime())), player);
     }
 }
