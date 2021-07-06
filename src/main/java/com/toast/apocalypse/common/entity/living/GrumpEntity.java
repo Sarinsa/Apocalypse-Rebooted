@@ -2,6 +2,7 @@ package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
+import com.toast.apocalypse.common.entity.living.goals.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
@@ -73,8 +74,9 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
         this.goalSelector.addGoal(1, new LaunchMonsterHookGoal(this));
         this.goalSelector.addGoal(1, new LookAroundGoal(this));
         this.goalSelector.addGoal(5, new GrumpEntity.RandomFlyGoal(this));
-        this.targetSelector.addGoal(0, new GrumpNearestAttackableTargetGoal<>(this, PlayerEntity.class));
-        this.targetSelector.addGoal(1, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
+        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
+        this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
+        this.targetSelector.addGoal(2, new GrumpNearestAttackableTargetGoal<>(this, PlayerEntity.class));
     }
 
     @Override

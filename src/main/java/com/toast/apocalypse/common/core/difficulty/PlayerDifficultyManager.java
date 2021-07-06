@@ -114,12 +114,13 @@ public final class PlayerDifficultyManager {
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (!event.getPlayer().getCommandSenderWorld().isClientSide) {
+            ServerWorld overworld = this.server.overworld();
             ServerPlayerEntity serverPlayer = (ServerPlayerEntity) event.getPlayer();
 
             NetworkHelper.sendUpdatePlayerDifficulty(serverPlayer);
             NetworkHelper.sendUpdatePlayerDifficultyMult(serverPlayer);
             NetworkHelper.sendUpdatePlayerMaxDifficulty(serverPlayer);
-            NetworkHelper.sendMoonPhaseUpdate(serverPlayer, this.server.overworld().getMoonPhase());
+            NetworkHelper.sendMoonPhaseUpdate(serverPlayer, overworld.dimensionType().moonPhase(overworld.getDayTime()));
 
             this.loadEventData(serverPlayer);
         }
@@ -191,7 +192,7 @@ public final class PlayerDifficultyManager {
                     this.saveEventData(player);
                     // Cheekily sneak in a moon phase update here, since
                     // it doesn't exactly need to happen often.
-                    NetworkHelper.sendMoonPhaseUpdate(player, server.overworld().getMoonPhase());
+                    NetworkHelper.sendMoonPhaseUpdate(player, server.overworld().dimensionType().moonPhase(server.overworld().getDayTime()));
                 }
             }
         }

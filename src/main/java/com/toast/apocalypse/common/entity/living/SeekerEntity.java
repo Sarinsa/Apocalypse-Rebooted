@@ -4,6 +4,7 @@ import com.toast.apocalypse.api.impl.SeekerAlertRegister;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
+import com.toast.apocalypse.common.entity.living.goals.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
@@ -74,8 +75,9 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         this.goalSelector.addGoal(1, new SeekerEntity.LookAroundGoal(this));
         this.goalSelector.addGoal(1, new SeekerEntity.RandomOrRelativeToTargetFlyGoal(this));
         this.goalSelector.addGoal(2, new SeekerEntity.AlertOtherMonstersGoal(this));
-        this.targetSelector.addGoal(0, new SeekerEntity.SeekerNearestAttackableTargetGoal<>(this, PlayerEntity.class));
-        this.targetSelector.addGoal(1, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
+        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
+        this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
+        this.targetSelector.addGoal(2, new SeekerNearestAttackableTargetGoal<>(this, PlayerEntity.class));
     }
 
     public static boolean checkSeekerSpawnRules(EntityType<? extends SeekerEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
@@ -94,6 +96,12 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
 
     private void setAlerting(boolean alerting) {
         this.entityData.set(ALERTING, alerting);
+    }
+
+    // Essentially just an inverted ghast.isCharging() check,
+    // but that method is client side only... so here we go!
+    private boolean canAlert() {
+        return !this.entityData.get(DATA_IS_CHARGING);
     }
 
     /**
@@ -330,7 +338,7 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         @Override
         public boolean canUse() {
             if (this.seeker.getTarget() != null) {
-                return !this.seeker.isCharging() && this.seeker.distanceToSqr(this.seeker.getTarget()) < 4096.0D && this.seeker.canSeeDirectly(this.seeker.getTarget()) && this.seeker.currentTarget != this.seeker.getTarget();
+                return !this.seeker.canAlert() && this.seeker.distanceToSqr(this.seeker.getTarget()) < 4096.0D && this.seeker.canSeeDirectly(this.seeker.getTarget()) && this.seeker.currentTarget != this.seeker.getTarget();
             }
             return false;
         }
