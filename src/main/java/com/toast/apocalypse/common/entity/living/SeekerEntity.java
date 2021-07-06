@@ -71,10 +71,10 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(0, new SeekerEntity.FireballAttackGoal(this));
-        this.goalSelector.addGoal(1, new SeekerEntity.LookAroundGoal(this));
-        this.goalSelector.addGoal(1, new SeekerEntity.RandomOrRelativeToTargetFlyGoal(this));
-        this.goalSelector.addGoal(2, new SeekerEntity.AlertOtherMonstersGoal(this));
+        this.goalSelector.addGoal(0, new SeekerEntity.AlertOtherMonstersGoal(this));
+        this.goalSelector.addGoal(1, new SeekerEntity.FireballAttackGoal(this));
+        this.goalSelector.addGoal(2, new SeekerEntity.LookAroundGoal(this));
+        this.goalSelector.addGoal(2, new SeekerEntity.RandomOrRelativeToTargetFlyGoal(this));
         this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
         this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
         this.targetSelector.addGoal(2, new SeekerNearestAttackableTargetGoal<>(this, PlayerEntity.class));
@@ -338,7 +338,7 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         @Override
         public boolean canUse() {
             if (this.seeker.getTarget() != null) {
-                return !this.seeker.canAlert() && this.seeker.distanceToSqr(this.seeker.getTarget()) < 4096.0D && this.seeker.canSeeDirectly(this.seeker.getTarget()) && this.seeker.currentTarget != this.seeker.getTarget();
+                return this.seeker.canAlert() && this.seeker.distanceToSqr(this.seeker.getTarget()) < 4096.0D && this.seeker.canSeeDirectly(this.seeker.getTarget()) && this.seeker.currentTarget != this.seeker.getTarget();
             }
             return false;
         }
