@@ -225,12 +225,13 @@ public final class FullMoonEvent extends AbstractEvent {
 
     /** Calculates the interval between each mob spawn */
     private void calculateSpawnTime() {
+        final int defaultSpawnTime = 500;
         int totalMobCount = 0;
 
         for (int mobId : this.mobsToSpawn.keySet()) {
             totalMobCount += this.mobsToSpawn.get(mobId);
         }
-        this.spawnTime = (11000 - MAX_GRACE_PERIOD) / totalMobCount;
+        this.spawnTime = totalMobCount <= 0 ? defaultSpawnTime : (11000 - MAX_GRACE_PERIOD) / totalMobCount;
     }
 
     /**
