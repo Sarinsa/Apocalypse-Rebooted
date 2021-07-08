@@ -28,6 +28,7 @@ public interface IDifficultyProvider {
     /**
      * @return The ID of the given player's
      *         currently running event.
+     *         (Exists only on server)
      *
      * No event: -1
      *
