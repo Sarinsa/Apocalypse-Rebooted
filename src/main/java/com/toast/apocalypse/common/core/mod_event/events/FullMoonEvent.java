@@ -106,8 +106,6 @@ public final class FullMoonEvent extends AbstractEvent {
         this.calculateMobs(difficulty);
         this.calculateSpawnTime();
         this.gracePeriod = MAX_GRACE_PERIOD;
-
-        this.mobsToSpawn.forEach((id, count) -> Apocalypse.LOGGER.info(id + ": " + count));
     }
 
     @Override
