@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.entity.living.goals;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.ai.goal.TargetGoal;
+import net.minecraft.entity.player.PlayerEntity;
 
 public class MoonMobPlayerTargetGoal<T extends MobEntity & IFullMoonMob> extends TargetGoal {
 
@@ -15,7 +16,8 @@ public class MoonMobPlayerTargetGoal<T extends MobEntity & IFullMoonMob> extends
 
     @Override
     public boolean canUse() {
-        return this.moonMob.getPlayerTarget() != null && this.moonMob.getPlayerTarget().isAlive();
+        PlayerEntity player = this.moonMob.getPlayerTarget();
+        return player != null && player.isAlive() && !player.isCreative() && !player.isSpectator();
     }
 
     public void start() {
