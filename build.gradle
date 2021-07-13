@@ -91,12 +91,30 @@ repositories {
         name 'prog'
         url "http://dvs1.progwml6.com/files/maven"
     }
+    maven {
+        name 'CurseMaven'
+        url 'https://www.cursemaven.com'
+        content {
+            includeGroup 'curse.maven'
+        }
+    }
+    maven {
+        name 'tterrag'
+        url 'https://maven.tterrag.com/'
+        content {
+            includeGroup 'mcjty.theoneprobe'
+        }
+    }
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
     runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}")
+    compileOnly fg.deobf("curse.maven:projecte-api-226410:${projecte_api_version}")
+
+    compileOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-1.16:${top_version}:api")
+    runtimeOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-1.16:${top_version}")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.2:processor'
 }

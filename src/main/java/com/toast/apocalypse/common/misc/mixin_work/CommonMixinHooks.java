@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class CommonMixinHooks {
 
     public static ModifiableAttributeInstance livingEntityOnTravelModifyVariable(ModifiableAttributeInstance attributeInstance, LivingEntity entity, long airborneTime) {
-        if (entity.hasEffect(ApocalypseEffects.HEAVY.get()) && airborneTime >= 15) {
+        if (entity.hasEffect(ApocalypseEffects.HEAVY.get()) && airborneTime >= 10) {
             if (!attributeInstance.hasModifier(EntityAttributeModifiers.HEAVY)) {
                 attributeInstance.addTransientModifier(EntityAttributeModifiers.HEAVY);
             }
