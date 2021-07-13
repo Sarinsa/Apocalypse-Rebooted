@@ -9,6 +9,7 @@ import com.toast.apocalypse.common.event.CommonConfigReloadListener;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
+import net.minecraft.command.impl.TimeCommand;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -71,10 +72,21 @@ public final class PlayerDifficultyManager {
     /** A map containing each world's player group list. */
     private final HashMap<RegistryKey<World>, List<PlayerGroup>> playerGroups = new HashMap<>();
 
+    public static long queryDayTime(long dayTime) {
+        return dayTime % References.DAY_LENGTH;
+    }
+
+    public boolean isFullMoon() {
+        ServerWorld world = this.server.overworld();
+        int moonPhase = world.dimensionType().moonPhase(world.getDayTime());
+        return moonPhase == 0;
+    }
 
     public boolean isFullMoonNight() {
         ServerWorld world = this.server.overworld();
-        return world.getMoonBrightness() >= 1.0F && world.getDayTime() > 13000L;
+        long dayTime = queryDayTime(world.getDayTime());
+
+        return this.isFullMoon() && dayTime > 13000L && dayTime < 23500L;
     }
 
     public static long getNearestPlayerDifficulty(IWorld world, LivingEntity livingEntity) {
@@ -138,7 +150,7 @@ public final class PlayerDifficultyManager {
     public void onSleepFinished(SleepFinishedTimeEvent event) {
         if (event.getWorld() instanceof ServerWorld) {
             ServerWorld world = (ServerWorld) event.getWorld();
-            long timeSkipped = event.getNewTime() - world.getDayTime();
+            long timeSkipped = event.getNewTime() - queryDayTime(world.getDayTime());
 
             if (timeSkipped > 20L) {
                 for (ServerPlayerEntity player : world.players()) {
@@ -265,18 +277,20 @@ public final class PlayerDifficultyManager {
     public void updatePlayerEvent(ServerPlayerEntity player) {
         ServerWorld world = player.getLevel();
         ServerWorld overworld = this.server.overworld();
+        long dayTime = overworld.getDayTime() % References.DAY_LENGTH;
         AbstractEvent currentEvent = this.playerEvents.get(player.getUUID());
         EventType<?> eventType = currentEvent.getType();
 
         if (CapabilityHelper.getPlayerDifficulty(player) > 0 && overworld.getGameTime() > 0L) {
+
+            // Stop the full moon event when it becomes day time.
+            if ((dayTime <= 13000L || dayTime >= 23500L) || !this.isFullMoon() && eventType == EventRegistry.FULL_MOON) {
+                eventType = this.endEvent(player);
+            }
+
             // Starts the full moon event.
             if (this.isFullMoonNight() && eventType != EventRegistry.FULL_MOON) {
                 eventType = this.startEvent(player, currentEvent, EventRegistry.FULL_MOON);
-            }
-
-            // Stop the full moon event when it becomes day time.
-            if (!this.isFullMoonNight() && eventType == EventRegistry.FULL_MOON) {
-                eventType = this.endEvent(player);
             }
 
             // Starts the thunderstorm event.
