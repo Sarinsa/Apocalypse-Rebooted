@@ -1,6 +1,5 @@
 package com.toast.apocalypse.common.core.mod_event.events;
 
-import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.difficulty.MobDifficultyHandler;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
@@ -36,13 +35,6 @@ import java.util.Random;
 public final class FullMoonEvent extends AbstractEvent {
 
     private static final int MAX_GRACE_PERIOD = 800;
-
-    /** The weights for each full moon mob */
-    public static double GHOST_SPAWN_WEIGHT;
-    public static double BREECHER_SPAWN_WEIGHT;
-    public static double GRUMP_SPAWN_WEIGHT;
-    public static double SEEKER_SPAWN_WEIGHT;
-    public static double DESTROYER_SPAWN_WEIGHT;
 
     /** The difficulty until mob counts increase */
     public static double MOB_COUNT_TIME_SPAN;
@@ -188,6 +180,7 @@ public final class FullMoonEvent extends AbstractEvent {
         double effectiveDifficulty;
         int count;
 
+        // Ensure nothing is null before proceeding.
         this.mobsToSpawn.put(GHOST_ID, 0);
         this.mobsToSpawn.put(BREECHER_ID, 0);
         this.mobsToSpawn.put(GRUMP_ID, 0);
@@ -229,7 +222,7 @@ public final class FullMoonEvent extends AbstractEvent {
         for (int mobId : this.mobsToSpawn.keySet()) {
             totalMobCount += this.mobsToSpawn.get(mobId);
         }
-        this.spawnTime = totalMobCount <= 0 ? defaultSpawnTime : (11000 - MAX_GRACE_PERIOD) / totalMobCount;
+        this.spawnTime = totalMobCount <= 0 ? defaultSpawnTime : (10500 - MAX_GRACE_PERIOD) / totalMobCount;
     }
 
     /**
