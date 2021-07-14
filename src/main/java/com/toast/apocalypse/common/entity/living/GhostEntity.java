@@ -76,7 +76,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         this.goalSelector.addGoal(1, new GhostEntity.MeleeAttackGoal<>(this));
         this.goalSelector.addGoal(2, new RandomFlyGoal(this));
         this.goalSelector.addGoal(3, new LookAtGoal(this, PlayerEntity.class,8.0F));
-        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
+        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IMob.class));
         this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
         this.targetSelector.addGoal(2, new GhostEntity.NearestAttackablePlayerTargetGoal<>(this, PlayerEntity.class));
     }

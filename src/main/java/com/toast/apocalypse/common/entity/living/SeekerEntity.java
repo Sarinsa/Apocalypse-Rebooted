@@ -75,7 +75,7 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         this.goalSelector.addGoal(1, new SeekerEntity.FireballAttackGoal(this));
         this.goalSelector.addGoal(2, new SeekerEntity.LookAroundGoal(this));
         this.goalSelector.addGoal(2, new SeekerEntity.RandomOrRelativeToTargetFlyGoal(this));
-        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
+        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IMob.class));
         this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
         this.targetSelector.addGoal(2, new SeekerNearestAttackableTargetGoal<>(this, PlayerEntity.class));
     }

@@ -8,6 +8,7 @@ import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.monster.CreeperEntity;
+import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.CatEntity;
 import net.minecraft.entity.passive.OcelotEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -48,7 +49,7 @@ public class BreecherEntity extends CreeperEntity implements IFullMoonMob {
         this.goalSelector.addGoal(5, new WaterAvoidingRandomWalkingGoal(this, 0.8D));
         this.goalSelector.addGoal(6, new LookAtGoal(this, PlayerEntity.class, 8.0F));
         this.goalSelector.addGoal(6, new LookRandomlyGoal(this));
-        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
+        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IMob.class));
         this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, false));
     }

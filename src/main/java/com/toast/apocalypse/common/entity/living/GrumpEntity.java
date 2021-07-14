@@ -15,6 +15,7 @@ import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.GhastEntity;
+import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -74,7 +75,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
         this.goalSelector.addGoal(1, new LaunchMonsterHookGoal(this));
         this.goalSelector.addGoal(1, new LookAroundGoal(this));
         this.goalSelector.addGoal(5, new GrumpEntity.RandomFlyGoal(this));
-        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
+        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IMob.class));
         this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
         this.targetSelector.addGoal(2, new GrumpNearestAttackableTargetGoal<>(this, PlayerEntity.class));
     }

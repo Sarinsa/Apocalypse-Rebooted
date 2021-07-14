@@ -12,6 +12,7 @@ import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.GhastEntity;
+import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractFireballEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -55,7 +56,7 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
         this.goalSelector.addGoal(0, new DestroyerEntity.FireballAttackGoal(this));
         this.goalSelector.addGoal(0, new DestroyerEntity.LookAroundGoal(this));
         this.goalSelector.addGoal(1, new DestroyerEntity.RandomOrRelativeToTargetFlyGoal(this));
-        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IFullMoonMob.class));
+        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IMob.class));
         this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
         this.targetSelector.addGoal(2, new DestroyerNearestAttackableTargetGoal<>(this, PlayerEntity.class));
     }
