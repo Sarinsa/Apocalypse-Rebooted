@@ -76,17 +76,12 @@ public final class PlayerDifficultyManager {
         return dayTime % References.DAY_LENGTH;
     }
 
-    public boolean isFullMoon() {
-        ServerWorld world = this.server.overworld();
-        int moonPhase = world.dimensionType().moonPhase(world.getDayTime());
-        return moonPhase == 0;
-    }
-
     public boolean isFullMoonNight() {
         ServerWorld world = this.server.overworld();
         long dayTime = queryDayTime(world.getDayTime());
+        boolean fullMoon = world.dimensionType().moonPhase(world.getDayTime()) == 0;
 
-        return this.isFullMoon() && dayTime > 13000L && dayTime < 23500L;
+        return fullMoon && dayTime > 13000L && dayTime < 23500L;
     }
 
     public static long getNearestPlayerDifficulty(IWorld world, LivingEntity livingEntity) {
@@ -187,10 +182,12 @@ public final class PlayerDifficultyManager {
             if (++this.timeUntilUpdate >= TICKS_PER_UPDATE) {
                 this.timeUntilUpdate = 0;
 
+                final boolean isFullMoonNight = this.isFullMoonNight();
+
                 // Update player difficulty
                 for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
                     this.updatePlayer(player);
-                    this.updatePlayerEvent(player);
+                    this.updatePlayerEvent(player, isFullMoonNight);
                 }
             }
 
@@ -274,22 +271,21 @@ public final class PlayerDifficultyManager {
      *
      * @param player The player to update event for.
      */
-    public void updatePlayerEvent(ServerPlayerEntity player) {
+    public void updatePlayerEvent(ServerPlayerEntity player, boolean isFullMoonNight) {
         ServerWorld world = player.getLevel();
         ServerWorld overworld = this.server.overworld();
-        long dayTime = overworld.getDayTime() % References.DAY_LENGTH;
         AbstractEvent currentEvent = this.playerEvents.get(player.getUUID());
         EventType<?> eventType = currentEvent.getType();
 
         if (CapabilityHelper.getPlayerDifficulty(player) > 0 && overworld.getGameTime() > 0L) {
 
             // Stop the full moon event when it becomes day time.
-            if ((dayTime <= 13000L || dayTime >= 23500L) || !this.isFullMoon() && eventType == EventRegistry.FULL_MOON) {
+            if (!isFullMoonNight && eventType == EventRegistry.FULL_MOON) {
                 eventType = this.endEvent(player);
             }
 
             // Starts the full moon event.
-            if (this.isFullMoonNight() && eventType != EventRegistry.FULL_MOON) {
+            if (isFullMoonNight && eventType != EventRegistry.FULL_MOON) {
                 eventType = this.startEvent(player, currentEvent, EventRegistry.FULL_MOON);
             }
 
