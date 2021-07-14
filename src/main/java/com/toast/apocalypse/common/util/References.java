@@ -30,4 +30,6 @@ public class References {
     public static final String GRACE_PERIOD_CONFIG_FIELD = "apocalypse.screen.text_field.create_world_config.grace_period";
     public static final String MAX_DIFFICULTY_CONFIG_FIELD_DESC = "apocalypse.screen.text_field.desc.create_world_config.max_difficulty";
     public static final String GRACE_PERIOD_CONFIG_FIELD_DESC = "apocalypse.screen.text_field.desc.create_world_config.grace_period";
+
+    public static final String DIFFICULTY = "";
 }

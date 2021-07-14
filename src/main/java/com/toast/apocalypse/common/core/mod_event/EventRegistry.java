@@ -16,7 +16,7 @@ public class EventRegistry {
 
     public static final EventType<?> NONE = register(-1, EmptyEvent::new, null, true);
     public static final EventType<?> FULL_MOON = register(0, FullMoonEvent::new, References.FULL_MOON, false);
-    public static final EventType<?> THUNDERSTORM = register(1, ThunderstormEvent::new, References.THUNDERSTORM, true);
+    public static final EventType<?> THUNDERSTORM = register(1, ThunderstormEvent::new, null, true);
 
     @Nonnull
     public static EventType<?> getFromId(int id) {
