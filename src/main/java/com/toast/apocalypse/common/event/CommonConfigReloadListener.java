@@ -1,10 +1,11 @@
 package com.toast.apocalypse.common.event;
 
+import com.electronwill.nightconfig.core.CommentedConfig;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.difficulty.MobDifficultyHandler;
+import com.toast.apocalypse.common.core.difficulty.MobAttributeHandler;
+import com.toast.apocalypse.common.core.difficulty.MobEquipmentHandler;
 import com.toast.apocalypse.common.core.difficulty.PlayerGroup;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
-import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.core.mod_event.events.FullMoonEvent;
 import com.toast.apocalypse.common.entity.living.*;
 import com.toast.apocalypse.common.misc.DestroyerExplosionContext;
@@ -66,39 +67,48 @@ public class CommonConfigReloadListener {
         RainDamageTickHelper.RAIN_TICK_RATE = COMMON.getRainTickRate();
         RainDamageTickHelper.RAIN_DAMAGE = COMMON.getRainDamage();
 
-        MobDifficultyHandler.MOBS_ONLY = COMMON.getMobsOnly();
+        EntityEvents.MOBS_ONLY = COMMON.getMobsOnly();
 
         refreshList(COMMON.getDestroyerProofBlocks(), DestroyerExplosionContext.DESTROYER_PROOF_BLOCKS, ForgeRegistries.BLOCKS);
-        refreshList(COMMON.getHealthBlacklist(), MobDifficultyHandler.HEALTH_BLACKLIST, ForgeRegistries.ENTITIES);
-        refreshList(COMMON.getSpeedBlacklist(), MobDifficultyHandler.SPEED_BLACKLIST, ForgeRegistries.ENTITIES);
-        refreshList(COMMON.getDamageBlacklist(), MobDifficultyHandler.DAMAGE_BLACKLIST, ForgeRegistries.ENTITIES);
-        refreshList(COMMON.getKnockbackResBlacklist(), MobDifficultyHandler.KNOCKBACK_BLACKLIST, ForgeRegistries.ENTITIES);
+        refreshList(COMMON.getHealthBlacklist(), MobAttributeHandler.HEALTH_BLACKLIST, ForgeRegistries.ENTITIES);
+        refreshList(COMMON.getSpeedBlacklist(), MobAttributeHandler.SPEED_BLACKLIST, ForgeRegistries.ENTITIES);
+        refreshList(COMMON.getDamageBlacklist(), MobAttributeHandler.DAMAGE_BLACKLIST, ForgeRegistries.ENTITIES);
+        refreshList(COMMON.getKnockbackResBlacklist(), MobAttributeHandler.KNOCKBACK_BLACKLIST, ForgeRegistries.ENTITIES);
+        refreshList(COMMON.getCanHaveWeapons(), MobEquipmentHandler.CAN_HAVE_WEAPONS, ForgeRegistries.ENTITIES);
 
-        MobDifficultyHandler.HEALTH_TIME_SPAN = COMMON.getHealthTimeSpan();
-        MobDifficultyHandler.HEALTH_FLAT_BONUS = COMMON.getHealthFlatBonus();
-        MobDifficultyHandler.HEALTH_MULT_BONUS = COMMON.getHealthMultBonus();
-        MobDifficultyHandler.HEALTH_FLAT_BONUS_MAX = COMMON.getHealthFlatBonusMax();
-        MobDifficultyHandler.HEALTH_MULT_BONUS_MAX = COMMON.getHealthMultBonusMax();
-        MobDifficultyHandler.HEALTH_LUNAR_FLAT_BONUS = COMMON.getHealthLunarFlatBonus();
-        MobDifficultyHandler.HEALTH_LUNAR_MULT_BONUS = COMMON.getHealthLunarMultBonus();
+        MobAttributeHandler.HEALTH_TIME_SPAN = COMMON.getHealthTimeSpan();
+        MobAttributeHandler.HEALTH_FLAT_BONUS = COMMON.getHealthFlatBonus();
+        MobAttributeHandler.HEALTH_MULT_BONUS = COMMON.getHealthMultBonus();
+        MobAttributeHandler.HEALTH_FLAT_BONUS_MAX = COMMON.getHealthFlatBonusMax();
+        MobAttributeHandler.HEALTH_MULT_BONUS_MAX = COMMON.getHealthMultBonusMax();
+        MobAttributeHandler.HEALTH_LUNAR_FLAT_BONUS = COMMON.getHealthLunarFlatBonus();
+        MobAttributeHandler.HEALTH_LUNAR_MULT_BONUS = COMMON.getHealthLunarMultBonus();
 
-        MobDifficultyHandler.SPEED_TIME_SPAN = COMMON.getSpeedTimeSpan();
-        MobDifficultyHandler.SPEED_MULT_BONUS = COMMON.getSpeedMultBonus();
-        MobDifficultyHandler.SPEED_MULT_BONUS_MAX = COMMON.getSpeedMultBonusMax();
-        MobDifficultyHandler.SPEED_LUNAR_MULT_BONUS = COMMON.getSpeedLunarMultBonus();
+        MobAttributeHandler.SPEED_TIME_SPAN = COMMON.getSpeedTimeSpan();
+        MobAttributeHandler.SPEED_MULT_BONUS = COMMON.getSpeedMultBonus();
+        MobAttributeHandler.SPEED_MULT_BONUS_MAX = COMMON.getSpeedMultBonusMax();
+        MobAttributeHandler.SPEED_LUNAR_MULT_BONUS = COMMON.getSpeedLunarMultBonus();
 
-        MobDifficultyHandler.DAMAGE_TIME_SPAN = COMMON.getDamageTimeSpan();
-        MobDifficultyHandler.DAMAGE_FLAT_BONUS = COMMON.getDamageFlatBonus();
-        MobDifficultyHandler.DAMAGE_MULT_BONUS = COMMON.getDamageMultBonus();
-        MobDifficultyHandler.DAMAGE_FLAT_BONUS_MAX = COMMON.getDamageFlatBonusMax();
-        MobDifficultyHandler.DAMAGE_MULT_BONUS_MAX = COMMON.getDamageMultBonusMax();
-        MobDifficultyHandler.DAMAGE_LUNAR_FLAT_BONUS = COMMON.getDamageLunarFlatBonus();
-        MobDifficultyHandler.DAMAGE_LUNAR_MULT_BONUS = COMMON.getDamageLunarMultBonus();
+        MobAttributeHandler.DAMAGE_TIME_SPAN = COMMON.getDamageTimeSpan();
+        MobAttributeHandler.DAMAGE_FLAT_BONUS = COMMON.getDamageFlatBonus();
+        MobAttributeHandler.DAMAGE_MULT_BONUS = COMMON.getDamageMultBonus();
+        MobAttributeHandler.DAMAGE_FLAT_BONUS_MAX = COMMON.getDamageFlatBonusMax();
+        MobAttributeHandler.DAMAGE_MULT_BONUS_MAX = COMMON.getDamageMultBonusMax();
+        MobAttributeHandler.DAMAGE_LUNAR_FLAT_BONUS = COMMON.getDamageLunarFlatBonus();
+        MobAttributeHandler.DAMAGE_LUNAR_MULT_BONUS = COMMON.getDamageLunarMultBonus();
 
-        MobDifficultyHandler.KNOCKBACK_RES_TIME_SPAN = COMMON.getKnockbackResTimeSpan();
-        MobDifficultyHandler.KNOCKBACK_RES_FLAT_BONUS = COMMON.getKnockbackResFlatBonus();
-        MobDifficultyHandler.KNOCKBACK_RES_FLAT_BONUS_MAX = COMMON.getKnockbackResFlatBonusMax();
-        MobDifficultyHandler.KNOCKBACK_RES_LUNAR_FLAT_BONUS = COMMON.getKnockbackResLunarFlatBonus();
+        MobAttributeHandler.KNOCKBACK_RES_TIME_SPAN = COMMON.getKnockbackResTimeSpan();
+        MobAttributeHandler.KNOCKBACK_RES_FLAT_BONUS = COMMON.getKnockbackResFlatBonus();
+        MobAttributeHandler.KNOCKBACK_RES_FLAT_BONUS_MAX = COMMON.getKnockbackResFlatBonusMax();
+        MobAttributeHandler.KNOCKBACK_RES_LUNAR_FLAT_BONUS = COMMON.getKnockbackResLunarFlatBonus();
+
+        MobEquipmentHandler.refreshEquipmentLists(COMMON.getWeaponList(), MobEquipmentHandler.WEAPON_LISTS);
+
+        MobEquipmentHandler.WEAPONS_TIME = COMMON.getWeaponsTimeSpan();
+        MobEquipmentHandler.WEAPONS_CHANCE = COMMON.getWeaponsChance();
+        MobEquipmentHandler.WEAPONS_LUNAR_CHANCE = COMMON.getWeaponsLunarChance();
+        MobEquipmentHandler.WEAPONS_CHANCE_MAX = COMMON.getWeaponsMaxChance();
+        MobEquipmentHandler.CURRENT_WEAPON_TIER_ONLY = COMMON.getUseCurrentWeaponTierOnly();
 
         FullMoonEvent.MOB_COUNT_TIME_SPAN = COMMON.getDifficultyUntilNextIncrease();
 
