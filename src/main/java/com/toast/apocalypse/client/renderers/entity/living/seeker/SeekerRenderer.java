@@ -12,7 +12,7 @@ public class SeekerRenderer<T extends SeekerEntity> extends MobRenderer<T, Ghast
 
     private static final ResourceLocation[] TEXTURES = {
             Apocalypse.resourceLoc("textures/entity/seeker/seeker.png"),
-            Apocalypse.resourceLoc("textures/entity/seeker/seeker_fire.png"),
+            Apocalypse.resourceLoc("textures/entity/seeker/seeker_shooting.png"),
             Apocalypse.resourceLoc("textures/entity/seeker/seeker_alert.png")
     };
 

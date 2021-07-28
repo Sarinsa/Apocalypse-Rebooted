@@ -12,7 +12,7 @@ public class DestroyerRenderer<T extends DestroyerEntity> extends MobRenderer<T,
 
     private static final ResourceLocation[] TEXTURES = {
             Apocalypse.resourceLoc("textures/entity/destroyer/destroyer.png"),
-            Apocalypse.resourceLoc("textures/entity/destroyer/destroyer_fire.png")
+            Apocalypse.resourceLoc("textures/entity/destroyer/destroyer_shooting.png")
     };
 
     public DestroyerRenderer(EntityRendererManager rendererManager) {
