@@ -13,6 +13,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class FatherlyToastItem extends Item {
@@ -41,7 +42,7 @@ public class FatherlyToastItem extends Item {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void appendHoverText(ItemStack itemStack, World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
+    public void appendHoverText(ItemStack itemStack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
         tooltip.add(new TranslationTextComponent(References.FATHERLY_TOAST_DESC).withStyle(TextFormatting.GRAY));
     }
 }
