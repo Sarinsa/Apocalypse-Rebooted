@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.core.mod_event.events;
 
-import com.toast.apocalypse.common.core.difficulty.MobDifficultyHandler;
+import com.toast.apocalypse.common.core.difficulty.MobAttributeHandler;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
@@ -266,9 +266,7 @@ public final class FullMoonEvent extends AbstractEvent {
         if (mob == null)
             return;
 
-        MobDifficultyHandler.handleAttributes(mob, difficulty, true);
-
-        ((IFullMoonMob) mob).setPlayerTarget(player);
+        ((IFullMoonMob) mob).setPlayerTargetUUID(player.getUUID());
         this.currentMobs.add(mob);
     }
 

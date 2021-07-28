@@ -1,4 +1,4 @@
-package com.toast.apocalypse.common.core.config;
+package com.toast.apocalypse.common.core.config.util;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.toast.apocalypse.common.core.Apocalypse;

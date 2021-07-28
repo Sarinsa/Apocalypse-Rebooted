@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.util;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.network.NetworkHelper;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -79,5 +80,16 @@ public class CapabilityHelper {
 
     public static int getEventId(@Nonnull ServerPlayerEntity player) {
         return Apocalypse.INSTANCE.getDifficultyManager().getEventId(player);
+    }
+
+    //
+    // ENTITY INIT MARK
+    //
+    public static void markEntity(@Nonnull LivingEntity livingEntity) {
+        livingEntity.getCapability(ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY).orElse(ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY.getDefaultInstance()).setMarked(true);
+    }
+
+    public static boolean isEntityMarked(@Nonnull LivingEntity livingEntity) {
+        return livingEntity.getCapability(ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY).orElse(ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY.getDefaultInstance()).getMarked();
     }
 }

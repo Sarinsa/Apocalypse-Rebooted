@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.core.difficulty;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.config.ServerConfigHelper;
+import com.toast.apocalypse.common.core.config.util.ServerConfigHelper;
 import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
@@ -9,7 +9,6 @@ import com.toast.apocalypse.common.event.CommonConfigReloadListener;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
-import net.minecraft.command.impl.TimeCommand;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -145,7 +144,9 @@ public final class PlayerDifficultyManager {
     public void onSleepFinished(SleepFinishedTimeEvent event) {
         if (event.getWorld() instanceof ServerWorld) {
             ServerWorld world = (ServerWorld) event.getWorld();
-            long timeSkipped = event.getNewTime() - queryDayTime(world.getDayTime());
+            long newTime = event.getNewTime();
+            long currentTime = queryDayTime(world.getDayTime());
+            long timeSkipped = newTime - currentTime;
 
             if (timeSkipped > 20L) {
                 for (ServerPlayerEntity player : world.players()) {

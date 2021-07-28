@@ -18,20 +18,20 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * This class takes care of applying attribute
  * increments, effects and equipment to monsters
  * depending on the nearest player's difficulty.
  */
-public final class MobDifficultyHandler {
+public final class MobAttributeHandler {
 
     /**
      * These values are updated during common config reload.
      *
      * {@link CommonConfigReloadListener#updateInfo()}
      */
-    public static boolean MOBS_ONLY;
 
     // Health
     public static List<EntityType<?>> HEALTH_BLACKLIST = new ArrayList<>();
@@ -67,24 +67,6 @@ public final class MobDifficultyHandler {
     public static double KNOCKBACK_RES_FLAT_BONUS_MAX;
     public static double KNOCKBACK_RES_LUNAR_FLAT_BONUS;
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onEntitySpawn(LivingSpawnEvent.SpecialSpawn event) {
-        LivingEntity spawnedEntity = event.getEntityLiving();
-        World world = spawnedEntity.getCommandSenderWorld();
-        final long difficulty = PlayerDifficultyManager.getNearestPlayerDifficulty(world, spawnedEntity);
-        final boolean fullMoon = Apocalypse.INSTANCE.getDifficultyManager().isFullMoonNight();
-
-        // Don't do anything if the player is still on grace period
-        // or if the entity is a full moon mob.
-        if (difficulty <= 0L || spawnedEntity instanceof IFullMoonMob)
-            return;
-
-        if (!(spawnedEntity instanceof IMob) && MOBS_ONLY)
-            return;
-
-        handleAttributes(spawnedEntity, difficulty, fullMoon);
-        handlePotions(spawnedEntity, difficulty, fullMoon);
-    }
 
     /**
      * Handles entity attribute modifications such as health, damage and speed bonuses.
@@ -169,10 +151,6 @@ public final class MobDifficultyHandler {
                 attribute.addPermanentModifier(new AttributeModifier("ApocalypseFlatRESIST", bonus, AttributeModifier.Operation.ADDITION));
             }
         }
-    }
-
-    private static void handlePotions(LivingEntity livingEntity, long difficulty, boolean fullMoon) {
-
     }
 
     /** Used in {@link com.toast.apocalypse.common.mixin.PlayerEntityMixin} */

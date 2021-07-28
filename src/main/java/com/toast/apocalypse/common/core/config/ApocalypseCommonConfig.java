@@ -1,8 +1,15 @@
 package com.toast.apocalypse.common.core.config;
 
+import com.electronwill.nightconfig.core.CommentedConfig;
+import com.electronwill.nightconfig.toml.TomlFormat;
+import com.toast.apocalypse.common.core.config.util.ConfigList;
 import com.toast.apocalypse.common.entity.living.*;
 import com.toast.apocalypse.common.util.References;
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.EntityType;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.world.Dimension;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
@@ -10,6 +17,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Apocalypse's common config, synced between client and server.
@@ -27,13 +35,25 @@ public class ApocalypseCommonConfig {
 
     public static final class Common {
 
+        // Cool lists
         private static final List<String> PENALTY_DIMENSIONS = new ArrayList<>();
-        private static final List<String> DESTROYER_PROOF_BLOCKS = new ArrayList<>();
+        private static final ConfigList<Block> DESTROYER_PROOF_BLOCKS = new ConfigList<>();
+        private static final ConfigList<EntityType<?>> CAN_HAVE_WEAPONS = new ConfigList<>();
 
         static {
             PENALTY_DIMENSIONS.add(Dimension.NETHER.location().toString());
             PENALTY_DIMENSIONS.add(Dimension.END.location().toString());
-            DESTROYER_PROOF_BLOCKS.add(Blocks.BEDROCK.getRegistryName().toString());
+
+            DESTROYER_PROOF_BLOCKS.add(Blocks.BEDROCK);
+
+            CAN_HAVE_WEAPONS.add(EntityType.ZOMBIE);
+            CAN_HAVE_WEAPONS.add(EntityType.DROWNED);
+            CAN_HAVE_WEAPONS.add(EntityType.HUSK);
+            CAN_HAVE_WEAPONS.add(EntityType.WITHER_SKELETON);
+            CAN_HAVE_WEAPONS.add(EntityType.PIGLIN);
+            CAN_HAVE_WEAPONS.add(EntityType.ZOMBIFIED_PIGLIN);
+            CAN_HAVE_WEAPONS.add(EntityType.PIGLIN_BRUTE);
+            CAN_HAVE_WEAPONS.add(EntityType.VINDICATOR);
         }
 
         // Rain
@@ -56,7 +76,7 @@ public class ApocalypseCommonConfig {
         private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.IntValue> moonMobMinCount = new HashMap<>();
         private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.IntValue> moonMobCountCap = new HashMap<>();
 
-        // Attributes and potions
+        // Attributes
         private final ForgeConfigSpec.BooleanValue mobsOnly;
 
         private final ForgeConfigSpec.ConfigValue<List<? extends String>> healthBlacklist;
@@ -88,6 +108,15 @@ public class ApocalypseCommonConfig {
         private final ForgeConfigSpec.DoubleValue knockbackResTimeSpan;
         private final ForgeConfigSpec.DoubleValue knockbackResFlatBonus;
         private final ForgeConfigSpec.DoubleValue knockbackResFlatBonusMax;
+
+        // Equipment
+        private final ForgeConfigSpec.ConfigValue<List<? extends String>> canHaveWeapons;
+        private final ForgeConfigSpec.ConfigValue<CommentedConfig> weaponLists;
+        private final ForgeConfigSpec.DoubleValue weaponsTimeSpan;
+        private final ForgeConfigSpec.DoubleValue weaponsChance;
+        private final ForgeConfigSpec.DoubleValue weaponsLunarChance;
+        private final ForgeConfigSpec.DoubleValue weaponsMaxChance;
+        private final ForgeConfigSpec.BooleanValue useCurrentWeaponTierOnly;
 
         // Misc
         private final ForgeConfigSpec.ConfigValue<List<? extends String>> destroyerProofBlocks;
@@ -171,8 +200,8 @@ public class ApocalypseCommonConfig {
 
             configBuilder.pop();
 
-            configBuilder.push("attributes_and_potions");
-            configBuilder.comment("This section contains everything related to mob attributes and potion effects.");
+            configBuilder.push("attributes");
+            configBuilder.comment("This section contains everything related to mob stat bonuses.");
 
             this.mobsOnly = configBuilder.comment("If enabled, only hostile mobs will be given attribute bonuses and potion effects.")
                     .define("mobsOnly", true);
@@ -236,7 +265,7 @@ public class ApocalypseCommonConfig {
             this.speedLunarMultBonus = configBuilder.comment("The multiplier bonus gained from a full moon in percentage. Default is 0.1 (+10% during full moons)")
                     .defineInRange("speedLunarMultBonus", 0.1D, 0.0D, 1000.0D);
 
-            this.speedTimeSpan = configBuilder.comment("The difficulty value for each application of the below values.")
+            this.speedTimeSpan = configBuilder.comment("The difficulty value for each application of speed related values.")
                     .defineInRange("speedTimeSpan", 40.0D, 0.1D, 10000.0D);
 
             this.speedMultBonus = configBuilder.comment("The multiplier bonus given for each \"_time_span\" days. Default is 0.05 (+5%).")
@@ -253,7 +282,7 @@ public class ApocalypseCommonConfig {
             this.knockbackResLunarFlatBonus = configBuilder.comment("The flat bonus gained from a full moon in percentage. Default is 0.2 (+20% on full moons)")
                     .defineInRange("knockbackResLunarFlatBonus", 0.2D, 0.0D, 10000.0D);
 
-            this.knockbackResTimeSpan = configBuilder.comment("The difficulty value for each application of the below values.")
+            this.knockbackResTimeSpan = configBuilder.comment("The difficulty value for each application of knockback resistance related values.")
                     .defineInRange("knockbackResTimeSpan", 40.0D, 0.1D, 10000.0D);
 
             this.knockbackResFlatBonus = configBuilder.comment("The flat bonus given each \"_time_span\" days. Default is 0.05 (+5%).")
@@ -262,8 +291,31 @@ public class ApocalypseCommonConfig {
             this.knockbackResFlatBonusMax = configBuilder.comment("The maximum flat bonus that can be given over time. Default is 0.3 (+30%).")
                     .defineInRange("knockbackResFlatBonusMax", 0.3D, -1.0D, 10000.0D);
             configBuilder.pop();
-
             configBuilder.pop();
+
+            configBuilder.push("weapons");
+            this.weaponLists = configBuilder.comment("A list of weapons that monsters can spawn with, divided into tiers. Each tier group is paired with a difficulty that decides when monsters can start spawning with a weapon from the given tier group.")
+                    .define("weaponLists", this.createDefaultWeaponLists());
+
+            this.canHaveWeapons = configBuilder.comment("A list of entity types that can be given weapons.")
+                    .define("canHaveWeapons", CAN_HAVE_WEAPONS);
+
+            this.weaponsTimeSpan = configBuilder.comment("The difficulty value for each application of weapon related values.")
+                    .defineInRange("weaponsTimeSpan", 30.0D, 0.0D, 10000.0D);
+
+            this.weaponsChance = configBuilder.comment("The chance that a mob will be given a weapon when it spawns. This value increases in accordance to weaponsTimeSpan.")
+                    .defineInRange("weaponsChance", 0.1D, 0.0D, 1.0D);
+
+            this.weaponsLunarChance = configBuilder.comment("The additional chance gained from a full moon. Default is 0.2 (+20% chance on full moon).")
+                    .defineInRange("weaponsLunarChance", 0.2D, 0.0D, 1.0D);
+
+            this.weaponsMaxChance = configBuilder.comment("The maximum weapon chance that can be given over time. Default is 0.95 (95% chance).")
+                    .defineInRange("weaponsMaxChance", 0.95D, 0.0D, 1.0D);
+
+            this.useCurrentWeaponTierOnly = configBuilder.comment("If enabled, only weapons from the most recently unlocked weapon tier will be given to monsters. When disabled, a random weapon will be picked from all unlocked tiers.")
+                    .define("useCurrentWeaponTierOnly", false);
+            configBuilder.pop();
+
             configBuilder.push("misc");
             this.destroyerProofBlocks = configBuilder.comment("A list of blocks that the destroyer cannot explode. Generally speaking this list should be empty since destroyers are supposed to destroy any block, but if an exception is absolutely needed, the block in question can be whitelisted here.")
                     .define("destroyerProofBlocks", DESTROYER_PROOF_BLOCKS);
@@ -461,6 +513,44 @@ public class ApocalypseCommonConfig {
 
 
         //
+        // WEAPONS
+        //
+        public CommentedConfig getWeaponList() {
+            return this.weaponLists.get();
+        }
+
+        public List<? extends String> getCanHaveWeapons() {
+            return this.canHaveWeapons.get();
+        }
+
+        public double getWeaponsTimeSpan() {
+            return this.weaponsTimeSpan.get();
+        }
+
+        public double getWeaponsChance() {
+            return this.weaponsChance.get();
+        }
+
+        public double getWeaponsLunarChance() {
+            return this.weaponsLunarChance.get();
+        }
+
+        public double getWeaponsMaxChance() {
+            return this.weaponsMaxChance.get();
+        }
+
+        public boolean getUseCurrentWeaponTierOnly() {
+            return this.useCurrentWeaponTierOnly.get();
+        }
+
+
+        //
+        // ARMOR
+        //
+
+
+
+        //
         //  MISC
         //
         public List<? extends String> getDestroyerProofBlocks() {
@@ -479,6 +569,10 @@ public class ApocalypseCommonConfig {
             return this.destroyerExplosionPower.get();
         }
 
+
+
+
+        // Helper stuff
         private void createStartDifficulty(Class<? extends IFullMoonMob> entityClass, String name, long defaultStart, ForgeConfigSpec.Builder configBuilder) {
             this.moonMobStartDifficulties.put(entityClass, configBuilder.defineInRange(name, defaultStart, 0, 100000));
         }
@@ -493,6 +587,64 @@ public class ApocalypseCommonConfig {
 
         private void createMobMaxCap(Class<? extends IFullMoonMob> entityClass, String name, int defaultMax, ForgeConfigSpec.Builder configBuilder) {
             this.moonMobCountCap.put(entityClass, configBuilder.defineInRange(name, defaultMax, 0, 100));
+        }
+
+        // Creates the default weapon lists
+        private CommentedConfig createDefaultWeaponLists() {
+            CommentedConfig weaponLists = TomlFormat.newConfig();
+
+            final ConfigList<Item> firstTier = new ConfigList<>();
+            final ConfigList<Item> secondTier = new ConfigList<>();
+            final ConfigList<Item> thirdTier = new ConfigList<>();
+            final ConfigList<Item> fourthTier = new ConfigList<>();
+            final ConfigList<Item> fifthTier = new ConfigList<>();
+            final ConfigList<Item> sixthTier = new ConfigList<>();
+
+            firstTier.addElements(
+                    Items.WOODEN_SHOVEL,
+                    Items.WOODEN_AXE,
+                    Items.WOODEN_PICKAXE,
+                    Items.WOODEN_SWORD
+            );
+            secondTier.addElements(
+                    Items.STONE_SHOVEL,
+                    Items.STONE_AXE,
+                    Items.STONE_PICKAXE,
+                    Items.STONE_SWORD
+            );
+            thirdTier.addElements(
+                    Items.GOLDEN_SHOVEL,
+                    Items.GOLDEN_AXE,
+                    Items.GOLDEN_PICKAXE,
+                    Items.GOLDEN_SWORD
+            );
+            fourthTier.addElements(
+                    Items.IRON_SHOVEL,
+                    Items.IRON_AXE,
+                    Items.IRON_PICKAXE,
+                    Items.IRON_SWORD
+            );
+            fifthTier.addElements(
+                    Items.DIAMOND_SHOVEL,
+                    Items.DIAMOND_AXE,
+                    Items.DIAMOND_PICKAXE,
+                    Items.DIAMOND_SWORD,
+                    Items.TRIDENT
+            );
+            sixthTier.addElements(
+                    Items.NETHERITE_SHOVEL,
+                    Items.NETHERITE_AXE,
+                    Items.NETHERITE_PICKAXE,
+                    Items.NETHERITE_SWORD
+            );
+            weaponLists.add(String.valueOf(10), firstTier);
+            weaponLists.add(String.valueOf(20), secondTier);
+            weaponLists.add(String.valueOf(40), thirdTier);
+            weaponLists.add(String.valueOf(60), fourthTier);
+            weaponLists.add(String.valueOf(100), fifthTier);
+            weaponLists.add(String.valueOf(150), sixthTier);
+
+            return weaponLists;
         }
     }
 }
