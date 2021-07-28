@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.toast.apocalypse.common.command.argument.DifficultyArgument;
 import com.toast.apocalypse.common.command.argument.MaxDifficultyArgument;
+import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.command.CommandSource;
@@ -15,6 +16,9 @@ import net.minecraft.command.arguments.ItemArgument;
 import net.minecraft.command.impl.EffectCommand;
 import net.minecraft.command.impl.GiveCommand;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.util.WorldCapabilityData;
@@ -25,7 +29,8 @@ public class ApocalypseBaseCommand {
 
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
         dispatcher.register(Commands.literal("apocalypse")
-                .then(DifficultyBaseCommand.register()));
+                .then(DifficultyBaseCommand.register())
+                .then(ModDebugCommand.register()));
     }
 
     /**
@@ -38,6 +43,41 @@ public class ApocalypseBaseCommand {
                     .requires((source) -> source.hasPermission(3))
                     .then(DifficultySetCommand.register())
                     .then(DifficultySetMaxCommand.register());
+        }
+    }
+
+    private static class ModDebugCommand {
+
+        private static ArgumentBuilder<CommandSource, ?> register() {
+            return Commands.literal("debug")
+                    .requires((source) -> source.hasPermission(3))
+                    .then(Commands.argument("target", EntityArgument.player())
+                            .executes((context) -> showPlayerDebugInfo(context.getSource(), EntityArgument.getPlayer(context, "target"))));
+        }
+
+        private static int showPlayerDebugInfo(CommandSource source, ServerPlayerEntity playerEntity) {
+            long difficulty = CapabilityHelper.getPlayerDifficulty(playerEntity);
+            long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(playerEntity);
+            int eventId = CapabilityHelper.getEventId(playerEntity);
+
+            String eventName;
+
+            switch(eventId) {
+                default:
+                case -1:
+                    eventName = "none";
+                    break;
+                case 0:
+                    eventName = "full_moon_siege";
+                    break;
+                case 1:
+                    eventName = "thunderstorm";
+                    break;
+            }
+            source.sendSuccess(new StringTextComponent("Player difficulty: " + (difficulty < 0 ? TextFormatting.YELLOW : TextFormatting.GREEN) + difficulty), true);
+            source.sendSuccess(new StringTextComponent("Player max difficulty: " + TextFormatting.GREEN + maxDifficulty), false);
+            source.sendSuccess(new StringTextComponent("Current event: " + TextFormatting.GREEN + eventId  + TextFormatting.WHITE + " (" + TextFormatting.GRAY + eventName + TextFormatting.GRAY + ")"), false);
+            return 1;
         }
     }
 
