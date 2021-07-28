@@ -13,7 +13,7 @@ import java.util.UUID;
 public interface IFullMoonMob {
 
     @Nullable
-    PlayerEntity getPlayerTarget();
+    UUID getPlayerTargetUUID();
 
-    void setPlayerTarget(PlayerEntity playerTarget);
+    void setPlayerTargetUUID(UUID playerTargetUUID);
 }

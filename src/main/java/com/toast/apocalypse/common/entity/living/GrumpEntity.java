@@ -145,17 +145,6 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
         return spawnData;
     }
 
-    @Nullable
-    @Override
-    public PlayerEntity getPlayerTarget() {
-        return this.playerTarget;
-    }
-
-    @Override
-    public void setPlayerTarget(PlayerEntity playerTarget) {
-        this.playerTarget = playerTarget;
-    }
-
     /** Copied from ghast */
     static class LookAroundGoal extends Goal {
         private final GrumpEntity grump;

@@ -50,13 +50,13 @@ import java.util.UUID;
 public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
     /** The constant player target, if this mob was spawned by the full moon event */
-    private PlayerEntity playerTarget;
+    private UUID playerTargetUUID;
     /** If the ghost should move away from it's target in a random direction */
     private boolean isManeuvering;
 
     public GhostEntity(EntityType<? extends FlyingEntity> entityType, World world) {
         super(entityType, world);
-        this.playerTarget = null;
+        this.playerTargetUUID = null;
         this.moveControl = new GhostMovementController<>(this);
         this.xpReward = 3;
     }
@@ -228,13 +228,29 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
     @Nullable
     @Override
-    public PlayerEntity getPlayerTarget() {
-        return this.playerTarget;
+    public UUID getPlayerTargetUUID() {
+        return this.playerTargetUUID;
     }
 
     @Override
-    public void setPlayerTarget(PlayerEntity playerTarget) {
-        this.playerTarget = playerTarget;
+    public void setPlayerTargetUUID(UUID playerTargetUUID) {
+        this.playerTargetUUID = playerTargetUUID;
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundNBT compoundNBT) {
+        super.addAdditionalSaveData(compoundNBT);
+
+        if (this.getPlayerTargetUUID() != null) {
+            compoundNBT.putUUID("PlayerTargetUUID", this.getPlayerTargetUUID());
+        }
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundNBT compoundNBT) {
+        if (compoundNBT.hasUUID("PlayerTargetUUID")) {
+            this.setPlayerTargetUUID(compoundNBT.getUUID("PlayerTargetUUID"));
+        }
     }
 
     private static class GhostMovementController<T extends GhostEntity> extends MovementController {

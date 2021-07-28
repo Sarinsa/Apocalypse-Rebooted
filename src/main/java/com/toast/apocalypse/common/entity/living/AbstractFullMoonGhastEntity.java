@@ -15,22 +15,17 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
 
 public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements IFullMoonMob {
 
-    protected PlayerEntity playerTarget;
+    protected UUID playerTargetUUID;
 
     public AbstractFullMoonGhastEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
-    }
-
-    @Nullable
-    @Override
-    public PlayerEntity getPlayerTarget() {
-        return this.playerTarget;
     }
 
     /**
@@ -67,6 +62,33 @@ public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements
         Vector3d vector3d = new Vector3d(this.getX(), this.getEyeY(), this.getZ());
         Vector3d vector3d1 = new Vector3d(entity.getX(), entity.getEyeY(), entity.getZ());
         return this.level.clip(new RayTraceContext(vector3d, vector3d1, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, this)).getType() == RayTraceResult.Type.MISS;
+    }
+
+    @Nullable
+    @Override
+    public UUID getPlayerTargetUUID() {
+        return this.playerTargetUUID;
+    }
+
+    @Override
+    public void setPlayerTargetUUID(UUID playerTargetUUID) {
+        this.playerTargetUUID = playerTargetUUID;
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundNBT compoundNBT) {
+        super.addAdditionalSaveData(compoundNBT);
+
+        if (this.getPlayerTargetUUID() != null) {
+            compoundNBT.putUUID("PlayerTargetUUID", this.getPlayerTargetUUID());
+        }
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundNBT compoundNBT) {
+        if (compoundNBT.hasUUID("PlayerTargetUUID")) {
+            this.setPlayerTargetUUID(compoundNBT.getUUID("PlayerTargetUUID"));
+        }
     }
 
     /** Slightly modified version of the ghast's movement controller */

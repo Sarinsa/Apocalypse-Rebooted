@@ -13,6 +13,8 @@ import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
+import net.minecraft.entity.monster.WitherSkeletonEntity;
+import net.minecraft.entity.monster.ZombieVillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.AbstractFireballEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -32,6 +34,7 @@ import sun.security.krb5.internal.crypto.Des;
 import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * This is a full moon mob similar to a ghast, though it has unlimited aggro range ignoring line of sight and
@@ -114,11 +117,6 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
             this.explosionPower = 0;
         }
         return data;
-    }
-
-    @Override
-    public void setPlayerTarget(PlayerEntity playerTarget) {
-        this.playerTarget = playerTarget;
     }
 
     private static class DestroyerNearestAttackableTargetGoal<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {

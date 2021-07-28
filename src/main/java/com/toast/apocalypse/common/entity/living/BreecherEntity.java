@@ -17,8 +17,10 @@ import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathNavigator;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
+import java.util.UUID;
 
 /**
  * This is a full moon mob identical to a creeper in almost every way, except that it has a much farther aggro range
@@ -28,7 +30,7 @@ import javax.annotation.Nullable;
 public class BreecherEntity extends CreeperEntity implements IFullMoonMob {
 
     /** The constant player target, if this mob was spawned by the full moon event */
-    private PlayerEntity playerTarget;
+    private UUID playerTargetUUID;
 
     public BreecherEntity(EntityType<? extends CreeperEntity> entityType, World world) {
         super(entityType, world);
@@ -51,7 +53,6 @@ public class BreecherEntity extends CreeperEntity implements IFullMoonMob {
         this.goalSelector.addGoal(6, new LookRandomlyGoal(this));
         this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IMob.class));
         this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, false));
     }
 
     /**
@@ -82,12 +83,28 @@ public class BreecherEntity extends CreeperEntity implements IFullMoonMob {
 
     @Nullable
     @Override
-    public PlayerEntity getPlayerTarget() {
-        return this.playerTarget;
+    public UUID getPlayerTargetUUID() {
+        return this.playerTargetUUID;
     }
 
     @Override
-    public void setPlayerTarget(PlayerEntity playerTarget) {
-        this.playerTarget = playerTarget;
+    public void setPlayerTargetUUID(UUID playerTargetUUID) {
+        this.playerTargetUUID = playerTargetUUID;
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundNBT compoundNBT) {
+        super.addAdditionalSaveData(compoundNBT);
+
+        if (this.getPlayerTargetUUID() != null) {
+            compoundNBT.putUUID("PlayerTargetUUID", this.getPlayerTargetUUID());
+        }
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundNBT compoundNBT) {
+        if (compoundNBT.hasUUID("PlayerTargetUUID")) {
+            this.setPlayerTargetUUID(compoundNBT.getUUID("PlayerTargetUUID"));
+        }
     }
 }

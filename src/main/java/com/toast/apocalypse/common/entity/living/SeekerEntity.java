@@ -152,11 +152,6 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         return data;
     }
 
-    @Override
-    public void setPlayerTarget(PlayerEntity playerTarget) {
-        this.playerTarget = playerTarget;
-    }
-
     private static class SeekerNearestAttackableTargetGoal<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {
 
         public SeekerNearestAttackableTargetGoal(MobEntity entity, Class<T> targetClass) {
