@@ -3,13 +3,14 @@ package com.toast.apocalypse.client.screen;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.toast.apocalypse.client.screen.widget.config.DoubleConfigTextField;
 import com.toast.apocalypse.client.screen.widget.config.InfoPoint;
-import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
-import com.toast.apocalypse.common.core.config.ServerConfigHelper;
+import com.toast.apocalypse.common.core.config.util.ServerConfigHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.util.text.TranslationTextComponent;
+
+import javax.annotation.Nonnull;
 
 public class ApocalypseWorldCreateConfigScreen extends Screen {
 
@@ -92,7 +93,7 @@ public class ApocalypseWorldCreateConfigScreen extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(@Nonnull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrixStack);
         drawCenteredString(matrixStack, this.font, this.title, this.width / 2, 20, -1);
 
