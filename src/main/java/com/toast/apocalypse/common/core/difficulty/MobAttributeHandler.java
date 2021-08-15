@@ -156,9 +156,9 @@ public final class MobAttributeHandler {
     /** Used in {@link com.toast.apocalypse.common.mixin.PlayerEntityMixin} */
     public static float getLivingDamage(LivingEntity attacker, PlayerEntity player, float originalDamage) {
         final long difficulty = CapabilityHelper.getPlayerDifficulty(player);
+        double effectiveDifficulty = (double) difficulty / DAMAGE_TIME_SPAN;
 
-        if (!DAMAGE_BLACKLIST.contains(attacker.getType()) || difficulty <= 0) {
-            double effectiveDifficulty = (double) difficulty / DAMAGE_TIME_SPAN;
+        if (!DAMAGE_BLACKLIST.contains(attacker.getType()) && effectiveDifficulty > 1) {
             boolean fullMoon = Apocalypse.INSTANCE.getDifficultyManager().isFullMoonNight();
             double bonus, mult;
 

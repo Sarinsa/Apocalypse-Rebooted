@@ -46,6 +46,7 @@ public class ApocalypseBaseCommand {
         }
     }
 
+    /** Displays a player's Apocalypse properties (Difficulty, current event etc.) */
     private static class ModDebugCommand {
 
         private static ArgumentBuilder<CommandSource, ?> register() {
