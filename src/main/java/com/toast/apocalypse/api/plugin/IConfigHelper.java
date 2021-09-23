@@ -4,10 +4,10 @@ import java.util.List;
 
 /**
  * An easy way for modders to
- * check Apocalypse's config
- * settings. Note that this
- * part will likely whenever
- * we update the config internally.
+ * read Apocalypse's config settings.
+ * This interface will be updated
+ * whenever we decide to change/remove/add
+ * something to the mod config.
  */
 public interface IConfigHelper {
 

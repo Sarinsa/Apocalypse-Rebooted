@@ -143,7 +143,9 @@ public class Apocalypse {
     }
 
     public void sendIMCMessages(InterModEnqueueEvent event) {
-        InterModComms.sendTo("theoneprobe", "getTheOneProbe", TOPEntityInfoProvider::new);
+        if (ModList.get().isLoaded("theoneprobe")) {
+            InterModComms.sendTo("theoneprobe", "getTheOneProbe", TOPEntityInfoProvider::new);
+        }
     }
 
     public static ResourceLocation resourceLoc(String path) {
