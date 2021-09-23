@@ -8,10 +8,10 @@ import com.toast.apocalypse.api.plugin.IApocalypsePlugin;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.command.CommandRegister;
 import com.toast.apocalypse.common.command.argument.ApocalypseArgumentTypes;
+import com.toast.apocalypse.common.compat.top.TOPEntityInfoProvider;
 import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.core.config.ApocalypseServerConfig;
-import com.toast.apocalypse.common.core.difficulty.MobAttributeHandler;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.event.CapabilityAttachEvents;
@@ -24,12 +24,14 @@ import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -74,14 +76,15 @@ public class Apocalypse {
 
         eventBus.addListener(this::onCommonSetup);
         eventBus.addListener(this::onLoadComplete);
+        eventBus.addListener(this::sendIMCMessages);
         eventBus.addListener(ApocalypseEntities::createEntityAttributes);
+
         eventBus.register(this.getConfigHelper());
 
         MinecraftForge.EVENT_BUS.register(new EntityEvents());
         MinecraftForge.EVENT_BUS.register(new PlayerEvents());
         MinecraftForge.EVENT_BUS.register(new CapabilityAttachEvents());
         MinecraftForge.EVENT_BUS.register(this.getDifficultyManager());
-        MinecraftForge.EVENT_BUS.register(new MobAttributeHandler());
         MinecraftForge.EVENT_BUS.register(new VillagerTradeEvents());
         MinecraftForge.EVENT_BUS.addListener(CommandRegister::registerCommands);
 
@@ -137,6 +140,10 @@ public class Apocalypse {
             // Post setup
             this.registryHelper.postSetup();
         });
+    }
+
+    public void sendIMCMessages(InterModEnqueueEvent event) {
+        InterModComms.sendTo("theoneprobe", "getTheOneProbe", TOPEntityInfoProvider::new);
     }
 
     public static ResourceLocation resourceLoc(String path) {

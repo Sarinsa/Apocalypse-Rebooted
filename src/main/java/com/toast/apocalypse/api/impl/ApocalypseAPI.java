@@ -5,6 +5,7 @@ import com.toast.apocalypse.api.plugin.IConfigHelper;
 import com.toast.apocalypse.api.plugin.IDifficultyProvider;
 import com.toast.apocalypse.api.plugin.IRegistryHelper;
 import com.toast.apocalypse.common.core.Apocalypse;
+import net.minecraft.entity.player.ServerPlayerEntity;
 
 public final class ApocalypseAPI extends ApocalypseApi {
 

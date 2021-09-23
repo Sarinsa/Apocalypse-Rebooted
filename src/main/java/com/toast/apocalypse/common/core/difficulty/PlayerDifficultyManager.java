@@ -15,6 +15,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.RegistryKey;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IWorld;
@@ -31,13 +32,14 @@ import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 import org.apache.logging.log4j.Level;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 /**
  * This class manages player difficulty and mod events
- * like full moon sieges and thunderstorm events.
+ * like the full moon siege and thunderstorm.
  */
 public final class PlayerDifficultyManager {
 
@@ -49,18 +51,17 @@ public final class PlayerDifficultyManager {
     public static double MULTIPLAYER_DIFFICULTY_MULT;
     public static double SLEEP_PENALTY;
     public static double DIMENSION_PENALTY;
+    public static List<RegistryKey<World>> DIMENSION_PENALTY_LIST;
 
     /** Number of ticks per update. */
     public static final int TICKS_PER_UPDATE = 5;
-    /** Number of ticks per save. */
-    public static final int TICKS_PER_SAVE = 120;
+    /** Number of ticks per save. (Save every 8 seconds) */
+    public static final int TICKS_PER_SAVE = 160;
 
     /** Time until next server tick update. */
     private int timeUntilUpdate = 0;
     /** Time until next save */
     private int timeUntilSave = 0;
-
-    public static List<RegistryKey<World>> DIMENSION_PENALTY_LIST;
 
     /** Server instance */
     private MinecraftServer server;
@@ -70,6 +71,7 @@ public final class PlayerDifficultyManager {
     // Unused
     /** A map containing each world's player group list. */
     private final HashMap<RegistryKey<World>, List<PlayerGroup>> playerGroups = new HashMap<>();
+
 
     public static long queryDayTime(long dayTime) {
         return dayTime % References.DAY_LENGTH;
@@ -83,6 +85,15 @@ public final class PlayerDifficultyManager {
         return fullMoon && dayTime > 13000L && dayTime < 23500L;
     }
 
+    /**
+     * Used to find the difficulty of the nearest player when
+     * calculating mob attribute bonuses and equipment etc.
+     *
+     * @param world The World :)
+     * @param livingEntity The entity to use as reference point.
+     * @return The unscaled, raw difficulty of the nearest player.
+     *         Defaults to 0 if no player can be found.
+     */
     public static long getNearestPlayerDifficulty(IWorld world, LivingEntity livingEntity) {
         PlayerEntity player = world.getNearestPlayer(livingEntity, Double.MAX_VALUE);
 
@@ -119,24 +130,24 @@ public final class PlayerDifficultyManager {
     public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (!event.getPlayer().getCommandSenderWorld().isClientSide) {
             ServerWorld overworld = this.server.overworld();
-            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) event.getPlayer();
+            ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
 
-            NetworkHelper.sendUpdatePlayerDifficulty(serverPlayer);
-            NetworkHelper.sendUpdatePlayerDifficultyMult(serverPlayer);
-            NetworkHelper.sendUpdatePlayerMaxDifficulty(serverPlayer);
-            NetworkHelper.sendMoonPhaseUpdate(serverPlayer, overworld);
+            NetworkHelper.sendUpdatePlayerDifficulty(player);
+            NetworkHelper.sendUpdatePlayerDifficultyMult(player);
+            NetworkHelper.sendUpdatePlayerMaxDifficulty(player);
+            NetworkHelper.sendMoonPhaseUpdate(player, overworld);
 
-            this.loadEventData(serverPlayer);
+            this.loadEventData(player);
         }
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
         if (!event.getPlayer().getCommandSenderWorld().isClientSide) {
-            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) event.getPlayer();
-            this.saveEventData(serverPlayer);
-            this.playerEvents.get(serverPlayer.getUUID()).stop(serverPlayer.getLevel());
-            this.playerEvents.remove(serverPlayer.getUUID());
+            ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
+            this.saveEventData(player);
+            this.playerEvents.get(player.getUUID()).stop(player.getLevel());
+            this.playerEvents.remove(player.getUUID());
         }
     }
 
@@ -145,8 +156,12 @@ public final class PlayerDifficultyManager {
         if (event.getWorld() instanceof ServerWorld) {
             ServerWorld world = (ServerWorld) event.getWorld();
             long newTime = event.getNewTime();
-            long currentTime = queryDayTime(world.getDayTime());
+            long currentTime = world.getDayTime();
             long timeSkipped = newTime - currentTime;
+
+            log(Level.INFO, "New time: " + newTime);
+            log(Level.INFO, "Current time: " + currentTime);
+            log(Level.INFO, "Time to skip: " + timeSkipped);
 
             if (timeSkipped > 20L) {
                 for (ServerPlayerEntity player : world.players()) {
@@ -164,13 +179,21 @@ public final class PlayerDifficultyManager {
         }
     }
 
+    private <T extends ServerPlayerEntity> void applyTimeSkipPenalty(T player, long currentTime, long newTime, double multiplier, @Nullable SoundEvent soundEvent) {
+        long timeSkipped = newTime - currentTime;
+
+
+    }
+
+    private <T extends ServerWorld> void applyTimeSkipPenalty(T world, long currentTime, long newTime, double multiplier, @Nullable SoundEvent soundEvent) {
+        long timeSkipped = newTime - currentTime;
+
+
+    }
+
     /**
-     * Called each game tick to update world difficulty rate
-     * and the currently running Apocalypse event.
-     *
-     * TickEvent.Type type = the type of tick.
-     * Side side = the side this tick is on.
-     * TickEvent.Phase phase = the phase of this tick (START, END).
+     * Called each game tick to update all players'
+     * difficulty properties and Apocalypse events.
      *
      * @param event The event being triggered.
      */
@@ -187,7 +210,7 @@ public final class PlayerDifficultyManager {
 
                 // Update player difficulty
                 for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
-                    this.updatePlayer(player);
+                    this.updatePlayerDifficulty(player);
                     this.updatePlayerEvent(player, isFullMoonNight);
                 }
             }
@@ -235,7 +258,10 @@ public final class PlayerDifficultyManager {
         }
     }
 
-    private void updatePlayer(ServerPlayerEntity player) {
+    /**
+     * Updates the player's difficulty.
+     */
+    private void updatePlayerDifficulty(ServerPlayerEntity player) {
         final int playerCount = this.server.getPlayerCount();
         final long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
         double difficultyMultiplier = CapabilityHelper.getPlayerDifficultyMult(player);
@@ -302,11 +328,6 @@ public final class PlayerDifficultyManager {
         }
         // Update current event
         currentEvent.update(world, player);
-    }
-
-    /** Helper method for logging. */
-    private static void log(Level level, String message) {
-        Apocalypse.LOGGER.log(level, "[{}] " + message, PlayerDifficultyManager.class.getSimpleName());
     }
 
     // Unused
@@ -384,17 +405,25 @@ public final class PlayerDifficultyManager {
     /** Saves the data of the player's current event. */
     public void saveEventData(ServerPlayerEntity player) {
         try {
-            AbstractEvent currentEvent = this.playerEvents.get(player.getUUID());
-            CompoundNBT eventData = new CompoundNBT();
+            if (this.playerEvents.containsKey(player.getUUID())) {
+                AbstractEvent currentEvent = this.playerEvents.get(player.getUUID());
+                CompoundNBT eventData = new CompoundNBT();
 
-            if (currentEvent != null) {
-                eventData = currentEvent.write(eventData);
+                currentEvent.write(eventData);
+                CapabilityHelper.setEventData(player, eventData);
             }
-            CapabilityHelper.setEventData(player, eventData);
+            else {
+                log(Level.ERROR, "No event object found for player " + player.getName().getString() + ". Not good!");
+            }
         }
         catch (Exception e) {
             log(Level.ERROR, "Failed to write player event data for player " + player.getName().getString() + "! Not cool beans.");
             e.printStackTrace();
         }
+    }
+
+    /** Helper method for logging. */
+    private static void log(Level level, String message) {
+        Apocalypse.LOGGER.log(level, "[{}] " + message, PlayerDifficultyManager.class.getSimpleName());
     }
 }

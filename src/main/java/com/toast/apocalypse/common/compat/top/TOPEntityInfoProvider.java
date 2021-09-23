@@ -14,7 +14,7 @@ import net.minecraft.world.World;
 
 import java.util.function.Function;
 
-public class EntityInfoProvider implements IProbeInfoEntityProvider, Function<ITheOneProbe, Void> {
+public class TOPEntityInfoProvider implements IProbeInfoEntityProvider, Function<ITheOneProbe, Void> {
 
     private static final String ID = Apocalypse.resourceLoc("entity_info").toString();
 

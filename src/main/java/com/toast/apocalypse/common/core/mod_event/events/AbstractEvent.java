@@ -43,10 +43,13 @@ public abstract class AbstractEvent {
      *
      * @param data The tag to write to.
      */
-    public CompoundNBT write(CompoundNBT data) {
+    public final void write(CompoundNBT data) {
         data.putInt("EventId", this.getType().getId());
-        return data;
+
+        this.writeAdditional(data);
     }
+
+    public abstract void writeAdditional(CompoundNBT data);
 
     /**
      * Loads this event.

@@ -33,9 +33,7 @@ public final class EmptyEvent extends AbstractEvent {
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT data) {
-        data.putInt("EventId", this.getType().getId());
-        return data;
+    public void writeAdditional(CompoundNBT data) {
     }
 
     @Override

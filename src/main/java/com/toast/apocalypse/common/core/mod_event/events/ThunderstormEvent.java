@@ -34,8 +34,7 @@ public final class ThunderstormEvent extends AbstractEvent {
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT data) {
-        return super.write(data);
+    public void writeAdditional(CompoundNBT data) {
     }
 
     @Override

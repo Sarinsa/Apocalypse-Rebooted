@@ -1,6 +1,5 @@
 package com.toast.apocalypse.common.core.mod_event.events;
 
-import com.toast.apocalypse.common.core.difficulty.MobAttributeHandler;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
@@ -34,6 +33,9 @@ import java.util.Random;
  */
 public final class FullMoonEvent extends AbstractEvent {
 
+    /** The time it takes from when the event is triggered
+     *  until siege mobs can start spawning.
+     */
     private static final int MAX_GRACE_PERIOD = 800;
 
     /** The difficulty until mob counts increase */
@@ -81,7 +83,7 @@ public final class FullMoonEvent extends AbstractEvent {
     private int spawnTime = 600;
     /** The time until the next mob should be spawned for the player */
     private int timeUntilNextSpawn = 0;
-    /** Whether or not there are any mobs left to spawn */
+    /** Whether there are any mobs left to spawn */
     private boolean hasMobsLeft = true;
     /** A map containing all the full moon mobs that will be spawned for the player */
     private final HashMap<Integer, Integer> mobsToSpawn = new HashMap<>();
@@ -243,7 +245,6 @@ public final class FullMoonEvent extends AbstractEvent {
      */
     private void spawnMob(int mobType, ServerWorld world, ServerPlayerEntity player) {
         MobEntity mob;
-        long difficulty = CapabilityHelper.getPlayerDifficulty(player);
 
         switch (mobType) {
             default:
@@ -267,11 +268,10 @@ public final class FullMoonEvent extends AbstractEvent {
             return;
 
         ((IFullMoonMob) mob).setPlayerTargetUUID(player.getUUID());
-        this.currentMobs.add(mob);
     }
 
     @Nullable
-    private <T extends MobEntity> T createMob(EntityType<T> entityType, ServerPlayerEntity player, ServerWorld world) {
+    private <T extends MobEntity & IFullMoonMob> T createMob(EntityType<T> entityType, ServerPlayerEntity player, ServerWorld world) {
         BlockPos playerPos = player.blockPosition();
         BlockPos spawnPos = null;
         final int minDist = 25;
@@ -320,8 +320,7 @@ public final class FullMoonEvent extends AbstractEvent {
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT data) {
-        data = super.write(data);
+    public void writeAdditional(CompoundNBT data) {
         data.putInt("GracePeriod", this.gracePeriod);
         data.putInt("TimeNextSpawn", this.timeUntilNextSpawn);
         data.putInt("SpawnTime", this.spawnTime);
@@ -343,8 +342,6 @@ public final class FullMoonEvent extends AbstractEvent {
         }
         data.put("MobsToSpawn", mobsToSpawn);
         data.put("CurrentMobs", currentMobs);
-
-        return data;
     }
 
     @Override
@@ -364,10 +361,7 @@ public final class FullMoonEvent extends AbstractEvent {
 
         for (String s : currentMobs.getAllKeys()) {
             CompoundNBT entityTag = currentMobs.getCompound(s);
-            MobEntity mob = (MobEntity) EntityType.loadEntityRecursive(entityTag, world, (entity) -> {
-                world.addFreshEntity(entity);
-                return entity;
-            });
+            MobEntity mob = (MobEntity) EntityType.loadEntityRecursive(entityTag, world, (entity) -> entity);
             if (mob != null) {
                 spawnSmoke(world, mob);
                 this.currentMobs.add(mob);

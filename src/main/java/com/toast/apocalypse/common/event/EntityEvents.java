@@ -29,7 +29,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class EntityEvents {
 
-    /** Whether or not attribute bonuses should only be applied to mob entities. */
+    /** Whether attribute bonuses should only be applied to mob entities. */
     public static boolean MOBS_ONLY;
 
     /**
@@ -46,6 +46,9 @@ public class EntityEvents {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onEntityJoinWorld(EntityJoinWorldEvent event) {
+        if (event.getWorld().isClientSide)
+            return;
+
         if (!(event.getEntity() instanceof LivingEntity) || event.getEntity() instanceof PlayerEntity)
             return;
 

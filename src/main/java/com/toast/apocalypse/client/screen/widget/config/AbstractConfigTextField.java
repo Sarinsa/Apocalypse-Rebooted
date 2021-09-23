@@ -96,8 +96,6 @@ public abstract class AbstractConfigTextField<T> extends TextFieldWidget {
 
         if (this.visible && this.descriptor != null) {
             Screen.drawCenteredString(matrixStack, Minecraft.getInstance().font, this.descriptor, this.x + this.width / 2, this.y - (this.height / 2) - 3, -1);
-
-
         }
     }
 }

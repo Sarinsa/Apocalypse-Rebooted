@@ -32,7 +32,6 @@ public final class MobEquipmentHandler {
     public static final Map<Integer, List<Item>> WEAPON_LISTS = new HashMap<>();
 
 
-
     public static void handleMobEquipment(LivingEntity entity, long difficulty, boolean fullMoon) {
         if (CAN_HAVE_WEAPONS.contains(entity.getType()) && entity.getItemBySlot(EquipmentSlotType.MAINHAND).isEmpty()) {
             double effectiveDifficulty = (double) difficulty / WEAPONS_TIME;

@@ -13,22 +13,22 @@ public interface IDifficultyProvider {
     /**
      * @return The current world difficulty rate.
      */
-    double getDifficultyRate(PlayerEntity player);
+    <T extends PlayerEntity> double getDifficultyRate(T player);
 
     /**
      * @return The current difficulty of the specified player.
      */
-    long getPlayerDifficulty(PlayerEntity player);
+    <T extends PlayerEntity> long getPlayerDifficulty(T player);
 
     /**
      * @return The current max difficulty of the specified player.
      */
-    long getMaxPlayerDifficulty(PlayerEntity player);
+    <T extends PlayerEntity> long getMaxPlayerDifficulty(T player);
 
     /**
      * @return The ID of the given player's
      *         currently running event.
-     *         (Exists only on server)
+     *         (Server side only)
      *
      * No event: -1
      *
@@ -36,5 +36,5 @@ public interface IDifficultyProvider {
      *
      * Thunderstorm: 1
      */
-    int currentEventId(ServerPlayerEntity player);
+    <T extends ServerPlayerEntity> int currentEventId(T player);
 }
