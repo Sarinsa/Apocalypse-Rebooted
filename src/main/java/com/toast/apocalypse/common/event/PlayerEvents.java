@@ -43,7 +43,7 @@ public class PlayerEvents {
         if (player.isSleeping() || !player.isAlive())
             return;
 
-        if (!player.getCommandSenderWorld().isClientSide && Apocalypse.INSTANCE.getDifficultyManager().isFullMoonNight()) {
+        if (!player.getCommandSenderWorld().isClientSide && Apocalypse.INSTANCE.getDifficultyManager().isFullMoon()) {
             event.setResult(PlayerEntity.SleepResult.OTHER_PROBLEM);
             player.displayClientMessage(new TranslationTextComponent(References.TRY_SLEEP_FULL_MOON), true);
         }

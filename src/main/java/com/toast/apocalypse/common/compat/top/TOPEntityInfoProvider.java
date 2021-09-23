@@ -16,11 +16,11 @@ import java.util.function.Function;
 
 public class TOPEntityInfoProvider implements IProbeInfoEntityProvider, Function<ITheOneProbe, Void> {
 
-    private static final String ID = Apocalypse.resourceLoc("entity_info").toString();
+    private static final String ID = Apocalypse.resourceLoc("player_difficulty").toString();
 
     @Override
-    public Void apply(ITheOneProbe theOneProbe) {
-        theOneProbe.registerEntityProvider(this);
+    public Void apply(ITheOneProbe probe) {
+        probe.registerEntityProvider(this);
         return null;
     }
 
@@ -31,11 +31,9 @@ public class TOPEntityInfoProvider implements IProbeInfoEntityProvider, Function
 
     @Override
     public void addProbeEntityInfo(ProbeMode probeMode, IProbeInfo iProbeInfo, PlayerEntity playerEntity, World world, Entity entity, IProbeHitEntityData iProbeHitEntityData) {
-        if (probeMode == ProbeMode.EXTENDED) {
-            if (entity instanceof ServerPlayerEntity) {
-                long difficulty = CapabilityHelper.getPlayerDifficulty((ServerPlayerEntity) entity);
-                iProbeInfo.text(formatDifficulty(difficulty));
-            }
+        if (probeMode == ProbeMode.EXTENDED && entity instanceof ServerPlayerEntity) {
+            long difficulty = CapabilityHelper.getPlayerDifficulty((ServerPlayerEntity) entity);
+            iProbeInfo.text(formatDifficulty(difficulty));
         }
     }
 
@@ -43,6 +41,8 @@ public class TOPEntityInfoProvider implements IProbeInfoEntityProvider, Function
         int partialDifficulty = difficulty <= 0 ? 0 : (int) (difficulty % 24000L / 2400);
         difficulty /= 24000L;
 
-        return new TranslationTextComponent(References.DIFFICULTY, ": " + difficulty + "." + partialDifficulty);
+        String displayDifficulty = difficulty + "." + partialDifficulty;
+
+        return new TranslationTextComponent(References.DIFFICULTY, displayDifficulty);
     }
 }

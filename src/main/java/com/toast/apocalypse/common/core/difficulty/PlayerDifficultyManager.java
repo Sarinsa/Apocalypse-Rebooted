@@ -77,12 +77,16 @@ public final class PlayerDifficultyManager {
         return dayTime % References.DAY_LENGTH;
     }
 
+    public boolean isFullMoon() {
+        ServerWorld world = this.server.overworld();
+        return world.dimensionType().moonPhase(world.getDayTime()) == 0;
+    }
+
     public boolean isFullMoonNight() {
         ServerWorld world = this.server.overworld();
         long dayTime = queryDayTime(world.getDayTime());
-        boolean fullMoon = world.dimensionType().moonPhase(world.getDayTime()) == 0;
 
-        return fullMoon && dayTime > 13000L && dayTime < 23500L;
+        return this.isFullMoon() && dayTime > 13000L && dayTime < 23500L;
     }
 
     /**
