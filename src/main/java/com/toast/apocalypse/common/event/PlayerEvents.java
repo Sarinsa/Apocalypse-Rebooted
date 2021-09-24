@@ -9,6 +9,7 @@ import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.event.TickEvent;
@@ -64,10 +65,16 @@ public class PlayerEvents {
     @SubscribeEvent
     public void onPlayerCloned(PlayerEvent.Clone event) {
         if (event.getPlayer() instanceof ServerPlayerEntity) {
-            long difficulty = CapabilityHelper.getPlayerDifficulty(event.getOriginal());
-            long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(event.getOriginal());
-            CapabilityHelper.setPlayerDifficulty((ServerPlayerEntity) event.getPlayer(), difficulty);
-            CapabilityHelper.setMaxPlayerDifficulty((ServerPlayerEntity) event.getPlayer(), maxDifficulty);
+            ServerPlayerEntity newPlayer = (ServerPlayerEntity) event.getPlayer();
+            ServerPlayerEntity originalPlayer = (ServerPlayerEntity) event.getOriginal();
+
+            long difficulty = CapabilityHelper.getPlayerDifficulty(originalPlayer);
+            long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(originalPlayer);
+            CompoundNBT eventData = CapabilityHelper.getEventData(originalPlayer);
+
+            CapabilityHelper.setPlayerDifficulty(newPlayer, difficulty);
+            CapabilityHelper.setMaxPlayerDifficulty(newPlayer, maxDifficulty);
+            CapabilityHelper.setEventData(newPlayer, eventData);
         }
     }
 }
