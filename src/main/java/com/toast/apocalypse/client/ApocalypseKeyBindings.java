@@ -1,5 +1,6 @@
 package com.toast.apocalypse.client;
 
+import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraftforge.client.settings.IKeyConflictContext;
@@ -15,6 +16,6 @@ public class ApocalypseKeyBindings {
     }
 
     private static KeyBinding create(String name, IKeyConflictContext conflictContext, InputMappings.Input input) {
-        return new KeyBinding(name, conflictContext, input, "Apocalypse Rebooted");
+        return new KeyBinding(name, conflictContext, input, Apocalypse.MOD_NAME);
     }
 }

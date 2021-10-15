@@ -66,35 +66,22 @@ public final class MobEquipmentHandler {
             final Random random = new Random();
 
             if (CURRENT_WEAPON_TIER_ONLY) {
-                Iterator<Integer> iterator = WEAPON_TIERS.iterator();
                 int tier = 0;
 
-                while(iterator.hasNext()) {
-                    int i = iterator.next();
-                    Apocalypse.LOGGER.info("Loop tier: " + i);
-
-                    if (i >= scaledDifficulty) {
-                        if (iterator.hasNext()) {
-                            int iNext = iterator.next();
-
-                            if (scaledDifficulty < iNext) {
-                                tier = i;
-                                break;
-                            }
-                        }
-                        else {
-                            tier = i;
-                        }
+                for (int i : WEAPON_TIERS) {
+                    if (i <= scaledDifficulty) {
+                        tier = i;
                     }
                 }
                 Apocalypse.LOGGER.info("Final tier: " + tier);
+                Apocalypse.LOGGER.info("Difficulty: " + scaledDifficulty);
                 List<Item> weapons = WEAPON_LISTS.get(tier);
                 return weapons.isEmpty() ? ItemStack.EMPTY : new ItemStack(weapons.get(random.nextInt(weapons.size())));
             }
             else {
                 List<Integer> availableTiers = new ArrayList<>();
 
-                for (Integer tier : WEAPON_TIERS) {
+                for (int tier : WEAPON_TIERS) {
                     if (tier <= scaledDifficulty) {
                         availableTiers.add(tier);
                     }
