@@ -24,6 +24,7 @@ import static com.toast.apocalypse.common.core.config.ApocalypseCommonConfig.COM
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 @Mod.EventBusSubscriber(modid = Apocalypse.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CommonConfigReloadListener {
@@ -103,6 +104,8 @@ public class CommonConfigReloadListener {
         MobAttributeHandler.KNOCKBACK_RES_LUNAR_FLAT_BONUS = COMMON.getKnockbackResLunarFlatBonus();
 
         MobEquipmentHandler.refreshEquipmentLists(COMMON.getWeaponList(), MobEquipmentHandler.WEAPON_LISTS);
+        MobEquipmentHandler.WEAPON_TIERS.clear();
+        MobEquipmentHandler.WEAPON_TIERS.addAll(MobEquipmentHandler.WEAPON_LISTS.keySet());
 
         MobEquipmentHandler.WEAPONS_TIME = COMMON.getWeaponsTimeSpan();
         MobEquipmentHandler.WEAPONS_CHANCE = COMMON.getWeaponsChance();

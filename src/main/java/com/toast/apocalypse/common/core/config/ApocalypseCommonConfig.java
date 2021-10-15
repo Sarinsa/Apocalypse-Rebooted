@@ -304,7 +304,7 @@ public class ApocalypseCommonConfig {
                     .defineInRange("weaponsTimeSpan", 30.0D, 0.0D, 10000.0D);
 
             this.weaponsChance = configBuilder.comment("The chance that a mob will be given a weapon when it spawns. This value increases in accordance to weaponsTimeSpan.")
-                    .defineInRange("weaponsChance", 0.1D, 0.0D, 1.0D);
+                    .defineInRange("weaponsChance", 0.05D, 0.0D, 1.0D);
 
             this.weaponsLunarChance = configBuilder.comment("The additional chance gained from a full moon. Default is 0.2 (+20% chance on full moon).")
                     .defineInRange("weaponsLunarChance", 0.2D, 0.0D, 1.0D);

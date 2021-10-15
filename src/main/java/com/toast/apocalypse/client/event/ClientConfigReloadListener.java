@@ -35,6 +35,7 @@ public final class ClientConfigReloadListener {
 
     private static void updateClientConfigInfo() {
         DifficultyRenderHandler.RENDER_IN_CREATIVE = ApocalypseClientConfig.CLIENT.getRenderDifficultyInCreative();
+        DifficultyRenderHandler.KEYBIND_ONLY = ApocalypseClientConfig.CLIENT.getKeybindOnly();
         PositionWidthAnchor renderPosWidth = ApocalypseClientConfig.CLIENT.getDifficultyRenderPosWidth();
         PositionHeightAnchor renderPosHeight = ApocalypseClientConfig.CLIENT.getDifficultyRenderPosHeight();
         int xOffset = ApocalypseClientConfig.CLIENT.getDifficultyRenderXOffset();

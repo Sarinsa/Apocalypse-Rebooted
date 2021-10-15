@@ -49,6 +49,8 @@
   "apocalypse.screen.text_field.desc.create_world_config.max_difficulty": "The default max difficulty level for this world/server. Your difficulty will stop increasing when this number is reached.",
   "apocalypse.screen.text_field.desc.create_world_config.grace_period": "The default grace period for this world/server. This is the amount of time that must pass before your difficulty starts increasing. A value of 1.0 equals that of a whole minecraft day (normally).",
 
+  "key.apocalypse.toggleDifficulty": "Toggle Difficulty",
+
   "apocalypse.advancements.root.title": "It Begins",
   "apocalypse.advancements.root.description": "The grace period is over. Stay on your toes!",
 

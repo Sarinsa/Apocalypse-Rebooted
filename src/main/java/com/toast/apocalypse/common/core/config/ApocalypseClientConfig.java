@@ -42,6 +42,7 @@ public class ApocalypseClientConfig {
         private final ForgeConfigSpec.IntValue worldConfigButtonYOffset;
 
         private final ForgeConfigSpec.BooleanValue renderDifficultyInCreative;
+        private final ForgeConfigSpec.BooleanValue keybindOnly;
 
         private Client(ForgeConfigSpec.Builder configBuilder) {
             configBuilder.push("in_game_gui");
@@ -59,6 +60,9 @@ public class ApocalypseClientConfig {
 
             this.renderDifficultyInCreative = configBuilder.comment("Toggles difficulty being rendered when the player is in creative mode.")
                     .define("renderDifficultyInCreative", true);
+
+            this.keybindOnly = configBuilder.comment("If enabled, difficulty will only be displayed if the Apocalypse difficulty keybind is pressed.")
+                            .define("keybindOnly", false);
             configBuilder.pop();
 
             configBuilder.push("world_config_button");
@@ -110,6 +114,10 @@ public class ApocalypseClientConfig {
 
         public boolean getRenderDifficultyInCreative() {
             return this.renderDifficultyInCreative.get();
+        }
+
+        public boolean getKeybindOnly() {
+            return this.keybindOnly.get();
         }
     }
 }

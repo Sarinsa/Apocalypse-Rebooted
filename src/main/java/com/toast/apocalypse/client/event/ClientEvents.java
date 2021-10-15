@@ -90,13 +90,6 @@ public class ClientEvents {
             event.addWidget(new ImageButton(x, y, 20, 20, 0, 0, 20, GHOSTLY_ICON, 32, 64, (button) -> {
                 this.minecraftClient.setScreen(new ApocalypseWorldCreateConfigScreen(screen));
             }));
-
-            /*
-            event.addWidget(new ImageButton(screen.width / 2 + 165, 100, 20, 20, 0, 0, 20, GRUMP_ICON, 32, 64, (button) -> {
-                this.minecraftClient.setScreen(new ApocalypseWorldCreateConfigScreen(screen));
-            }));
-
-             */
         }
     }
 }

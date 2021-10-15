@@ -3,6 +3,8 @@ package com.toast.apocalypse.common.core.difficulty;
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.util.References;
+import javafx.collections.transformation.SortedList;
+import net.minecraft.command.impl.SummonCommand;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.monster.WitherSkeletonEntity;
@@ -30,11 +32,12 @@ public final class MobEquipmentHandler {
 
     public static final List<EntityType<?>> CAN_HAVE_WEAPONS = new ArrayList<>();
     public static final Map<Integer, List<Item>> WEAPON_LISTS = new HashMap<>();
+    public static Set<Integer> WEAPON_TIERS = new TreeSet<>();
 
 
     public static void handleMobEquipment(LivingEntity entity, long difficulty, boolean fullMoon) {
-        if (CAN_HAVE_WEAPONS.contains(entity.getType()) && entity.getItemBySlot(EquipmentSlotType.MAINHAND).isEmpty()) {
-            double effectiveDifficulty = (double) difficulty / WEAPONS_TIME;
+        if (CAN_HAVE_WEAPONS.contains(entity.getType())) {
+            double effectiveDifficulty = (double) (difficulty / References.DAY_LENGTH) / WEAPONS_TIME;
             double bonus = WEAPONS_CHANCE * effectiveDifficulty;
 
             if (WEAPONS_CHANCE_MAX >= 0.0 && bonus > WEAPONS_CHANCE_MAX) {
@@ -43,7 +46,9 @@ public final class MobEquipmentHandler {
             if (fullMoon) {
                 bonus += WEAPONS_LUNAR_CHANCE;
             }
-            if (entity.getRandom().nextDouble() < bonus) {
+            Apocalypse.LOGGER.info("Weapon chance: " + bonus);
+
+            if (entity.getRandom().nextDouble() <= bonus) {
                 ItemStack weapon = getRandomWeapon(difficulty);
                 entity.setItemSlot(EquipmentSlotType.MAINHAND, weapon);
             }
@@ -61,14 +66,36 @@ public final class MobEquipmentHandler {
             final Random random = new Random();
 
             if (CURRENT_WEAPON_TIER_ONLY) {
-                //TODO
-                return new ItemStack(Items.DIAMOND_SWORD);
+                Iterator<Integer> iterator = WEAPON_TIERS.iterator();
+                int tier = 0;
+
+                while(iterator.hasNext()) {
+                    int i = iterator.next();
+                    Apocalypse.LOGGER.info("Loop tier: " + i);
+
+                    if (i >= scaledDifficulty) {
+                        if (iterator.hasNext()) {
+                            int iNext = iterator.next();
+
+                            if (scaledDifficulty < iNext) {
+                                tier = i;
+                                break;
+                            }
+                        }
+                        else {
+                            tier = i;
+                        }
+                    }
+                }
+                Apocalypse.LOGGER.info("Final tier: " + tier);
+                List<Item> weapons = WEAPON_LISTS.get(tier);
+                return weapons.isEmpty() ? ItemStack.EMPTY : new ItemStack(weapons.get(random.nextInt(weapons.size())));
             }
             else {
                 List<Integer> availableTiers = new ArrayList<>();
 
-                for (Integer tier : WEAPON_LISTS.keySet()) {
-                    if (tier <= difficulty) {
+                for (Integer tier : WEAPON_TIERS) {
+                    if (tier <= scaledDifficulty) {
                         availableTiers.add(tier);
                     }
                 }

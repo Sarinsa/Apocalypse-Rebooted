@@ -359,6 +359,8 @@ public final class FullMoonEvent extends AbstractEvent {
 
         CompoundNBT currentMobs = data.getCompound("CurrentMobs");
 
+        // TODO - This shit is a terrible idea, think of something else
+        /*
         for (String s : currentMobs.getAllKeys()) {
             CompoundNBT entityTag = currentMobs.getCompound(s);
             MobEntity mob = (MobEntity) EntityType.loadEntityRecursive(entityTag, world, (entity) -> entity);
@@ -367,5 +369,7 @@ public final class FullMoonEvent extends AbstractEvent {
                 this.currentMobs.add(mob);
             }
         }
+
+         */
     }
 }

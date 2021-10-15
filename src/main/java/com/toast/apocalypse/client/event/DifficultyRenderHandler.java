@@ -1,6 +1,8 @@
 package com.toast.apocalypse.client.event;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.toast.apocalypse.client.ApocalypseKeyBindings;
+import com.toast.apocalypse.client.ClientRegister;
 import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import net.minecraft.client.Minecraft;
@@ -22,6 +24,7 @@ public class DifficultyRenderHandler {
     public static int OFFSET_X;
     public static int OFFSET_Y;
     public static boolean RENDER_IN_CREATIVE;
+    public static boolean KEYBIND_ONLY;
 
     /**
      * Updates the render info when rendering the world difficulty in-game.
@@ -65,6 +68,10 @@ public class DifficultyRenderHandler {
 
         if (player.isCreative() && !RENDER_IN_CREATIVE)
             return;
+
+        if (KEYBIND_ONLY && !ApocalypseKeyBindings.TOGGLE_DIFFICULTY.isDown()) {
+            return;
+        }
 
         final long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
 

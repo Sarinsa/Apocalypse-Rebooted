@@ -9,6 +9,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 
@@ -18,9 +19,12 @@ public class TOPEntityInfoProvider implements IProbeInfoEntityProvider, Function
 
     private static final String ID = Apocalypse.resourceLoc("player_difficulty").toString();
 
+    private IStyleManager styleManager;
+
     @Override
     public Void apply(ITheOneProbe probe) {
         probe.registerEntityProvider(this);
+        this.styleManager = probe.getStyleManager();
         return null;
     }
 
@@ -33,7 +37,7 @@ public class TOPEntityInfoProvider implements IProbeInfoEntityProvider, Function
     public void addProbeEntityInfo(ProbeMode probeMode, IProbeInfo iProbeInfo, PlayerEntity playerEntity, World world, Entity entity, IProbeHitEntityData iProbeHitEntityData) {
         if (probeMode == ProbeMode.EXTENDED && entity instanceof ServerPlayerEntity) {
             long difficulty = CapabilityHelper.getPlayerDifficulty((ServerPlayerEntity) entity);
-            iProbeInfo.text(formatDifficulty(difficulty));
+            iProbeInfo.entity(formatDifficulty(difficulty).getString(), this.styleManager.entityStyleDefault());
         }
     }
 
