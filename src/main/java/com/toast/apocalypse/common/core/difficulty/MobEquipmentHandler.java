@@ -46,8 +46,6 @@ public final class MobEquipmentHandler {
             if (fullMoon) {
                 bonus += WEAPONS_LUNAR_CHANCE;
             }
-            Apocalypse.LOGGER.info("Weapon chance: " + bonus);
-
             if (entity.getRandom().nextDouble() <= bonus) {
                 ItemStack weapon = getRandomWeapon(difficulty);
                 entity.setItemSlot(EquipmentSlotType.MAINHAND, weapon);
