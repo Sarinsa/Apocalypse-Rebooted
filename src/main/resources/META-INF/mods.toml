@@ -8,7 +8,7 @@ issueTrackerURL="https://github.com/Sarinsa/Apocalypse-Rebooted/issues"
     version="${file.jarVersion}"
     displayName="Apocalypse Rebooted"
     logoFile="logo.png"
-    credits="Sarinsa (Maintenance and porting), Frenderman (Artwork), Evo (Artwork)"
+    credits="Sarinsa (Maintenance and porting), Frenderman (Artwork), Evo (Artwork), SoyTutta (Artwork)"
     authors="FatherToast (Original author and brainstormer)"
     description="The longer you stay in the world, the harder the monsters get. The full moon empowers monsters, the rain hurts you, and thunder causes mobs to end up in strange places. Good luck!"
 
