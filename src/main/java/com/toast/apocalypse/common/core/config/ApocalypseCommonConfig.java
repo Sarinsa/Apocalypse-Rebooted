@@ -45,6 +45,7 @@ public class ApocalypseCommonConfig {
             PENALTY_DIMENSIONS.add(Dimension.END.location().toString());
 
             DESTROYER_PROOF_BLOCKS.add(Blocks.BARRIER);
+            DESTROYER_PROOF_BLOCKS.add(Blocks.BEDROCK);
 
             CAN_HAVE_WEAPONS.add(EntityType.ZOMBIE);
             CAN_HAVE_WEAPONS.add(EntityType.DROWNED);
