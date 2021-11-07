@@ -71,8 +71,6 @@ public final class MobEquipmentHandler {
                         tier = i;
                     }
                 }
-                Apocalypse.LOGGER.info("Final tier: " + tier);
-                Apocalypse.LOGGER.info("Difficulty: " + scaledDifficulty);
                 List<Item> weapons = WEAPON_LISTS.get(tier);
                 return weapons.isEmpty() ? ItemStack.EMPTY : new ItemStack(weapons.get(random.nextInt(weapons.size())));
             }
