@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.network.work;
 import com.toast.apocalypse.client.ClientUtil;
 import com.toast.apocalypse.client.event.ClientEvents;
 import com.toast.apocalypse.client.event.DifficultyRenderHandler;
+import com.toast.apocalypse.client.screen.MobWikiScreen;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.network.message.*;
@@ -65,5 +66,21 @@ public class ClientWork {
 
     public static void handleMoonPhaseUpdate(S2CUpdateMoonPhase message) {
         ClientUtil.OVERWORLD_MOON_PHASE = message.moonPhase;
+    }
+
+    public static void handleMobWikiIndexUpdate(S2CUpdateMobWikiIndexes message) {
+        ClientPlayerEntity player = Minecraft.getInstance().player;
+
+        if (player != null) {
+            int[] unlockedIndexes = message.indexes;
+            getCapability(player, ApocalypseCapabilities.MOB_WIKI_CAPABILITY).setEntries(unlockedIndexes);
+        }
+    }
+
+    public static void handleOpenMobWikiScreen(S2COpenMobWikiScreen message) {
+        if (!Minecraft.getInstance().player.getUUID().equals(message.uuid))
+            return;
+
+        Minecraft.getInstance().setScreen(new MobWikiScreen());
     }
 }

@@ -6,6 +6,7 @@ import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
 import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
 import net.minecraft.entity.*;
+import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.fml.RegistryObject;
@@ -23,6 +24,7 @@ public class ApocalypseEntities {
     public static EntityType<SeekerEntity> SEEKER_TYPE;
     public static EntityType<GrumpEntity> GRUMP_TYPE;
     public static EntityType<BreecherEntity> BREECHER_TYPE;
+    public static EntityType<FearwolfEntity> FEARWOLF_TYPE;
 
     public static final RegistryObject<EntityType<MonsterFishHook>> MONSTER_FISH_HOOK = register("monster_fish_hook", EntityType.Builder.<MonsterFishHook>of(MonsterFishHook::new, EntityClassification.MISC).noSave().noSummon().sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(5));
     public static final RegistryObject<EntityType<DestroyerFireballEntity>> DESTROYER_FIREBALL = register("destroyer_fireball", EntityType.Builder.<DestroyerFireballEntity>of(DestroyerFireballEntity::new, EntityClassification.MISC).sized(1.0F, 1.0F).clientTrackingRange(4).updateInterval(10));
@@ -32,6 +34,7 @@ public class ApocalypseEntities {
     public static final RegistryObject<EntityType<SeekerEntity>> SEEKER = register("seeker", () -> SEEKER_TYPE);
     public static final RegistryObject<EntityType<GrumpEntity>> GRUMP = register("grump", () -> GRUMP_TYPE);
     public static final RegistryObject<EntityType<BreecherEntity>> BREECHER = register("breecher", () -> BREECHER_TYPE);
+    public static final RegistryObject<EntityType<FearwolfEntity>> FEARWOLF = register("fearwolf", () -> FEARWOLF_TYPE);
 
     /**
      * Initializing entity types for living entities in the mod class
@@ -45,6 +48,7 @@ public class ApocalypseEntities {
         SEEKER_TYPE = create("seeker", EntityType.Builder.of(SeekerEntity::new, EntityClassification.MONSTER).sized(4.5F, 4.5F).clientTrackingRange(10).fireImmune());
         GRUMP_TYPE = create("grump", EntityType.Builder.of(GrumpEntity::new, EntityClassification.MONSTER).sized(1.0F, 1.0F));
         BREECHER_TYPE = create("breecher", EntityType.Builder.of(BreecherEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.7F).clientTrackingRange(8));
+        FEARWOLF_TYPE = create("fearwolf", EntityType.Builder.of(FearwolfEntity::new, EntityClassification.MONSTER).sized(1.6F, 1.8F));
     }
 
 
@@ -58,6 +62,7 @@ public class ApocalypseEntities {
         event.put(SEEKER.get(), SeekerEntity.createSeekerAttributes().build());
         event.put(GRUMP.get(), GrumpEntity.createGrumpAttributes().build());
         event.put(BREECHER.get(), BreecherEntity.createBreecherAttributes().build());
+        event.put(FEARWOLF.get(), WolfEntity.createAttributes().build());
     }
 
     /**
@@ -70,6 +75,7 @@ public class ApocalypseEntities {
         EntitySpawnPlacementRegistry.register(DESTROYER.get(), EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS, Heightmap.Type.WORLD_SURFACE, DestroyerEntity::checkDestroyerSpawnRules);
         EntitySpawnPlacementRegistry.register(SEEKER.get(), EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS, Heightmap.Type.WORLD_SURFACE, SeekerEntity::checkSeekerSpawnRules);
         EntitySpawnPlacementRegistry.register(GRUMP.get(), EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS, Heightmap.Type.WORLD_SURFACE, GrumpEntity::checkGrumpSpawnRules);
+        EntitySpawnPlacementRegistry.register(FEARWOLF.get(), EntitySpawnPlacementRegistry.PlacementType.ON_GROUND, Heightmap.Type.WORLD_SURFACE, FearwolfEntity::checkMobSpawnRules);
     }
 
     private static <I extends Entity> RegistryObject<EntityType<I>> register(String name, EntityType.Builder<I> builder) {

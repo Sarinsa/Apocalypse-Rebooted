@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.util;
 
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
+import com.toast.apocalypse.common.capability.mobwiki.IMobWikiCapability;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import net.minecraft.entity.LivingEntity;
@@ -10,6 +11,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
+import java.lang.reflect.Array;
 
 /**
  * Helper class for easily manipulating capability
@@ -91,5 +93,23 @@ public class CapabilityHelper {
 
     public static boolean isEntityMarked(@Nonnull LivingEntity livingEntity) {
         return livingEntity.getCapability(ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY).orElse(ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY.getDefaultInstance()).getMarked();
+    }
+
+    //
+    // MOB WIKI
+    //
+    public static void addMobWikiIndex(@Nonnull ServerPlayerEntity player, int mobIndex) {
+        IMobWikiCapability mobWikiCapability = player.getCapability(ApocalypseCapabilities.MOB_WIKI_CAPABILITY).orElse(ApocalypseCapabilities.MOB_WIKI_CAPABILITY.getDefaultInstance());
+        mobWikiCapability.addEntry(mobIndex);
+        NetworkHelper.sendMobWikiIndexUpdate(player, mobWikiCapability.getEntries());
+    }
+
+    public static void setMobWikiIndexes(@Nonnull ServerPlayerEntity player, int[] entries) {
+        player.getCapability(ApocalypseCapabilities.MOB_WIKI_CAPABILITY).orElse(ApocalypseCapabilities.MOB_WIKI_CAPABILITY.getDefaultInstance()).setEntries(entries);
+        NetworkHelper.sendMobWikiIndexUpdate(player);
+    }
+
+    public static int[] getMobWikiIndexes(@Nonnull ServerPlayerEntity player) {
+        return player.getCapability(ApocalypseCapabilities.MOB_WIKI_CAPABILITY).orElse(ApocalypseCapabilities.MOB_WIKI_CAPABILITY.getDefaultInstance()).getEntries();
     }
 }

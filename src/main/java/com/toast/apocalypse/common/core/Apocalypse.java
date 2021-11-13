@@ -4,6 +4,7 @@ import com.toast.apocalypse.api.impl.ApocalypseAPI;
 import com.toast.apocalypse.api.impl.ConfigHelper;
 import com.toast.apocalypse.api.impl.RegistryHelper;
 import com.toast.apocalypse.api.plugin.ApocalypsePlugin;
+import com.toast.apocalypse.api.plugin.IApocalypseApi;
 import com.toast.apocalypse.api.plugin.IApocalypsePlugin;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.command.CommandRegister;
@@ -21,6 +22,7 @@ import com.toast.apocalypse.common.event.VillagerTradeEvents;
 import com.toast.apocalypse.common.network.PacketHandler;
 import com.toast.apocalypse.common.register.*;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
+import com.toast.apocalypse.common.util.MobWikiIndexes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -32,9 +34,13 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
+import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 @Mod(Apocalypse.MODID)
 public class Apocalypse {
@@ -42,6 +48,7 @@ public class Apocalypse {
     /** The mod's ID **/
     public static final String MODID = "apocalypse";
 
+    /** Our mod's display name */
     public static final String MOD_NAME = "Apocalypse Rebooted";
 
     /** A logger instance using the modid as prefix/identifier **/
@@ -65,21 +72,24 @@ public class Apocalypse {
     /** Packet handler instance */
     private final PacketHandler packetHandler = new PacketHandler();
 
+
     public Apocalypse() {
         INSTANCE = this;
 
         ApocalypseEntities.initTypes();
         EventRegistry.init();
         ApocalypseTriggers.init();
+        MobWikiIndexes.init();
 
         this.packetHandler.registerMessages();
 
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
+        eventBus.addListener(ApocalypseEntities::createEntityAttributes);
         eventBus.addListener(this::onCommonSetup);
         eventBus.addListener(this::onLoadComplete);
         eventBus.addListener(this::sendIMCMessages);
-        eventBus.addListener(ApocalypseEntities::createEntityAttributes);
+        eventBus.addListener(this::readIMCMessages);
 
         eventBus.register(this.getConfigHelper());
 
@@ -110,6 +120,7 @@ public class Apocalypse {
         });
     }
 
+    // TODO - Rework API stuff to mostly be handled with IMC
     public void onLoadComplete(FMLLoadCompleteEvent event) {
         event.enqueueWork(() -> {
             // Load mod plugins
@@ -148,6 +159,16 @@ public class Apocalypse {
         if (ModList.get().isLoaded("theoneprobe")) {
             InterModComms.sendTo("theoneprobe", "getTheOneProbe", TOPEntityInfoProvider::new);
         }
+    }
+
+    // TODO
+    public void readIMCMessages(InterModProcessEvent event) {
+        event.getIMCStream().forEach((message) -> {
+            if (message.getMethod().equals("getApocalypseApi")) {
+                Supplier<Function<IApocalypseApi, Void>> supplier = message.getMessageSupplier();
+                supplier.get().apply(this.getApi());
+            }
+        });
     }
 
     public static ResourceLocation resourceLoc(String path) {

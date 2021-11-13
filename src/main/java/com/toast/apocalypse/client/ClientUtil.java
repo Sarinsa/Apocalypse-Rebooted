@@ -16,6 +16,9 @@ public class ClientUtil {
 
     public static int OVERWORLD_MOON_PHASE = 0;
 
+    public static int[] UNLOCKED_INDEXES = new int[]{};
+
+
     public static void renderBucketHelmOverlay(int screenWidth, int screenHeight) {
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);

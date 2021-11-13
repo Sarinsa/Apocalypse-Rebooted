@@ -2,6 +2,7 @@ package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.entity.living.goals.MoonMobPlayerTargetGoal;
+import com.toast.apocalypse.common.util.MobWikiIndexes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -12,9 +13,11 @@ import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.CatEntity;
 import net.minecraft.entity.passive.OcelotEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathNavigator;
+import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.Constants;
@@ -53,6 +56,18 @@ public class BreecherEntity extends CreeperEntity implements IFullMoonMob {
         this.goalSelector.addGoal(6, new LookRandomlyGoal(this));
         this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IMob.class));
         this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
+    }
+
+    @Override
+    public void die(DamageSource damageSource) {
+        super.die(damageSource);
+
+        if (!this.level.isClientSide) {
+            if (damageSource.getEntity() instanceof ServerPlayerEntity) {
+                ServerPlayerEntity player = (ServerPlayerEntity) damageSource.getEntity();
+                MobWikiIndexes.awardIndex(player, this.getClass());
+            }
+        }
     }
 
     /**
@@ -97,14 +112,14 @@ public class BreecherEntity extends CreeperEntity implements IFullMoonMob {
         super.addAdditionalSaveData(compoundNBT);
 
         if (this.getPlayerTargetUUID() != null) {
-            compoundNBT.putUUID("PlayerTargetUUID", this.getPlayerTargetUUID());
+            compoundNBT.putUUID(PLAYER_UUID_TAG, this.getPlayerTargetUUID());
         }
     }
 
     @Override
     public void readAdditionalSaveData(CompoundNBT compoundNBT) {
-        if (compoundNBT.hasUUID("PlayerTargetUUID")) {
-            this.setPlayerTargetUUID(compoundNBT.getUUID("PlayerTargetUUID"));
+        if (compoundNBT.hasUUID(PLAYER_UUID_TAG)) {
+            this.setPlayerTargetUUID(compoundNBT.getUUID(PLAYER_UUID_TAG));
         }
     }
 }

@@ -6,8 +6,9 @@ import com.toast.apocalypse.common.util.References;
 public class DefaultDifficultyCapability implements IDifficultyCapability {
 
     private long difficulty =- (long) ApocalypseServerConfig.SERVER.getPlayerGracePeriod() * References.DAY_LENGTH;
-    private double difficultyMult = 0.0D;
     private long maxDifficulty = (long) ApocalypseServerConfig.SERVER.getDefaultPlayerMaxDifficulty() * References.DAY_LENGTH;
+
+    private double difficultyMult = 0.0D;
 
     @Override
     public void setDifficulty(long difficulty) {

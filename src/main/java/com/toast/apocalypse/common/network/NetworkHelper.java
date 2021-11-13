@@ -6,7 +6,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.fml.network.PacketDistributor;
 
 import javax.annotation.Nonnull;
 
@@ -68,11 +67,34 @@ public class NetworkHelper {
     }
 
     /**
-     * Sends a message from the server to all clients
+     * Sends a message from the server to client
      * to update the overworld moon phase
      * value in {@link com.toast.apocalypse.client.ClientUtil}
      */
     public static void sendMoonPhaseUpdate(@Nonnull ServerPlayerEntity player, ServerWorld overworld) {
         PacketHandler.sendToClient(new S2CUpdateMoonPhase(overworld.dimensionType().moonPhase(overworld.getDayTime())), player);
+    }
+
+    /**
+     * Sends a message from the server to client
+     * to update unlocked mob wiki indexes.
+     */
+    public static void sendMobWikiIndexUpdate(@Nonnull ServerPlayerEntity player, int[] unlockedIndexes) {
+        PacketHandler.sendToClient(new S2CUpdateMobWikiIndexes(unlockedIndexes), player);
+    }
+
+    /**
+     * Used when a player joins the world.
+     */
+    public static void sendMobWikiIndexUpdate(@Nonnull ServerPlayerEntity player) {
+        PacketHandler.sendToClient(new S2CUpdateMobWikiIndexes(CapabilityHelper.getMobWikiIndexes(player)), player);
+    }
+
+    /**
+     * Sends a message from the server to client
+     * to open the mob wiki screen.
+     */
+    public static void openMobWikiScreen(@Nonnull ServerPlayerEntity player) {
+        PacketHandler.sendToClient(new S2COpenMobWikiScreen(player.getUUID()), player);
     }
 }

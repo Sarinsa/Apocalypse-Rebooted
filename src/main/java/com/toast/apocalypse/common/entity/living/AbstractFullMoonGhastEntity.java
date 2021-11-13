@@ -4,8 +4,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.monster.GhastEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -14,8 +12,6 @@ import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -80,14 +76,14 @@ public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements
         super.addAdditionalSaveData(compoundNBT);
 
         if (this.getPlayerTargetUUID() != null) {
-            compoundNBT.putUUID("PlayerTargetUUID", this.getPlayerTargetUUID());
+            compoundNBT.putUUID(PLAYER_UUID_TAG, this.getPlayerTargetUUID());
         }
     }
 
     @Override
     public void readAdditionalSaveData(CompoundNBT compoundNBT) {
-        if (compoundNBT.hasUUID("PlayerTargetUUID")) {
-            this.setPlayerTargetUUID(compoundNBT.getUUID("PlayerTargetUUID"));
+        if (compoundNBT.hasUUID(PLAYER_UUID_TAG)) {
+            this.setPlayerTargetUUID(compoundNBT.getUUID(PLAYER_UUID_TAG));
         }
     }
 

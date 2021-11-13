@@ -8,7 +8,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class GhostRenderer<T extends GhostEntity> extends MobRenderer<T, GhostModel<T>> {
 
-    public static final ResourceLocation GHOST_TEXTURE = Apocalypse.resourceLoc("textures/entity/ghost/ghost.png");
+    protected static final ResourceLocation GHOST_TEXTURE = Apocalypse.resourceLoc("textures/entity/ghost/ghost.png");
 
     public GhostRenderer(EntityRendererManager rendererManager) {
         super(rendererManager, new GhostModel<>(), 0.0F);

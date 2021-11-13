@@ -6,6 +6,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 
 public abstract class AbstractEvent {
 
@@ -37,6 +38,11 @@ public abstract class AbstractEvent {
      *  before the event should be over.
      */
     public abstract void stop(ServerWorld world);
+
+    /**
+     * Called from {@link com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager#onPlayerDeath(LivingDeathEvent)}
+     */
+    public abstract void onPlayerDeath(ServerPlayerEntity player, ServerWorld world);
 
     /**
      * Saves this event.

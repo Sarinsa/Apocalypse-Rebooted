@@ -42,6 +42,8 @@ public class PacketHandler {
         registerMessage(S2CUpdatePlayerMaxDifficulty.class, S2CUpdatePlayerMaxDifficulty::encode, S2CUpdatePlayerMaxDifficulty::decode, S2CUpdatePlayerMaxDifficulty::handle);
         registerMessage(S2CUpdateEntityVelocity.class, S2CUpdateEntityVelocity::encode, S2CUpdateEntityVelocity::decode, S2CUpdateEntityVelocity::handle);
         registerMessage(S2CUpdateMoonPhase.class, S2CUpdateMoonPhase::encode, S2CUpdateMoonPhase::decode, S2CUpdateMoonPhase::handle);
+        registerMessage(S2CUpdateMobWikiIndexes.class, S2CUpdateMobWikiIndexes::encode, S2CUpdateMobWikiIndexes::decode, S2CUpdateMobWikiIndexes::handle);
+        registerMessage(S2COpenMobWikiScreen.class, S2COpenMobWikiScreen::encode, S2COpenMobWikiScreen::decode, S2COpenMobWikiScreen::handle);
     }
 
     public <MSG> void registerMessage(Class<MSG> messageType, BiConsumer<MSG, PacketBuffer> encoder, Function<PacketBuffer, MSG> decoder, BiConsumer<MSG, Supplier<NetworkEvent.Context>> messageConsumer) {

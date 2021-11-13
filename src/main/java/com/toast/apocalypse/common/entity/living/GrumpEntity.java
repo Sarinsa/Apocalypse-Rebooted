@@ -7,6 +7,7 @@ import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
 import com.toast.apocalypse.common.register.ApocalypseItems;
+import com.toast.apocalypse.common.util.MobWikiIndexes;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -17,6 +18,7 @@ import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
@@ -50,7 +52,7 @@ import java.util.Random;
 public class GrumpEntity extends AbstractFullMoonGhastEntity {
 
     /**
-     * The current fish hook entity
+     * The current fishhook entity
      * launched by the grump.
      */
     private MonsterFishHook fishHook;
@@ -78,6 +80,18 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
         this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IMob.class));
         this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
         this.targetSelector.addGoal(2, new GrumpNearestAttackableTargetGoal<>(this, PlayerEntity.class));
+    }
+
+    @Override
+    public void die(DamageSource damageSource) {
+        super.die(damageSource);
+
+        if (!this.level.isClientSide) {
+            if (damageSource.getEntity() instanceof ServerPlayerEntity) {
+                ServerPlayerEntity player = (ServerPlayerEntity) damageSource.getEntity();
+                MobWikiIndexes.awardIndex(player, this.getClass());
+            }
+        }
     }
 
     @Override

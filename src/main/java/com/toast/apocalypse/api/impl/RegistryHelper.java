@@ -55,7 +55,7 @@ public final class RegistryHelper implements IRegistryHelper {
     }
 
     /**
-     * Set ever time a different plugin
+     * Set every time a different plugin
      * is being loaded. Using this for
      * logging and debug.
      */

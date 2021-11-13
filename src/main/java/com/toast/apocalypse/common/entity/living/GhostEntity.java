@@ -4,6 +4,7 @@ import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTarget
 import com.toast.apocalypse.common.entity.living.goals.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
+import com.toast.apocalypse.common.util.MobWikiIndexes;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -14,16 +15,19 @@ import net.minecraft.entity.ai.goal.LookAtGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.MonsterEntity;
+import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.Hand;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -35,6 +39,7 @@ import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -49,10 +54,19 @@ import java.util.UUID;
  */
 public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
+    /**
+     *  Used to determine if the ghost should be frozen in place
+     *  and if the time freeze render effect should be rendered.
+     */
+    private static final DataParameter<Boolean> IS_FROZEN = EntityDataManager.defineId(GhostEntity.class, DataSerializers.BOOLEAN);
+
     /** The constant player target, if this mob was spawned by the full moon event */
     private UUID playerTargetUUID;
-    /** If the ghost should move away from it's target in a random direction */
+    /** If the ghost should move away from its target in a random direction */
     private boolean isManeuvering;
+    /** How long the ghost should be frozen in ticks */
+    private int freezeTime = 0;
+
 
     public GhostEntity(EntityType<? extends FlyingEntity> entityType, World world) {
         super(entityType, world);
@@ -70,6 +84,10 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
                 .add(Attributes.FOLLOW_RANGE, Double.POSITIVE_INFINITY);
     }
 
+    public static boolean checkGhostSpawnRules(EntityType<? extends GhostEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
+        return world.getDifficulty() != Difficulty.PEACEFUL && MonsterEntity.isDarkEnoughToSpawn(world, pos, random);
+    }
+
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new GhostEntity.ManeuverAttackerGoal<>(this));
@@ -81,8 +99,22 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         this.targetSelector.addGoal(2, new GhostEntity.NearestAttackablePlayerTargetGoal<>(this, PlayerEntity.class));
     }
 
-    public static boolean checkGhostSpawnRules(EntityType<? extends GhostEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
-        return world.getDifficulty() != Difficulty.PEACEFUL && MonsterEntity.isDarkEnoughToSpawn(world, pos, random);
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.getEntityData().define(IS_FROZEN, false);
+    }
+
+    @Override
+    public void die(DamageSource damageSource) {
+        super.die(damageSource);
+
+        if (!this.level.isClientSide) {
+            if (damageSource.getEntity() instanceof ServerPlayerEntity) {
+                ServerPlayerEntity player = (ServerPlayerEntity) damageSource.getEntity();
+                MobWikiIndexes.awardIndex(player, this.getClass());
+            }
+        }
     }
 
     @Override
@@ -100,7 +132,16 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         if (super.hurt(damageSource, damage)) {
             Entity entity = damageSource.getEntity();
 
-            if (entity != null && entity == this.getTarget() && this.random.nextInt(2) == 0) {
+            if (entity instanceof LivingEntity) {
+                LivingEntity livingEntity = (LivingEntity) entity;
+
+                if (livingEntity.getItemInHand(Hand.MAIN_HAND).getItem() == Items.BEDROCK) {
+                    this.freeze();
+                    return true;
+                }
+            }
+
+            if (!this.isFrozen() && entity != null && entity == this.getTarget() && this.random.nextInt(2) == 0) {
                 this.setManeuvering(true);
             }
             return true;
@@ -112,7 +153,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
     public boolean doHurtTarget(Entity entity) {
         if (super.doHurtTarget(entity)) {
             if (entity instanceof PlayerEntity) {
-                int duration = this.level.getDifficulty() == Difficulty.HARD ? 120 : 80;
+                int duration = this.level.getDifficulty() == Difficulty.HARD ? 140 : 80;
                 ((PlayerEntity)entity).addEffect(new EffectInstance(ApocalypseEffects.HEAVY.get(), duration));
             }
             return true;
@@ -141,6 +182,14 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
                 }
                 if (flag) {
                     this.setSecondsOnFire(8);
+                }
+            }
+
+            if (this.freezeTime > 0) {
+                --this.freezeTime;
+
+                if (this.freezeTime <= 0) {
+                    this.unfreeze();
                 }
             }
         }
@@ -194,6 +243,27 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         this.isManeuvering = maneuvering;
     }
 
+    protected void setFrozen(boolean frozen, int freezeTime) {
+        this.entityData.set(IS_FROZEN, frozen);
+        this.freezeTime = freezeTime;
+    }
+
+    public boolean isFrozen() {
+        return this.entityData.get(IS_FROZEN);
+    }
+
+    protected void freeze() {
+        this.entityData.set(IS_FROZEN, true);
+        this.goalSelector.disableControlFlag(Goal.Flag.MOVE);
+        this.goalSelector.disableControlFlag(Goal.Flag.LOOK);
+    }
+
+    private void unfreeze() {
+        this.entityData.set(IS_FROZEN, false);
+        this.goalSelector.enableControlFlag(Goal.Flag.MOVE);
+        this.goalSelector.enableControlFlag(Goal.Flag.LOOK);
+    }
+
     @Override
     protected SoundEvent getAmbientSound() {
         return SoundEvents.BLAZE_AMBIENT;
@@ -242,14 +312,22 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         super.addAdditionalSaveData(compoundNBT);
 
         if (this.getPlayerTargetUUID() != null) {
-            compoundNBT.putUUID("PlayerTargetUUID", this.getPlayerTargetUUID());
+            compoundNBT.putUUID(PLAYER_UUID_TAG, this.getPlayerTargetUUID());
         }
+        compoundNBT.putInt("FreezeTime", this.freezeTime);
     }
 
     @Override
     public void readAdditionalSaveData(CompoundNBT compoundNBT) {
-        if (compoundNBT.hasUUID("PlayerTargetUUID")) {
-            this.setPlayerTargetUUID(compoundNBT.getUUID("PlayerTargetUUID"));
+        if (compoundNBT.hasUUID(PLAYER_UUID_TAG)) {
+            this.setPlayerTargetUUID(compoundNBT.getUUID(PLAYER_UUID_TAG));
+        }
+        if (compoundNBT.contains("FreezeTime", Constants.NBT.TAG_ANY_NUMERIC)) {
+            this.freezeTime = compoundNBT.getInt("FreezeTime");
+
+            if (this.freezeTime > 0) {
+                this.freeze();
+            }
         }
     }
 

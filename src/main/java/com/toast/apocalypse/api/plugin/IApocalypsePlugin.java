@@ -12,7 +12,7 @@ public interface IApocalypsePlugin {
      *
      * @param api The Apocalypse API instance.
      */
-    void load(final ApocalypseApi api);
+    void load(final IApocalypseApi api);
 
     /**
      * @return A String representing the ID / name of this

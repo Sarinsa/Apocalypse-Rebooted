@@ -1,8 +1,10 @@
 package com.toast.apocalypse.client;
 
 import com.toast.apocalypse.client.event.ClientEvents;
+import com.toast.apocalypse.client.mobwiki.MobEntries;
 import com.toast.apocalypse.client.renderers.entity.living.breecher.BreecherRenderer;
 import com.toast.apocalypse.client.renderers.entity.living.destroyer.DestroyerRenderer;
+import com.toast.apocalypse.client.renderers.entity.living.fearwolf.FearwolfRenderer;
 import com.toast.apocalypse.client.renderers.entity.living.ghost.GhostRenderer;
 import com.toast.apocalypse.client.renderers.entity.living.grump.GrumpRenderer;
 import com.toast.apocalypse.client.renderers.entity.living.seeker.SeekerRenderer;
@@ -22,14 +24,18 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemModelsProperties;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.ResourceLocationException;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.settings.KeyBindingMap;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ExtensionPoint;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
@@ -44,6 +50,8 @@ public class ClientRegister {
         registerEntityRenderers(event.getMinecraftSupplier());
         ApocalypseKeyBindings.registerKeyBindings();
         ItemModelProps.register();
+
+        MobEntries.init();
     }
 
     private static void registerEntityRenderers(Supplier<Minecraft> minecraftSupplier) {
@@ -53,6 +61,7 @@ public class ClientRegister {
         RenderingRegistry.registerEntityRenderingHandler(ApocalypseEntities.GRUMP.get(), GrumpRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(ApocalypseEntities.BREECHER.get(), BreecherRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(ApocalypseEntities.MONSTER_FISH_HOOK.get(), MonsterHookRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(ApocalypseEntities.FEARWOLF.get(), FearwolfRenderer::new);
 
         registerSpriteRenderer(ApocalypseEntities.DESTROYER_FIREBALL.get(), minecraftSupplier, 3.0F, true);
         registerSpriteRenderer(ApocalypseEntities.SEEKER_FIREBALL.get(), minecraftSupplier, 1.5F, true);

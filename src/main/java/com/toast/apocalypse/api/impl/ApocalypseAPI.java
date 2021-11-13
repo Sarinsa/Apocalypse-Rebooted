@@ -1,13 +1,12 @@
 package com.toast.apocalypse.api.impl;
 
-import com.toast.apocalypse.api.plugin.ApocalypseApi;
+import com.toast.apocalypse.api.plugin.IApocalypseApi;
 import com.toast.apocalypse.api.plugin.IConfigHelper;
 import com.toast.apocalypse.api.plugin.IDifficultyProvider;
 import com.toast.apocalypse.api.plugin.IRegistryHelper;
 import com.toast.apocalypse.common.core.Apocalypse;
-import net.minecraft.entity.player.ServerPlayerEntity;
 
-public final class ApocalypseAPI extends ApocalypseApi {
+public final class ApocalypseAPI implements IApocalypseApi {
 
     private final IDifficultyProvider difficultyProvider;
 

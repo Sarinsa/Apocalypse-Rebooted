@@ -1,7 +1,7 @@
 {
   "event.apocalypse.sleep_penalty": "The monsters grow impatient",
   "event.apocalypse.full_moon": "Death lingers in the air, a bad moon rises",
-  "event.apocalypse.thunderstorm": "A storm is brewin', hide yer kids!",
+  "event.apocalypse.thunderstorm": "Yeah",
 
   "title.bed.apocalypse.full_moon": "You may not rest during a full moon",
 
@@ -15,11 +15,13 @@
   "item.apocalypse.fatherly_toast": "Fatherly Toast",
   "item.apocalypse.bucket_helm": "Bucket Helmet",
   "item.apocalypse.lunar_clock": "Lunar Clock",
+  "item.apocalypse.mob_wiki_book": "Compendium of The Apocalypse",
   "item.apocalypse.ghost_spawn_egg": "Ghost Spawn Egg",
   "item.apocalypse.destroyer_spawn_egg": "Destroyer Spawn Egg",
   "item.apocalypse.seeker_spawn_egg": "Seeker Spawn Egg",
   "item.apocalypse.grump_spawn_egg": "Grump Spawn Egg",
   "item.apocalypse.breecher_spawn_egg": "Breecher Spawn Egg",
+  "item.apocalypse.fearwolf_spawn_egg": "Fearwolf Spawn Egg (WIP)",
 
   "entity.apocalypse.breecher": "Breecher",
   "entity.apocalypse.grump": "Grump",
@@ -29,6 +31,7 @@
   "entity.apocalypse.seeker_fireball": "Seeker Fireball",
   "entity.apocalypse.destroyer_fireball": "Destroyer Fireball",
   "entity.apocalypse.monster_fish_hook": "Fish Hook",
+  "entity.apocalypse.fearwolf": "Fearwolf",
 
   "effect.apocalypse.heavy": "Strong Gravity",
 

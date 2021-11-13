@@ -13,6 +13,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -56,6 +57,7 @@ public class PlayerEvents {
             ServerPlayerEntity serverPlayer = (ServerPlayerEntity) event.getPlayer();
 
             NetworkHelper.sendUpdatePlayerDifficulty(serverPlayer);
+            NetworkHelper.sendMobWikiIndexUpdate(serverPlayer);
         }
     }
 
@@ -71,10 +73,12 @@ public class PlayerEvents {
             long difficulty = CapabilityHelper.getPlayerDifficulty(originalPlayer);
             long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(originalPlayer);
             CompoundNBT eventData = CapabilityHelper.getEventData(originalPlayer);
+            int[] mobWikiIndexes = CapabilityHelper.getMobWikiIndexes(originalPlayer);
 
             CapabilityHelper.setPlayerDifficulty(newPlayer, difficulty);
             CapabilityHelper.setMaxPlayerDifficulty(newPlayer, maxDifficulty);
             CapabilityHelper.setEventData(newPlayer, eventData);
+            CapabilityHelper.setMobWikiIndexes(newPlayer, mobWikiIndexes);
         }
     }
 }

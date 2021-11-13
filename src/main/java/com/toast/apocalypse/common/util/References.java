@@ -31,5 +31,17 @@ public class References {
     public static final String MAX_DIFFICULTY_CONFIG_FIELD_DESC = "apocalypse.screen.text_field.desc.create_world_config.max_difficulty";
     public static final String GRACE_PERIOD_CONFIG_FIELD_DESC = "apocalypse.screen.text_field.desc.create_world_config.grace_period";
 
+    public static final String FULL_MOON_MOB_BOOK = "apocalypse.screen.full_moon_mob_book.title";
+
     public static final String DIFFICULTY = "apocalypse.top.difficulty";
+
+
+    //
+    // MOB WIKI
+    //
+    public static final String GHOST_WIKI_DESC = "apocalypse.mobwiki.mob.ghost.desc";
+    public static final String BREECHER_WIKI_DESC = "apocalypse.mobwiki.mob.breecher.desc";
+    public static final String GRUMP_WIKI_DESC = "apocalypse.mobwiki.mob.grump.desc";
+    public static final String SEEKER_WIKI_DESC = "apocalypse.mobwiki.mob.seeker.desc";
+    public static final String DESTROYER_WIKI_DESC = "apocalypse.mobwiki.mob.destroyer.desc";
 }

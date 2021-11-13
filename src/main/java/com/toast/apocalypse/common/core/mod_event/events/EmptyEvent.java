@@ -33,6 +33,11 @@ public final class EmptyEvent extends AbstractEvent {
     }
 
     @Override
+    public void onPlayerDeath(ServerPlayerEntity player, ServerWorld world) {
+
+    }
+
+    @Override
     public void writeAdditional(CompoundNBT data) {
     }
 

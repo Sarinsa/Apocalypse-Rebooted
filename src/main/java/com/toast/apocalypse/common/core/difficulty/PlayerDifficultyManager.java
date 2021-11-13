@@ -23,6 +23,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.SleepFinishedTimeEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -139,6 +140,7 @@ public final class PlayerDifficultyManager {
             NetworkHelper.sendUpdatePlayerDifficulty(player);
             NetworkHelper.sendUpdatePlayerDifficultyMult(player);
             NetworkHelper.sendUpdatePlayerMaxDifficulty(player);
+            NetworkHelper.sendMobWikiIndexUpdate(player);
             NetworkHelper.sendMoonPhaseUpdate(player, overworld);
 
             this.loadEventData(player);
@@ -163,10 +165,6 @@ public final class PlayerDifficultyManager {
             long currentTime = world.getDayTime();
             long timeSkipped = newTime - currentTime;
 
-            log(Level.INFO, "New time: " + newTime);
-            log(Level.INFO, "Current time: " + currentTime);
-            log(Level.INFO, "Time to skip: " + timeSkipped);
-
             if (timeSkipped > 20L) {
                 for (ServerPlayerEntity player : world.players()) {
                     long playerDifficulty = CapabilityHelper.getPlayerDifficulty(player);
@@ -180,6 +178,15 @@ public final class PlayerDifficultyManager {
                     player.playSound(SoundEvents.AMBIENT_CAVE, 1.0F, 0.8F);
                 }
             }
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onPlayerDeath(LivingDeathEvent event) {
+        if (event.getEntityLiving() instanceof ServerPlayerEntity) {
+            ServerPlayerEntity player = (ServerPlayerEntity) event.getEntityLiving();
+
+            this.playerEvents.get(player.getUUID()).onPlayerDeath(player, (ServerWorld) player.level);
         }
     }
 
@@ -333,12 +340,6 @@ public final class PlayerDifficultyManager {
         // Update current event
         currentEvent.update(world, player);
     }
-
-    // Unused
-    public Iterable<PlayerGroup> getPlayerGroups(World world) {
-        return this.playerGroups.get(world.dimension());
-    }
-
 
     /** Starts an event for the given player, if possible.
      *

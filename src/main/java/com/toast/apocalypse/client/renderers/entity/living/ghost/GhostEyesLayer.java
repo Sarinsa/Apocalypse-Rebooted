@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.entity.IEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 
-/** Renders the solid eyes of the ghost */
+/** Renders the solid, fullbright eyes of the ghost */
 public class GhostEyesLayer<T extends GhostEntity> extends LayerRenderer<T, GhostModel<T>> {
 
     private static final RenderType EYES = RenderType.entityCutout(Apocalypse.resourceLoc("textures/entity/ghost/ghost_eyes.png"));
@@ -22,7 +22,7 @@ public class GhostEyesLayer<T extends GhostEntity> extends LayerRenderer<T, Ghos
 
     @Override
     public void render(MatrixStack matrixStack, IRenderTypeBuffer buffer, int packedLight, T ghost, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        IVertexBuilder ivertexbuilder = buffer.getBuffer(EYES);
-        this.getParentModel().renderToBuffer(matrixStack, ivertexbuilder, LightTexture.pack(15, 15), OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        IVertexBuilder vertexBuilder = buffer.getBuffer(EYES);
+        this.getParentModel().renderToBuffer(matrixStack, vertexBuilder, LightTexture.pack(15, 15), OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
     }
 }

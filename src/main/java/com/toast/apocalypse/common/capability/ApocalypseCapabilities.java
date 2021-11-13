@@ -9,6 +9,9 @@ import com.toast.apocalypse.common.capability.entity_marker.IEntityMarkerCapabil
 import com.toast.apocalypse.common.capability.event_data.DefaultEventDataCapability;
 import com.toast.apocalypse.common.capability.event_data.EventDataCapabilityStorage;
 import com.toast.apocalypse.common.capability.event_data.IEventDataCapability;
+import com.toast.apocalypse.common.capability.mobwiki.DefaultMobWikiCapability;
+import com.toast.apocalypse.common.capability.mobwiki.IMobWikiCapability;
+import com.toast.apocalypse.common.capability.mobwiki.MobWikiCapabilityStorage;
 import com.toast.apocalypse.common.capability.rain_tick.DefaultRainTickCapability;
 import com.toast.apocalypse.common.capability.rain_tick.IRainTickCapability;
 import com.toast.apocalypse.common.capability.rain_tick.RainTickCapabilityStorage;
@@ -30,11 +33,15 @@ public class ApocalypseCapabilities {
     @CapabilityInject(value = IEntityMarkerCapability.class)
     public static final Capability<IEntityMarkerCapability> ENTITY_MARKER_CAPABILITY = null;
 
+    @CapabilityInject(value = IMobWikiCapability.class)
+    public static final Capability<IMobWikiCapability> MOB_WIKI_CAPABILITY = null;
+
 
     public static void registerCapabilities() {
         CapabilityManager.INSTANCE.register(IRainTickCapability.class, new RainTickCapabilityStorage(), DefaultRainTickCapability::new);
         CapabilityManager.INSTANCE.register(IDifficultyCapability.class, new DifficultyCapabilityStorage(), DefaultDifficultyCapability::new);
         CapabilityManager.INSTANCE.register(IEventDataCapability.class, new EventDataCapabilityStorage(), DefaultEventDataCapability::new);
         CapabilityManager.INSTANCE.register(IEntityMarkerCapability.class, new EntityMarkerCapabilityStorage(), DefaultEntityMarkerCapability::new);
+        CapabilityManager.INSTANCE.register(IMobWikiCapability.class, new MobWikiCapabilityStorage(), DefaultMobWikiCapability::new);
     }
 }

@@ -149,7 +149,10 @@ public final class FullMoonEvent extends AbstractEvent {
     }
 
     @Override
-    public void stop(ServerWorld world) {
+    public void stop(ServerWorld world) {}
+
+    @Override
+    public void onPlayerDeath(ServerPlayerEntity player, ServerWorld world) {
         for (MobEntity mob : this.currentMobs) {
             spawnSmoke(world, mob);
             mob.remove();
@@ -268,6 +271,7 @@ public final class FullMoonEvent extends AbstractEvent {
             return;
 
         ((IFullMoonMob) mob).setPlayerTargetUUID(player.getUUID());
+        this.currentMobs.add(mob);
     }
 
     @Nullable

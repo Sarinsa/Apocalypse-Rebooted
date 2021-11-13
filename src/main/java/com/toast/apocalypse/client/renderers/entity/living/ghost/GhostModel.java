@@ -1,6 +1,8 @@
 package com.toast.apocalypse.client.renderers.entity.living.ghost;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.toast.apocalypse.client.ApocalypseRenderTypes;
 import com.toast.apocalypse.common.entity.living.GhostEntity;
 import net.minecraft.client.renderer.entity.model.SegmentedModel;
@@ -22,7 +24,7 @@ public class GhostModel<T extends GhostEntity> extends SegmentedModel<T> {
     private final ModelRenderer leftArm;
 
     public GhostModel() {
-        super(ApocalypseRenderTypes::entityCutoutNoCullBlend);
+        super((resourceLocation) -> ApocalypseRenderTypes.entityCutoutNoCullBlend(resourceLocation, ApocalypseRenderTypes.GHOST_ALPHA));
         texWidth = 64;
         texHeight = 64;
 
@@ -80,6 +82,12 @@ public class GhostModel<T extends GhostEntity> extends SegmentedModel<T> {
         leftArm.xRot += f * 1.2F - f1 * 0.4F;
         rightArm.xRot += f * 1.2F - f1 * 0.4F;
         ModelHelper.bobArms(rightArm, leftArm, ageInTicks);
+    }
+
+    @Override
+    public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder vertexBuilder, int p_225598_3_, int textureOverlay, float p_225598_5_, float p_225598_6_, float p_225598_7_, float p_225598_8_) {
+        // TODO - Render a cool effect of some sort when the ghost is frozen
+        super.renderToBuffer(matrixStack, vertexBuilder, p_225598_3_, textureOverlay, p_225598_5_, p_225598_6_, p_225598_7_, p_225598_8_);
     }
 
     public void setRotationAngle(ModelRenderer modelRenderer, float x, float y, float z) {

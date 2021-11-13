@@ -15,12 +15,12 @@ public class ApocalypseRenderTypes {
      *
      * @param resourceLocation The ResourceLocation pointing to a texture file.
      */
-    public static RenderType entityCutoutNoCullBlend(ResourceLocation resourceLocation) {
+    public static RenderType entityCutoutNoCullBlend(ResourceLocation resourceLocation, RenderState.AlphaState alphaState) {
         RenderType.State state = RenderType.State.builder()
                 .setTextureState(new RenderState.TextureState(resourceLocation, false, false))
                 .setTransparencyState(RenderState.ADDITIVE_TRANSPARENCY)
                 .setDiffuseLightingState(RenderState.DIFFUSE_LIGHTING)
-                .setAlphaState(GHOST_ALPHA)
+                .setAlphaState(alphaState)
                 .setLightmapState(RenderState.LIGHTMAP)
                 .setOverlayState(RenderState.OVERLAY)
                 .createCompositeState(true);

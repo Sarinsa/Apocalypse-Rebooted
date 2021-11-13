@@ -8,6 +8,7 @@ import com.toast.apocalypse.common.entity.living.goals.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
+import com.toast.apocalypse.common.util.MobWikiIndexes;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -19,6 +20,7 @@ import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.FireballEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
@@ -69,6 +71,10 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
                 .add(ForgeMod.SWIM_SPEED.get(), 1.1D);
     }
 
+    public static boolean checkSeekerSpawnRules(EntityType<? extends SeekerEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
+        return world.getDifficulty() != Difficulty.PEACEFUL && MobEntity.checkMobSpawnRules(entityType, world, spawnReason, pos, random);
+    }
+
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new SeekerEntity.AlertOtherMonstersGoal(this));
@@ -80,8 +86,16 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         this.targetSelector.addGoal(2, new SeekerNearestAttackableTargetGoal<>(this, PlayerEntity.class));
     }
 
-    public static boolean checkSeekerSpawnRules(EntityType<? extends SeekerEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
-        return world.getDifficulty() != Difficulty.PEACEFUL && MobEntity.checkMobSpawnRules(entityType, world, spawnReason, pos, random);
+    @Override
+    public void die(DamageSource damageSource) {
+        super.die(damageSource);
+
+        if (!this.level.isClientSide) {
+            if (damageSource.getEntity() instanceof ServerPlayerEntity) {
+                ServerPlayerEntity player = (ServerPlayerEntity) damageSource.getEntity();
+                MobWikiIndexes.awardIndex(player, this.getClass());
+            }
+        }
     }
 
     @Override
