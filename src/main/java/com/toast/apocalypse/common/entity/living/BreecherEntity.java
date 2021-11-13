@@ -112,14 +112,14 @@ public class BreecherEntity extends CreeperEntity implements IFullMoonMob {
         super.addAdditionalSaveData(compoundNBT);
 
         if (this.getPlayerTargetUUID() != null) {
-            compoundNBT.putUUID(PLAYER_UUID_TAG, this.getPlayerTargetUUID());
+            compoundNBT.putUUID(PLAYER_UUID_KEY, this.getPlayerTargetUUID());
         }
     }
 
     @Override
     public void readAdditionalSaveData(CompoundNBT compoundNBT) {
-        if (compoundNBT.hasUUID(PLAYER_UUID_TAG)) {
-            this.setPlayerTargetUUID(compoundNBT.getUUID(PLAYER_UUID_TAG));
+        if (compoundNBT.hasUUID(PLAYER_UUID_KEY)) {
+            this.setPlayerTargetUUID(compoundNBT.getUUID(PLAYER_UUID_KEY));
         }
     }
 }

@@ -6,7 +6,7 @@ import java.util.UUID;
 /** Represents a mob type that spawns during full moons */
 public interface IFullMoonMob {
 
-    String PLAYER_UUID_TAG = "PlayerTargetUUID";
+    String PLAYER_UUID_KEY = "PlayerTargetUUID";
 
     @Nullable
     UUID getPlayerTargetUUID();

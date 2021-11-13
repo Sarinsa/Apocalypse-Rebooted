@@ -312,15 +312,15 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         super.addAdditionalSaveData(compoundNBT);
 
         if (this.getPlayerTargetUUID() != null) {
-            compoundNBT.putUUID(PLAYER_UUID_TAG, this.getPlayerTargetUUID());
+            compoundNBT.putUUID(PLAYER_UUID_KEY, this.getPlayerTargetUUID());
         }
         compoundNBT.putInt("FreezeTime", this.freezeTime);
     }
 
     @Override
     public void readAdditionalSaveData(CompoundNBT compoundNBT) {
-        if (compoundNBT.hasUUID(PLAYER_UUID_TAG)) {
-            this.setPlayerTargetUUID(compoundNBT.getUUID(PLAYER_UUID_TAG));
+        if (compoundNBT.hasUUID(PLAYER_UUID_KEY)) {
+            this.setPlayerTargetUUID(compoundNBT.getUUID(PLAYER_UUID_KEY));
         }
         if (compoundNBT.contains("FreezeTime", Constants.NBT.TAG_ANY_NUMERIC)) {
             this.freezeTime = compoundNBT.getInt("FreezeTime");
