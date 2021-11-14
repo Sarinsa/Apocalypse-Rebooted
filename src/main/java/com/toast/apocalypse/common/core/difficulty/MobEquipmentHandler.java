@@ -2,6 +2,7 @@ package com.toast.apocalypse.common.core.difficulty;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.util.References;
 import javafx.collections.transformation.SortedList;
 import net.minecraft.command.impl.SummonCommand;
@@ -92,9 +93,16 @@ public final class MobEquipmentHandler {
         return ItemStack.EMPTY;
     }
 
+    public static void loadEquipment() {
+        refreshEquipmentList(ApocalypseCommonConfig.COMMON.getWeaponList(), WEAPON_LISTS);
+
+        WEAPON_TIERS.clear();
+        WEAPON_TIERS.addAll(WEAPON_LISTS.keySet());
+    }
+
 
     /** Fetches an equipment config section and parses it into actual lists with items. */
-    public static void refreshEquipmentLists(CommentedConfig weaponListConfig, Map<Integer, List<Item>> map) {
+    private static void refreshEquipmentList(CommentedConfig weaponListConfig, Map<Integer, List<Item>> map) {
         map.clear();
 
         for (CommentedConfig.Entry entry : weaponListConfig.entrySet()) {

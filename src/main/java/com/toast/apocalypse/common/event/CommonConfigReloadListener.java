@@ -1,11 +1,10 @@
 package com.toast.apocalypse.common.event;
 
-import com.electronwill.nightconfig.core.CommentedConfig;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.difficulty.MobAttributeHandler;
 import com.toast.apocalypse.common.core.difficulty.MobEquipmentHandler;
-import com.toast.apocalypse.common.core.difficulty.PlayerGroup;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
+import com.toast.apocalypse.common.core.difficulty.PlayerGroup;
 import com.toast.apocalypse.common.core.mod_event.events.FullMoonEvent;
 import com.toast.apocalypse.common.entity.living.*;
 import com.toast.apocalypse.common.misc.DestroyerExplosionContext;
@@ -20,11 +19,11 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
-import static com.toast.apocalypse.common.core.config.ApocalypseCommonConfig.COMMON;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeSet;
+
+import static com.toast.apocalypse.common.core.config.ApocalypseCommonConfig.COMMON;
 
 @Mod.EventBusSubscriber(modid = Apocalypse.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CommonConfigReloadListener {
@@ -44,12 +43,8 @@ public class CommonConfigReloadListener {
     }
 
     /**
-     * Updates static references when needed to
-     * avoid accessing the config constantly
-     * in the server tick loop and whatnot.
-     *
-     * The config is pretty large, so config reloads
-     * might make the game lag for a sec, I dunno.
+     * Updates static references for config values
+     * and repopulates various collections and whatnot.
      */
     public static void updateInfo() {
         PlayerDifficultyManager.MULTIPLAYER_DIFFICULTY_SCALING = COMMON.multiplayerDifficultyScaling();
@@ -103,9 +98,7 @@ public class CommonConfigReloadListener {
         MobAttributeHandler.KNOCKBACK_RES_FLAT_BONUS_MAX = COMMON.getKnockbackResFlatBonusMax();
         MobAttributeHandler.KNOCKBACK_RES_LUNAR_FLAT_BONUS = COMMON.getKnockbackResLunarFlatBonus();
 
-        MobEquipmentHandler.refreshEquipmentLists(COMMON.getWeaponList(), MobEquipmentHandler.WEAPON_LISTS);
-        MobEquipmentHandler.WEAPON_TIERS.clear();
-        MobEquipmentHandler.WEAPON_TIERS.addAll(MobEquipmentHandler.WEAPON_LISTS.keySet());
+        MobEquipmentHandler.loadEquipment();
 
         MobEquipmentHandler.WEAPONS_TIME = COMMON.getWeaponsTimeSpan();
         MobEquipmentHandler.WEAPONS_CHANCE = COMMON.getWeaponsChance();
