@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.core.mod_event.events;
 
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
@@ -14,7 +15,9 @@ import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.particles.ParticleTypes;
+import net.minecraft.pathfinding.PathType;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.gen.Heightmap;
 import net.minecraft.world.server.ServerWorld;
@@ -153,6 +156,8 @@ public final class FullMoonEvent extends AbstractEvent {
 
     @Override
     public void onPlayerDeath(ServerPlayerEntity player, ServerWorld world) {
+        // Despawn all current full moon mobs
+        // within loaded chunks to avoid spawn killing.
         for (MobEntity mob : this.currentMobs) {
             spawnSmoke(world, mob);
             mob.remove();
@@ -298,7 +303,7 @@ public final class FullMoonEvent extends AbstractEvent {
             }
         }
         else {
-            EntitySpawnPlacementRegistry.PlacementType placementType = entityType == ApocalypseEntities.BREECHER.get() ? EntitySpawnPlacementRegistry.PlacementType.ON_GROUND : EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS;
+            EntitySpawnPlacementRegistry.PlacementType placementType = EntitySpawnPlacementRegistry.getPlacementType(entityType);
             Random random = world.getRandom();
 
             for (int i = 0; i < 10; i++) {
@@ -306,17 +311,37 @@ public final class FullMoonEvent extends AbstractEvent {
                 int startZ = random.nextInt(2) == 1 ? minDist : -minDist;
                 int x = playerPos.getX() + startX + (startX < 1 ? -random.nextInt(46) : random.nextInt(46));
                 int z = playerPos.getZ() + startZ + (startZ < 1 ? -random.nextInt(46) : random.nextInt(46));
-                int y = world.getHeight(Heightmap.Type.WORLD_SURFACE, x, z);
-                BlockPos pos = new BlockPos(x, y, z);
+                int y = world.getHeight(EntitySpawnPlacementRegistry.getHeightmapType(entityType), x, z);
+                BlockPos.Mutable pos = new BlockPos(x, y, z).mutable();
+
+                if (world.dimensionType().hasCeiling()) {
+                    do {
+                        pos.move(Direction.DOWN);
+                    }
+                    while(!world.getBlockState(pos).isAir());
+
+                    do {
+                        pos.move(Direction.DOWN);
+                    }
+                    while(world.getBlockState(pos).isAir() && pos.getY() > 0);
+                }
+
+                if (placementType == EntitySpawnPlacementRegistry.PlacementType.ON_GROUND) {
+                    BlockPos blockpos = pos.below();
+                    if (world.getBlockState(blockpos).isPathfindable(world, blockpos, PathType.LAND)) {
+                        pos = blockpos.mutable();
+                    }
+                }
 
                 if (world.isLoaded(pos) && WorldEntitySpawner.isSpawnPositionOk(placementType, world, pos, entityType)) {
                     if (world.noCollision(entityType.getAABB((double) pos.getX() + 0.5D, pos.getY(), (double) pos.getZ() + 0.5D))) {
-                        spawnPos = pos;
+                        spawnPos = pos.immutable();
                         break;
                     }
                 }
             }
         }
+
         if (spawnPos == null)
             return null;
 
@@ -336,16 +361,7 @@ public final class FullMoonEvent extends AbstractEvent {
         mobsToSpawn.putInt("Seeker", this.mobsToSpawn.getOrDefault(SEEKER_ID, 0));
         mobsToSpawn.putInt("Destroyer", this.mobsToSpawn.getOrDefault(DESTROYER_ID, 0));
 
-        CompoundNBT currentMobs = new CompoundNBT();
-        int id = 0;
-        for (MobEntity mobEntity : this.currentMobs) {
-            if (mobEntity != null && mobEntity.isAlive()) {
-                currentMobs.put(String.valueOf(id), mobEntity.serializeNBT());
-                ++id;
-            }
-        }
         data.put("MobsToSpawn", mobsToSpawn);
-        data.put("CurrentMobs", currentMobs);
     }
 
     @Override
@@ -360,20 +376,5 @@ public final class FullMoonEvent extends AbstractEvent {
         this.mobsToSpawn.put(GRUMP_ID, mobsToSpawn.getInt("Grump"));
         this.mobsToSpawn.put(SEEKER_ID, mobsToSpawn.getInt("Seeker"));
         this.mobsToSpawn.put(DESTROYER_ID, mobsToSpawn.getInt("Destroyer"));
-
-        CompoundNBT currentMobs = data.getCompound("CurrentMobs");
-
-        // TODO - This shit is a terrible idea, think of something else
-        /*
-        for (String s : currentMobs.getAllKeys()) {
-            CompoundNBT entityTag = currentMobs.getCompound(s);
-            MobEntity mob = (MobEntity) EntityType.loadEntityRecursive(entityTag, world, (entity) -> entity);
-            if (mob != null) {
-                spawnSmoke(world, mob);
-                this.currentMobs.add(mob);
-            }
-        }
-
-         */
     }
 }
