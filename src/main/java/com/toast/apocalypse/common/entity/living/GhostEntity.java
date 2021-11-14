@@ -79,7 +79,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         return FlyingEntity.createMobAttributes()
                 .add(Attributes.ATTACK_DAMAGE, 1.0D)
                 .add(Attributes.MAX_HEALTH, 4.0D)
-                .add(Attributes.FLYING_SPEED, 1.0D)
+                .add(Attributes.FLYING_SPEED, 0.50D)
                 .add(ForgeMod.SWIM_SPEED.get(), 1.1F)
                 .add(Attributes.FOLLOW_RANGE, Double.POSITIVE_INFINITY);
     }
@@ -391,7 +391,8 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         @Override
         public void start() {
             Random random = this.ghost.getRandom();
-            this.ghost.moveControl.setWantedPosition(this.ghost.getX() + (random.nextGaussian() * 10), this.ghost.getY() + (random.nextGaussian() * 10), this.ghost.getZ() + (random.nextGaussian() * 10), 1.1F);
+            final double speed = this.ghost.getAttributeValue(Attributes.FLYING_SPEED) * 2;
+            this.ghost.moveControl.setWantedPosition(this.ghost.getX() + (random.nextGaussian() * 10), this.ghost.getY() + (random.nextGaussian() * 10), this.ghost.getZ() + (random.nextGaussian() * 10), speed);
         }
 
         @Override
@@ -427,7 +428,8 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
         private void setWantedPosition(LivingEntity target) {
             Vector3d vector = target.getEyePosition(1.0F).add(0.0D, -(this.ghost.getBbHeight() / 1.8), 0.0D);
-            this.ghost.moveControl.setWantedPosition(vector.x, vector.y, vector.z, 1.0D);
+            final double speed = this.ghost.getAttributeValue(Attributes.FLYING_SPEED);
+            this.ghost.moveControl.setWantedPosition(vector.x, vector.y, vector.z, speed);
         }
 
         @Override
@@ -517,10 +519,11 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         @Override
         public void start() {
             Random random = this.ghost.getRandom();
-            double x = this.ghost.getX() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
-            double y = this.ghost.getY() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
-            double z = this.ghost.getZ() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
-            this.ghost.getMoveControl().setWantedPosition(x, y, z, 0.85D);
+            final double x = this.ghost.getX() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
+            final double y = this.ghost.getY() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
+            final double z = this.ghost.getZ() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
+            final double speed = this.ghost.getAttributeValue(Attributes.FLYING_SPEED);
+            this.ghost.getMoveControl().setWantedPosition(x, y, z, speed);
         }
     }
 }
