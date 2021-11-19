@@ -140,7 +140,7 @@ public final class FullMoonEvent extends AbstractEvent {
 
             int currentCount = this.mobsToSpawn.get(mobIndex);
             this.mobsToSpawn.put(mobIndex, --currentCount);
-            this.spawnMob(mobIndex, world, player);
+            this.spawnMobFromIndex(mobIndex, world, player);
 
             timeUntilNextSpawn = spawnTime;
         }
@@ -170,7 +170,9 @@ public final class FullMoonEvent extends AbstractEvent {
      * logout or if the player changes dimension.
      */
     private static void spawnSmoke(ServerWorld world, MobEntity mob) {
-        world.sendParticles(ParticleTypes.CLOUD, mob.getX(), mob.getY(), mob.getZ(), 4, 0.1, 0.1, 0.1, 0.2);
+        for (int i = 0; i < 8; i++) {
+            world.sendParticles(ParticleTypes.CLOUD, mob.getX(), mob.getY(), mob.getZ(), 4, 0.1, 0.1, 0.1, 0.1);
+        }
     }
 
     /**
@@ -251,25 +253,25 @@ public final class FullMoonEvent extends AbstractEvent {
      * @param world The world to spawn this mob in.
      * @param player The player to spawn this mob for.
      */
-    private void spawnMob(int mobType, ServerWorld world, ServerPlayerEntity player) {
+    private void spawnMobFromIndex(int mobType, ServerWorld world, ServerPlayerEntity player) {
         MobEntity mob;
 
         switch (mobType) {
             default:
             case GHOST_ID:
-                mob = createMob(ApocalypseEntities.GHOST.get(), player, world);
+                mob = spawnMob(ApocalypseEntities.GHOST.get(), player, world);
                 break;
             case BREECHER_ID:
-                mob = createMob(ApocalypseEntities.BREECHER.get(), player, world);
+                mob = spawnMob(ApocalypseEntities.BREECHER.get(), player, world);
                 break;
             case GRUMP_ID:
-                mob = createMob(ApocalypseEntities.GRUMP.get(), player, world);
+                mob = spawnMob(ApocalypseEntities.GRUMP.get(), player, world);
                 break;
             case SEEKER_ID:
-                mob = createMob(ApocalypseEntities.SEEKER.get(), player, world);
+                mob = spawnMob(ApocalypseEntities.SEEKER.get(), player, world);
                 break;
             case DESTROYER_ID:
-                mob = createMob(ApocalypseEntities.DESTROYER.get(), player, world);
+                mob = spawnMob(ApocalypseEntities.DESTROYER.get(), player, world);
                 break;
         }
         if (mob == null)
@@ -280,13 +282,13 @@ public final class FullMoonEvent extends AbstractEvent {
     }
 
     @Nullable
-    private <T extends MobEntity & IFullMoonMob> T createMob(EntityType<T> entityType, ServerPlayerEntity player, ServerWorld world) {
+    private <T extends MobEntity & IFullMoonMob> T spawnMob(EntityType<T> entityType, ServerPlayerEntity player, ServerWorld world) {
+        Random random = world.getRandom();
         BlockPos playerPos = player.blockPosition();
         BlockPos spawnPos = null;
         final int minDist = 25;
 
         if (entityType == ApocalypseEntities.GHOST.get()) {
-            Random random = world.getRandom();
             BlockPos pos;
 
             for (int i = 0; i < 10; i++) {
@@ -304,7 +306,6 @@ public final class FullMoonEvent extends AbstractEvent {
         }
         else {
             EntitySpawnPlacementRegistry.PlacementType placementType = EntitySpawnPlacementRegistry.getPlacementType(entityType);
-            Random random = world.getRandom();
 
             for (int i = 0; i < 10; i++) {
                 int startX = random.nextInt(2) == 1 ? minDist : -minDist;
