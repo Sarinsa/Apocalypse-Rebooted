@@ -27,6 +27,7 @@ public class ApocalypseLootTableProvider extends LootTableProvider {
         ImmutableList.Builder<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootParameterSet>> builder = new ImmutableList.Builder<>();
 
         builder.add(Pair.of(ApocalypseEntityLootTableProvider::new, LootParameterSets.ENTITY));
+        builder.add(Pair.of(ApocalypseBlockLootTableProvider::new, LootParameterSets.BLOCK));
 
         return builder.build();
     }
