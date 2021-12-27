@@ -9,12 +9,14 @@ public class EventType<T extends AbstractEvent> {
     private final int id;
     private final String startMessage;
     private final boolean canBeInterrupted;
+    private final IStartupPredicate predicate;
 
-    public EventType(int id, IEventFactory<T> factory, String startMessage, boolean canBeInterrupted) {
+    public EventType(int id, IEventFactory<T> factory, String startMessage, boolean canBeInterrupted, IStartupPredicate predicate) {
         this.factory = factory;
         this.id = id;
         this.startMessage = startMessage;
         this.canBeInterrupted = canBeInterrupted;
+        this.predicate = predicate;
     }
 
     public final T createEvent() {
@@ -43,6 +45,10 @@ public class EventType<T extends AbstractEvent> {
      */
     public final boolean canBeInterrupted() {
         return this.canBeInterrupted;
+    }
+
+    public IStartupPredicate getStartPredicate() {
+        return this.predicate;
     }
 
     public interface IEventFactory<T> {

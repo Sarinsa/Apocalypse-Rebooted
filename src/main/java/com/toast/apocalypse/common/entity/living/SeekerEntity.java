@@ -89,13 +89,6 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
     @Override
     public void die(DamageSource damageSource) {
         super.die(damageSource);
-
-        if (!this.level.isClientSide) {
-            if (damageSource.getEntity() instanceof ServerPlayerEntity) {
-                ServerPlayerEntity player = (ServerPlayerEntity) damageSource.getEntity();
-                MobWikiIndexes.awardIndex(player, this.getClass());
-            }
-        }
     }
 
     @Override
