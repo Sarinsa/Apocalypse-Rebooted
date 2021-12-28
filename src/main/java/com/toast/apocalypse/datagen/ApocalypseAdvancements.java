@@ -1,7 +1,7 @@
 package com.toast.apocalypse.datagen;
 
 import com.toast.apocalypse.common.register.ApocalypseItems;
-import com.toast.apocalypse.common.triggers.DifficultyChangeTrigger;
+import com.toast.apocalypse.common.triggers.PassedGracePeriodTrigger;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.FrameType;
 import net.minecraft.util.ResourceLocation;
@@ -19,7 +19,7 @@ public class ApocalypseAdvancements implements Consumer<Consumer<Advancement>> {
                         new TranslationTextComponent("apocalypse.advancements.root.description"),
                         new ResourceLocation("textures/gui/advancements/backgrounds/end.png"),
                         FrameType.TASK, true, true, false)
-                .addCriterion("pass_grace_period", DifficultyChangeTrigger.Instance.difficultyGreaterOrEqual(0L))
+                .addCriterion("pass_grace_period", PassedGracePeriodTrigger.Instance.gracePeriodPassed())
                 .save(consumer, "apocalypse/root");
     }
 }

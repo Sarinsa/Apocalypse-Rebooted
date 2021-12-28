@@ -36,7 +36,7 @@ public final class MobEquipmentHandler {
     public static Set<Integer> WEAPON_TIERS = new TreeSet<>();
 
 
-    public static void handleMobEquipment(LivingEntity entity, long difficulty, boolean fullMoon) {
+    public static void handleMobEquipment(LivingEntity entity, long difficulty, boolean fullMoon, Random random) {
         if (CAN_HAVE_WEAPONS.contains(entity.getType())) {
             double effectiveDifficulty = (double) (difficulty / References.DAY_LENGTH) / WEAPONS_TIME;
             double bonus = WEAPONS_CHANCE * effectiveDifficulty;
@@ -48,7 +48,7 @@ public final class MobEquipmentHandler {
                 bonus += WEAPONS_LUNAR_CHANCE;
             }
             if (entity.getRandom().nextDouble() <= bonus) {
-                ItemStack weapon = getRandomWeapon(difficulty);
+                ItemStack weapon = getRandomWeapon(difficulty, random);
                 entity.setItemSlot(EquipmentSlotType.MAINHAND, weapon);
             }
         }
@@ -58,11 +58,10 @@ public final class MobEquipmentHandler {
      * Returns a new ItemStack of a weapon in the weapons lists.
      * What weapon is chosen depends on the parsed difficulty.
      */
-    private static ItemStack getRandomWeapon(long difficulty) {
+    private static ItemStack getRandomWeapon(long difficulty, Random random) {
         int scaledDifficulty = (int) (difficulty / References.DAY_LENGTH);
 
         if (!WEAPON_LISTS.keySet().isEmpty()) {
-            final Random random = new Random();
 
             if (CURRENT_WEAPON_TIER_ONLY) {
                 int tier = 0;
@@ -73,7 +72,7 @@ public final class MobEquipmentHandler {
                     }
                 }
                 List<Item> weapons = WEAPON_LISTS.get(tier);
-                return weapons.isEmpty() ? ItemStack.EMPTY : new ItemStack(weapons.get(random.nextInt(weapons.size())));
+                return weapons != null && !weapons.isEmpty() ? new ItemStack(weapons.get(random.nextInt(weapons.size()))) : ItemStack.EMPTY;
             }
             else {
                 List<Integer> availableTiers = new ArrayList<>();

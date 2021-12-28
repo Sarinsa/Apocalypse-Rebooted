@@ -11,7 +11,7 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 public interface IDifficultyProvider {
 
     /**
-     * @return The current world difficulty rate.
+     * @return The player's current difficulty rate/multiplier.
      */
     <T extends PlayerEntity> double getDifficultyRate(T player);
 

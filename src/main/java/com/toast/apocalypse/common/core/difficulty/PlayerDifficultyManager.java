@@ -7,6 +7,7 @@ import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
 import com.toast.apocalypse.common.event.CommonConfigReloadListener;
 import com.toast.apocalypse.common.network.NetworkHelper;
+import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.entity.LivingEntity;
@@ -58,20 +59,21 @@ public final class PlayerDifficultyManager {
     public static final int TICKS_PER_UPDATE = 5;
     /** Number of ticks per save. (Save every 8 seconds) */
     public static final int TICKS_PER_SAVE = 160;
+    /** Number of ticks per advancement trigger check.  */
+    public static final int TICKS_PER_ADV_CHECK = 200;
 
     /** Time until next server tick update. */
     private int timeUntilUpdate = 0;
-    /** Time until next save */
+    /** Time until next save. */
     private int timeUntilSave = 0;
+    /** Time until next advancement trigger check. */
+    private int timeUntilAdvCheck;
 
     /** Server instance */
     private MinecraftServer server;
 
     private final HashMap<UUID, AbstractEvent> playerEvents = new HashMap<>();
 
-    // Unused
-    /** A map containing each world's player group list. */
-    private final HashMap<RegistryKey<World>, List<PlayerGroup>> playerGroups = new HashMap<>();
 
 
     public static long queryDayTime(long dayTime) {
@@ -237,37 +239,19 @@ public final class PlayerDifficultyManager {
                     NetworkHelper.sendMoonPhaseUpdate(player, server.overworld());
                 }
             }
-        }
-    }
 
-    // Unused
-    /**
-     * Returns the PlayerGroup in the world closest to the specified entity.
-     *
-     * @param world The world to check for player groups.
-     * @param livingEntity The entity to check distance from.
-     */
-    public PlayerGroup getNearestGroup(World world, LivingEntity livingEntity) {
-        RegistryKey<World> key = world.dimension();
+            // Check if players have passed their grace
+            // period and grant the base achievement if so.
+            if (++this.timeUntilAdvCheck >= TICKS_PER_ADV_CHECK) {
+                this.timeUntilAdvCheck = 0;
 
-        if (this.playerGroups.containsKey(key)) {
-            PlayerGroup playerGroup = null;
-            double smallestDist = -1.0D;
-
-            for (PlayerGroup group : this.playerGroups.get(key)) {
-                double dist = group.distanceTo(livingEntity);
-
-                if (smallestDist == -1.0D || dist < smallestDist) {
-                    smallestDist = dist;
-                    playerGroup = group;
+                for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
+                    ApocalypseTriggers.PASSED_GRACE_PERIOD.trigger(player, CapabilityHelper.getPlayerDifficulty(player));
                 }
             }
-            return playerGroup;
-        }
-        else {
-            return null;
         }
     }
+
 
     /**
      * Updates the player's difficulty.
@@ -396,7 +380,7 @@ public final class PlayerDifficultyManager {
         this.server = null;
         this.timeUntilUpdate = 0;
         this.timeUntilSave = 0;
-        this.playerGroups.clear();
+        this.timeUntilAdvCheck = 0;
         this.playerEvents.clear();
     }
 

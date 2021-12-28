@@ -29,6 +29,8 @@ import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import java.util.Random;
+
 public class EntityEvents {
 
     /** Whether attribute bonuses should only be applied to mob entities. */
@@ -60,6 +62,7 @@ public class EntityEvents {
             return;
 
         World world = livingEntity.getCommandSenderWorld();
+        Random random = world.getRandom();
         final long difficulty = PlayerDifficultyManager.getNearestPlayerDifficulty(world, livingEntity);
         final boolean fullMoon = Apocalypse.INSTANCE.getDifficultyManager().isFullMoonNight();
 
@@ -72,7 +75,7 @@ public class EntityEvents {
 
         MobAttributeHandler.handleAttributes(livingEntity, difficulty, fullMoon);
         MobPotionHandler.handlePotions(livingEntity, difficulty, fullMoon);
-        MobEquipmentHandler.handleMobEquipment(livingEntity, difficulty, fullMoon);
+        MobEquipmentHandler.handleMobEquipment(livingEntity, difficulty, fullMoon, random);
 
         // Arright, the deed is done! Now lets just mark
         // the entity as "processed" so that we don't do

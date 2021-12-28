@@ -12,7 +12,8 @@ public interface IRegistryHelper {
 
     /**
      * If wanted, additional logic for an entity being alerted by a Seeker
-     * can be registered here.
+     * can be registered here. By default, only entities that extend IMob
+     * and have a ground path navigator gets alerted by the seeker.
      *
      * @param alertable The class of the entity that should be alertable by the seeker.
      * @param triConsumer A TriConsumer<A, B, C> handling the additional logic.
