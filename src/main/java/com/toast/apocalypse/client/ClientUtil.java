@@ -1,7 +1,7 @@
 package com.toast.apocalypse.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.toast.apocalypse.client.renderers.model.armor.BucketHelmetModel;
+import com.toast.apocalypse.client.renderer.model.armor.BucketHelmetModel;
 import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;

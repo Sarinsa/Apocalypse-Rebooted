@@ -104,6 +104,7 @@ public class Apocalypse {
         ApocalypseItems.ITEMS.register(eventBus);
         ApocalypseEffects.EFFECTS.register(eventBus);
         ApocalypseEntities.ENTITIES.register(eventBus);
+        ApocalypseParticles.PARTICLES.register(eventBus);
         ApocalypseTileEntities.TILE_ENTITIES.register(eventBus);
 
         ModLoadingContext context = ModLoadingContext.get();

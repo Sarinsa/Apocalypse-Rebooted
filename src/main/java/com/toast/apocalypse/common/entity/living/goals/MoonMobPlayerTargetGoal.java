@@ -28,7 +28,16 @@ public class MoonMobPlayerTargetGoal<T extends MobEntity & IFullMoonMob> extends
             ServerWorld world = (ServerWorld) moonMob.level;
 
             PlayerEntity player = world.getServer().getPlayerList().getPlayer(playerTargetUUID);
-            return player != null && player.isAlive() && !player.isCreative() && !player.isSpectator();
+
+            if (player == null)
+                return false;
+
+            if (this.mustSee) {
+                if (!this.mob.getSensing().canSee(player))
+                    return false;
+            }
+
+            return player.isAlive() && !player.isCreative() && !player.isSpectator();
         }
         return false;
     }

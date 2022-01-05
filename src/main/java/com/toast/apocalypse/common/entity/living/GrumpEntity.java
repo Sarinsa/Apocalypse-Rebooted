@@ -78,7 +78,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
         this.goalSelector.addGoal(1, new LookAroundGoal(this));
         this.goalSelector.addGoal(5, new GrumpEntity.RandomFlyGoal(this));
         this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IMob.class));
-        this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
+        this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, true));
         this.targetSelector.addGoal(2, new GrumpNearestAttackableTargetGoal<>(this, PlayerEntity.class));
     }
 

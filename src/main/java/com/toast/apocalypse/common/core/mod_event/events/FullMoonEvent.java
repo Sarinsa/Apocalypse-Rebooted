@@ -5,6 +5,7 @@ import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
+import com.toast.apocalypse.common.register.ApocalypseParticles;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import com.toast.apocalypse.common.util.StorageUtils;
@@ -171,7 +172,7 @@ public final class FullMoonEvent extends AbstractEvent {
      */
     private static void spawnSmoke(ServerWorld world, MobEntity mob) {
         for (int i = 0; i < 8; i++) {
-            world.sendParticles(ParticleTypes.CLOUD, mob.getX(), mob.getY(), mob.getZ(), 4, 0.1, 0.1, 0.1, 0.1);
+            world.sendParticles(ApocalypseParticles.LUNAR_DESPAWN_SMOKE.get(), mob.getX(), mob.getY(), mob.getZ(), 4, 0.1, 0.1, 0.1, 0.1);
         }
     }
 

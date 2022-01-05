@@ -2,42 +2,32 @@ package com.toast.apocalypse.client;
 
 import com.toast.apocalypse.client.event.ClientEvents;
 import com.toast.apocalypse.client.mobwiki.MobEntries;
-import com.toast.apocalypse.client.renderers.entity.living.breecher.BreecherRenderer;
-import com.toast.apocalypse.client.renderers.entity.living.destroyer.DestroyerRenderer;
-import com.toast.apocalypse.client.renderers.entity.living.fearwolf.FearwolfRenderer;
-import com.toast.apocalypse.client.renderers.entity.living.ghost.GhostRenderer;
-import com.toast.apocalypse.client.renderers.entity.living.grump.GrumpRenderer;
-import com.toast.apocalypse.client.renderers.entity.living.seeker.SeekerRenderer;
-import com.toast.apocalypse.client.renderers.entity.projectile.monsterhook.MonsterHookRenderer;
-import com.toast.apocalypse.client.renderers.model.armor.BucketHelmetModel;
+import com.toast.apocalypse.client.particle.LunarDespawnSmokeParticle;
+import com.toast.apocalypse.client.renderer.entity.living.breecher.BreecherRenderer;
+import com.toast.apocalypse.client.renderer.entity.living.destroyer.DestroyerRenderer;
+import com.toast.apocalypse.client.renderer.entity.living.fearwolf.FearwolfRenderer;
+import com.toast.apocalypse.client.renderer.entity.living.ghost.GhostRenderer;
+import com.toast.apocalypse.client.renderer.entity.living.grump.GrumpRenderer;
+import com.toast.apocalypse.client.renderer.entity.living.seeker.SeekerRenderer;
+import com.toast.apocalypse.client.renderer.entity.projectile.monsterhook.MonsterHookRenderer;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
-import com.toast.apocalypse.common.register.ApocalypseItems;
+import com.toast.apocalypse.common.register.ApocalypseParticles;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.entity.SpriteRenderer;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.IRendersAsItem;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.IItemPropertyGetter;
-import net.minecraft.item.ItemModelsProperties;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.ResourceLocationException;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.settings.KeyBindingMap;
+import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ExtensionPoint;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.network.NetworkHooks;
 
-import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Apocalypse.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -52,6 +42,13 @@ public class ClientRegister {
         ItemModelProps.register();
 
         MobEntries.init();
+    }
+
+    @SubscribeEvent
+    public static void registerParticles(ParticleFactoryRegisterEvent event) {
+        ParticleManager particleManager = Minecraft.getInstance().particleEngine;
+
+        particleManager.register(ApocalypseParticles.LUNAR_DESPAWN_SMOKE.get(), LunarDespawnSmokeParticle.Factory::new);
     }
 
     private static void registerEntityRenderers(Supplier<Minecraft> minecraftSupplier) {
