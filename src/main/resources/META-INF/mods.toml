@@ -15,7 +15,7 @@ issueTrackerURL="https://github.com/Sarinsa/Apocalypse-Rebooted/issues"
 [[dependencies.apocalypse]]
     modId="forge"
     mandatory=true
-    versionRange="[36.1.4,)"
+    versionRange="[36.2.17,)"
     ordering="NONE"
     side="BOTH"
 
