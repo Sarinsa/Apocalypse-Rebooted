@@ -105,6 +105,9 @@ repositories {
             includeGroup 'mcjty.theoneprobe'
         }
     }
+    flatDir {
+        dir 'flat_deps'
+    }
 }
 
 dependencies {
@@ -115,6 +118,8 @@ dependencies {
 
     compileOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-1.16:${top_version}:api")
     runtimeOnly fg.deobf("mcjty.theoneprobe:TheOneProbe-1.16:${top_version}")
+
+    //runtimeOnly fg.deobf("blank:Druidcraft-1.16.5:0.4.54")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.2:processor'
 }

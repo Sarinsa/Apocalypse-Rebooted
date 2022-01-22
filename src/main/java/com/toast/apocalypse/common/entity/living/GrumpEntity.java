@@ -51,12 +51,8 @@ import java.util.Random;
  */
 public class GrumpEntity extends AbstractFullMoonGhastEntity {
 
-    /**
-     * The current fishhook entity
-     * launched by the grump.
-     */
+    /**The current fishhook entity launched by the grump. */
     private MonsterFishHook fishHook;
-
     public GrumpEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
         this.xpReward = 3;
@@ -290,19 +286,19 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
 
         @Override
         public void tick() {
-            GrumpEntity grump = this.grump;
+            MonsterFishHook hook = this.grump.fishHook;
 
-            if (grump.fishHook == null) {
+            if (hook == null) {
                 if (++this.timeNextHookLaunch >= 40) {
                     this.spawnMonsterFishHook();
                     this.timeNextHookLaunch = 0;
                 }
             }
             else {
-                if (grump.fishHook.getHookedIn() != null) {
+                if (hook.getHookedIn() != null) {
                     // The grump might end up accidentally hooking itself, who knows?
-                    if (grump.fishHook.getHookedIn() != this.grump) {
-                        grump.fishHook.bringInHookedEntity();
+                    if (hook.getHookedIn() != this.grump) {
+                        hook.bringInHookedEntity();
                     }
                     this.removeMonsterFishHook();
                     return;

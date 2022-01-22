@@ -40,8 +40,7 @@ import javax.annotation.Nullable;
  *
  * Essentially a copy paste of {@link net.minecraft.entity.projectile.FishingBobberEntity}
  */
-@OnlyIn(value = Dist.CLIENT, _interface = IRendersAsItem.class)
-public class MonsterFishHook extends ProjectileEntity implements IEntityAdditionalSpawnData, IRendersAsItem {
+public class MonsterFishHook extends ProjectileEntity implements IEntityAdditionalSpawnData {
 
     private static final DataParameter<Integer> DATA_HOOKED_ENTITY = EntityDataManager.defineId(MonsterFishHook.class, DataSerializers.INT);
     private int life;
@@ -62,10 +61,12 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
         this(world, mobEntity);
         float pitch = mobEntity.xRot;
         float yaw = mobEntity.yRot;
+
         float f2 = MathHelper.cos(-yaw * ((float)Math.PI / 180F) - (float)Math.PI);
         float f3 = MathHelper.sin(-yaw * ((float)Math.PI / 180F) - (float)Math.PI);
         float f4 = -MathHelper.cos(-pitch * ((float)Math.PI / 180F));
         float f5 = MathHelper.sin(-pitch * ((float)Math.PI / 180F));
+
         double x = mobEntity.getX() - (double)f3 * 0.3D;
         double y = mobEntity.getEyeY();
         double z = mobEntity.getZ() - (double)f2 * 0.3D;
@@ -298,11 +299,6 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
     @Override
     public boolean canChangeDimensions() {
         return false;
-    }
-
-    @Override
-    public ItemStack getItem() {
-        return new ItemStack(Items.NETHER_STAR);
     }
 
     @Override
