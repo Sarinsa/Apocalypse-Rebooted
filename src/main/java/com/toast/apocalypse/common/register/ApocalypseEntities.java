@@ -72,10 +72,10 @@ public class ApocalypseEntities {
     public static void registerEntitySpawnPlacement() {
         EntitySpawnPlacementRegistry.register(GHOST.get(), EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS, Heightmap.Type.WORLD_SURFACE, GhostEntity::checkGhostSpawnRules);
         EntitySpawnPlacementRegistry.register(BREECHER.get(), EntitySpawnPlacementRegistry.PlacementType.ON_GROUND, Heightmap.Type.MOTION_BLOCKING, MobEntity::checkMobSpawnRules);
-        EntitySpawnPlacementRegistry.register(DESTROYER.get(), EntitySpawnPlacementRegistry.PlacementType.ON_GROUND, Heightmap.Type.MOTION_BLOCKING, DestroyerEntity::checkDestroyerSpawnRules);
-        EntitySpawnPlacementRegistry.register(SEEKER.get(), EntitySpawnPlacementRegistry.PlacementType.ON_GROUND, Heightmap.Type.MOTION_BLOCKING, SeekerEntity::checkSeekerSpawnRules);
-        EntitySpawnPlacementRegistry.register(GRUMP.get(), EntitySpawnPlacementRegistry.PlacementType.ON_GROUND, Heightmap.Type.MOTION_BLOCKING, GrumpEntity::checkGrumpSpawnRules);
-        EntitySpawnPlacementRegistry.register(FEARWOLF.get(), EntitySpawnPlacementRegistry.PlacementType.ON_GROUND, Heightmap.Type.MOTION_BLOCKING, FearwolfEntity::checkMobSpawnRules);
+        EntitySpawnPlacementRegistry.register(DESTROYER.get(), EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS, Heightmap.Type.MOTION_BLOCKING, DestroyerEntity::checkDestroyerSpawnRules);
+        EntitySpawnPlacementRegistry.register(SEEKER.get(), EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS, Heightmap.Type.MOTION_BLOCKING, SeekerEntity::checkSeekerSpawnRules);
+        EntitySpawnPlacementRegistry.register(GRUMP.get(), EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS, Heightmap.Type.MOTION_BLOCKING, GrumpEntity::checkGrumpSpawnRules);
+        EntitySpawnPlacementRegistry.register(FEARWOLF.get(), EntitySpawnPlacementRegistry.PlacementType.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, FearwolfEntity::checkMobSpawnRules);
     }
 
     private static <I extends Entity> RegistryObject<EntityType<I>> register(String name, EntityType.Builder<I> builder) {
