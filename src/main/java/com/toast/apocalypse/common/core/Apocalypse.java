@@ -76,7 +76,6 @@ public class Apocalypse {
     public Apocalypse() {
         INSTANCE = this;
 
-        ApocalypseEntities.initTypes();
         EventRegistry.init();
         ApocalypseTriggers.init();
         MobWikiIndexes.init();
@@ -121,7 +120,6 @@ public class Apocalypse {
         });
     }
 
-    // TODO - Rework API stuff to mostly be handled with IMC
     public void onLoadComplete(FMLLoadCompleteEvent event) {
         event.enqueueWork(() -> {
             // Load mod plugins
@@ -162,7 +160,9 @@ public class Apocalypse {
         }
     }
 
-    // TODO
+    /**
+     * Yeets the API instance to mods asking for it.
+     */
     public void readIMCMessages(InterModProcessEvent event) {
         event.getIMCStream().forEach((message) -> {
             if (message.getMethod().equals("getApocalypseApi")) {
