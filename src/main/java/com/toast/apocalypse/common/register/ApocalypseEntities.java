@@ -19,37 +19,16 @@ public class ApocalypseEntities {
 
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITIES, Apocalypse.MODID);
 
-    public static EntityType<GhostEntity> GHOST_TYPE;
-    public static EntityType<DestroyerEntity> DESTROYER_TYPE;
-    public static EntityType<SeekerEntity> SEEKER_TYPE;
-    public static EntityType<GrumpEntity> GRUMP_TYPE;
-    public static EntityType<BreecherEntity> BREECHER_TYPE;
-    public static EntityType<FearwolfEntity> FEARWOLF_TYPE;
 
     public static final RegistryObject<EntityType<MonsterFishHook>> MONSTER_FISH_HOOK = register("monster_fish_hook", EntityType.Builder.<MonsterFishHook>of(MonsterFishHook::new, EntityClassification.MISC).noSave().noSummon().sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(5));
     public static final RegistryObject<EntityType<DestroyerFireballEntity>> DESTROYER_FIREBALL = register("destroyer_fireball", EntityType.Builder.<DestroyerFireballEntity>of(DestroyerFireballEntity::new, EntityClassification.MISC).sized(1.0F, 1.0F).clientTrackingRange(4).updateInterval(4));
     public static final RegistryObject<EntityType<SeekerFireballEntity>> SEEKER_FIREBALL = register("seeker_fireball", EntityType.Builder.<SeekerFireballEntity>of(SeekerFireballEntity::new, EntityClassification.MISC).sized(0.6F, 0.6F).clientTrackingRange(4).updateInterval(6));
-    public static final RegistryObject<EntityType<GhostEntity>> GHOST = register("ghost", () -> GHOST_TYPE);
-    public static final RegistryObject<EntityType<DestroyerEntity>> DESTROYER = register("destroyer", () -> DESTROYER_TYPE);
-    public static final RegistryObject<EntityType<SeekerEntity>> SEEKER = register("seeker", () -> SEEKER_TYPE);
-    public static final RegistryObject<EntityType<GrumpEntity>> GRUMP = register("grump", () -> GRUMP_TYPE);
-    public static final RegistryObject<EntityType<BreecherEntity>> BREECHER = register("breecher", () -> BREECHER_TYPE);
-    public static final RegistryObject<EntityType<FearwolfEntity>> FEARWOLF = register("fearwolf", () -> FEARWOLF_TYPE);
-
-    /**
-     * Initializing entity types for living entities in the mod class
-     * constructor so that the entity types can be used for the spawn egg items
-     * before entity types are registered.
-     * Probably better ways of doing this, but it works.
-     */
-    public static void initTypes() {
-        GHOST_TYPE = create("ghost", EntityType.Builder.of(GhostEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.95F));
-        DESTROYER_TYPE = create("destroyer", EntityType.Builder.of(DestroyerEntity::new, EntityClassification.MONSTER).sized(4.5F, 4.5F).clientTrackingRange(10).fireImmune());
-        SEEKER_TYPE = create("seeker", EntityType.Builder.of(SeekerEntity::new, EntityClassification.MONSTER).sized(4.5F, 4.5F).clientTrackingRange(10).fireImmune());
-        GRUMP_TYPE = create("grump", EntityType.Builder.of(GrumpEntity::new, EntityClassification.MONSTER).sized(1.0F, 1.0F));
-        BREECHER_TYPE = create("breecher", EntityType.Builder.of(BreecherEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.7F).clientTrackingRange(8));
-        FEARWOLF_TYPE = create("fearwolf", EntityType.Builder.of(FearwolfEntity::new, EntityClassification.MONSTER).sized(1.6F, 1.8F));
-    }
+    public static final RegistryObject<EntityType<GhostEntity>> GHOST = register("ghost", EntityType.Builder.of(GhostEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.95F).clientTrackingRange(8));
+    public static final RegistryObject<EntityType<DestroyerEntity>> DESTROYER = register("destroyer", EntityType.Builder.of(DestroyerEntity::new, EntityClassification.MONSTER).sized(4.5F, 4.5F).clientTrackingRange(10).fireImmune());
+    public static final RegistryObject<EntityType<SeekerEntity>> SEEKER = register("seeker", EntityType.Builder.of(SeekerEntity::new, EntityClassification.MONSTER).sized(4.5F, 4.5F).clientTrackingRange(10).fireImmune());
+    public static final RegistryObject<EntityType<GrumpEntity>> GRUMP = register("grump", EntityType.Builder.of(GrumpEntity::new, EntityClassification.MONSTER).sized(1.0F, 1.0F));
+    public static final RegistryObject<EntityType<BreecherEntity>> BREECHER = register("breecher", EntityType.Builder.of(BreecherEntity::new, EntityClassification.MONSTER).sized(0.6F, 1.7F).clientTrackingRange(8));
+    public static final RegistryObject<EntityType<FearwolfEntity>> FEARWOLF = register("fearwolf", EntityType.Builder.of(FearwolfEntity::new, EntityClassification.MONSTER).sized(1.6F, 1.8F));
 
 
     /**
@@ -80,13 +59,5 @@ public class ApocalypseEntities {
 
     private static <I extends Entity> RegistryObject<EntityType<I>> register(String name, EntityType.Builder<I> builder) {
         return ENTITIES.register(name, () -> builder.build(name));
-    }
-
-    private static <I extends Entity> RegistryObject<EntityType<I>> register(String name, Supplier<EntityType<I>> entityTypeSupplier) {
-        return ENTITIES.register(name, entityTypeSupplier);
-    }
-
-    private static <I extends Entity> EntityType<I> create(String name, EntityType.Builder<I> builder) {
-        return builder.build(name);
     }
 }

@@ -1,7 +1,6 @@
 package com.toast.apocalypse.common.entity.projectile;
 
 import com.toast.apocalypse.common.network.NetworkHelper;
-import com.toast.apocalypse.common.network.PacketHandler;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
 import net.minecraft.entity.*;
 import net.minecraft.entity.item.ItemEntity;
@@ -10,22 +9,17 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.fluid.FluidState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.network.play.server.SEntityVelocityPacket;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -71,6 +65,7 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
         double y = mobEntity.getEyeY();
         double z = mobEntity.getZ() - (double)f2 * 0.3D;
         this.moveTo(x, y, z, pitch, yaw);
+
         Vector3d vector3d = new Vector3d(-f3, MathHelper.clamp(-(f5 / f4), -5.0F, 5.0F), -f2);
         double d3 = vector3d.length();
         vector3d = vector3d.multiply(0.6D / d3 + 0.5D + this.random.nextGaussian() * 0.0045D, 0.6D / d3 + 0.5D + this.random.nextGaussian() * 0.0045D, 0.6D / d3 + 0.5D + this.random.nextGaussian() * 0.0045D);
