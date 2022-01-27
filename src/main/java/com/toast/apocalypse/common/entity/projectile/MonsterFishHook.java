@@ -29,10 +29,10 @@ import net.minecraftforge.fml.network.NetworkHooks;
 import javax.annotation.Nullable;
 
 /**
- * This is a fish hook projectile that can be fired by monsters to pull targets closer.<br>
+ * This is a fishhook projectile that can be fired by monsters to pull targets closer.<br>
  * Players are able to block this projectile with a shield, negating its effects.
  *
- * Essentially a copy paste of {@link net.minecraft.entity.projectile.FishingBobberEntity}
+ * Essentially a copy-paste of {@link net.minecraft.entity.projectile.FishingBobberEntity}
  */
 public class MonsterFishHook extends ProjectileEntity implements IEntityAdditionalSpawnData {
 
