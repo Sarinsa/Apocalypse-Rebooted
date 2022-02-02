@@ -7,10 +7,7 @@ import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTarget
 import com.toast.apocalypse.common.entity.living.goals.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
-import com.toast.apocalypse.common.register.ApocalypseEntities;
-import com.toast.apocalypse.common.util.MobWikiIndexes;
 import net.minecraft.entity.*;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
@@ -21,7 +18,6 @@ import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.projectile.FireballEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -410,6 +406,28 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         @Override
         public void tick() {
             ++this.timeAlerting;
+        }
+    }
+
+    // TODO - Hmmmmmmmm
+    private static class DestroySpawnPointGoal<T extends SeekerEntity> extends Goal {
+
+        private final T seeker;
+
+        private DestroySpawnPointGoal(T seeker) {
+            this.seeker = seeker;
+        }
+
+        @Override
+        public boolean canUse() {
+            if (this.seeker.getTarget() != null && this.seeker.getTarget() instanceof ServerPlayerEntity) {
+                ServerPlayerEntity player = (ServerPlayerEntity) this.seeker.getTarget();
+
+                if (player.getRespawnPosition() != null && (player.getRespawnDimension().equals(this.seeker.level.dimension()))) {
+
+                }
+            }
+            return false;
         }
     }
 }
