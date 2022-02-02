@@ -67,10 +67,14 @@ public final class PlayerDifficultyManager {
     /** Time until next save. */
     private int timeUntilSave = 0;
     /** Time until next advancement trigger check. */
-    private int timeUntilAdvCheck;
+    private int timeUntilAdvCheck = 0;
 
     /** Server instance */
     private MinecraftServer server;
+
+    /** Whether the current server instance has been shut down. */
+    private boolean serverStopped = false;
+
 
     private final HashMap<UUID, AbstractEvent> playerEvents = new HashMap<>();
 
@@ -121,7 +125,7 @@ public final class PlayerDifficultyManager {
 
     @SubscribeEvent
     public void onServerStarted(FMLServerStartedEvent event) {
-        // :)
+        this.serverStopped = false;
     }
 
     /** Clean up references and save player event data */
@@ -131,6 +135,7 @@ public final class PlayerDifficultyManager {
             this.saveEventData(player);
         }
         this.cleanup();
+        this.serverStopped = true;
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
@@ -151,6 +156,11 @@ public final class PlayerDifficultyManager {
 
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        // Don't bother saving event data
+        // if the server has already been stopped
+        // as it will have been taken care of already.
+        if (this.serverStopped) return;
+
         if (!event.getPlayer().getCommandSenderWorld().isClientSide) {
             ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
             this.saveEventData(player);
