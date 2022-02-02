@@ -90,12 +90,12 @@ public class MobWikiScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int p_231046_1_, int p_231046_2_, int p_231046_3_) {
-        if (super.keyPressed(p_231046_1_, p_231046_2_, p_231046_3_)) {
+    public boolean keyPressed(int key, int scancode, int mods) {
+        if (super.keyPressed(key, scancode, mods)) {
             return true;
         }
         else {
-            switch(p_231046_1_) {
+            switch(key) {
                 case 266:
                     this.backButton.onPress();
                     return true;

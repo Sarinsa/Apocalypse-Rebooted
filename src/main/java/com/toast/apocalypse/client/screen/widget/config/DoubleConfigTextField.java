@@ -13,13 +13,12 @@ public final class DoubleConfigTextField extends AbstractConfigTextField<Double>
     }
 
     @Override
-    @SuppressWarnings("all")
     protected boolean checkIsValidValue(String value) {
         try {
             double doubleValue = Double.parseDouble(value);
             return doubleValue >= this.minValue && doubleValue <= this.maxValue;
         }
-        catch (Exception ignored) {
+        catch (NumberFormatException ignored) {
             return false;
         }
     }
