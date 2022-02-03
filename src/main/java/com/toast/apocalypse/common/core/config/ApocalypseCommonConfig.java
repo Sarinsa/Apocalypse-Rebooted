@@ -125,6 +125,10 @@ public class ApocalypseCommonConfig {
         private final ForgeConfigSpec.IntValue seekerExplosionPower;
         private final ForgeConfigSpec.IntValue destroyerExplosionPower;
 
+        // Compat
+        private final ForgeConfigSpec.BooleanValue requireExtendedProbe;
+
+
         private Common(ForgeConfigSpec.Builder configBuilder) {
             configBuilder.push("rain");
             this.rainTickRate = configBuilder.comment("Determines the interval in which rain damage should be dealt in seconds. A value of 2 will inflict rain damage on players every 2 seconds.")
@@ -329,6 +333,12 @@ public class ApocalypseCommonConfig {
 
             this.destroyerExplosionPower = configBuilder.comment("The explosion power of Destroyer fireballs.")
                     .defineInRange("destroyerExplosionPower", 2, 1, 10);
+            configBuilder.pop();
+
+            configBuilder.push("compat");
+            this.requireExtendedProbe = configBuilder.comment("(Option for TheOneProbe) If enabled, difficulty can only be seen when the probe is in extended mode.")
+                            .define("requireExtendedProbe", true);
+
             configBuilder.pop();
         }
 
@@ -552,7 +562,7 @@ public class ApocalypseCommonConfig {
 
 
         //
-        //  MISC
+        // MISC
         //
         public List<? extends String> getDestroyerProofBlocks() {
             return this.destroyerProofBlocks.get();
@@ -571,6 +581,12 @@ public class ApocalypseCommonConfig {
         }
 
 
+        //
+        // COMPAT
+        //
+        public boolean requireExtendedProbe() {
+            return this.requireExtendedProbe.get();
+        }
 
 
         // Helper stuff

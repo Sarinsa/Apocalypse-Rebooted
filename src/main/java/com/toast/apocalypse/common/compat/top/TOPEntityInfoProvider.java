@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.compat.top;
 
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import mcjty.theoneprobe.api.*;
@@ -32,7 +33,10 @@ public class TOPEntityInfoProvider implements IProbeInfoEntityProvider, Function
 
     @Override
     public void addProbeEntityInfo(ProbeMode probeMode, IProbeInfo iProbeInfo, PlayerEntity playerEntity, World world, Entity entity, IProbeHitEntityData iProbeHitEntityData) {
-        if (probeMode == ProbeMode.EXTENDED && entity instanceof ServerPlayerEntity) {
+        if (entity instanceof ServerPlayerEntity) {
+            if (ApocalypseCommonConfig.COMMON.requireExtendedProbe() && probeMode != ProbeMode.EXTENDED)
+                return;
+
             long difficulty = CapabilityHelper.getPlayerDifficulty((ServerPlayerEntity) entity);
             iProbeInfo.text(CompoundText.createLabelInfo(new TranslationTextComponent(References.DIFFICULTY).getString(), formatDifficulty(difficulty)));
         }
