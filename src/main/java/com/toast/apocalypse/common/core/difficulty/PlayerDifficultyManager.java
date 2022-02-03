@@ -312,33 +312,18 @@ public final class PlayerDifficultyManager {
         if (CapabilityHelper.getPlayerDifficulty(player) > 0 && overworld.getGameTime() > 0L) {
 
             for (EventType<?> type : EventRegistry.EVENTS.values()) {
-                if (type.getStartPredicate().canStart(world, eventType, player, isFullMoonNight)) {
+                if (type.getStartPredicate().canStart(world, eventType, player, isFullMoonNight) && currentEvent.getType().canBeInterrupted()) {
                     eventType = this.startEvent(player, currentEvent, type);
                     break;
                 }
             }
-
-
             // Stop the full moon event when it becomes day time.
-            if (!isFullMoonNight && eventType == EventRegistry.FULL_MOON) {
+            if (eventType == EventRegistry.FULL_MOON && !isFullMoonNight) {
                 eventType = this.endEvent(player);
             }
 
-            /*
-            // Starts the full moon event.
-            if (isFullMoonNight && eventType != EventRegistry.FULL_MOON) {
-                eventType = this.startEvent(player, currentEvent, EventRegistry.FULL_MOON);
-            }
-
-            // Starts the thunderstorm event.
-            if (world.isThundering() && eventType.canBeInterrupted() && eventType != EventRegistry.THUNDERSTORM) {
-                eventType = this.startEvent(player, currentEvent, EventRegistry.THUNDERSTORM);
-            }
-
-             */
-
             // Stop the thunderstorm event when the weather clears up.
-            if (!world.isThundering() && eventType == EventRegistry.THUNDERSTORM) {
+            if (eventType == EventRegistry.THUNDERSTORM && !world.isThundering()) {
                 this.endEvent(player);
             }
         }

@@ -26,7 +26,7 @@ public class EventRegistry {
             (serverWorld, currentEvent, player, isFullMoonNight) -> isFullMoonNight && currentEvent != EventRegistry.FULL_MOON);
 
     public static final EventType<?> THUNDERSTORM = register(1, ThunderstormEvent::new, null, true,
-            (serverWorld, currentEvent, player, isFullMoonNight) -> serverWorld.isThundering() && currentEvent.canBeInterrupted() && currentEvent != EventRegistry.THUNDERSTORM);
+            (serverWorld, currentEvent, player, isFullMoonNight) -> serverWorld.isThundering() && currentEvent != EventRegistry.THUNDERSTORM);
 
 
     @Nonnull

@@ -80,15 +80,23 @@ public final class FullMoonEvent extends AbstractEvent {
 
     /** Time until mobs can start spawning. */
     private int gracePeriod;
+
     /** The time between each mob spawn */
     private int spawnTime = 600;
+
     /** The time until the next mob should be spawned for the player */
     private int timeUntilNextSpawn = 0;
+
     /** Whether there are any mobs left to spawn */
     private boolean hasMobsLeft = true;
+
     /** A map containing all the full moon mobs that will be spawned for the player */
     private final HashMap<Integer, Integer> mobsToSpawn = new HashMap<>();
-    /** A List of mobs that have already been spawned and are still alive */
+
+    // TODO - TEMPORARY SOLUTION - Unloaded mobs cannot be tracked this way.
+    /**
+     *  A List of mobs that have already been spawned and are still alive.
+     */
     private final List<MobEntity> currentMobs = new ArrayList<>();
 
     public FullMoonEvent(EventType<?> type) {
