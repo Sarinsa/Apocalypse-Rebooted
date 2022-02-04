@@ -1,12 +1,12 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.api.impl.SeekerAlertRegister;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.entity.living.goals.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
+import com.toast.apocalypse.common.util.ApocalypseEventFactory;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -16,6 +16,7 @@ import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
+import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -322,7 +323,7 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         }
     }
 
-    private static class AlertOtherMonstersGoal extends Goal {
+    public static class AlertOtherMonstersGoal extends Goal {
 
         private static final int maxAlertCount = 18;
 
@@ -349,7 +350,6 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         @Override
         @SuppressWarnings("all")
         public void start() {
-            SeekerAlertRegister alertRegister = Apocalypse.INSTANCE.getRegistryHelper().getAlertRegister();
             LivingEntity target = this.seeker.getTarget();
             this.timeAlerting = -60;
 
@@ -371,22 +371,17 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
                     if (alertCount >= maxAlertCount) {
                         break;
                     }
-                    Class<? extends LivingEntity> entityClass = livingEntity.getClass();
 
-                    if (livingEntity instanceof MobEntity || livingEntity instanceof IMob) {
+                    if (livingEntity instanceof MobEntity) {
                         MobEntity mobEntity = (MobEntity) livingEntity;
+
+                        if (!ApocalypseEventFactory.fireSeekerAlertEvent(this.seeker.level, this.seeker, mobEntity, target)) continue;
 
                         if (mobEntity.getTarget() != this.seeker.getTarget()) {
                             mobEntity.setLastHurtByMob(null);
                             mobEntity.setTarget(this.seeker.getTarget());
                             ModifiableAttributeInstance attributeInstance = mobEntity.getAttribute(Attributes.FOLLOW_RANGE);
                             attributeInstance.setBaseValue(Math.max(attributeInstance.getValue(), 60.0D));
-                        }
-                        // Perform additional alertion logic, if registered for the entity in question.
-                        // This logic is registered via the Apocalypse API.
-                        if (alertRegister.containsEntry(entityClass)) {
-                            alertRegister.getFromEntity(entityClass).accept(livingEntity, target, this.seeker);
-                            return;
                         }
                     }
                     ++alertCount;

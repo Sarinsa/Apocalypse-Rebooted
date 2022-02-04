@@ -20,30 +20,11 @@ public final class RegistryHelper implements IRegistryHelper {
     /** Keeping this here to avoid writing the
      *  same annoying symbols over and over again. */
     private static final String PLUGIN_MESSAGE = "Mod plugin \"{}\" ";
-    /** Contains custom logic for seeker alerting */
-    private final SeekerAlertRegister alertRegister;
     /** The ID of the plugin that is currently being loaded */
     private String currentPluginId = "no_plugin_id :(";
 
     public RegistryHelper() {
-        this.alertRegister = new SeekerAlertRegister();
-    }
 
-    @Override
-    public <A extends LivingEntity, B extends LivingEntity, C extends MobEntity> void registerSeekerAlertable(Class<A> alertable, TriConsumer<A, B, C> logic) {
-        Objects.requireNonNull(alertable);
-        Objects.requireNonNull(logic);
-
-        if (this.alertRegister.containsEntry(alertable)) {
-            log(Level.WARN, "Tried to register custom seeker alert logic for already registered entity: \"{}\"", alertable.getName());
-        }
-        else {
-            this.alertRegister.addEntry(alertable, logic);
-        }
-    }
-
-    public SeekerAlertRegister getAlertRegister() {
-        return this.alertRegister;
     }
 
     /**
