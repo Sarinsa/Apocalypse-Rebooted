@@ -1,33 +1,34 @@
 package com.toast.apocalypse.api.plugin;
 
-import java.util.List;
+import javax.annotation.Nullable;
 
 /**
- * An easy way for modders to
- * read Apocalypse's config settings.
- * This interface will be updated
- * whenever we decide to change/remove/add
- * something to the mod config.
+ * Allows other mods to read
+ * Apocalypse's config settings.
  */
 public interface IConfigHelper {
 
-    /**
-     * @return True if rain damage is
-     *         enabled in the mod config.
-     */
-    boolean rainDamageEnabled();
+    enum ConfigType {
+        COMMON,
+        CLIENT,
+        SERVER
+    }
 
     /**
-     * @return The amount of damage that rain
-     *         inflicts per rain damage tick.
+     * Helper method for accessing config values in
+     * Apocalypse's configs. <br>
+     * <br>
+     *
+     * @param configType The type of the config to read from.
+     * @param key The config entry key of the value to fetch.<br>
+     * <br>
+     * @param <T> The value type of the value to fetch.<br>
+     * <br>
+     * @return The value of the specified config key in the specified
+     *         config if it exists and null if not. If the inferred value type does not match
+     *         that of the key's value, this will also return null.<br>
+     * <br>
      */
-    float rainDamageAmount();
-
-    /**
-     * @return A list of Strings representing the registry
-     *         names of the worlds that are configured to
-     *         give an increased difficulty multiplier whenever
-     *         a player is in any of these dimensions.
-     */
-    List<? extends String> penaltyDimensions();
+    @Nullable
+    <T> T getValue(ConfigType configType, String key);
 }

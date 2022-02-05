@@ -1,8 +1,8 @@
 package com.toast.apocalypse.api.plugin;
 
 /**
- * This is the main interface containing all
- * the methods for retrieving various helpers.
+ * This is the main interface of the APi, containing all the<br>
+ * methods for retrieving various helpers and whatnot.
  */
 public interface IApocalypseApi {
 
