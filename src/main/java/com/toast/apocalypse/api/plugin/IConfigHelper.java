@@ -16,7 +16,8 @@ public interface IConfigHelper {
 
     /**
      * Helper method for accessing config values in
-     * Apocalypse's configs. <br>
+     * Apocalypse's configs. Be mindful of logical sides.
+     * The client config will not be available from server etc.<br>
      * <br>
      *
      * @param configType The type of the config to read from.
