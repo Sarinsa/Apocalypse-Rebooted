@@ -248,7 +248,7 @@ public final class FullMoonEvent extends AbstractEvent {
      * or -1 if there are no mob types left to spawn.
      */
     private int getRandomMobIndex(Random random) {
-        Integer type = StorageUtils.getRandomMapKeyFiltered(random, this.mobsToSpawn, (id, count) -> count > 0);
+        Integer type = StorageUtils.randomMapKeyFiltered(random, this.mobsToSpawn, (id, count) -> count > 0);
         return type != null ? type : -1;
     }
 
@@ -298,10 +298,10 @@ public final class FullMoonEvent extends AbstractEvent {
             BlockPos pos;
 
             for (int i = 0; i < 10; i++) {
-                int startX = random.nextInt(2) == 1 ? minDist : -minDist;
-                int startZ = random.nextInt(2) == 1 ? minDist : -minDist;
-                int x = playerPos.getX() + startX + (startX < 1 ? -random.nextInt(46) : random.nextInt(46));
-                int z = playerPos.getZ() + startZ + (startZ < 1 ? -random.nextInt(46) : random.nextInt(46));
+                int startX = random.nextBoolean() ? minDist : -minDist;
+                int startZ = random.nextBoolean() ? minDist : -minDist;
+                int x = playerPos.getX() + startX + (startX < 1 ? -random.nextInt(40) : random.nextInt(40));
+                int z = playerPos.getZ() + startZ + (startZ < 1 ? -random.nextInt(40) : random.nextInt(40));
                 pos = new BlockPos(x, 20 + random.nextInt(60), z);
 
                 if (world.isLoaded(pos)) {
@@ -325,12 +325,12 @@ public final class FullMoonEvent extends AbstractEvent {
                     do {
                         pos.move(Direction.DOWN);
                     }
-                    while(!world.getBlockState(pos).isAir());
+                    while(!world.getBlockState(pos).isAir(world, pos));
 
                     do {
                         pos.move(Direction.DOWN);
                     }
-                    while(world.getBlockState(pos).isAir() && pos.getY() > 0);
+                    while(world.getBlockState(pos).isAir(world, pos) && pos.getY() > 0);
                 }
 
                 if (placementType == EntitySpawnPlacementRegistry.PlacementType.ON_GROUND) {

@@ -3,8 +3,6 @@ package com.toast.apocalypse.common.entity.living;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.entity.living.goals.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.register.ApocalypseEffects;
-import com.toast.apocalypse.common.register.ApocalypseEntities;
-import com.toast.apocalypse.common.util.MobWikiIndexes;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -15,9 +13,7 @@ import net.minecraft.entity.ai.goal.LookAtGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.monster.MonsterEntity;
-import net.minecraft.entity.monster.ZombieEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -37,7 +33,6 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.util.Constants;
 
@@ -56,7 +51,9 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
     /**
      *  Used to determine if the ghost should be frozen in place
-     *  and if the time freeze render effect should be rendered.
+     *  and if the time freeze render effect should be rendered.<br>
+     *  <br>
+     *  <strong>(Currently unused)</strong>
      */
     private static final DataParameter<Boolean> IS_FROZEN = EntityDataManager.defineId(GhostEntity.class, DataSerializers.BOOLEAN);
 
@@ -70,7 +67,6 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
     public GhostEntity(EntityType<? extends FlyingEntity> entityType, World world) {
         super(entityType, world);
-        this.playerTargetUUID = null;
         this.moveControl = new GhostMovementController<>(this);
         this.xpReward = 3;
     }

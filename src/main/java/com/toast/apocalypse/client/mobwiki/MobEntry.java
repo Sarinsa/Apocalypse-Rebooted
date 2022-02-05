@@ -22,7 +22,7 @@ public final class MobEntry {
                 : mobDescription;
 
         this.mobTexture = mobTexture == null ? new ResourceLocation("") : mobTexture;
-        this.mobType = mobType == null ? MobType.NONE : mobType;
+        this.mobType = mobType == null ? MobType.NORMAL : mobType;
     }
 
     private MobEntry(ITextComponent mobName, ITextComponent mobDescription, ResourceLocation mobTexture, MobType mobType) {
@@ -89,7 +89,7 @@ public final class MobEntry {
     public enum MobType {
         FULL_MOON(Apocalypse.resourceLoc("textures/mobwiki/mobtype/full_moon.png")),
         THUNDERSTORM(Apocalypse.resourceLoc("textures/mobwiki/mobtype/thunderstorm.png")),
-        NONE(new ResourceLocation(""));
+        NORMAL(new ResourceLocation("textures/mobwiki/mobtype/normal.png"));
 
         MobType(ResourceLocation textureLoc) {
             this.textureLoc = textureLoc;

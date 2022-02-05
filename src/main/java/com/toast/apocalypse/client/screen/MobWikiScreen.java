@@ -115,8 +115,9 @@ public class MobWikiScreen extends Screen {
 
         if (this.currentEntry == MobEntries.EMPTY) {
             this.minecraft.textureManager.bind(ADDITIONAL_PAGE);
-            int i = (this.width - 192) / 2;
-            this.blit(matrixStack, i, 2, 0, 0, 192, 192);
+            int i = (this.width - 280) / 2;
+            // MatrixStack, x, y, uOffset, vOffset, uWidth, vHeight
+            this.blit(matrixStack, i, 25, 0, 0, 280, 280);
         }
         else {
             this.renderPageContent(matrixStack, this.currentEntry);
@@ -130,6 +131,7 @@ public class MobWikiScreen extends Screen {
             MinecraftForge.EVENT_BUS.post(new GuiScreenEvent.BackgroundDrawnEvent(this, matrixStack));
         }
         else {
+            // No idea how this could ever happen
             this.renderDirtBackground(0);
         }
     }

@@ -6,6 +6,7 @@ import net.minecraft.world.server.ServerWorld;
 /**
  * Provides the conditions for a specified Apocalypse event to start.
  */
+@FunctionalInterface
 public interface IStartupPredicate {
 
     boolean canStart(ServerWorld serverWorld, EventType<?> currentEventType, ServerPlayerEntity player, boolean isFullMoonNight);

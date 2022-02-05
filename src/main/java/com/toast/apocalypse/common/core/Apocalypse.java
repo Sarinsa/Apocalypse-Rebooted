@@ -155,6 +155,7 @@ public class Apocalypse {
     }
 
     public void sendIMCMessages(InterModEnqueueEvent event) {
+        // Compat for TheOneProbe
         if (ModList.get().isLoaded("theoneprobe")) {
             InterModComms.sendTo("theoneprobe", "getTheOneProbe", TOPEntityInfoProvider::new);
         }

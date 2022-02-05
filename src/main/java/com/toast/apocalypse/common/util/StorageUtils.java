@@ -39,7 +39,7 @@ public class StorageUtils {
     }
 
     @Nullable
-    public static <K, V> K getRandomMapKeyFiltered(Random random, Map<K, V> map, BiPredicate<K, V> biPredicate) {
+    public static <K, V> K randomMapKeyFiltered(Random random, Map<K, V> map, BiPredicate<K, V> biPredicate) {
         final List<K> candidateKeys = new ArrayList<>();
 
         for (K key : map.keySet()) {
