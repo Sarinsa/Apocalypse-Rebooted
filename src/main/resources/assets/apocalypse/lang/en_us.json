@@ -36,12 +36,13 @@
   "effect.apocalypse.heavy": "Strong Gravity",
 
   "apocalypse.item_desc.fatherly_toast": "Mmmm, toasty!",
+  "apocalypse.item.desc.fatherly_toast.level": "Toast Level: %s",
   "apocalypse.item_desc.bucket_helm": "Protects you from the rain",
 
   "apocalypse.command.argument.difficulty.invalid_value": "Value can not be less than 0 or exceed the configured difficulty limit",
   "apocalypse.command.difficulty.set_message.single": "Set difficulty to %s for %s",
   "apocalypse.command.difficulty.set_message.multiple": "Set difficulty to %s for %s players",
-  "apocalypse.command.argument.max_difficulty.invalid_value": "Value can not be less than -1 or exceed 100 000. -1 equals no limit",
+  "apocalypse.command.argument.max_difficulty.invalid_value": "Value can not be less than -1 or exceed 100,000. -1 equals no limit",
   "apocalypse.command.difficulty.max_message.single": "Set max difficulty to %s for %s",
   "apocalypse.command.difficulty.max_message.multiple": "Set max difficulty to %s for %s players",
 
@@ -54,8 +55,10 @@
 
   "key.apocalypse.toggleDifficulty": "Toggle Difficulty",
 
-  "apocalypse.advancements.root.title": "It Begins",
+  "apocalypse.advancements.root.title": "The Apocalypse",
   "apocalypse.advancements.root.description": "The grace period is over. Stay on your toes!",
+  "apocalypse.advancements.toasty.title": "Secret Snack",
+  "apocalypse.advancements.toasty.description": "Create Fatherly Toast by striking bread with lightning. Quite toasty!",
 
   "apocalypse.top.difficulty": "Difficulty: %1$s"
 }

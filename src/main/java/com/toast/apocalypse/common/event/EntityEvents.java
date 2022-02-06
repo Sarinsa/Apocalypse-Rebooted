@@ -106,9 +106,9 @@ public class EntityEvents {
     }
 
     /**
-     * Toast
+     * Toast!!!!!!!!
      */
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onEntityStruckByLightning(EntityStruckByLightningEvent event) {
         if (event.getEntity() instanceof ItemEntity) {
             ItemEntity itemEntity = (ItemEntity) event.getEntity();
@@ -117,7 +117,10 @@ public class EntityEvents {
             if (item == Items.BREAD) {
                 World world = event.getEntity().getCommandSenderWorld();
                 int itemCount = itemEntity.getItem().getCount();
-                world.addFreshEntity(new ItemEntity(world, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), new ItemStack(ApocalypseItems.FATHERLY_TOAST.get(), itemCount)));
+                ItemStack stack = new ItemStack(ApocalypseItems.FATHERLY_TOAST.get(), itemCount);
+                // Toast level, nice
+                stack.getOrCreateTag().putInt("ToastLevel", event.getEntity().level.random.nextInt(99) + 1);
+                world.addFreshEntity(new ItemEntity(world, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), stack));
                 itemEntity.remove();
             }
             else if (item == ApocalypseItems.FATHERLY_TOAST.get())

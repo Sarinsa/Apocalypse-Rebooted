@@ -1,61 +1,46 @@
 package com.toast.apocalypse.datagen;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Sets;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.register.ApocalypseItems;
+import com.toast.apocalypse.common.triggers.PassedGracePeriodTrigger;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.FrameType;
+import net.minecraft.advancements.criterion.InventoryChangeTrigger;
 import net.minecraft.data.AdvancementProvider;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.data.IDataProvider;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.OnlyIns;
+import net.minecraftforge.common.data.ExistingFileHelper;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Set;
 import java.util.function.Consumer;
 
 public class ApocalypseAdvancementProvider extends AdvancementProvider {
 
-    private final DataGenerator dataGenerator;
-    private final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private final ImmutableList<Consumer<Consumer<Advancement>>> advancements;
-
-    @SafeVarargs
-    public ApocalypseAdvancementProvider(DataGenerator dataGenerator, Consumer<Consumer<Advancement>>... consumers) {
-        super(dataGenerator);
-        this.dataGenerator = dataGenerator;
-        this.advancements = ImmutableList.copyOf(consumers);
+    public ApocalypseAdvancementProvider(DataGenerator dataGenerator, ExistingFileHelper fileHelper) {
+        super(dataGenerator, fileHelper);
     }
 
     @Override
-    public void run(DirectoryCache cache) {
-        Path path = this.dataGenerator.getOutputFolder();
-        Set<ResourceLocation> set = Sets.newHashSet();
+    protected void registerAdvancements(Consumer<Advancement> consumer, ExistingFileHelper fileHelper) {
+        Advancement root = Advancement.Builder.advancement()
+                .display(ApocalypseItems.SOUL_FRAGMENT.get(),
+                        new TranslationTextComponent("apocalypse.advancements.root.title"),
+                        new TranslationTextComponent("apocalypse.advancements.root.description"),
+                        Apocalypse.resourceLoc("textures/gui/advancements/backgrounds/apocalypse.png"),
+                        FrameType.TASK, true, true, false)
+                .addCriterion("pass_grace_period", PassedGracePeriodTrigger.Instance.gracePeriodPassed())
+                .save(consumer, Apocalypse.resourceLoc("root"), fileHelper);
 
-        Consumer<Advancement> consumer = (advancement) -> {
-            if (!set.add(advancement.getId())) {
-                throw new IllegalStateException("Duplicate advancement " + advancement.getId());
-            }
-            else {
-                Path path1 = getPath(path, advancement);
-
-                try {
-                    IDataProvider.save(GSON, cache, advancement.deconstruct().serializeToJson(), path1);
-                } catch (IOException ioexception) {
-                    Apocalypse.LOGGER.error("Couldn't save advancement {}", path1, ioexception);
-                }
-
-            }
-        };
-        for(Consumer<Consumer<Advancement>> consumer1 : this.advancements) {
-            consumer1.accept(consumer);
-        }
-    }
-
-    private static Path getPath(Path pathIn, Advancement advancementIn) {
-        return pathIn.resolve("data/" + Apocalypse.MODID + "/advancements/" + advancementIn.getId().getPath() + ".json");
+        Advancement toasty = Advancement.Builder.advancement()
+                .parent(root)
+                .display(ApocalypseItems.FATHERLY_TOAST.get(),
+                        new TranslationTextComponent("apocalypse.advancements.toasty.title"),
+                        new TranslationTextComponent("apocalypse.advancements.toasty.description"),
+                        null,
+                        FrameType.CHALLENGE, true, true, true)
+                .addCriterion("obtain_fatherly_toast", InventoryChangeTrigger.Instance.hasItems(ApocalypseItems.FATHERLY_TOAST.get()))
+                .save(consumer, Apocalypse.resourceLoc("toasty"), fileHelper);
     }
 }
