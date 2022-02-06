@@ -21,8 +21,8 @@ import net.minecraftforge.common.MinecraftForge;
 
 public class MobWikiScreen extends Screen {
 
-    private static final ResourceLocation ADDITIONAL_PAGE = Apocalypse.resourceLoc("textures/screen/mobwiki/text_page.png");
-    private static final ResourceLocation FIRST_PAGE = Apocalypse.resourceLoc("textures/screen/mobwiki/illustration_page.png");
+    private static final ResourceLocation ADDITIONAL_PAGE = Apocalypse.resourceLoc("textures/gui/mobwiki/text_page.png");
+    private static final ResourceLocation FIRST_PAGE = Apocalypse.resourceLoc("textures/gui/mobwiki/illustration_page.png");
 
     private MobEntry currentEntry = MobEntries.EMPTY;
     private int currentPage = 0;
