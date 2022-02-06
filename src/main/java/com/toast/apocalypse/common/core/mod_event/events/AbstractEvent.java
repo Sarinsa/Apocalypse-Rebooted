@@ -1,7 +1,6 @@
 package com.toast.apocalypse.common.core.mod_event.events;
 
 import com.toast.apocalypse.common.core.mod_event.EventType;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;

@@ -87,12 +87,12 @@ public final class MobEntry {
     }
 
     public enum MobType {
-        FULL_MOON(Apocalypse.resourceLoc("textures/mobwiki/mobtype/full_moon.png")),
-        THUNDERSTORM(Apocalypse.resourceLoc("textures/mobwiki/mobtype/thunderstorm.png")),
-        NORMAL(new ResourceLocation("textures/mobwiki/mobtype/normal.png"));
+        FULL_MOON("full_moon"),
+        THUNDERSTORM("thunderstorm"),
+        NORMAL("normal");
 
-        MobType(ResourceLocation textureLoc) {
-            this.textureLoc = textureLoc;
+        MobType(String textureName) {
+            this.textureLoc = Apocalypse.resourceLoc("textures/mobwiki/mobtype/" + textureName + ".png");
         }
 
         private final ResourceLocation textureLoc;

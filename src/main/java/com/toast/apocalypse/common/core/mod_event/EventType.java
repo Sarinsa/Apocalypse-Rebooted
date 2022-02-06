@@ -1,7 +1,6 @@
 package com.toast.apocalypse.common.core.mod_event;
 
 import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
-import net.minecraft.entity.player.ServerPlayerEntity;
 
 public class EventType<T extends AbstractEvent> {
 

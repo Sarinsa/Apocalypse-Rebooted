@@ -5,15 +5,10 @@ import com.toast.apocalypse.common.core.mod_event.events.EmptyEvent;
 import com.toast.apocalypse.common.core.mod_event.events.FullMoonEvent;
 import com.toast.apocalypse.common.core.mod_event.events.ThunderstormEvent;
 import com.toast.apocalypse.common.util.References;
-import mcp.client.Start;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.util.TriPredicate;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Objects;
-import java.util.function.Predicate;
 
 public class EventRegistry {
 

@@ -48,13 +48,13 @@ public class Apocalypse {
     /** The mod's ID **/
     public static final String MODID = "apocalypse";
 
-    /** Our mod's display name */
+    /** The mod's display name */
     public static final String MOD_NAME = "Apocalypse Rebooted";
 
     /** A logger instance using the modid as prefix/identifier **/
     public static final Logger LOGGER = LogManager.getLogger(MODID);
 
-    /** The instance of our mod class */
+    /** The instance of the mod class */
     public static Apocalypse INSTANCE;
 
     /** Difficulty manager instance */
