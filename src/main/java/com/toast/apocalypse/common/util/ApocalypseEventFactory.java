@@ -6,9 +6,11 @@ import net.minecraft.entity.MobEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
+import java.util.List;
+
 public class ApocalypseEventFactory {
 
-    public static boolean fireSeekerAlertEvent(World world, MobEntity seeker, MobEntity toAlert, LivingEntity target) {
-        return MinecraftForge.EVENT_BUS.post(new SeekerAlertEvent(world, seeker, toAlert, target));
+    public static void fireSeekerAlertEvent(World world, MobEntity seeker, List<MobEntity> toAlert, LivingEntity target) {
+        MinecraftForge.EVENT_BUS.post(new SeekerAlertEvent(world, seeker, toAlert, target));
     }
 }

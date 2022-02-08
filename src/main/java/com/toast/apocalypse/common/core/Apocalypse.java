@@ -1,7 +1,6 @@
 package com.toast.apocalypse.common.core;
 
 import com.toast.apocalypse.api.impl.ApocalypseAPI;
-import com.toast.apocalypse.api.impl.ConfigHelper;
 import com.toast.apocalypse.api.impl.RegistryHelper;
 import com.toast.apocalypse.api.plugin.ApocalypsePlugin;
 import com.toast.apocalypse.api.plugin.IApocalypseApi;
@@ -23,6 +22,7 @@ import com.toast.apocalypse.common.network.PacketHandler;
 import com.toast.apocalypse.common.register.*;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.util.MobWikiIndexes;
+import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -63,9 +63,6 @@ public class Apocalypse {
     /** Registry helper instance */
     private final RegistryHelper registryHelper = new RegistryHelper();
 
-    /** Config helper instance */
-    private final ConfigHelper configHelper = new ConfigHelper();
-
     /** Api class instance */
     private final ApocalypseAPI api = new ApocalypseAPI();
 
@@ -90,8 +87,7 @@ public class Apocalypse {
         eventBus.addListener(this::sendIMCMessages);
         eventBus.addListener(this::readIMCMessages);
 
-        eventBus.register(this.getConfigHelper());
-
+        MinecraftForge.EVENT_BUS.register(new RainDamageTickHelper());
         MinecraftForge.EVENT_BUS.register(new EntityEvents());
         MinecraftForge.EVENT_BUS.register(new PlayerEvents());
         MinecraftForge.EVENT_BUS.register(new CapabilityAttachEvents());
@@ -183,10 +179,6 @@ public class Apocalypse {
 
     public RegistryHelper getRegistryHelper() {
         return this.registryHelper;
-    }
-
-    public ConfigHelper getConfigHelper() {
-        return this.configHelper;
     }
 
     public ApocalypseAPI getApi() {

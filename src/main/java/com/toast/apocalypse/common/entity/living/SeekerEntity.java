@@ -1,12 +1,13 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.common.core.Apocalypse;
+import com.google.common.collect.ImmutableList;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.entity.living.goals.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
 import com.toast.apocalypse.common.util.ApocalypseEventFactory;
+import com.toast.apocalypse.common.util.MobHelper;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -16,7 +17,6 @@ import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
-import net.minecraft.entity.passive.PigEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -51,7 +51,7 @@ import java.util.function.BiPredicate;
 public class SeekerEntity extends AbstractFullMoonGhastEntity {
 
     private static final DataParameter<Boolean> ALERTING = EntityDataManager.defineId(SeekerEntity.class, DataSerializers.BOOLEAN);
-    private static final BiPredicate<LivingEntity, MobEntity> ALERT_PREDICATE = (livingEntity, seeker) -> !(livingEntity instanceof IFullMoonMob) && livingEntity instanceof IMob;
+    private static final BiPredicate<MobEntity, SeekerEntity> ALERT_PREDICATE = (mob, seeker) -> !(mob instanceof IFullMoonMob) && mob instanceof IMob;
 
     /** The seeker's current target. Updated when the seeker alerts nearby mobs. */
     private LivingEntity currentTarget;
@@ -325,7 +325,7 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
 
     public static class AlertOtherMonstersGoal extends Goal {
 
-        private static final int maxAlertCount = 18;
+        private static final int maxAlertCount = 25;
 
         private final SeekerEntity seeker;
         private int timeAlerting;
@@ -337,7 +337,10 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         @Override
         public boolean canUse() {
             if (this.seeker.getTarget() != null) {
-                return this.seeker.canAlert() && this.seeker.distanceToSqr(this.seeker.getTarget()) < 4096.0D && this.seeker.canSeeDirectly(this.seeker.getTarget()) && this.seeker.currentTarget != this.seeker.getTarget();
+                return this.seeker.canAlert()
+                        && this.seeker.distanceToSqr(this.seeker.getTarget()) < 4096.0D
+                        && this.seeker.canSeeDirectly(this.seeker.getTarget())
+                        && this.seeker.currentTarget != this.seeker.getTarget();
             }
             return false;
         }
@@ -355,36 +358,22 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
 
             if (target != null) {
                 AxisAlignedBB searchBox = target.getBoundingBox().inflate(60.0D, 30.0D, 60.0D);
-                List<LivingEntity> toAlert = this.seeker.level.getLoadedEntitiesOfClass(LivingEntity.class, searchBox, (entity) -> ALERT_PREDICATE.test(entity, this.seeker));
+                List<MobEntity> toAlert = MobHelper.getLoadedEntitiesCapped(MobEntity.class, this.seeker.level, searchBox, (entity) -> ALERT_PREDICATE.test(entity, this.seeker), maxAlertCount);
 
                 if (toAlert.isEmpty()) {
                     // No need to perform further checks if the list is empty
                     this.timeAlerting = 0;
                     return;
                 }
-                int alertCount = 0;
+                ApocalypseEventFactory.fireSeekerAlertEvent(this.seeker.level, this.seeker, toAlert, target);
 
-                for (LivingEntity livingEntity : toAlert) {
-                    // Stop alerting mobs when the max count is reached.
-                    // Having too many mobs with vastly increased follow range
-                    // might cause performance to suffer when pathfinding, I dunno.
-                    if (alertCount >= maxAlertCount) {
-                        break;
+                for (MobEntity mob : toAlert) {
+                    if (mob.getTarget() != target) {
+                        mob.setLastHurtByMob(null);
+                        mob.setTarget(target);
+                        ModifiableAttributeInstance attributeInstance = mob.getAttribute(Attributes.FOLLOW_RANGE);
+                        attributeInstance.setBaseValue(Math.max(attributeInstance.getValue(), 60.0D));
                     }
-
-                    if (livingEntity instanceof MobEntity) {
-                        MobEntity mobEntity = (MobEntity) livingEntity;
-
-                        if (!ApocalypseEventFactory.fireSeekerAlertEvent(this.seeker.level, this.seeker, mobEntity, target)) continue;
-
-                        if (mobEntity.getTarget() != this.seeker.getTarget()) {
-                            mobEntity.setLastHurtByMob(null);
-                            mobEntity.setTarget(this.seeker.getTarget());
-                            ModifiableAttributeInstance attributeInstance = mobEntity.getAttribute(Attributes.FOLLOW_RANGE);
-                            attributeInstance.setBaseValue(Math.max(attributeInstance.getValue(), 60.0D));
-                        }
-                    }
-                    ++alertCount;
                 }
                 this.seeker.currentTarget = this.seeker.getTarget();
                 this.seeker.setAlerting(true);

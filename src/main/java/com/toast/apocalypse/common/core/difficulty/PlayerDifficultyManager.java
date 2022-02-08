@@ -9,6 +9,7 @@ import com.toast.apocalypse.common.event.CommonConfigReloadListener;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.util.CapabilityHelper;
+import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -45,7 +46,8 @@ import java.util.UUID;
  */
 public final class PlayerDifficultyManager {
 
-    /** These are updated when the mod config is loaded/reloaded
+    /** These are updated when the mod config is loaded/reloaded<br>
+     * <br>
      *
      *  @see CommonConfigReloadListener#updateInfo()
      */
@@ -57,43 +59,38 @@ public final class PlayerDifficultyManager {
 
     /** Number of ticks per update. */
     public static final int TICKS_PER_UPDATE = 5;
-    /** Number of ticks per save. (Save every 8 seconds) */
+    /** Number of ticks per save. */
     public static final int TICKS_PER_SAVE = 160;
-    /** Number of ticks per advancement trigger check.  */
+    /** Number of ticks per advancement trigger check. */
     public static final int TICKS_PER_ADV_CHECK = 200;
 
     /** Time until next server tick update. */
-    private int timeUntilUpdate = 0;
+    private int timeUpdate = 0;
     /** Time until next save. */
-    private int timeUntilSave = 0;
+    private int timeSave = 0;
     /** Time until next advancement trigger check. */
-    private int timeUntilAdvCheck = 0;
+    private int timeAdvCheck = 0;
 
-    /** Server instance */
+    /** A Map containing each online player's current event. */
+    private final HashMap<UUID, AbstractEvent> playerEvents = new HashMap<>();
+
+    /** Manages rain damage. */
+    private final RainDamageTickHelper rainDamageHelper;
+
+    /** Server instance. */
     private MinecraftServer server;
 
     /** Whether the current server instance has been shut down. */
     private boolean serverStopped = false;
 
 
-    private final HashMap<UUID, AbstractEvent> playerEvents = new HashMap<>();
-
+    public PlayerDifficultyManager() {
+        this.rainDamageHelper = new RainDamageTickHelper();
+    }
 
 
     public static long queryDayTime(long dayTime) {
         return dayTime % References.DAY_LENGTH;
-    }
-
-    public boolean isFullMoon() {
-        ServerWorld world = this.server.overworld();
-        return world.dimensionType().moonPhase(world.getDayTime()) == 0;
-    }
-
-    public boolean isFullMoonNight() {
-        ServerWorld world = this.server.overworld();
-        long dayTime = queryDayTime(world.getDayTime());
-
-        return this.isFullMoon() && dayTime > 13000L && dayTime < 23500L;
     }
 
     /**
@@ -112,6 +109,18 @@ public final class PlayerDifficultyManager {
             return CapabilityHelper.getPlayerDifficulty(player);
         }
         return 0;
+    }
+
+    public boolean isFullMoon() {
+        ServerWorld world = this.server.overworld();
+        return world.dimensionType().moonPhase(world.getDayTime()) == 0;
+    }
+
+    public boolean isFullMoonNight() {
+        ServerWorld world = this.server.overworld();
+        long dayTime = queryDayTime(world.getDayTime());
+
+        return this.isFullMoon() && dayTime > 13000L && dayTime < 23500L;
     }
 
     /** Fetch the server instance and update integrated server mod server config. */
@@ -202,18 +211,6 @@ public final class PlayerDifficultyManager {
         }
     }
 
-    private <T extends ServerPlayerEntity> void applyTimeSkipPenalty(T player, long currentTime, long newTime, double multiplier, @Nullable SoundEvent soundEvent) {
-        long timeSkipped = newTime - currentTime;
-
-
-    }
-
-    private <T extends ServerWorld> void applyTimeSkipPenalty(T world, long currentTime, long newTime, double multiplier, @Nullable SoundEvent soundEvent) {
-        long timeSkipped = newTime - currentTime;
-
-
-    }
-
     /**
      * Called each game tick to update all players'
      * difficulty properties and Apocalypse events.
@@ -225,13 +222,15 @@ public final class PlayerDifficultyManager {
         if (event.phase == TickEvent.Phase.END) {
             MinecraftServer server = this.server;
 
-            // Counter to update the world
-            if (++this.timeUntilUpdate >= TICKS_PER_UPDATE) {
-                this.timeUntilUpdate = 0;
+            // Check and inflict rain damage on players
+            this.rainDamageHelper.checkAndPerformRainDamageTick(server.getAllLevels());
+
+            // Update player difficulty and event
+            if (++this.timeUpdate >= TICKS_PER_UPDATE) {
+                this.timeUpdate = 0;
 
                 final boolean isFullMoonNight = this.isFullMoonNight();
 
-                // Update player difficulty
                 for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
                     this.updatePlayerDifficulty(player);
                     this.updatePlayerEvent(player, isFullMoonNight);
@@ -239,8 +238,8 @@ public final class PlayerDifficultyManager {
             }
 
             // Save event data
-            if (++this.timeUntilSave >= TICKS_PER_SAVE) {
-                this.timeUntilSave = 0;
+            if (++this.timeSave >= TICKS_PER_SAVE) {
+                this.timeSave = 0;
 
                 for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
                     this.saveEventData(player);
@@ -252,8 +251,8 @@ public final class PlayerDifficultyManager {
 
             // Check if players have passed their grace
             // period and grant the base achievement if so.
-            if (++this.timeUntilAdvCheck >= TICKS_PER_ADV_CHECK) {
-                this.timeUntilAdvCheck = 0;
+            if (++this.timeAdvCheck >= TICKS_PER_ADV_CHECK) {
+                this.timeAdvCheck = 0;
 
                 for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
                     ApocalypseTriggers.PASSED_GRACE_PERIOD.trigger(player, CapabilityHelper.getPlayerDifficulty(player));
@@ -373,10 +372,11 @@ public final class PlayerDifficultyManager {
     /** Cleans up the references to things in a server when the server stops. */
     public void cleanup() {
         this.server = null;
-        this.timeUntilUpdate = 0;
-        this.timeUntilSave = 0;
-        this.timeUntilAdvCheck = 0;
+        this.timeUpdate = 0;
+        this.timeSave = 0;
+        this.timeAdvCheck = 0;
         this.playerEvents.clear();
+        this.rainDamageHelper.resetTimer();
     }
 
     /** Loads the given player's event data. */

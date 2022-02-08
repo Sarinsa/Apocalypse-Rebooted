@@ -17,10 +17,4 @@ public interface IApocalypseApi {
      *         parsed by Apocalypse.
      */
     IDifficultyProvider getDifficultyProvider();
-
-    /**
-     * @return The IConfigHelper instance
-     *         parsed by Apocalypse.
-     */
-    IConfigHelper getConfigHelper();
 }

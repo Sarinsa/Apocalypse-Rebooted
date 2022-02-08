@@ -19,20 +19,9 @@ import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.VersionChecker;
 
 public class PlayerEvents {
-
-    @SubscribeEvent
-    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        // No point doing further checks if rain damage is disabled
-        if (!ApocalypseCommonConfig.COMMON.rainDamageEnabled())
-            return;
-
-        // Tick rain damage
-        if (event.side == LogicalSide.SERVER && event.phase == TickEvent.Phase.END) {
-            RainDamageTickHelper.checkAndPerformRainDamageTick(event.player);
-        }
-    }
 
     /**
      * Prevent players from being able
@@ -62,7 +51,8 @@ public class PlayerEvents {
     }
 
     /**
-     * Make sure difficulty capability data persist on death or when leaving The End.
+     * Makes sure necessary capability data from Apocalypse persists on player cloning.<br>
+     * (death or leaving The End).
      */
     @SubscribeEvent
     public void onPlayerCloned(PlayerEvent.Clone event) {

@@ -8,10 +8,8 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
-import java.lang.reflect.Array;
 
 /**
  * Helper class for easily manipulating capability
@@ -19,25 +17,6 @@ import java.lang.reflect.Array;
  */
 @SuppressWarnings("all")
 public class CapabilityHelper {
-
-    //
-    // RAIN DAMAGE
-    //
-    public static void setRainTick(@Nonnull PlayerEntity playerEntity, int ticks) {
-        playerEntity.getCapability(ApocalypseCapabilities.RAIN_TICK_CAPABILITY).orElse(ApocalypseCapabilities.RAIN_TICK_CAPABILITY.getDefaultInstance()).setTicks(ticks);
-    }
-
-    public static void addRainTick(@Nonnull PlayerEntity playerEntity) {
-        playerEntity.getCapability(ApocalypseCapabilities.RAIN_TICK_CAPABILITY).orElse(ApocalypseCapabilities.RAIN_TICK_CAPABILITY.getDefaultInstance()).addTick();
-    }
-
-    public static void clearRainTicks(@Nonnull PlayerEntity playerEntity) {
-        playerEntity.getCapability(ApocalypseCapabilities.RAIN_TICK_CAPABILITY).orElse(ApocalypseCapabilities.RAIN_TICK_CAPABILITY.getDefaultInstance()).clearTicks();
-    }
-
-    public static int getRainTicks(@Nonnull PlayerEntity playerEntity) {
-        return playerEntity.getCapability(ApocalypseCapabilities.RAIN_TICK_CAPABILITY).orElse(ApocalypseCapabilities.RAIN_TICK_CAPABILITY.getDefaultInstance()).getRainTicks();
-    }
 
     //
     // DIFFICULTY

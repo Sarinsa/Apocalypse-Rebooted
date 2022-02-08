@@ -1,10 +1,8 @@
 package com.toast.apocalypse.common.capability.entity_marker;
 
-import com.toast.apocalypse.common.capability.rain_tick.IRainTickCapability;
 import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.nbt.ByteNBT;
 import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.IntNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 

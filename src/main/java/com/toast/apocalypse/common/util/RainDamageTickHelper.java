@@ -1,56 +1,78 @@
 package com.toast.apocalypse.common.util;
 
+import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.event.CommonConfigReloadListener;
 import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
 import com.toast.apocalypse.common.register.ApocalypseItems;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.TickEvent;
 
 public class RainDamageTickHelper {
 
     /**
-     * Variables for quick access.
+     * Variables for quick access.<br>
+     * <br>
      *
      * These are updated when the mod's
-     * common config loads/reloads.
+     * common config loads/reloads.<br
+     * <br>
      *
      * {@link CommonConfigReloadListener#updateInfo()}
      */
     public static int RAIN_TICK_RATE;
     public static float RAIN_DAMAGE;
 
+    private int timeRainDmgCheck;
+
+
+    public RainDamageTickHelper() {
+        this.resetTimer();
+    }
+
+    public void resetTimer() {
+        this.timeRainDmgCheck = 0;
+    }
+
     /**
      * Checks if it is time to apply rain tick damage,
-     * and applies the damage to the player if so.
+     * and applies the damage to the player if so.<br>
+     * <br>
      *
-     * @see com.toast.apocalypse.common.event.PlayerEvents#onPlayerTick(TickEvent.PlayerTickEvent)
+     * Called from {@link com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager#onServerTick(TickEvent.ServerTickEvent)}<br>
+     * <br>
      */
-    public static void checkAndPerformRainDamageTick(PlayerEntity player) {
-        World world = player.getCommandSenderWorld();
-
-        if (EnchantmentHelper.hasAquaAffinity(player) || !world.isRainingAt(player.blockPosition()))
+    public void checkAndPerformRainDamageTick(Iterable<ServerWorld> serverLevels) {
+        if (!ApocalypseCommonConfig.COMMON.rainDamageEnabled())
             return;
 
-        if (CapabilityHelper.getRainTicks(player) >= RAIN_TICK_RATE) {
-            CapabilityHelper.clearRainTicks(player);
-            ItemStack headStack = player.getItemBySlot(EquipmentSlotType.HEAD);
+        if (++this.timeRainDmgCheck >= RAIN_TICK_RATE) {
 
-            if (!headStack.isEmpty()) {
-                if (headStack.getItem() == ApocalypseItems.BUCKET_HELM.get() || headStack.getItem().getMaxDamage(headStack) <= 0) {
-                    return;
+            for (ServerWorld level : serverLevels) {
+
+                for (ServerPlayerEntity player : level.players()) {
+                    if (EnchantmentHelper.hasAquaAffinity(player) || !level.isRainingAt(player.blockPosition()))
+                        return;
+
+                    ItemStack headStack = player.getItemBySlot(EquipmentSlotType.HEAD);
+
+                    if (!headStack.isEmpty()) {
+                        if (headStack.getItem() == ApocalypseItems.BUCKET_HELM.get() || headStack.getItem().getMaxDamage(headStack) <= 0) {
+                            return;
+                        }
+                        headStack.hurtAndBreak(player.getRandom().nextInt(2), player, (playerEntity) -> player.broadcastBreakEvent(EquipmentSlotType.HEAD));
+                    }
+                    else {
+                        player.hurt(ApocalypseDamageSources.RAIN_DAMAGE, RAIN_DAMAGE);
+                    }
                 }
-                headStack.hurtAndBreak(player.getRandom().nextInt(2), player, (playerEntity) -> player.broadcastBreakEvent(EquipmentSlotType.HEAD));
             }
-            else {
-                player.hurt(ApocalypseDamageSources.RAIN_DAMAGE, RAIN_DAMAGE);
-            }
-        }
-        else {
-            CapabilityHelper.addRainTick(player);
+            this.resetTimer();
         }
     }
 }
