@@ -88,7 +88,6 @@ public final class PlayerDifficultyManager {
         this.rainDamageHelper = new RainDamageTickHelper();
     }
 
-
     public static long queryDayTime(long dayTime) {
         return dayTime % References.DAY_LENGTH;
     }
