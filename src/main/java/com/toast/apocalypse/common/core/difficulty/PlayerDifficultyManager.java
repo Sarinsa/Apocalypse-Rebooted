@@ -94,10 +94,12 @@ public final class PlayerDifficultyManager {
 
     /**
      * Used to find the difficulty of the nearest player when
-     * calculating mob attribute bonuses and equipment etc.
+     * calculating mob attribute bonuses and equipment etc.<br>
+     * <br>
      *
      * @param world The World :)
-     * @param livingEntity The entity to use as reference point.
+     * @param livingEntity The entity to use as reference point.<br>
+     * <br>
      * @return The unscaled, raw difficulty of the nearest player.
      *         Defaults to 0 if no player can be found.
      */
