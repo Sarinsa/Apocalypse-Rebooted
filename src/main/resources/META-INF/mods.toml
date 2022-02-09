@@ -3,7 +3,6 @@ loaderVersion="[36,)"
 license="MIT License"
 issueTrackerURL="https://github.com/Sarinsa/Apocalypse-Rebooted/issues"
 
-
 [[mods]]
     modId="apocalypse"
     version="${file.jarVersion}"
