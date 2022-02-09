@@ -20,8 +20,7 @@ public class PassedGracePeriodTrigger extends AbstractCriterionTrigger<PassedGra
     }
 
     public PassedGracePeriodTrigger.Instance createInstance(JsonObject jsonObject, EntityPredicate.AndPredicate predicate, ConditionArrayParser parser) {
-        long currentDifficulty = jsonObject.has("currentDifficulty") ? JSONUtils.getAsLong(jsonObject, "currentDifficulty") : 0L;
-        return new PassedGracePeriodTrigger.Instance(predicate, currentDifficulty);
+        return new PassedGracePeriodTrigger.Instance(predicate);
     }
 
     public void trigger(ServerPlayerEntity player, long currentDifficulty) {
@@ -30,15 +29,12 @@ public class PassedGracePeriodTrigger extends AbstractCriterionTrigger<PassedGra
 
     public static class Instance extends CriterionInstance {
 
-        private final long currentDifficulty;
-
-        public Instance(EntityPredicate.AndPredicate predicate, long currentDifficulty) {
+        public Instance(EntityPredicate.AndPredicate predicate) {
             super(PassedGracePeriodTrigger.ID, predicate);
-            this.currentDifficulty = currentDifficulty;
         }
 
         public static PassedGracePeriodTrigger.Instance gracePeriodPassed() {
-            return new PassedGracePeriodTrigger.Instance(EntityPredicate.AndPredicate.ANY, 0L);
+            return new PassedGracePeriodTrigger.Instance(EntityPredicate.AndPredicate.ANY);
         }
 
         public boolean matches(long currentDifficulty) {
@@ -46,11 +42,7 @@ public class PassedGracePeriodTrigger extends AbstractCriterionTrigger<PassedGra
         }
 
         public JsonObject serializeToJson(ConditionArraySerializer serializer) {
-            JsonObject jsonObject = super.serializeToJson(serializer);
-
-            jsonObject.addProperty("currentDifficulty", this.currentDifficulty);
-
-            return jsonObject;
+            return super.serializeToJson(serializer);
         }
     }
 }
