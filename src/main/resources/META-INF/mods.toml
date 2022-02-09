@@ -3,10 +3,12 @@ loaderVersion="[36,)"
 license="MIT License"
 issueTrackerURL="https://github.com/Sarinsa/Apocalypse-Rebooted/issues"
 
+
 [[mods]]
     modId="apocalypse"
     version="${file.jarVersion}"
     displayName="Apocalypse Rebooted"
+    updateJSONURL="https://raw.githubusercontent.com/Sarinsa/Apocalypse-Rebooted/master/version_check.json"
     logoFile="logo.png"
     credits="Sarinsa (Maintenance and porting), Frenderman (Artwork), Evo (Artwork), SoyTutta (Artwork)"
     authors="FatherToast (Original author and brainstormer)"
