@@ -1,3 +1,6 @@
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
+
 buildscript {
     repositories {
         maven { url = 'https://files.minecraftforge.net/maven' }
@@ -18,7 +21,7 @@ mixin {
     add sourceSets.main, "apocalypse.mixins.refmap.json"
 }
 
-version = "${mc_version}-${mod_version}"
+version = "${mc_version}-${mod_version}-${mod_state}"
 group = 'com.toast.apocalypse'
 archivesBaseName = 'Apocalypse-Rebooted'
 
@@ -146,6 +149,46 @@ task apiJar(type: Jar) {
 
     from sourceSets.main.output
     from sourceSets.main.allSource
+}
+
+task updateVersionCheck {
+    try {
+        File jsonFile = file('version_check.json')
+
+        if (!jsonFile.exists()) {
+            println("Version check json not present, strange! Generating new file...")
+            jsonFile.createNewFile()
+            println("The newly generated file is empty, cause I am lazy. Lets fill it out manually!")
+        }
+        else {
+            def parsedJson = new JsonSlurper().parse(jsonFile)
+            Map<String, String> versions = parsedJson.promos
+
+            String modVersion = "${mod_version}"
+            String modState = "${mod_state}"
+            String mcVersion = "${mc_version}"
+            boolean isRecommended = modState == "r"
+
+            String latest = mcVersion + "-latest"
+            String recommended = mcVersion + "-recommended"
+
+            // We only operate with one version per branch
+            for (String key : versions.keySet()) {
+                if (key != recommended && key != latest) {
+                    versions.remove(key)
+                }
+            }
+            versions.put(latest, modVersion + "-" + modState)
+
+            if (isRecommended) {
+                versions.put(recommended, modVersion + "-" + modState)
+            }
+            jsonFile.setText(JsonOutput.prettyPrint(JsonOutput.toJson(parsedJson)))
+        }
+    }
+    catch (Exception e) {
+        e.printStackTrace();
+    }
 }
 
 artifacts {
