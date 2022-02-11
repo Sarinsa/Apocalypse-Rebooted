@@ -57,6 +57,9 @@ public class ApocalypseCommonConfig {
             CAN_HAVE_WEAPONS.add(EntityType.VINDICATOR);
         }
 
+        // Version check
+        private final ForgeConfigSpec.BooleanValue sendUpdateMessage;
+
         // Rain
         private final ForgeConfigSpec.IntValue rainTickRate;
         private final ForgeConfigSpec.IntValue rainDamage;
@@ -130,6 +133,11 @@ public class ApocalypseCommonConfig {
 
 
         private Common(ForgeConfigSpec.Builder configBuilder) {
+            configBuilder.push("version_check");
+            this.sendUpdateMessage = configBuilder.comment("If enabled, the player will receive an in-game message when a new mod update is released.")
+                    .define("sendUpdateMessage", true);
+            configBuilder.pop();
+
             configBuilder.push("rain");
             this.rainTickRate = configBuilder.comment("Determines the interval in which rain damage should be dealt in seconds. A value of 2 will inflict rain damage on players every 2 seconds.")
                     .defineInRange("rainTickRate", 3, 1, 1000);
@@ -342,6 +350,13 @@ public class ApocalypseCommonConfig {
             configBuilder.pop();
         }
 
+
+        //
+        // VERSION CHECK
+        //
+        public boolean getSendUpdateMessage() {
+            return this.sendUpdateMessage.get();
+        }
 
         //
         // RAIN DAMAGE

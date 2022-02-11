@@ -32,6 +32,9 @@ public class PlayerEvents {
      */
     @SubscribeEvent
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!ApocalypseCommonConfig.COMMON.getSendUpdateMessage())
+            return;
+
         String updateMessage = VersionCheckHelper.getUpdateMessage();
 
         if (updateMessage != null) {
