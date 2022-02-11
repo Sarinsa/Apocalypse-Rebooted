@@ -23,12 +23,14 @@ import com.toast.apocalypse.common.register.*;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.util.MobWikiIndexes;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
+import com.toast.apocalypse.common.util.VersionCheckHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.VersionChecker;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -118,36 +120,41 @@ public class Apocalypse {
 
     public void onLoadComplete(FMLLoadCompleteEvent event) {
         event.enqueueWork(() -> {
-            // Load mod plugins
-            ModList.get().getAllScanData().forEach(scanData -> {
-                scanData.getAnnotations().forEach(annotationData -> {
+            this.processPlugins();
+            VersionCheckHelper.setUpdateMessage();
+        });
+    }
 
-                    // Look for classes annotated with @ApocalypsePlugin
-                    if (annotationData.getAnnotationType().getClassName().equals(ApocalypsePlugin.class.getName())) {
-                        String modid = (String) annotationData.getAnnotationData().getOrDefault("modid", "");
+    private void processPlugins() {
+        // Load mod plugins
+        ModList.get().getAllScanData().forEach(scanData -> {
+            scanData.getAnnotations().forEach(annotationData -> {
 
-                        if (ModList.get().isLoaded(modid) || modid.isEmpty()) {
-                            try {
-                                Class<?> pluginClass = Class.forName(annotationData.getMemberName());
+                // Look for classes annotated with @ApocalypsePlugin
+                if (annotationData.getAnnotationType().getClassName().equals(ApocalypsePlugin.class.getName())) {
+                    String modid = (String) annotationData.getAnnotationData().getOrDefault("modid", "");
 
-                                if (IApocalypsePlugin.class.isAssignableFrom(pluginClass)) {
-                                    IApocalypsePlugin plugin = (IApocalypsePlugin) pluginClass.newInstance();
-                                    this.registryHelper.setCurrentPluginId(plugin.getPluginId());
-                                    plugin.load(this.getApi());
-                                    LOGGER.info("Found Apocalypse plugin at {} with plugin ID: {}", annotationData.getMemberName(), plugin.getPluginId());
-                                }
-                            }
-                            catch (Exception e) {
-                                LOGGER.error("Failed to load Apocalypse plugin at {}! Damn dag nabit damnit!", annotationData.getMemberName());
-                                e.printStackTrace();
+                    if (ModList.get().isLoaded(modid) || modid.isEmpty()) {
+                        try {
+                            Class<?> pluginClass = Class.forName(annotationData.getMemberName());
+
+                            if (IApocalypsePlugin.class.isAssignableFrom(pluginClass)) {
+                                IApocalypsePlugin plugin = (IApocalypsePlugin) pluginClass.newInstance();
+                                this.registryHelper.setCurrentPluginId(plugin.getPluginId());
+                                plugin.load(this.getApi());
+                                LOGGER.info("Found Apocalypse plugin at {} with plugin ID: {}", annotationData.getMemberName(), plugin.getPluginId());
                             }
                         }
+                        catch (Exception e) {
+                            LOGGER.error("Failed to load Apocalypse plugin at {}! Damn dag nabit damnit!", annotationData.getMemberName());
+                            e.printStackTrace();
+                        }
                     }
-                });
+                }
             });
-            // Post setup
-            this.registryHelper.postSetup();
         });
+        // Post setup
+        this.registryHelper.postSetup();
     }
 
     public void sendIMCMessages(InterModEnqueueEvent event) {

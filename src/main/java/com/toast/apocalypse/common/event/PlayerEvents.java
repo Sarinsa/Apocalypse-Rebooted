@@ -7,9 +7,12 @@ import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import com.toast.apocalypse.common.util.References;
+import com.toast.apocalypse.common.util.VersionCheckHelper;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Util;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.event.TickEvent;
@@ -22,6 +25,19 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.VersionChecker;
 
 public class PlayerEvents {
+
+    /**
+     * Notify the player of an available
+     * mod update on login, if there is one.
+     */
+    @SubscribeEvent
+    public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
+        String updateMessage = VersionCheckHelper.getUpdateMessage();
+
+        if (updateMessage != null) {
+            event.getPlayer().sendMessage(new StringTextComponent(updateMessage), Util.NIL_UUID);
+        }
+    }
 
     /**
      * Prevent players from being able
