@@ -71,7 +71,7 @@ public class EntityEvents {
             return;
 
         MobAttributeHandler.handleAttributes(livingEntity, difficulty, fullMoon);
-        MobPotionHandler.handlePotions(livingEntity, difficulty, fullMoon);
+        MobPotionHandler.handlePotions(livingEntity, difficulty, fullMoon, random);
         MobEquipmentHandler.handleMobEquipment(livingEntity, difficulty, fullMoon, random);
 
         // Arright, the deed is done! Now lets just mark

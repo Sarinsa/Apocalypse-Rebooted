@@ -87,19 +87,12 @@ public final class MobEquipmentHandler {
         return ItemStack.EMPTY;
     }
 
-    public static void loadEquipment() {
-        refreshEquipmentList(ApocalypseCommonConfig.COMMON.getWeaponList(), WEAPON_LISTS);
-
-        WEAPON_TIERS.clear();
-        WEAPON_TIERS.addAll(WEAPON_LISTS.keySet());
-    }
-
-
     /** Fetches an equipment config section and parses it into actual lists with items. */
-    private static void refreshEquipmentList(CommentedConfig weaponListConfig, Map<Integer, List<Item>> map) {
-        map.clear();
+    public static void refreshEquipmentList() {
+        WEAPON_LISTS.clear();
+        CommentedConfig config = ApocalypseCommonConfig.COMMON.getWeaponList();
 
-        for (CommentedConfig.Entry entry : weaponListConfig.entrySet()) {
+        for (CommentedConfig.Entry entry : config.entrySet()) {
             String key = entry.getKey();
 
             if (StringUtils.isNumeric(key)) {
@@ -135,7 +128,7 @@ public final class MobEquipmentHandler {
                             }
                         }
                     }
-                    map.put(difficulty, weapons);
+                    WEAPON_LISTS.put(difficulty, weapons);
                 }
                 else {
                     Apocalypse.LOGGER.error("Weapon tier list for difficulty {} is malformed and will not be loaded.", key);
@@ -145,5 +138,7 @@ public final class MobEquipmentHandler {
                 Apocalypse.LOGGER.error("Weapon lists config entry {} is invalid; should be a number representing a difficulty level.", key);
             }
         }
+        WEAPON_TIERS.clear();
+        WEAPON_TIERS.addAll(WEAPON_LISTS.keySet());
     }
 }

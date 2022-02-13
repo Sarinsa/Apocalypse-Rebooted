@@ -1,10 +1,7 @@
 package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.difficulty.MobAttributeHandler;
-import com.toast.apocalypse.common.core.difficulty.MobEquipmentHandler;
-import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
-import com.toast.apocalypse.common.core.difficulty.PlayerGroup;
+import com.toast.apocalypse.common.core.difficulty.*;
 import com.toast.apocalypse.common.core.mod_event.events.FullMoonEvent;
 import com.toast.apocalypse.common.entity.living.*;
 import com.toast.apocalypse.common.misc.DestroyerExplosionContext;
@@ -98,7 +95,8 @@ public class CommonConfigReloadListener {
         MobAttributeHandler.KNOCKBACK_RES_FLAT_BONUS_MAX = COMMON.getKnockbackResFlatBonusMax();
         MobAttributeHandler.KNOCKBACK_RES_LUNAR_FLAT_BONUS = COMMON.getKnockbackResLunarFlatBonus();
 
-        MobEquipmentHandler.loadEquipment();
+        MobEquipmentHandler.refreshEquipmentList();
+        MobPotionHandler.refreshPotionMap();
 
         MobEquipmentHandler.WEAPONS_TIME = COMMON.getWeaponsTimeSpan();
         MobEquipmentHandler.WEAPONS_CHANCE = COMMON.getWeaponsChance();

@@ -2,14 +2,23 @@ package com.toast.apocalypse.common.core.config;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.toml.TomlFormat;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.util.ConfigList;
+import com.toast.apocalypse.common.core.difficulty.MobPotionHandler;
 import com.toast.apocalypse.common.entity.living.*;
+import com.toast.apocalypse.common.register.ApocalypseEntities;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
+import net.minecraft.potion.Effect;
+import net.minecraft.potion.Effects;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.Dimension;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
@@ -121,6 +130,9 @@ public class ApocalypseCommonConfig {
         private final ForgeConfigSpec.DoubleValue weaponsLunarChance;
         private final ForgeConfigSpec.DoubleValue weaponsMaxChance;
         private final ForgeConfigSpec.BooleanValue useCurrentWeaponTierOnly;
+
+        // Potion effect
+        private final ForgeConfigSpec.ConfigValue<CommentedConfig> potionEffectMap;
 
         // Misc
         private final ForgeConfigSpec.ConfigValue<List<? extends String>> destroyerProofBlocks;
@@ -329,6 +341,11 @@ public class ApocalypseCommonConfig {
                     .define("useCurrentWeaponTierOnly", false);
             configBuilder.pop();
 
+            configBuilder.push("potion_effects");
+            this.potionEffectMap = configBuilder.comment("A list of potion effects that mobs can spawn with. Each potion effect in the list has a difficulty unlock and an optional list of mobs that should not be given the effect.")
+                    .define("potionEffectList", this.createDefaultPotionList());
+            configBuilder.pop();
+
             configBuilder.push("misc");
             this.destroyerProofBlocks = configBuilder.comment("A list of blocks that the destroyer cannot explode. Generally speaking this list should be empty since destroyers are supposed to destroy any block, but if an exception is absolutely needed, the block in question can be whitelisted here.")
                     .define("destroyerProofBlocks", DESTROYER_PROOF_BLOCKS);
@@ -346,7 +363,6 @@ public class ApocalypseCommonConfig {
             configBuilder.push("compat");
             this.requireExtendedProbe = configBuilder.comment("(Option for TheOneProbe) If enabled, difficulty can only be seen when the probe is in extended mode.")
                             .define("requireExtendedProbe", true);
-
             configBuilder.pop();
         }
 
@@ -575,6 +591,14 @@ public class ApocalypseCommonConfig {
         //
 
 
+        //
+        // POTION EFFECT
+        //
+        public CommentedConfig getPotionMap() {
+            return this.potionEffectMap.get();
+        }
+
+
 
         //
         // MISC
@@ -677,6 +701,38 @@ public class ApocalypseCommonConfig {
             weaponLists.add(String.valueOf(150), sixthTier);
 
             return weaponLists;
+        }
+
+        private CommentedConfig createDefaultPotionList() {
+            CommentedConfig potionList = TomlFormat.newConfig();
+
+            potionEntry(potionList, Effects.FIRE_RESISTANCE, 5, EntityType.MAGMA_CUBE, EntityType.ZOMBIFIED_PIGLIN, EntityType.BLAZE, EntityType.GHAST, EntityType.STRIDER);
+            potionEntry(potionList, Effects.DAMAGE_BOOST.getRegistryName(), 60, ApocalypseEntities.GHOST.getId());
+            potionEntry(potionList, Effects.REGENERATION, 30, EntityType.WITHER, EntityType.ENDER_DRAGON);
+            potionEntry(potionList, Effects.DAMAGE_RESISTANCE.getRegistryName(), 100, ApocalypseEntities.GHOST.getId());
+
+            return potionList;
+        }
+
+        @SafeVarargs
+        private static void potionEntry(CommentedConfig config, Effect effect, int roundedDifficulty, EntityType<? extends LivingEntity>... entityTypes) {
+            List<String> blacklistedMobs = new ArrayList<>();
+
+            for (EntityType<? extends LivingEntity> entityType : entityTypes) {
+                blacklistedMobs.add(entityType.getRegistryName().toString());
+            }
+            // Separate effect ID and unlock-difficulty with a space.
+            config.add(effect.getRegistryName().toString() + " " + roundedDifficulty, blacklistedMobs);
+        }
+
+        private static void potionEntry(CommentedConfig config, ResourceLocation effectId, int roundedDifficulty, ResourceLocation... entityIds) {
+            List<String> blacklistedMobs = new ArrayList<>();
+
+            for (ResourceLocation entityId : entityIds) {
+                blacklistedMobs.add(entityId.toString());
+            }
+            // Separate effect ID and unlock-difficulty with a space.
+            config.add(effectId.toString() + " " + roundedDifficulty, blacklistedMobs);
         }
     }
 }
