@@ -29,4 +29,4 @@ issueTrackerURL="https://github.com/Sarinsa/Apocalypse-Rebooted/issues"
 
 [modproperties.apocalypse]
     catalogueImageIcon="logo.png"
-    configuredBackground="apocalypse:textures/gui/advancements/backgrounds/night_sky.png"
+    configuredBackground="apocalypse:textures/gui/advancements/backgrounds/night_sky_bright.png"

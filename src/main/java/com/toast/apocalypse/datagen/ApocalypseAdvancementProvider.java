@@ -28,7 +28,7 @@ public class ApocalypseAdvancementProvider extends AdvancementProvider {
                 .display(ApocalypseItems.SOUL_FRAGMENT.get(),
                         new TranslationTextComponent("apocalypse.advancements.root.title"),
                         new TranslationTextComponent("apocalypse.advancements.root.description"),
-                        Apocalypse.resourceLoc("textures/gui/advancements/backgrounds/sky_night.png"),
+                        Apocalypse.resourceLoc("textures/gui/advancements/backgrounds/night_sky.png"),
                         FrameType.TASK, true, true, false)
                 .addCriterion("pass_grace_period", PassedGracePeriodTrigger.Instance.gracePeriodPassed())
                 .save(consumer, Apocalypse.resourceLoc("root"), fileHelper);

@@ -27,11 +27,11 @@ public class VersionCheckHelper {
             VersionChecker.Status status = result.status;
 
             if (status == VersionChecker.Status.PENDING) {
-                Apocalypse.LOGGER.info("Tried to fetch newest update info, but received check status PENDING. No new update available.");
+                Apocalypse.LOGGER.info("Tried to fetch newest update info, but received check status PENDING.");
                 return;
             }
 
-            if (status == VersionChecker.Status.OUTDATED || status == VersionChecker.Status.BETA_OUTDATED) {
+            if (status == VersionChecker.Status.OUTDATED) {
                 @Nullable
                 ComparableVersion targetVersion = result.target;
 

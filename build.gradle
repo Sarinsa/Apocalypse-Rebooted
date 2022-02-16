@@ -169,22 +169,16 @@ task updateVersionCheck {
             String modVersion = "${mod_version}"
             String modState = "${mod_state}"
             String mcVersion = "${mc_version}"
-            boolean isRecommended = modState == "r"
 
-            String latest = mcVersion + "-latest"
-            String recommended = mcVersion + "-recommended"
+            String latest = mcVersion + "-recommended"
 
             // We only operate with one version per branch
             for (String key : versions.keySet()) {
-                if (key != recommended && key != latest) {
+                if (key != latest) {
                     versions.remove(key)
                 }
             }
             versions.put(latest, modVersion + "-" + modState)
-
-            if (isRecommended) {
-                versions.put(recommended, modVersion + "-" + modState)
-            }
             jsonFile.setText(JsonOutput.prettyPrint(JsonOutput.toJson(parsedJson)))
         }
     }
