@@ -26,3 +26,7 @@ issueTrackerURL="https://github.com/Sarinsa/Apocalypse-Rebooted/issues"
     versionRange="[1.16.5,1.17)"
     ordering="NONE"
     side="BOTH"
+
+[modproperties.apocalypse]
+    catalogueImageIcon="logo.png"
+    configuredBackground="apocalypse:textures/gui/advancements/backgrounds/night_sky.png"
