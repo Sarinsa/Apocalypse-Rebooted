@@ -42,7 +42,7 @@ public final class MobEquipmentHandler {
             if (fullMoon) {
                 bonus += WEAPONS_LUNAR_CHANCE;
             }
-            if (entity.getRandom().nextDouble() <= bonus) {
+            if (random.nextDouble() <= bonus) {
                 ItemStack weapon = getRandomWeapon(difficulty, random);
                 entity.setItemSlot(EquipmentSlotType.MAINHAND, weapon);
             }

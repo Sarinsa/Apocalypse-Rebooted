@@ -95,14 +95,18 @@ public class CommonConfigReloadListener {
         MobAttributeHandler.KNOCKBACK_RES_FLAT_BONUS_MAX = COMMON.getKnockbackResFlatBonusMax();
         MobAttributeHandler.KNOCKBACK_RES_LUNAR_FLAT_BONUS = COMMON.getKnockbackResLunarFlatBonus();
 
-        MobEquipmentHandler.refreshEquipmentList();
-        MobPotionHandler.refreshPotionMap();
-
         MobEquipmentHandler.WEAPONS_TIME = COMMON.getWeaponsTimeSpan();
         MobEquipmentHandler.WEAPONS_CHANCE = COMMON.getWeaponsChance();
         MobEquipmentHandler.WEAPONS_LUNAR_CHANCE = COMMON.getWeaponsLunarChance();
         MobEquipmentHandler.WEAPONS_CHANCE_MAX = COMMON.getWeaponsMaxChance();
         MobEquipmentHandler.CURRENT_WEAPON_TIER_ONLY = COMMON.getUseCurrentWeaponTierOnly();
+        MobEquipmentHandler.refreshEquipmentList();
+
+        MobPotionHandler.POTION_TIME = COMMON.getPotionEffectTimeSpan();
+        MobPotionHandler.POTION_CHANCE = COMMON.getPotionEffectChance();
+        MobPotionHandler.POTION_LUNAR_CHANCE = COMMON.getPotionEffectLunarChance();
+        MobPotionHandler.POTION_CHANCE_MAX = COMMON.getPotionEffectMaxChance();
+        MobPotionHandler.refreshPotionMap();
 
         FullMoonEvent.MOB_COUNT_TIME_SPAN = COMMON.getDifficultyUntilNextIncrease();
 

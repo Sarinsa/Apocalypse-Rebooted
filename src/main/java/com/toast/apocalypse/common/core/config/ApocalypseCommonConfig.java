@@ -2,6 +2,7 @@ package com.toast.apocalypse.common.core.config;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.toml.TomlFormat;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.toast.apocalypse.common.core.Apocalypse;
@@ -9,6 +10,7 @@ import com.toast.apocalypse.common.core.config.util.ConfigList;
 import com.toast.apocalypse.common.core.difficulty.MobPotionHandler;
 import com.toast.apocalypse.common.entity.living.*;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
+import com.toast.apocalypse.common.util.RLHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -23,10 +25,8 @@ import net.minecraft.world.Dimension;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * Apocalypse's common config, synced between client and server.
@@ -45,26 +45,22 @@ public class ApocalypseCommonConfig {
     public static final class Common {
 
         // Cool lists
-        private static final List<String> PENALTY_DIMENSIONS = new ArrayList<>();
-        private static final ConfigList<Block> DESTROYER_PROOF_BLOCKS = new ConfigList<>();
-        private static final ConfigList<EntityType<?>> CAN_HAVE_WEAPONS = new ConfigList<>();
-
-        static {
-            PENALTY_DIMENSIONS.add(Dimension.NETHER.location().toString());
-            PENALTY_DIMENSIONS.add(Dimension.END.location().toString());
-
-            DESTROYER_PROOF_BLOCKS.add(Blocks.BARRIER);
-            DESTROYER_PROOF_BLOCKS.add(Blocks.BEDROCK);
-
-            CAN_HAVE_WEAPONS.add(EntityType.ZOMBIE);
-            CAN_HAVE_WEAPONS.add(EntityType.DROWNED);
-            CAN_HAVE_WEAPONS.add(EntityType.HUSK);
-            CAN_HAVE_WEAPONS.add(EntityType.WITHER_SKELETON);
-            CAN_HAVE_WEAPONS.add(EntityType.PIGLIN);
-            CAN_HAVE_WEAPONS.add(EntityType.ZOMBIFIED_PIGLIN);
-            CAN_HAVE_WEAPONS.add(EntityType.PIGLIN_BRUTE);
-            CAN_HAVE_WEAPONS.add(EntityType.VINDICATOR);
-        }
+        private static final List<? extends String> PENALTY_DIMENSIONS = Arrays.asList(
+                Dimension.NETHER.location().toString(),
+                Dimension.END.location().toString());
+        private static final List<? extends String> DESTROYER_PROOF_BLOCKS = Arrays.asList(
+                Blocks.BARRIER.getRegistryName().toString(),
+                Blocks.BEDROCK.getRegistryName().toString());
+        private static final List<? extends String> CAN_HAVE_WEAPONS = Arrays.asList(
+                EntityType.ZOMBIE.getRegistryName().toString(),
+                EntityType.DROWNED.getRegistryName().toString(),
+                EntityType.HUSK.getRegistryName().toString(),
+                EntityType.WITHER_SKELETON.getRegistryName().toString(),
+                EntityType.PIGLIN.getRegistryName().toString(),
+                EntityType.ZOMBIFIED_PIGLIN.getRegistryName().toString(),
+                EntityType.PIGLIN_BRUTE.getRegistryName().toString(),
+                EntityType.VINDICATOR.getRegistryName().toString()
+        );
 
         // Version check
         private final ForgeConfigSpec.BooleanValue sendUpdateMessage;
@@ -133,6 +129,10 @@ public class ApocalypseCommonConfig {
 
         // Potion effect
         private final ForgeConfigSpec.ConfigValue<CommentedConfig> potionEffectMap;
+        private final ForgeConfigSpec.DoubleValue potionEffectTimeSpan;
+        private final ForgeConfigSpec.DoubleValue potionEffectChance;
+        private final ForgeConfigSpec.DoubleValue potionEffectLunarChance;
+        private final ForgeConfigSpec.DoubleValue potionEffectMaxChance;
 
         // Misc
         private final ForgeConfigSpec.ConfigValue<List<? extends String>> destroyerProofBlocks;
@@ -172,7 +172,7 @@ public class ApocalypseCommonConfig {
                     .defineInRange("sleepPenalty", 2.0D, 1.0D, 1000.0D);
 
             this.dimensionsPenaltyList = configBuilder.comment("A list of dimensions that should give difficulty penalty. Difficulty increases more in these dimensions.")
-                    .define("dimensionPenaltyList", PENALTY_DIMENSIONS);
+                    .defineListAllowEmpty(split("dimensionPenaltyList"), () -> PENALTY_DIMENSIONS, isResourceLocation());
 
             this.dimensionPenalty = configBuilder.comment("The difficulty rate multiplier used when a player enters a dimension with difficulty penalty.")
                     .defineInRange("dimensionPenalty", 0.5D, 0.0D, 1000.0D);
@@ -233,7 +233,7 @@ public class ApocalypseCommonConfig {
 
             configBuilder.push("health");
             this.healthBlacklist = configBuilder.comment("A list of entity types that do not gain any health bonuses. Empty by default. Example: [\"minecraft:creeper\", \"abundance:screecher\"]")
-                    .define("healthBlacklist", new ArrayList<>());
+                    .defineListAllowEmpty(split("healthBlacklist"), ArrayList::new, isResourceLocation());
 
             this.healthLunarFlatBonus = configBuilder.comment("The flat bonus gained from a full moon. Default is 10.0 (+10 hearts on full moons).")
                     .defineInRange("healthLunarFlatBonus", 10.0D, 0.0D, 10000.0D);
@@ -259,7 +259,7 @@ public class ApocalypseCommonConfig {
 
             configBuilder.push("damage");
             this.damageBlacklist = configBuilder.comment("A list of entity types that do not gain any damage bonuses. Empty by default. Example: [\"minecraft:creeper\", \"abundance:screecher\"]")
-                    .define("damageBlacklist", new ArrayList<>());
+                    .defineListAllowEmpty(split("damageBlacklist"), ArrayList::new, isResourceLocation());
 
             this.damageLunarFlatBonus = configBuilder.comment("The flat bonus gained from a full moon. Default is 1.0 (+1 damage on full moons).")
                     .defineInRange("damageLunarFlatBonus", 1.0D, 0.0D, 10000.0D);
@@ -285,7 +285,7 @@ public class ApocalypseCommonConfig {
 
             configBuilder.push("movement_speed");
             this.speedBlacklist = configBuilder.comment("A list of entity types that do not gain any speed bonuses. Empty by default. Example: [\"minecraft:creeper\", \"abundance:screecher\"]")
-                    .define("speedBlacklist", new ArrayList<>());
+                    .defineListAllowEmpty(split("speedBlacklist"), ArrayList::new, isResourceLocation());
 
             this.speedLunarMultBonus = configBuilder.comment("The multiplier bonus gained from a full moon in percentage. Default is 0.1 (+10% during full moons)")
                     .defineInRange("speedLunarMultBonus", 0.1D, 0.0D, 1000.0D);
@@ -302,7 +302,7 @@ public class ApocalypseCommonConfig {
 
             configBuilder.push("knockback_resistance");
             this.knockbackResBlacklist = configBuilder.comment("A list of entity types that do not gain any knockback resistance bonuses. Empty by default. Example: [\"minecraft:creeper\", \"abundance:screecher\"]")
-                    .define("knockbackResBlacklist", new ArrayList<>());
+                    .defineListAllowEmpty(split("KnockbackResistanceBlacklist"), ArrayList::new, isResourceLocation());
 
             this.knockbackResLunarFlatBonus = configBuilder.comment("The flat bonus gained from a full moon in percentage. Default is 0.2 (+20% on full moons)")
                     .defineInRange("knockbackResLunarFlatBonus", 0.2D, 0.0D, 10000.0D);
@@ -323,7 +323,7 @@ public class ApocalypseCommonConfig {
                     .define("weaponLists", this.createDefaultWeaponLists());
 
             this.canHaveWeapons = configBuilder.comment("A list of entity types that can be given weapons.")
-                    .define("canHaveWeapons", CAN_HAVE_WEAPONS);
+                    .defineListAllowEmpty(split("canHaveWeapons"), () -> CAN_HAVE_WEAPONS, isResourceLocation());
 
             this.weaponsTimeSpan = configBuilder.comment("The difficulty value for each application of weapon related values.")
                     .defineInRange("weaponsTimeSpan", 30.0D, 0.0D, 10000.0D);
@@ -344,11 +344,23 @@ public class ApocalypseCommonConfig {
             configBuilder.push("potion_effects");
             this.potionEffectMap = configBuilder.comment("A list of potion effects that mobs can spawn with. Each potion effect in the list has a difficulty unlock and an optional list of mobs that should not be given the effect.")
                     .define("potionEffectList", this.createDefaultPotionList());
+
+            this.potionEffectTimeSpan = configBuilder.comment("The difficulty value for each application of weapon related values.")
+                    .defineInRange("potionEffectTimeSpan", 30.0D, 0.0D, 10000.0D);
+
+            this.potionEffectChance = configBuilder.comment("The chance that a mob will be given a potion effect when it spawns. This value increases in accordance to potionEffectTimeSpan.")
+                    .defineInRange("potionEffectChance", 0.05D, 0.0D, 1.0D);
+
+            this.potionEffectLunarChance = configBuilder.comment("The additional chance gained from a full moon. Default is 0.2 (+20% chance on full moon).")
+                    .defineInRange("potionEffectLunarChance", 0.2D, 0.0D, 1.0D);
+
+            this.potionEffectMaxChance = configBuilder.comment("The maximum potion effect chance that can be given over time. Default is 0.95 (95% chance).")
+                    .defineInRange("potionEffectMaxChance", 0.95D, 0.0D, 1.0D);
             configBuilder.pop();
 
             configBuilder.push("misc");
             this.destroyerProofBlocks = configBuilder.comment("A list of blocks that the destroyer cannot explode. Generally speaking this list should be empty since destroyers are supposed to destroy any block, but if an exception is absolutely needed, the block in question can be whitelisted here.")
-                    .define("destroyerProofBlocks", DESTROYER_PROOF_BLOCKS);
+                    .defineListAllowEmpty(split("destroyerProofBlocks"), () -> DESTROYER_PROOF_BLOCKS, isResourceLocation());
 
             this.grumpBucketHelmetChance = configBuilder.comment("This is the chance in percentage for grumps to spawn with a bucket helmet equipped. Grumps with bucket helmets are heavily armored against arrows.")
                     .defineInRange("grumpBucketHelmetChance", 5, 0, 100);
@@ -443,7 +455,7 @@ public class ApocalypseCommonConfig {
 
 
         //
-        // ATTRIBUTES AND POTIONS
+        // ATTRIBUTES
         //
         public boolean getMobsOnly() {
             return this.mobsOnly.get();
@@ -598,6 +610,21 @@ public class ApocalypseCommonConfig {
             return this.potionEffectMap.get();
         }
 
+        public double getPotionEffectTimeSpan() {
+            return this.potionEffectTimeSpan.get();
+        }
+
+        public double getPotionEffectChance() {
+            return this.potionEffectChance.get();
+        }
+
+        public double getPotionEffectLunarChance() {
+            return this.potionEffectLunarChance.get();
+        }
+
+        public double getPotionEffectMaxChance() {
+            return this.potionEffectMaxChance.get();
+        }
 
 
         //
@@ -626,6 +653,8 @@ public class ApocalypseCommonConfig {
         public boolean requireExtendedProbe() {
             return this.requireExtendedProbe.get();
         }
+
+
 
 
         // Helper stuff
@@ -733,6 +762,16 @@ public class ApocalypseCommonConfig {
             }
             // Separate effect ID and unlock-difficulty with a space.
             config.add(effectId.toString() + " " + roundedDifficulty, blacklistedMobs);
+        }
+
+        private static Predicate<Object> isResourceLocation() {
+            return (obj) -> obj instanceof String && RLHelper.isValidResourceLocation((String) obj);
+        }
+
+        // Borrowed from ForgeConfigSpec
+        private static final Splitter DOT_SPLITTER = Splitter.on(".");
+        private static List<String> split(String path) {
+            return Lists.newArrayList(DOT_SPLITTER.split(path));
         }
     }
 }

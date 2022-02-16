@@ -7,6 +7,8 @@ import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.ResourceLocation;
@@ -17,22 +19,42 @@ import java.util.*;
 
 public final class MobPotionHandler {
 
+    /**
+     * Updated on config load/reload
+     */
     public static Map<Integer, Pair<Effect, List<EntityType<?>>>> POTIONS = new HashMap<>();
-
+    public static double POTION_TIME;
+    public static double POTION_CHANCE;
+    public static double POTION_LUNAR_CHANCE;
+    public static double POTION_CHANCE_MAX;
 
     public static void handlePotions(LivingEntity livingEntity, long difficulty, boolean fullMoon, Random random) {
         final List<Effect> availableEffects = new ArrayList<>();
         int scaledDifficulty = (int) (difficulty / References.DAY_LENGTH);
 
-        // TODO - Temporary; lets avoid doing a loop like this
-        POTIONS.forEach((difficultyUnlock, pair) -> {
-            if (difficultyUnlock <= scaledDifficulty) {
-                if (!pair.getSecond().contains(livingEntity.getType())) {
-                    availableEffects.add(pair.getFirst());
+        double effectiveDifficulty = (double) (difficulty / References.DAY_LENGTH) / POTION_TIME;
+        double bonus = POTION_CHANCE * effectiveDifficulty;
+
+        if (POTION_CHANCE_MAX >= 0.0 && bonus > POTION_CHANCE_MAX) {
+            bonus = POTION_CHANCE_MAX;
+        }
+        if (fullMoon) {
+            bonus += POTION_LUNAR_CHANCE;
+        }
+        if (random.nextDouble() <= bonus) {
+            // TODO - Temporary; reconsider
+            POTIONS.forEach((difficultyUnlock, pair) -> {
+                if (difficultyUnlock <= scaledDifficulty) {
+                    if (!pair.getSecond().contains(livingEntity.getType())) {
+                        availableEffects.add(pair.getFirst());
+                    }
                 }
+            });
+            if (availableEffects.isEmpty()) {
+                return;
             }
-        });
-        livingEntity.addEffect(new EffectInstance(availableEffects.get(random.nextInt(availableEffects.size())), 1000000));
+            livingEntity.addEffect(new EffectInstance(availableEffects.get(random.nextInt(availableEffects.size())), 1000000));
+        }
     }
 
     public static void refreshPotionMap() {
