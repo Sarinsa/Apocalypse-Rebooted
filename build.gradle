@@ -170,7 +170,7 @@ task updateVersionCheck {
             String modState = "${mod_state}"
             String mcVersion = "${mc_version}"
 
-            String latest = mcVersion + "-recommended"
+            String latest = mcVersion + "-latest"
 
             // We only operate with one version per branch
             for (String key : versions.keySet()) {

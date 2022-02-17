@@ -139,6 +139,7 @@ public class ApocalypseCommonConfig {
         private final ForgeConfigSpec.IntValue grumpBucketHelmetChance;
         private final ForgeConfigSpec.IntValue seekerExplosionPower;
         private final ForgeConfigSpec.IntValue destroyerExplosionPower;
+        private final ForgeConfigSpec.BooleanValue pauseDaylightCycle;
 
         // Compat
         private final ForgeConfigSpec.BooleanValue requireExtendedProbe;
@@ -370,6 +371,10 @@ public class ApocalypseCommonConfig {
 
             this.destroyerExplosionPower = configBuilder.comment("The explosion power of Destroyer fireballs.")
                     .defineInRange("destroyerExplosionPower", 2, 1, 10);
+
+            this.pauseDaylightCycle = configBuilder.comment("(For dedicated servers) If enabled, the day-night cycle will pause if no players are online.")
+                    .comment("This option exists primarily to help avoid cases where players log into servers in the middle of a Full moon siege unprepared, on servers that are constantly up and running.")
+                    .define("pauseDaylightCycle", true);
             configBuilder.pop();
 
             configBuilder.push("compat");
@@ -644,6 +649,10 @@ public class ApocalypseCommonConfig {
 
         public int getDestroyerExplosionPower() {
             return this.destroyerExplosionPower.get();
+        }
+
+        public boolean getPauseDaylightCycle() {
+            return this.pauseDaylightCycle.get();
         }
 
 

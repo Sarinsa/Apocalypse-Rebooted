@@ -31,7 +31,7 @@ public class VersionCheckHelper {
                 return;
             }
 
-            if (status == VersionChecker.Status.OUTDATED) {
+            if (status == VersionChecker.Status.OUTDATED || status == VersionChecker.Status.BETA_OUTDATED) {
                 @Nullable
                 ComparableVersion targetVersion = result.target;
 
