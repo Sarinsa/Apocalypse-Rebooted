@@ -67,7 +67,6 @@ public class CommonConfigReloadListener {
         refreshList(COMMON.getSpeedBlacklist(), MobAttributeHandler.SPEED_BLACKLIST, ForgeRegistries.ENTITIES);
         refreshList(COMMON.getDamageBlacklist(), MobAttributeHandler.DAMAGE_BLACKLIST, ForgeRegistries.ENTITIES);
         refreshList(COMMON.getKnockbackResBlacklist(), MobAttributeHandler.KNOCKBACK_BLACKLIST, ForgeRegistries.ENTITIES);
-        refreshList(COMMON.getCanHaveWeapons(), MobEquipmentHandler.CAN_HAVE_WEAPONS, ForgeRegistries.ENTITIES);
 
         MobAttributeHandler.HEALTH_TIME_SPAN = COMMON.getHealthTimeSpan();
         MobAttributeHandler.HEALTH_FLAT_BONUS = COMMON.getHealthFlatBonus();
@@ -100,7 +99,16 @@ public class CommonConfigReloadListener {
         MobEquipmentHandler.WEAPONS_LUNAR_CHANCE = COMMON.getWeaponsLunarChance();
         MobEquipmentHandler.WEAPONS_CHANCE_MAX = COMMON.getWeaponsMaxChance();
         MobEquipmentHandler.CURRENT_WEAPON_TIER_ONLY = COMMON.getUseCurrentWeaponTierOnly();
-        MobEquipmentHandler.refreshEquipmentList();
+        MobEquipmentHandler.refreshWeaponLists();
+        refreshList(COMMON.getCanHaveWeapons(), MobEquipmentHandler.CAN_HAVE_WEAPONS, ForgeRegistries.ENTITIES);
+
+        MobEquipmentHandler.ARMOR_TIME = COMMON.getArmorTimeSpan();
+        MobEquipmentHandler.ARMOR_CHANCE = COMMON.getArmorChance();
+        MobEquipmentHandler.ARMOR_LUNAR_CHANCE = COMMON.getArmorLunarChance();
+        MobEquipmentHandler.ARMOR_CHANCE_MAX = COMMON.getArmorMaxChance();
+        MobEquipmentHandler.CURRENT_ARMOR_TIER_ONLY = COMMON.getUseCurrentArmorTierOnly();
+        MobEquipmentHandler.refreshArmorMaps();
+        refreshList(COMMON.getCanHaveArmor(), MobEquipmentHandler.CAN_HAVE_ARMOR, ForgeRegistries.ENTITIES);
 
         MobPotionHandler.POTION_TIME = COMMON.getPotionEffectTimeSpan();
         MobPotionHandler.POTION_CHANCE = COMMON.getPotionEffectChance();

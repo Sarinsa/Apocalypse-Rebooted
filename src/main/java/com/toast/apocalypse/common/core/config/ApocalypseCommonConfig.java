@@ -10,6 +10,7 @@ import com.toast.apocalypse.common.core.config.util.ConfigList;
 import com.toast.apocalypse.common.core.difficulty.MobPotionHandler;
 import com.toast.apocalypse.common.entity.living.*;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
+import com.toast.apocalypse.common.register.ApocalypseItems;
 import com.toast.apocalypse.common.util.RLHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.block.Block;
@@ -20,6 +21,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.Effects;
+import net.minecraft.potion.Potions;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.Dimension;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -53,6 +55,7 @@ public class ApocalypseCommonConfig {
                 Blocks.BEDROCK.getRegistryName().toString());
         private static final List<? extends String> CAN_HAVE_WEAPONS = Arrays.asList(
                 EntityType.ZOMBIE.getRegistryName().toString(),
+                EntityType.ZOMBIE_VILLAGER.getRegistryName().toString(),
                 EntityType.DROWNED.getRegistryName().toString(),
                 EntityType.HUSK.getRegistryName().toString(),
                 EntityType.WITHER_SKELETON.getRegistryName().toString(),
@@ -60,6 +63,18 @@ public class ApocalypseCommonConfig {
                 EntityType.ZOMBIFIED_PIGLIN.getRegistryName().toString(),
                 EntityType.PIGLIN_BRUTE.getRegistryName().toString(),
                 EntityType.VINDICATOR.getRegistryName().toString()
+        );
+        private static final List<? extends String> CAN_HAVE_ARMOR = Arrays.asList(
+                EntityType.ZOMBIE.getRegistryName().toString(),
+                EntityType.ZOMBIE_VILLAGER.getRegistryName().toString(),
+                EntityType.SKELETON.getRegistryName().toString(),
+                EntityType.DROWNED.getRegistryName().toString(),
+                EntityType.HUSK.getRegistryName().toString(),
+                EntityType.STRAY.getRegistryName().toString(),
+                EntityType.WITHER_SKELETON.getRegistryName().toString(),
+                EntityType.PIGLIN.getRegistryName().toString(),
+                EntityType.ZOMBIFIED_PIGLIN.getRegistryName().toString(),
+                EntityType.PIGLIN_BRUTE.getRegistryName().toString()
         );
 
         // Version check
@@ -126,6 +141,15 @@ public class ApocalypseCommonConfig {
         private final ForgeConfigSpec.DoubleValue weaponsLunarChance;
         private final ForgeConfigSpec.DoubleValue weaponsMaxChance;
         private final ForgeConfigSpec.BooleanValue useCurrentWeaponTierOnly;
+
+        private final ForgeConfigSpec.ConfigValue<List<? extends String>> canHaveArmor;
+        private final ForgeConfigSpec.ConfigValue<CommentedConfig> armorList;
+        private final ForgeConfigSpec.DoubleValue armorTimeSpan;
+        private final ForgeConfigSpec.DoubleValue armorChance;
+        private final ForgeConfigSpec.DoubleValue armorLunarChance;
+        private final ForgeConfigSpec.DoubleValue armorMaxChance;
+        private final ForgeConfigSpec.BooleanValue useCurrentArmorTierOnly;
+
 
         // Potion effect
         private final ForgeConfigSpec.ConfigValue<CommentedConfig> potionEffectMap;
@@ -319,8 +343,8 @@ public class ApocalypseCommonConfig {
             configBuilder.pop();
             configBuilder.pop();
 
-            configBuilder.push("weapons");
-            this.weaponLists = configBuilder.comment("A list of weapons that monsters can spawn with, divided into tiers. Each tier group is paired with a difficulty that decides when monsters can start spawning with a weapon from the given tier group.")
+            configBuilder.push("equipment");
+            this.weaponLists = configBuilder.comment("A list of weapon items that mobs can spawn with, divided into tiers. Each tier group is paired with a difficulty that decides when mobs can start spawning with a weapon from the given tier group.")
                     .define("weaponLists", this.createDefaultWeaponLists());
 
             this.canHaveWeapons = configBuilder.comment("A list of entity types that can be given weapons.")
@@ -338,8 +362,30 @@ public class ApocalypseCommonConfig {
             this.weaponsMaxChance = configBuilder.comment("The maximum weapon chance that can be given over time. Default is 0.95 (95% chance).")
                     .defineInRange("weaponsMaxChance", 0.95D, 0.0D, 1.0D);
 
-            this.useCurrentWeaponTierOnly = configBuilder.comment("If enabled, only weapons from the most recently unlocked weapon tier will be given to monsters. When disabled, a random weapon will be picked from all unlocked tiers.")
+            this.useCurrentWeaponTierOnly = configBuilder.comment("If enabled, only weapons from the most recently unlocked weapon tier will be given to mobs. When disabled, a random weapon will be picked from all unlocked tiers.")
                     .define("useCurrentWeaponTierOnly", false);
+
+            this.armorList = configBuilder.comment("A list of armor items that mobs can spawn with, divided into tiers. Each tier group is paired with a difficulty that decides when mobs can start spawning with armor from the given tier group.")
+                    .define("armorList", this.createDefaultArmorList());
+
+            this.canHaveArmor = configBuilder.comment("A list of entity types that can be given armor.")
+                    .defineListAllowEmpty(split("canHaveArmor"), () -> CAN_HAVE_ARMOR, isResourceLocation());
+
+            this.armorTimeSpan = configBuilder.comment("The difficulty value for each application of armor related values.")
+                    .defineInRange("armorTimeSpan", 30.0D, 0.0D, 10000.0D);
+
+            this.armorChance = configBuilder.comment("The chance that a mob will be given armor when it spawns. This value increases in accordance to armorTimeSpan.")
+                    .defineInRange("armorChance", 0.05D, 0.0D, 1.0D);
+
+            this.armorLunarChance = configBuilder.comment("The additional chance gained from a full moon. Default is 0.2 (+20% chance on full moon).")
+                    .defineInRange("armorLunarChance", 0.2D, 0.0D, 1.0D);
+
+            this.armorMaxChance = configBuilder.comment("The maximum armor chance that can be given over time. Default is 0.95 (95% chance).")
+                    .defineInRange("armorMaxChance", 0.95D, 0.0D, 1.0D);
+
+            this.useCurrentArmorTierOnly = configBuilder.comment("If enabled, only armor from the most recently unlocked armor tier will be given to mobs. When disabled, random armor pieces will be picked from all unlocked tiers.")
+                    .define("useCurrentArmorTierOnly", false);
+
             configBuilder.pop();
 
             configBuilder.push("potion_effects");
@@ -572,7 +618,7 @@ public class ApocalypseCommonConfig {
 
 
         //
-        // WEAPONS
+        // EQUIPMENT
         //
         public CommentedConfig getWeaponList() {
             return this.weaponLists.get();
@@ -602,10 +648,34 @@ public class ApocalypseCommonConfig {
             return this.useCurrentWeaponTierOnly.get();
         }
 
+        public CommentedConfig getArmorList() {
+            return this.armorList.get();
+        }
 
-        //
-        // ARMOR
-        //
+        public List<? extends String> getCanHaveArmor() {
+            return this.canHaveWeapons.get();
+        }
+
+        public double getArmorTimeSpan() {
+            return this.armorTimeSpan.get();
+        }
+
+        public double getArmorChance() {
+            return this.armorChance.get();
+        }
+
+        public double getArmorLunarChance() {
+            return this.armorLunarChance.get();
+        }
+
+        public double getArmorMaxChance() {
+            return this.armorMaxChance.get();
+        }
+
+        public boolean getUseCurrentArmorTierOnly() {
+            return this.useCurrentArmorTierOnly.get();
+        }
+
 
 
         //
@@ -750,6 +820,48 @@ public class ApocalypseCommonConfig {
             potionEntry(potionList, Effects.DAMAGE_RESISTANCE.getRegistryName(), 100, ApocalypseEntities.GHOST.getId());
 
             return potionList;
+        }
+
+        private CommentedConfig createDefaultArmorList() {
+            CommentedConfig armorList = TomlFormat.newConfig();
+
+            armorEntry(armorList, 10, new Item[] {
+                    Items.LEATHER_BOOTS, Items.LEATHER_LEGGINGS, Items.LEATHER_CHESTPLATE, Items.LEATHER_HELMET, Items.CARVED_PUMPKIN
+            });
+            armorEntry(armorList, 25, new ResourceLocation[] {
+                    Items.CHAINMAIL_BOOTS.getRegistryName(), Items.CHAINMAIL_LEGGINGS.getRegistryName(), Items.CHAINMAIL_CHESTPLATE.getRegistryName(), Items.CHAINMAIL_HELMET.getRegistryName(), ApocalypseItems.BUCKET_HELM.getId()
+            });
+            armorEntry(armorList, 40, new Item[] {
+                    Items.GOLDEN_BOOTS, Items.GOLDEN_LEGGINGS, Items.GOLDEN_CHESTPLATE, Items.GOLDEN_HELMET, Items.TURTLE_HELMET
+            });
+            armorEntry(armorList, 60, new Item[] {
+                    Items.IRON_BOOTS, Items.IRON_LEGGINGS, Items.IRON_CHESTPLATE, Items.IRON_HELMET
+            });
+            armorEntry(armorList, 100, new Item[] {
+                    Items.DIAMOND_BOOTS, Items.DIAMOND_LEGGINGS, Items.DIAMOND_CHESTPLATE, Items.DIAMOND_HELMET
+            });
+            armorEntry(armorList, 150, new Item[] {
+                    Items.NETHERITE_BOOTS, Items.NETHERITE_LEGGINGS, Items.NETHERITE_CHESTPLATE, Items.NETHERITE_HELMET
+            });
+            return armorList;
+        }
+
+        private static void armorEntry(CommentedConfig config, int roundedDifficulty, Item[] armorItems) {
+            List<String> itemIds = new ArrayList<>();
+
+            for (Item item : armorItems) {
+                itemIds.add(item.getRegistryName().toString());
+            }
+            config.add(String.valueOf(roundedDifficulty), itemIds);
+        }
+
+        private static void armorEntry(CommentedConfig config, int roundedDifficulty, ResourceLocation[] armorItemIds) {
+            List<String> itemIds = new ArrayList<>();
+
+            for (ResourceLocation id : armorItemIds) {
+                itemIds.add(id.toString());
+            }
+            config.add(String.valueOf(roundedDifficulty), itemIds);
         }
 
         @SafeVarargs

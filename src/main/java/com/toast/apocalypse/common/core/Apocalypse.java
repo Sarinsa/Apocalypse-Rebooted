@@ -26,6 +26,7 @@ import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import com.toast.apocalypse.common.util.VersionCheckHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.ModList;

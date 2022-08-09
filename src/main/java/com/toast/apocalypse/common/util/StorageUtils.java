@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.util;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.BiPredicate;
@@ -9,7 +10,13 @@ import java.util.function.Predicate;
 public class StorageUtils {
 
     @Nullable
-    public static <T> T getRandomListElementFiltered(Random random, Collection<T> collection, Predicate<T> predicate) {
+    public static <T> T getRandomListElement(@Nonnull Random random, @Nonnull List<T> list) {
+        return list.isEmpty() ? null :
+                (list.size() == 1) ? list.get(0) : list.get(random.nextInt(list.size()));
+    }
+
+    @Nullable
+    public static <T> T getRandomCollectionElementFiltered(Random random, Collection<T> collection, Predicate<T> predicate) {
         final List<T> candidateElements = new ArrayList<>();
 
         for (T element : collection) {
