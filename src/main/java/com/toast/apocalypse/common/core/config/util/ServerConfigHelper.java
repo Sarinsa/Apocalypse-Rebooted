@@ -13,9 +13,10 @@ import java.util.EnumMap;
 
 public class ServerConfigHelper {
 
-    /** Updated on client only as these
-     *  values are only required for
-     *  integrated servers.
+    /**
+     * Updated on client only as these
+     * values are only required for
+     * integrated servers.
      */
     public static double DESIRED_DEFAULT_MAX_DIFFICULTY;
     public static double DESIRED_DEFAULT_GRACE_PERIOD;
@@ -33,6 +34,7 @@ public class ServerConfigHelper {
      * Writes the current Apocalypse world settings
      * to the integrated server's mod server config.
      */
+    @SuppressWarnings("unchecked")
     public static void updateModServerConfig() {
         String modid = Apocalypse.MODID;
         String configName = ConfigTracker.INSTANCE.getConfigFileName(modid, ModConfig.Type.SERVER);

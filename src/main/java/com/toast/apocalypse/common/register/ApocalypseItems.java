@@ -32,7 +32,7 @@ public class ApocalypseItems {
     public static final RegistryObject<ForgeSpawnEggItem> SEEKER_SPAWN_EGG = registerSpawnEgg("seeker", ApocalypseEntities.SEEKER, 0x766F87, 0x912820);
     public static final RegistryObject<ForgeSpawnEggItem> GRUMP_SPAWN_EGG = registerSpawnEgg("grump", ApocalypseEntities.GRUMP, 0xF9F9F9, 0x2D41F4);
     public static final RegistryObject<ForgeSpawnEggItem> BREECHER_SPAWN_EGG = registerSpawnEgg("breecher", ApocalypseEntities.BREECHER, 0x0DA70B, 0xF9F9F9);
-    //public static final RegistryObject<ForgeSpawnEggItem> FEARWOLF_SPAWN_EGG = registerSpawnEgg("fearwolf", ApocalypseEntities.FEARWOLF, 0x222127, 0x912820);
+    public static final RegistryObject<ForgeSpawnEggItem> FEARWOLF_SPAWN_EGG = registerSpawnEgg("fearwolf", ApocalypseEntities.FEARWOLF, 0x222127, 0x912820);
 
     private static <T extends Item> RegistryObject<T> registerItem(String name, Supplier<T> itemSupplier) {
         return ITEMS.register(name, itemSupplier);

@@ -81,6 +81,7 @@ public class FearwolfModel <T extends FearwolfEntity> extends TintedAgeableModel
         this.leg1.xRot = MathHelper.cos(p_212843_2_ * 0.6662F + (float) Math.PI) * 1.4F * p_212843_3_;
         this.leg2.xRot = MathHelper.cos(p_212843_2_ * 0.6662F + (float) Math.PI) * 1.4F * p_212843_3_;
         this.leg3.xRot = MathHelper.cos(p_212843_2_ * 0.6662F) * 1.4F * p_212843_3_;
+        this.tail.xRot = -35.0F;
     }
 
     public void setupAnim(T fearwolf, float p_225597_2_, float p_225597_3_, float p_225597_4_, float p_225597_5_, float p_225597_6_) {

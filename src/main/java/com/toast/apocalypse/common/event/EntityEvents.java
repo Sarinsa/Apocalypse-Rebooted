@@ -1,6 +1,8 @@
 package com.toast.apocalypse.common.event;
 
+import com.electronwill.nightconfig.core.CommentedConfig;
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.core.difficulty.MobAttributeHandler;
 import com.toast.apocalypse.common.core.difficulty.MobEquipmentHandler;
 import com.toast.apocalypse.common.core.difficulty.MobPotionHandler;
@@ -9,14 +11,18 @@ import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import com.toast.apocalypse.common.register.ApocalypseEntities;
 import com.toast.apocalypse.common.register.ApocalypseItems;
 import com.toast.apocalypse.common.util.CapabilityHelper;
+import com.toast.apocalypse.common.util.References;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
@@ -25,13 +31,24 @@ import net.minecraftforge.event.entity.living.LivingSpawnEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.commons.lang3.StringUtils;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class EntityEvents {
 
     /** Whether attribute bonuses should only be applied to mob entities. */
     public static boolean MOBS_ONLY;
+
+    /**
+     * A Map containing all the difficulty-limited EntityTypes and their
+     * difficulty level needed to start spawning.
+     */
+    public static Map<EntityType<?>, Double> MOB_DIFFICULTIES = new HashMap<>();
+
 
     /**
      * Cancel full moon monsters despawning during full moons.
@@ -45,6 +62,31 @@ public class EntityEvents {
         }
     }
 
+    /**
+     * Denies mob spawns of mobs that requires the nearest player
+     * to have passed a certain difficulty to spawn.
+     */
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onCheckSpawn(LivingSpawnEvent.CheckSpawn event) {
+        SpawnReason spawnReason = event.getSpawnReason();
+
+        if (spawnReason == SpawnReason.SPAWNER || spawnReason == SpawnReason.SPAWN_EGG || spawnReason == SpawnReason.COMMAND || spawnReason == SpawnReason.MOB_SUMMONED || spawnReason == SpawnReason.STRUCTURE)
+            return;
+
+        EntityType<?> entityType = event.getEntityLiving().getType();
+
+        if (MOB_DIFFICULTIES.containsKey(entityType)) {
+            final double neededDifficulty = MOB_DIFFICULTIES.get(entityType) / References.DAY_LENGTH;
+            final long nearestDifficulty = PlayerDifficultyManager.getNearestPlayerDifficulty(event.getWorld(), event.getEntityLiving());
+
+            if (nearestDifficulty < neededDifficulty)
+                event.setResult(Event.Result.DENY);
+        }
+    }
+
+    /**
+     * Handles equipment and potion effects for mobs.
+     */
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onEntityJoinWorld(EntityJoinWorldEvent event) {
         if (event.getWorld().isClientSide)
@@ -123,5 +165,44 @@ public class EntityEvents {
             else if (item == ApocalypseItems.FATHERLY_TOAST.get())
                 event.setCanceled(true);
         }
+    }
+
+    public static void refreshMobDifficulties() {
+        MOB_DIFFICULTIES.clear();
+        CommentedConfig config = ApocalypseCommonConfig.COMMON.getMobDifficulties();
+
+        for (CommentedConfig.Entry entry : config.entrySet()) {
+            String key = entry.getKey();
+
+            if (!StringUtils.isNumeric(key)) {
+                logError("Invalid mob difficulty entry \"{}\" found. A mob difficulty entry's key must be a number representing the target difficulty level");
+                continue;
+            }
+            ResourceLocation entityId = ResourceLocation.tryParse(entry.getValue());
+            double difficulty = Double.parseDouble(key);
+
+            if (difficulty <= 0) {
+                logError("Invalid mob difficulty entry \"{}\" found. The mob difficulty entry key must be a positive number representing the target difficulty level.");
+                continue;
+            }
+            if (entityId == null) {
+                logError("Invalid mob difficulty for entry \"{}\" found. Entry name must be an entity ID.", key);
+                continue;
+            }
+            EntityType<?> entityType;
+
+            if (ForgeRegistries.ENTITIES.containsKey(entityId)) {
+                entityType = ForgeRegistries.ENTITIES.getValue(entityId);
+            }
+            else {
+                logError("Found mob difficulty entry with a entity ID that does not exist in the Forge registry: {}. This mob difficulty entry will not be loaded.", entityId);
+                continue;
+            }
+            MOB_DIFFICULTIES.put(entityType, difficulty);
+        }
+    }
+
+    private static void logError(String message, Object... args) {
+        Apocalypse.LOGGER.error("[Apocalypse Config] " + message, args);
     }
 }

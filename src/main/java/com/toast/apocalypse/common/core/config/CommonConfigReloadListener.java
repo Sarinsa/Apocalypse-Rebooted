@@ -1,9 +1,10 @@
-package com.toast.apocalypse.common.event;
+package com.toast.apocalypse.common.core.config;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.difficulty.*;
 import com.toast.apocalypse.common.core.mod_event.events.FullMoonEvent;
 import com.toast.apocalypse.common.entity.living.*;
+import com.toast.apocalypse.common.event.EntityEvents;
 import com.toast.apocalypse.common.misc.DestroyerExplosionContext;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import net.minecraft.util.RegistryKey;
@@ -56,6 +57,7 @@ public class CommonConfigReloadListener {
 
         PlayerDifficultyManager.DIMENSION_PENALTY = COMMON.getDimensionPenalty();
         PlayerGroup.USE_AVERAGE_DIFFICULTY = COMMON.getAverageGroupDifficulty();
+        EntityEvents.refreshMobDifficulties();
 
         RainDamageTickHelper.RAIN_TICK_RATE = COMMON.getRainTickRate();
         RainDamageTickHelper.RAIN_DAMAGE = COMMON.getRainDamage();

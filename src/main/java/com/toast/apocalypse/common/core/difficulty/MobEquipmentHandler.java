@@ -135,8 +135,6 @@ public final class MobEquipmentHandler {
     }
 
     private static void equipArmor(LivingEntity entity, long difficulty, Random random) {
-        Apocalypse.LOGGER.info("Armor config: " + ARMOR_MAPS);
-
         int scaledDifficulty = (int) (difficulty / References.DAY_LENGTH);
         ItemStack[] toEquip = new ItemStack[] {
                 ItemStack.EMPTY,
@@ -250,13 +248,13 @@ public final class MobEquipmentHandler {
                 int difficulty = Integer.parseInt(key);
 
                 if (difficulty < 0) {
-                    Apocalypse.LOGGER.warn("Armor list tier found with negative difficulty: {}. This armor tier will not be loaded.", difficulty);
+                    logError("Armor list tier found with negative difficulty: {}. This armor tier will not be loaded.", difficulty);
                     continue;
                 }
                 long difficultyLimit = (References.MAX_DIFFICULTY_HARD_LIMIT / References.DAY_LENGTH);
 
                 if (difficulty > difficultyLimit) {
-                    Apocalypse.LOGGER.warn("Equipment list tier found with difficulty that exceeds the maximum difficulty limit of {}. This weapon tier will not be loaded.", difficultyLimit);
+                    logError("Equipment list tier found with difficulty that exceeds the maximum difficulty limit of {}. This weapon tier will not be loaded.", difficultyLimit);
                     continue;
                 }
 
@@ -273,7 +271,7 @@ public final class MobEquipmentHandler {
                         ResourceLocation itemId = ResourceLocation.tryParse(s);
 
                         if (itemId == null) {
-                            Apocalypse.LOGGER.error("Armor tier list for difficulty {} contains a malformed item id: \"{}\"", key, s);
+                            logError("Armor tier list for difficulty {} contains a malformed item id: \"{}\"", key, s);
                         }
                         else {
                             if (ForgeRegistries.ITEMS.containsKey(itemId)) {
@@ -287,19 +285,23 @@ public final class MobEquipmentHandler {
                                 armor.get(slotType).add(item);
                             }
                             else {
-                                Apocalypse.LOGGER.error("Armor tier list for difficulty {} contains an item id for an item that does not exist in the game: \"{}\"", key, itemId);
+                                logError("Armor tier list for difficulty {} contains an item id for an item that does not exist in the game: \"{}\"", key, itemId);
                             }
                         }
                     }
                     ARMOR_MAPS.put(difficulty, armor);
                 }
                 else {
-                    Apocalypse.LOGGER.error("Armor tier list for difficulty {} is malformed and will not be loaded.", key);
+                    logError("Armor tier list for difficulty {} is malformed and will not be loaded.", key);
                 }
             }
             else {
-                Apocalypse.LOGGER.error("Armor lists config entry {} is invalid; should be a number representing a difficulty level.", key);
+                logError("Armor lists config entry {} is invalid; should be a number representing a difficulty level.", key);
             }
         }
+    }
+
+    private static void logError(String message, Object... args) {
+        Apocalypse.LOGGER.error("[Apocalypse Config] " + message, args);
     }
 }

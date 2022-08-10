@@ -14,10 +14,7 @@ import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.core.config.ApocalypseServerConfig;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventRegistry;
-import com.toast.apocalypse.common.event.CapabilityAttachEvents;
-import com.toast.apocalypse.common.event.EntityEvents;
-import com.toast.apocalypse.common.event.PlayerEvents;
-import com.toast.apocalypse.common.event.VillagerTradeEvents;
+import com.toast.apocalypse.common.event.*;
 import com.toast.apocalypse.common.network.PacketHandler;
 import com.toast.apocalypse.common.register.*;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
@@ -96,6 +93,7 @@ public class Apocalypse {
         MinecraftForge.EVENT_BUS.register(new CapabilityAttachEvents());
         MinecraftForge.EVENT_BUS.register(this.getDifficultyManager());
         MinecraftForge.EVENT_BUS.register(new VillagerTradeEvents());
+        MinecraftForge.EVENT_BUS.register(new BiomeEvents());
         MinecraftForge.EVENT_BUS.addListener(CommandRegister::registerCommands);
 
         ApocalypseBlocks.BLOCKS.register(eventBus);

@@ -41,7 +41,7 @@ public class ApocalypseEntities {
         event.put(SEEKER.get(), SeekerEntity.createSeekerAttributes().build());
         event.put(GRUMP.get(), GrumpEntity.createGrumpAttributes().build());
         event.put(BREECHER.get(), BreecherEntity.createBreecherAttributes().build());
-        event.put(FEARWOLF.get(), WolfEntity.createAttributes().build());
+        event.put(FEARWOLF.get(), FearwolfEntity.createAttributes().build());
     }
 
     /**
@@ -54,7 +54,7 @@ public class ApocalypseEntities {
         EntitySpawnPlacementRegistry.register(DESTROYER.get(), EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS, Heightmap.Type.MOTION_BLOCKING, DestroyerEntity::checkDestroyerSpawnRules);
         EntitySpawnPlacementRegistry.register(SEEKER.get(), EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS, Heightmap.Type.MOTION_BLOCKING, SeekerEntity::checkSeekerSpawnRules);
         EntitySpawnPlacementRegistry.register(GRUMP.get(), EntitySpawnPlacementRegistry.PlacementType.NO_RESTRICTIONS, Heightmap.Type.MOTION_BLOCKING, GrumpEntity::checkGrumpSpawnRules);
-        EntitySpawnPlacementRegistry.register(FEARWOLF.get(), EntitySpawnPlacementRegistry.PlacementType.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, FearwolfEntity::checkMobSpawnRules);
+        EntitySpawnPlacementRegistry.register(FEARWOLF.get(), EntitySpawnPlacementRegistry.PlacementType.ON_GROUND, Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, WolfEntity::checkMobSpawnRules);
     }
 
     private static <I extends Entity> RegistryObject<EntityType<I>> register(String name, EntityType.Builder<I> builder) {

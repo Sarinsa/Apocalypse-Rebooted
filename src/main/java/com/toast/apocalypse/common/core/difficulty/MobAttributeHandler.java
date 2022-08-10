@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.core.difficulty;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.event.CommonConfigReloadListener;
+import com.toast.apocalypse.common.core.config.CommonConfigReloadListener;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;

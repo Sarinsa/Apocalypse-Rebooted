@@ -1,33 +1,31 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.common.register.ApocalypseEntities;
-import com.toast.apocalypse.common.register.ApocalypseItems;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.AgeableEntity;
-import net.minecraft.entity.CreatureEntity;
-import net.minecraft.entity.EntityType;
+import net.minecraft.entity.*;
+import net.minecraft.entity.ai.attributes.AttributeModifierMap;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.monster.AbstractSkeletonEntity;
-import net.minecraft.entity.passive.AnimalEntity;
-import net.minecraft.entity.passive.CowEntity;
-import net.minecraft.entity.passive.WolfEntity;
+import net.minecraft.entity.monster.IMob;
+import net.minecraft.entity.monster.MonsterEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.Effects;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 
-import javax.annotation.Nullable;
+public class FearwolfEntity extends MonsterEntity implements IMob {
 
-public class FearwolfEntity extends AnimalEntity {
+    private static final DataParameter<Boolean> CLOAKED = EntityDataManager.defineId(FearwolfEntity.class, DataSerializers.BOOLEAN);
 
-    public FearwolfEntity(EntityType<? extends AnimalEntity> entityType, World world) {
+
+    public FearwolfEntity(EntityType<? extends MonsterEntity> entityType, World world) {
         super(entityType, world);
     }
 
@@ -40,7 +38,30 @@ public class FearwolfEntity extends AnimalEntity {
         this.goalSelector.addGoal(5, new LookRandomlyGoal(this));
         this.targetSelector.addGoal(1, (new HurtByTargetGoal(this)).setAlertOthers());
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, true));
-        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractSkeletonEntity.class, false));
+    }
+
+    public static AttributeModifierMap.MutableAttribute createAttributes() {
+        return MobEntity.createMobAttributes().add(Attributes.MOVEMENT_SPEED, 0.35D).add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.ATTACK_DAMAGE, 2.0D);
+    }
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(CLOAKED, false);
+    }
+
+    @Override
+    public boolean doHurtTarget(Entity entity) {
+        if (super.doHurtTarget(entity)) {
+            if (entity instanceof PlayerEntity) {
+                int duration = this.level.getDifficulty() == Difficulty.HARD ? 140 : 80;
+                ((PlayerEntity)entity).addEffect(new EffectInstance(Effects.BLINDNESS, duration));
+            }
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     @Override
@@ -50,9 +71,7 @@ public class FearwolfEntity extends AnimalEntity {
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return this.getTarget() == null
-                ? SoundEvents.WOLF_AMBIENT
-                : SoundEvents.WOLF_GROWL;
+        return SoundEvents.WOLF_GROWL;
     }
 
     @Override
@@ -75,19 +94,8 @@ public class FearwolfEntity extends AnimalEntity {
         return (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 0.8F;
     }
 
-    @Nullable
-    @Override
-    public AgeableEntity getBreedOffspring(ServerWorld serverWorld, AgeableEntity ageableEntity) {
-        return ApocalypseEntities.FEARWOLF.get().create(serverWorld);
-    }
-
     @Override
     protected int getExperienceReward(PlayerEntity player) {
         return 3 + this.level.random.nextInt(5);
-    }
-
-    @Override
-    public boolean isFood(ItemStack itemStack) {
-        return itemStack.getItem() == ApocalypseItems.FATHERLY_TOAST.get();
     }
 }

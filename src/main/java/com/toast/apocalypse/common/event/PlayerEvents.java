@@ -54,7 +54,7 @@ public class PlayerEvents {
             return;
 
         if (!player.getCommandSenderWorld().isClientSide && Apocalypse.INSTANCE.getDifficultyManager().isFullMoon()) {
-            event.setResult(PlayerEntity.SleepResult.OTHER_PROBLEM);
+            event.setResult(PlayerEntity.SleepResult.NOT_POSSIBLE_HERE);
             player.displayClientMessage(new TranslationTextComponent(References.TRY_SLEEP_FULL_MOON), true);
         }
     }

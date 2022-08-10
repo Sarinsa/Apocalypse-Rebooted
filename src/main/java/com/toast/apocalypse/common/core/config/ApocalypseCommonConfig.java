@@ -47,13 +47,13 @@ public class ApocalypseCommonConfig {
     public static final class Common {
 
         // Cool lists
-        private static final List<? extends String> PENALTY_DIMENSIONS = Arrays.asList(
+        private static final List<? extends String> DEFAULT_PENALTY_DIMENSIONS = Arrays.asList(
                 Dimension.NETHER.location().toString(),
                 Dimension.END.location().toString());
-        private static final List<? extends String> DESTROYER_PROOF_BLOCKS = Arrays.asList(
+        private static final List<? extends String> DEFAULT_DESTROYER_PROOF_BLOCKS = Arrays.asList(
                 Blocks.BARRIER.getRegistryName().toString(),
                 Blocks.BEDROCK.getRegistryName().toString());
-        private static final List<? extends String> CAN_HAVE_WEAPONS = Arrays.asList(
+        private static final List<? extends String> DEFAULT_CAN_HAVE_WEAPONS = Arrays.asList(
                 EntityType.ZOMBIE.getRegistryName().toString(),
                 EntityType.ZOMBIE_VILLAGER.getRegistryName().toString(),
                 EntityType.DROWNED.getRegistryName().toString(),
@@ -64,7 +64,7 @@ public class ApocalypseCommonConfig {
                 EntityType.PIGLIN_BRUTE.getRegistryName().toString(),
                 EntityType.VINDICATOR.getRegistryName().toString()
         );
-        private static final List<? extends String> CAN_HAVE_ARMOR = Arrays.asList(
+        private static final List<? extends String> DEFAULT_CAN_HAVE_ARMOR = Arrays.asList(
                 EntityType.ZOMBIE.getRegistryName().toString(),
                 EntityType.ZOMBIE_VILLAGER.getRegistryName().toString(),
                 EntityType.SKELETON.getRegistryName().toString(),
@@ -92,6 +92,7 @@ public class ApocalypseCommonConfig {
         private final ForgeConfigSpec.ConfigValue<List<? extends String>> dimensionsPenaltyList;
         private final ForgeConfigSpec.DoubleValue dimensionPenalty;
         private final ForgeConfigSpec.BooleanValue averageGroupDifficulty;
+        private final ForgeConfigSpec.ConfigValue<CommentedConfig> mobDifficulties;
 
         // Full moon stuff
         private final ForgeConfigSpec.DoubleValue difficultyUntilNextIncrease;
@@ -197,13 +198,16 @@ public class ApocalypseCommonConfig {
                     .defineInRange("sleepPenalty", 2.0D, 1.0D, 1000.0D);
 
             this.dimensionsPenaltyList = configBuilder.comment("A list of dimensions that should give difficulty penalty. Difficulty increases more in these dimensions.")
-                    .defineListAllowEmpty(split("dimensionPenaltyList"), () -> PENALTY_DIMENSIONS, isResourceLocation());
+                    .defineListAllowEmpty(split("dimensionPenaltyList"), () -> DEFAULT_PENALTY_DIMENSIONS, isResourceLocation());
 
             this.dimensionPenalty = configBuilder.comment("The difficulty rate multiplier used when a player enters a dimension with difficulty penalty.")
                     .defineInRange("dimensionPenalty", 0.5D, 0.0D, 1000.0D);
 
             this.averageGroupDifficulty = configBuilder.comment("(Currently unused) If enabled, players that are close to each other will have the average of their difficulty added together used instead of the nearby player with the highest difficulty.")
                     .define("averageGroupDifficulty", false);
+
+            this.mobDifficulties = configBuilder.comment("A list of mobs that can only start spawning naturally when the nearest player has reached a certain difficulty")
+                    .define("mobDifficulties", this.createDefaultDifficultyMobs());
             configBuilder.pop();
 
             configBuilder.comment("This section revolves around everything related to the full moon sieges.");
@@ -348,7 +352,7 @@ public class ApocalypseCommonConfig {
                     .define("weaponLists", this.createDefaultWeaponLists());
 
             this.canHaveWeapons = configBuilder.comment("A list of entity types that can be given weapons.")
-                    .defineListAllowEmpty(split("canHaveWeapons"), () -> CAN_HAVE_WEAPONS, isResourceLocation());
+                    .defineListAllowEmpty(split("canHaveWeapons"), () -> DEFAULT_CAN_HAVE_WEAPONS, isResourceLocation());
 
             this.weaponsTimeSpan = configBuilder.comment("The difficulty value for each application of weapon related values.")
                     .defineInRange("weaponsTimeSpan", 30.0D, 0.0D, 10000.0D);
@@ -369,7 +373,7 @@ public class ApocalypseCommonConfig {
                     .define("armorList", this.createDefaultArmorList());
 
             this.canHaveArmor = configBuilder.comment("A list of entity types that can be given armor.")
-                    .defineListAllowEmpty(split("canHaveArmor"), () -> CAN_HAVE_ARMOR, isResourceLocation());
+                    .defineListAllowEmpty(split("canHaveArmor"), () -> DEFAULT_CAN_HAVE_ARMOR, isResourceLocation());
 
             this.armorTimeSpan = configBuilder.comment("The difficulty value for each application of armor related values.")
                     .defineInRange("armorTimeSpan", 30.0D, 0.0D, 10000.0D);
@@ -407,7 +411,7 @@ public class ApocalypseCommonConfig {
 
             configBuilder.push("misc");
             this.destroyerProofBlocks = configBuilder.comment("A list of blocks that the destroyer cannot explode. Generally speaking this list should be empty since destroyers are supposed to destroy any block, but if an exception is absolutely needed, the block in question can be whitelisted here.")
-                    .defineListAllowEmpty(split("destroyerProofBlocks"), () -> DESTROYER_PROOF_BLOCKS, isResourceLocation());
+                    .defineListAllowEmpty(split("destroyerProofBlocks"), () -> DEFAULT_DESTROYER_PROOF_BLOCKS, isResourceLocation());
 
             this.grumpBucketHelmetChance = configBuilder.comment("This is the chance in percentage for grumps to spawn with a bucket helmet equipped. Grumps with bucket helmets are heavily armored against arrows.")
                     .defineInRange("grumpBucketHelmetChance", 5, 0, 100);
@@ -419,7 +423,7 @@ public class ApocalypseCommonConfig {
                     .defineInRange("destroyerExplosionPower", 2, 1, 10);
 
             this.pauseDaylightCycle = configBuilder.comment("(For dedicated servers) If enabled, the day-night cycle will pause if no players are online.")
-                    .comment("This option exists primarily to help avoid cases where players log into servers in the middle of a Full moon siege unprepared, on servers that are constantly up and running.")
+                    .comment("Useful if you want your players to be unable to just skip through full moons by disconnecting.")
                     .define("pauseDaylightCycle", true);
             configBuilder.pop();
 
@@ -430,6 +434,7 @@ public class ApocalypseCommonConfig {
         }
 
 
+
         //
         // VERSION CHECK
         //
@@ -437,12 +442,11 @@ public class ApocalypseCommonConfig {
             return this.sendUpdateMessage.get();
         }
 
+
         //
         // RAIN DAMAGE
         //
-        public int getRainTickRate() {
-            return this.rainTickRate.get() * 20;
-        }
+        public int getRainTickRate() { return this.rainTickRate.get() * 20; }
 
         public float getRainDamage() {
             return (float) this.rainDamage.get();
@@ -478,6 +482,10 @@ public class ApocalypseCommonConfig {
 
         public boolean getAverageGroupDifficulty() {
             return this.averageGroupDifficulty.get();
+        }
+
+        public CommentedConfig getMobDifficulties() {
+            return this.mobDifficulties.get();
         }
 
 
@@ -702,6 +710,7 @@ public class ApocalypseCommonConfig {
         }
 
 
+
         //
         // MISC
         //
@@ -726,6 +735,7 @@ public class ApocalypseCommonConfig {
         }
 
 
+
         //
         // COMPAT
         //
@@ -736,7 +746,7 @@ public class ApocalypseCommonConfig {
 
 
 
-        // Helper stuff
+
         private void createStartDifficulty(Class<? extends IFullMoonMob> entityClass, String name, long defaultStart, ForgeConfigSpec.Builder configBuilder) {
             this.moonMobStartDifficulties.put(entityClass, configBuilder.defineInRange(name, defaultStart, 0, 100000));
         }
@@ -753,7 +763,18 @@ public class ApocalypseCommonConfig {
             this.moonMobCountCap.put(entityClass, configBuilder.defineInRange(name, defaultMax, 0, 100));
         }
 
-        // Creates the default weapon lists
+
+        /** Creates the default difficulty mob config. */
+        private CommentedConfig createDefaultDifficultyMobs() {
+            CommentedConfig difficultyMobs = TomlFormat.newConfig();
+
+            difficultyMobs.add(String.valueOf(40), ApocalypseEntities.FEARWOLF.getId());
+
+            return difficultyMobs;
+        }
+
+
+        /** Creates the default weapon lists config. */
         private CommentedConfig createDefaultWeaponLists() {
             CommentedConfig weaponLists = TomlFormat.newConfig();
 
@@ -811,6 +832,7 @@ public class ApocalypseCommonConfig {
             return weaponLists;
         }
 
+        /** Creates the default potion list config. */
         private CommentedConfig createDefaultPotionList() {
             CommentedConfig potionList = TomlFormat.newConfig();
 
@@ -822,6 +844,7 @@ public class ApocalypseCommonConfig {
             return potionList;
         }
 
+        /** Creates the default armor lists config. */
         private CommentedConfig createDefaultArmorList() {
             CommentedConfig armorList = TomlFormat.newConfig();
 
@@ -864,11 +887,10 @@ public class ApocalypseCommonConfig {
             config.add(String.valueOf(roundedDifficulty), itemIds);
         }
 
-        @SafeVarargs
-        private static void potionEntry(CommentedConfig config, Effect effect, int roundedDifficulty, EntityType<? extends LivingEntity>... entityTypes) {
+        private static void potionEntry(CommentedConfig config, Effect effect, int roundedDifficulty, EntityType<?>... entityTypes) {
             List<String> blacklistedMobs = new ArrayList<>();
 
-            for (EntityType<? extends LivingEntity> entityType : entityTypes) {
+            for (EntityType<?> entityType : entityTypes) {
                 blacklistedMobs.add(entityType.getRegistryName().toString());
             }
             // Separate effect ID and unlock-difficulty with a space.
