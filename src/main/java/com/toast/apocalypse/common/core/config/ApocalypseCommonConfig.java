@@ -768,7 +768,7 @@ public class ApocalypseCommonConfig {
         private CommentedConfig createDefaultDifficultyMobs() {
             CommentedConfig difficultyMobs = TomlFormat.newConfig();
 
-            difficultyMobs.add(String.valueOf(40), ApocalypseEntities.FEARWOLF.getId());
+            difficultyMobs.add(String.valueOf(40), ApocalypseEntities.FEARWOLF.getId().toString());
 
             return difficultyMobs;
         }
