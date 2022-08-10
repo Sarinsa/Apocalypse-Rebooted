@@ -1,15 +1,13 @@
 package com.toast.apocalypse.common.util;
 
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
-import com.toast.apocalypse.common.event.CommonConfigReloadListener;
+import com.toast.apocalypse.common.core.config.CommonConfigReloadListener;
 import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
 import com.toast.apocalypse.common.register.ApocalypseItems;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.TickEvent;
 
@@ -57,13 +55,13 @@ public class RainDamageTickHelper {
 
                 for (ServerPlayerEntity player : level.players()) {
                     if (EnchantmentHelper.hasAquaAffinity(player) || !level.isRainingAt(player.blockPosition()))
-                        return;
+                        continue;
 
                     ItemStack headStack = player.getItemBySlot(EquipmentSlotType.HEAD);
 
                     if (!headStack.isEmpty()) {
                         if (headStack.getItem() == ApocalypseItems.BUCKET_HELM.get() || headStack.getItem().getMaxDamage(headStack) <= 0) {
-                            return;
+                            continue;
                         }
                         headStack.hurtAndBreak(player.getRandom().nextInt(2), player, (playerEntity) -> player.broadcastBreakEvent(EquipmentSlotType.HEAD));
                     }
