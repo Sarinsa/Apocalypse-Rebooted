@@ -99,42 +99,39 @@ public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements
             this.ghast = ghast;
         }
 
+        @Override
+        public void setWantedPosition(double x, double y, double z, double speedMod) {
+            super.setWantedPosition(x, y, z, speedMod);
+        }
+
         public void tick() {
-            if (this.operation == MovementController.Action.MOVE_TO) {
-                if (this.floatDuration-- <= 0) {
-                    this.floatDuration += this.ghast.getRandom().nextInt(5) + 2;
-                    Vector3d vector3d = new Vector3d(this.wantedX - this.ghast.getX(), this.wantedY - this.ghast.getY(), this.wantedZ - this.ghast.getZ());
-                    double distance = vector3d.length();
+            if (operation == MovementController.Action.MOVE_TO) {
+                if (floatDuration-- <= 0) {
+                    floatDuration += ghast.getRandom().nextInt(5) + 2;
+                    Vector3d vector3d = new Vector3d(wantedX - ghast.getX(), wantedY - ghast.getY(), wantedZ - ghast.getZ());
                     vector3d = vector3d.normalize();
 
-                    this.canReachCurrent = this.canReach(vector3d, MathHelper.ceil(distance));
+                    canReachCurrent = canReach(vector3d);
 
-                    if (this.canReachCurrent) {
-                        this.ghast.setDeltaMovement(this.ghast.getDeltaMovement().add(vector3d.scale(0.1D)));
+                    if (canReachCurrent) {
+                        ghast.setDeltaMovement(ghast.getDeltaMovement().add(vector3d.scale(0.1D)));
                     }
                     else {
-                        this.operation = MovementController.Action.WAIT;
+                        operation = MovementController.Action.WAIT;
                     }
                 }
             }
         }
 
-        private boolean canReach(Vector3d vec, int p_220673_2_) {
-            AxisAlignedBB axisalignedbb = this.ghast.getBoundingBox();
-            boolean canReach = true;
+        private boolean canReach(Vector3d vec) {
+            AxisAlignedBB axisalignedbb = ghast.getBoundingBox().inflate(0.5F);
 
-            for(int i = 1; i < p_220673_2_; ++i) {
-                axisalignedbb = axisalignedbb.move(vec);
-                if (!this.ghast.level.noCollision(this.ghast, axisalignedbb)) {
-                    canReach = false;
-                    break;
-                }
-            }
-            return canReach;
+            axisalignedbb = axisalignedbb.move(vec);
+            return ghast.level.noCollision(ghast, axisalignedbb);
         }
 
         public boolean canReachCurrentWanted() {
-            return this.canReachCurrent;
+            return canReachCurrent;
         }
     }
 }

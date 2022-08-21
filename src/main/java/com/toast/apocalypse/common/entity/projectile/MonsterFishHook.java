@@ -51,30 +51,17 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
         this.noCulling = true;
     }
 
-    public MonsterFishHook(MobEntity mobEntity, World world) {
+    public MonsterFishHook(MobEntity mobEntity, LivingEntity target, World world) {
         this(world, mobEntity);
-        float pitch = mobEntity.xRot;
-        float yaw = mobEntity.yRot;
 
-        float f2 = MathHelper.cos(-yaw * ((float)Math.PI / 180F) - (float)Math.PI);
-        float f3 = MathHelper.sin(-yaw * ((float)Math.PI / 180F) - (float)Math.PI);
-        float f4 = -MathHelper.cos(-pitch * ((float)Math.PI / 180F));
-        float f5 = MathHelper.sin(-pitch * ((float)Math.PI / 180F));
+        final Vector3d lookVec = mobEntity.getViewVector(1.0F).scale(mobEntity.getBbWidth());
+        this.setPos(mobEntity.getX() + lookVec.x, mobEntity.getEyeY() - 0.1, mobEntity.getZ() + lookVec.z);
 
-        double x = mobEntity.getX() - (double)f3 * 0.3D;
-        double y = mobEntity.getEyeY();
-        double z = mobEntity.getZ() - (double)f2 * 0.3D;
-        this.moveTo(x, y, z, pitch, yaw);
-
-        Vector3d vector3d = new Vector3d(-f3, MathHelper.clamp(-(f5 / f4), -5.0F, 5.0F), -f2);
-        double d3 = vector3d.length();
-        vector3d = vector3d.multiply(0.6D / d3 + 0.5D + this.random.nextGaussian() * 0.0045D, 0.6D / d3 + 0.5D + this.random.nextGaussian() * 0.0045D, 0.6D / d3 + 0.5D + this.random.nextGaussian() * 0.0045D);
-        vector3d = vector3d.multiply(1.2D, 1.2D, 1.2D);
-        this.setDeltaMovement(vector3d);
-        this.yRot = (float)(MathHelper.atan2(vector3d.x, vector3d.z) * (double)(180F / (float)Math.PI));
-        this.xRot = (float)(MathHelper.atan2(vector3d.y, MathHelper.sqrt(getHorizontalDistanceSqr(vector3d))) * (double)(180F / (float)Math.PI));
-        this.yRotO = this.yRot;
-        this.xRotO = this.xRot;
+        final double dX = target.getX() - getX();
+        final double dY = target.getY( 0.3333 ) - getY();
+        final double dZ = target.getZ() - getZ();
+        final double dH = MathHelper.sqrt( dX * dX + dZ * dZ );
+        this.shoot(dX, dY + dH * 0.2, dZ, 1.3F, 0);
     }
 
     @Override

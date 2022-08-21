@@ -53,8 +53,12 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
 
     /**The current fishhook entity launched by the grump. */
     private MonsterFishHook fishHook;
+    private final MoveHelperController moveHelperController;
+
     public GrumpEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
+        this.moveHelperController = new MoveHelperController(this);
+        this.moveControl = this.moveHelperController;
         this.xpReward = 3;
     }
 
@@ -105,14 +109,12 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
 
     @Override
     protected void populateDefaultEquipmentSlots(DifficultyInstance difficultyInstance) {
-        int chance = ApocalypseCommonConfig.COMMON.getGrumpBucketHelmetChance();
+        double chance = ApocalypseCommonConfig.COMMON.getGrumpBucketHelmetChance();
 
         if (chance <= 0)
             return;
 
-        chance -= 1;
-
-        if (this.random.nextInt(100) <= chance) {
+        if (this.random.nextDouble() <= chance) {
             this.setItemSlot(EquipmentSlotType.HEAD, new ItemStack(ApocalypseItems.BUCKET_HELM.get()));
         }
     }
@@ -204,7 +206,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
             LivingEntity target = this.grump.getTarget();
 
             if (target != null && target.isAlive()) {
-                return this.grump.moveControl.hasWanted();
+                return this.grump.moveControl.hasWanted() && this.grump.moveHelperController.canReachCurrentWanted();
             }
             return false;
         }
@@ -223,6 +225,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
         }
 
         @Override
+        @SuppressWarnings("ConstantConditions")
         public void tick() {
             LivingEntity target = this.grump.getTarget();
 
@@ -290,7 +293,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
 
             if (hook == null) {
                 if (++this.timeNextHookLaunch >= 40) {
-                    this.spawnMonsterFishHook();
+                    this.spawnMonsterFishHook(this.grump.getTarget());
                     this.timeNextHookLaunch = 0;
                 }
             }
@@ -316,9 +319,12 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
             this.grump.fishHook = null;
         }
 
-        private void spawnMonsterFishHook() {
+        private void spawnMonsterFishHook(@Nullable LivingEntity target) {
+            if (target == null)
+                return;
+
             World world = this.grump.getCommandSenderWorld();
-            MonsterFishHook fishHook = new MonsterFishHook(this.grump, world);
+            MonsterFishHook fishHook = new MonsterFishHook(this.grump, target, world);
             world.addFreshEntity(fishHook);
             this.grump.fishHook = fishHook;
             world.playSound(null, this.grump.blockPosition(), SoundEvents.FISHING_BOBBER_THROW, SoundCategory.NEUTRAL, 0.6F, 0.4F / (world.random.nextFloat() * 0.4F + 0.8F));

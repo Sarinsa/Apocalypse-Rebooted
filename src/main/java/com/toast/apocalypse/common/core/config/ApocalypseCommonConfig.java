@@ -161,7 +161,7 @@ public class ApocalypseCommonConfig {
 
         // Misc
         private final ForgeConfigSpec.ConfigValue<List<? extends String>> destroyerProofBlocks;
-        private final ForgeConfigSpec.IntValue grumpBucketHelmetChance;
+        private final ForgeConfigSpec.DoubleValue grumpBucketHelmetChance;
         private final ForgeConfigSpec.IntValue seekerExplosionPower;
         private final ForgeConfigSpec.IntValue destroyerExplosionPower;
         private final ForgeConfigSpec.BooleanValue pauseDaylightCycle;
@@ -414,7 +414,7 @@ public class ApocalypseCommonConfig {
                     .defineListAllowEmpty(split("destroyerProofBlocks"), () -> DEFAULT_DESTROYER_PROOF_BLOCKS, isResourceLocation());
 
             this.grumpBucketHelmetChance = configBuilder.comment("This is the chance in percentage for grumps to spawn with a bucket helmet equipped. Grumps with bucket helmets are heavily armored against arrows.")
-                    .defineInRange("grumpBucketHelmetChance", 5, 0, 100);
+                    .defineInRange("grumpBucketHelmetChance", 0.05D, 0.0D, 1.0D);
 
             this.seekerExplosionPower = configBuilder.comment("The explosion power of Seeker fireballs.")
                     .defineInRange("seekerExplosionPower", 4, 1, 10);
@@ -718,7 +718,7 @@ public class ApocalypseCommonConfig {
             return this.destroyerProofBlocks.get();
         }
 
-        public int getGrumpBucketHelmetChance() {
+        public double getGrumpBucketHelmetChance() {
             return this.grumpBucketHelmetChance.get();
         }
 
