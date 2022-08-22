@@ -59,6 +59,8 @@
   "apocalypse.advancements.root.description": "The grace period is over. Stay on your toes!",
   "apocalypse.advancements.toasty.title": "Secret Snack",
   "apocalypse.advancements.toasty.description": "Create Fatherly Toast by striking bread with lightning. Quite toasty!",
+  "apocalypse.advancements.less_grumpy.title": "Slightly Less Grumpy",
+  "apocalypse.advancements.less_grumpy.description": "Tame a Grump with a scrumptious slice of Fatherly Toast!",
 
   "apocalypse.top.difficulty": "Difficulty: %1$s"
 }

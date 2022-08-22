@@ -27,5 +27,5 @@ public interface IFullMoonMob {
      *
      * @param playerTargetUUID The UUID of the specified player to target.
      */
-    void setPlayerTargetUUID(UUID playerTargetUUID);
+    void setPlayerTargetUUID(@Nullable UUID playerTargetUUID);
 }

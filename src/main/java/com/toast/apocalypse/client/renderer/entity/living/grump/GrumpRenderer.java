@@ -9,7 +9,10 @@ import net.minecraft.util.ResourceLocation;
 
 public class GrumpRenderer<T extends GrumpEntity> extends MobRenderer<T, GhastModel<T>> {
 
-    private static final ResourceLocation GRUMP_TEXTURE = Apocalypse.resourceLoc("textures/entity/grump/grump.png");
+    private static final ResourceLocation[] GRUMP_TEXTURES = new ResourceLocation[] {
+            Apocalypse.resourceLoc("textures/entity/grump/grump.png"),
+            Apocalypse.resourceLoc("textures/entity/grump/chill_grump.png")
+    };
 
     public GrumpRenderer(EntityRendererManager rendererManager) {
         super(rendererManager, new GhastModel<>(), 0.5F);
@@ -18,6 +21,6 @@ public class GrumpRenderer<T extends GrumpEntity> extends MobRenderer<T, GhastMo
 
     @Override
     public ResourceLocation getTextureLocation(T grump) {
-        return GRUMP_TEXTURE;
+        return grump.getOwnerUUID() == null ? GRUMP_TEXTURES[0] : GRUMP_TEXTURES[1];
     }
 }

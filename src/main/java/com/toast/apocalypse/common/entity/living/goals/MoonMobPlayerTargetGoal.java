@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.entity.living.goals;
 
+import com.toast.apocalypse.common.entity.living.GrumpEntity;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.ai.goal.TargetGoal;
@@ -23,6 +24,12 @@ public class MoonMobPlayerTargetGoal<T extends MobEntity & IFullMoonMob> extends
 
         if (playerTargetUUID == null)
             return false;
+
+        if (this.moonMob instanceof GrumpEntity) {
+            GrumpEntity grump = (GrumpEntity) this.moonMob;
+
+            return !(playerTargetUUID.equals(grump.getOwnerUUID()));
+        }
 
         if (this.moonMob.level instanceof ServerWorld) {
             ServerWorld world = (ServerWorld) moonMob.level;

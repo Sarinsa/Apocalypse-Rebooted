@@ -1,17 +1,19 @@
 package com.toast.apocalypse.datagen;
 
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.register.ApocalypseEntities;
 import com.toast.apocalypse.common.register.ApocalypseItems;
 import com.toast.apocalypse.common.triggers.PassedGracePeriodTrigger;
+import com.toast.apocalypse.common.triggers.TamedGrumpTrigger;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.FrameType;
+import net.minecraft.advancements.criterion.EntityPredicate;
 import net.minecraft.advancements.criterion.InventoryChangeTrigger;
+import net.minecraft.advancements.criterion.TameAnimalTrigger;
 import net.minecraft.data.AdvancementProvider;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.item.Items;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.api.distmarker.OnlyIns;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
 import java.util.function.Consumer;
@@ -42,5 +44,16 @@ public class ApocalypseAdvancementProvider extends AdvancementProvider {
                         FrameType.CHALLENGE, true, true, true)
                 .addCriterion("obtain_fatherly_toast", InventoryChangeTrigger.Instance.hasItems(ApocalypseItems.FATHERLY_TOAST.get()))
                 .save(consumer, Apocalypse.resourceLoc("toasty"), fileHelper);
+
+        Advancement lessGrumpy = Advancement.Builder.advancement()
+                .parent(toasty)
+                .display(Items.COOKIE,
+                        new TranslationTextComponent("apocalypse.advancements.less_grumpy.title"),
+                        new TranslationTextComponent("apocalypse.advancements.less_grumpy.description"),
+                        null,
+                        FrameType.GOAL, true, true, true)
+                .addCriterion("tame_grump", TamedGrumpTrigger.Instance.tamedGrump())
+                .save(consumer, Apocalypse.resourceLoc("less_grumpy"), fileHelper);
+
     }
 }

@@ -67,7 +67,7 @@ public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements
     }
 
     @Override
-    public void setPlayerTargetUUID(UUID playerTargetUUID) {
+    public void setPlayerTargetUUID(@Nullable UUID playerTargetUUID) {
         this.playerTargetUUID = playerTargetUUID;
     }
 
@@ -82,6 +82,8 @@ public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements
 
     @Override
     public void readAdditionalSaveData(CompoundNBT compoundNBT) {
+        super.readAdditionalSaveData(compoundNBT);
+
         if (compoundNBT.hasUUID(PLAYER_UUID_KEY)) {
             this.setPlayerTargetUUID(compoundNBT.getUUID(PLAYER_UUID_KEY));
         }
