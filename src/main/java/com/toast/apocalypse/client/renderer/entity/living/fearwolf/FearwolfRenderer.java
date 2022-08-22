@@ -17,7 +17,7 @@ public class FearwolfRenderer<T extends FearwolfEntity> extends MobRenderer<T, F
     }
 
     @Override
-    protected void scale(T destroyer, MatrixStack matrixStack, float scale) {
+    protected void scale(T fearwolf, MatrixStack matrixStack, float scale) {
         matrixStack.scale(2.0F, 2.0F, 2.0F);
     }
 

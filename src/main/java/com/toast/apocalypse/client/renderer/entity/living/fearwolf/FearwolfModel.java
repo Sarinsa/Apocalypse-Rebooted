@@ -84,8 +84,8 @@ public class FearwolfModel <T extends FearwolfEntity> extends TintedAgeableModel
         this.tail.xRot = -35.0F;
     }
 
-    public void setupAnim(T fearwolf, float p_225597_2_, float p_225597_3_, float p_225597_4_, float p_225597_5_, float p_225597_6_) {
-        this.head.xRot = p_225597_6_ * ((float) Math.PI / 180F);
-        this.head.yRot = p_225597_5_ * ((float) Math.PI / 180F);
+    public void setupAnim(T fearwolf, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        this.head.xRot = headPitch * ((float) Math.PI / 180F);
+        this.head.yRot = netHeadYaw * ((float) Math.PI / 180F);
     }
 }
