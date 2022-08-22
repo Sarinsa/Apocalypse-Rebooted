@@ -13,6 +13,7 @@ public class GhostRenderer<T extends GhostEntity> extends MobRenderer<T, GhostMo
     public GhostRenderer(EntityRendererManager rendererManager) {
         super(rendererManager, new GhostModel<>(), 0.0F);
         this.addLayer(new GhostEyesLayer<>(this));
+        this.addLayer(new GhostFrozenLayer<>(this));
     }
 
     @Override

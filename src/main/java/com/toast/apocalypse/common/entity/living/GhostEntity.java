@@ -89,7 +89,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         this.goalSelector.addGoal(0, new GhostEntity.ManeuverAttackerGoal<>(this));
         this.goalSelector.addGoal(1, new GhostEntity.MeleeAttackGoal<>(this));
         this.goalSelector.addGoal(2, new RandomFlyGoal(this));
-        this.goalSelector.addGoal(3, new LookAtGoal(this, PlayerEntity.class,8.0F));
+        this.goalSelector.addGoal(3, new GhostLookAtGoal(this, PlayerEntity.class,8.0F));
         this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IMob.class));
         this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
         this.targetSelector.addGoal(2, new GhostEntity.NearestAttackablePlayerTargetGoal<>(this, PlayerEntity.class));
@@ -125,13 +125,12 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
                 LivingEntity livingEntity = (LivingEntity) entity;
 
                 if (livingEntity.getItemInHand(Hand.MAIN_HAND).getItem() == Items.BEDROCK) {
-                    this.freeze();
+                    freeze(200);
                     return true;
                 }
             }
-
-            if (!this.isFrozen() && entity != null && entity == this.getTarget() && this.random.nextInt(2) == 0) {
-                this.setManeuvering(true);
+            if (!isFrozen() && entity != null && entity == getTarget() && random.nextInt(2) == 0) {
+                setManeuvering(true);
             }
             return true;
         }
@@ -142,7 +141,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
     public boolean doHurtTarget(Entity entity) {
         if (super.doHurtTarget(entity)) {
             if (entity instanceof PlayerEntity) {
-                int duration = this.level.getDifficulty() == Difficulty.HARD ? 140 : 80;
+                int duration = level.getDifficulty() == Difficulty.HARD ? 140 : 80;
                 ((PlayerEntity)entity).addEffect(new EffectInstance(ApocalypseEffects.HEAVY.get(), duration));
             }
             return true;
@@ -154,31 +153,32 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
     @Override
     public void aiStep() {
-        if (this.isAlive()) {
-            boolean flag = this.isSunBurnTick();
+        if (isAlive()) {
+            boolean flag = isSunBurnTick();
 
             if (flag) {
-                ItemStack itemstack = this.getItemBySlot(EquipmentSlotType.HEAD);
+                ItemStack itemstack = getItemBySlot(EquipmentSlotType.HEAD);
                 if (!itemstack.isEmpty()) {
                     if (itemstack.isDamageableItem()) {
-                        itemstack.setDamageValue(itemstack.getDamageValue() + this.random.nextInt(2));
+                        itemstack.setDamageValue(itemstack.getDamageValue() + random.nextInt(2));
                         if (itemstack.getDamageValue() >= itemstack.getMaxDamage()) {
-                            this.broadcastBreakEvent(EquipmentSlotType.HEAD);
-                            this.setItemSlot(EquipmentSlotType.HEAD, ItemStack.EMPTY);
+                            broadcastBreakEvent(EquipmentSlotType.HEAD);
+                            setItemSlot(EquipmentSlotType.HEAD, ItemStack.EMPTY);
                         }
                     }
                     flag = false;
                 }
                 if (flag) {
-                    this.setSecondsOnFire(8);
+                    setSecondsOnFire(8);
                 }
             }
+            if (!level.isClientSide) {
+                if (freezeTime > 0) {
+                    --freezeTime;
 
-            if (this.freezeTime > 0) {
-                --this.freezeTime;
-
-                if (this.freezeTime <= 0) {
-                    this.unfreeze();
+                    if (freezeTime <= 0 && isFrozen()) {
+                        unfreeze();
+                    }
                 }
             }
         }
@@ -232,30 +232,26 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         this.isManeuvering = maneuvering;
     }
 
-    protected void setFrozen(boolean frozen, int freezeTime) {
-        this.entityData.set(IS_FROZEN, frozen);
-        this.freezeTime = freezeTime;
-    }
-
     public boolean isFrozen() {
         return this.entityData.get(IS_FROZEN);
     }
 
+    protected void freeze(int freezeTime) {
+        freeze();
+        this.freezeTime = freezeTime;
+    }
+
     protected void freeze() {
         this.entityData.set(IS_FROZEN, true);
-        this.goalSelector.disableControlFlag(Goal.Flag.MOVE);
-        this.goalSelector.disableControlFlag(Goal.Flag.LOOK);
     }
 
     private void unfreeze() {
         this.entityData.set(IS_FROZEN, false);
-        this.goalSelector.enableControlFlag(Goal.Flag.MOVE);
-        this.goalSelector.enableControlFlag(Goal.Flag.LOOK);
     }
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return SoundEvents.BLAZE_AMBIENT;
+        return isFrozen() ? null : SoundEvents.BLAZE_AMBIENT;
     }
 
     @Override
@@ -333,6 +329,10 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
             if (this.operation == MovementController.Action.MOVE_TO) {
 
                 T ghost = this.ghostEntity;
+
+                if (ghost.isFrozen())
+                    return;
+
                 Vector3d vector3d = new Vector3d(this.wantedX - ghost.getX(), this.wantedY - ghost.getY(), this.wantedZ - ghost.getZ());
                 double d0 = vector3d.length();
 
@@ -479,18 +479,18 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
         @Override
         public boolean canUse() {
-            MovementController movementcontroller = this.ghost.getMoveControl();
+            MovementController moveControl = this.ghost.getMoveControl();
 
             if (this.ghost.getTarget() != null || this.ghost.isManeuvering())
                 return false;
 
-            if (!movementcontroller.hasWanted()) {
+            if (!moveControl.hasWanted()) {
                 return true;
             }
             else {
-                double x = movementcontroller.getWantedX() - this.ghost.getX();
-                double y = movementcontroller.getWantedY() - this.ghost.getY();
-                double z = movementcontroller.getWantedZ() - this.ghost.getZ();
+                double x = moveControl.getWantedX() - this.ghost.getX();
+                double y = moveControl.getWantedY() - this.ghost.getY();
+                double z = moveControl.getWantedZ() - this.ghost.getZ();
                 double d3 = x * x + y * y + z * z;
                 return d3 < 1.0D || d3 > 3600.0D;
             }
@@ -513,6 +513,26 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
             final double z = this.ghost.getZ() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
             final double speed = this.ghost.getAttributeValue(Attributes.FLYING_SPEED);
             this.ghost.getMoveControl().setWantedPosition(x, y, z, speed);
+        }
+    }
+
+    static class GhostLookAtGoal extends LookAtGoal {
+
+        private final GhostEntity ghost;
+
+        public GhostLookAtGoal(GhostEntity ghost, Class<? extends LivingEntity> lookAt, float range) {
+            super(ghost, lookAt, range);
+            this.ghost = ghost;
+        }
+
+        @Override
+        public boolean canUse() {
+            return super.canUse() && !ghost.isFrozen();
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return super.canContinueToUse() && !ghost.isFrozen();
         }
     }
 }

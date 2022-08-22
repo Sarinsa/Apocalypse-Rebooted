@@ -84,12 +84,6 @@ public class GhostModel<T extends GhostEntity> extends SegmentedModel<T> {
         ModelHelper.bobArms(rightArm, leftArm, ageInTicks);
     }
 
-    @Override
-    public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder vertexBuilder, int p_225598_3_, int textureOverlay, float p_225598_5_, float p_225598_6_, float p_225598_7_, float p_225598_8_) {
-        // TODO - Render a cool effect of some sort when the ghost is frozen
-        super.renderToBuffer(matrixStack, vertexBuilder, p_225598_3_, textureOverlay, p_225598_5_, p_225598_6_, p_225598_7_, p_225598_8_);
-    }
-
     public void setRotationAngle(ModelRenderer modelRenderer, float x, float y, float z) {
         modelRenderer.xRot = x;
         modelRenderer.yRot = y;
