@@ -1,4 +1,4 @@
-package com.toast.apocalypse.common.register;
+package com.toast.apocalypse.common.core.register;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.living.*;
@@ -12,8 +12,6 @@ import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-
-import java.util.function.Supplier;
 
 public class ApocalypseEntities {
 

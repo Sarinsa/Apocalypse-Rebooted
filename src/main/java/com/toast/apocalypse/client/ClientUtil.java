@@ -14,8 +14,9 @@ public class ClientUtil {
     private static final ResourceLocation BUCKET_HELM_OVERLAY_TEXTURE = Apocalypse.resourceLoc("textures/misc/bucket_blur.png");
     public static final BucketHelmetModel BUCKET_HELMET_MODEL = new BucketHelmetModel();
 
+    /** Gets updated via packet */
     public static int OVERWORLD_MOON_PHASE = 0;
-
+    // TODO - One day... one day..
     public static int[] UNLOCKED_INDEXES = new int[]{};
 
 

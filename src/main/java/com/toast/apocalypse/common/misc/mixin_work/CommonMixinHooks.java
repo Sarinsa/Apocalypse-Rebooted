@@ -2,7 +2,7 @@ package com.toast.apocalypse.common.misc.mixin_work;
 
 import com.toast.apocalypse.common.core.difficulty.MobAttributeHandler;
 import com.toast.apocalypse.common.misc.EntityAttributeModifiers;
-import com.toast.apocalypse.common.register.ApocalypseEffects;
+import com.toast.apocalypse.common.core.register.ApocalypseEffects;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;

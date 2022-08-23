@@ -1,0 +1,8 @@
+{
+  "entity.ghost.ghost_freeze": {
+    "subtitle": "sound_event.apocalypse.subtitle.ghost_freeze",
+    "sounds": [
+      "apocalypse:entity/ghost/ghost_freeze"
+    ]
+  }
+}

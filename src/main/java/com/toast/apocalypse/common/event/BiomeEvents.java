@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.event;
 
-import com.toast.apocalypse.common.register.ApocalypseEntities;
+import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.MobSpawnInfo;

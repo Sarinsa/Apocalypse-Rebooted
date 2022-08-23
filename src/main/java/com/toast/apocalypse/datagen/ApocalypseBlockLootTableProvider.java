@@ -1,6 +1,6 @@
 package com.toast.apocalypse.datagen;
 
-import com.toast.apocalypse.common.register.ApocalypseBlocks;
+import com.toast.apocalypse.common.core.register.ApocalypseBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.data.loot.BlockLootTables;
 import net.minecraft.loot.LootTable;

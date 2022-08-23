@@ -5,6 +5,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.controller.MovementController;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
@@ -48,6 +49,11 @@ public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements
     @Override
     protected SoundEvent getAmbientSound() {
         return null;
+    }
+
+    @Override
+    public SoundCategory getSoundSource() {
+        return SoundCategory.HOSTILE;
     }
 
     /**

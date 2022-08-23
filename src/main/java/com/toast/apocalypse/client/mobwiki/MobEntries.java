@@ -1,7 +1,7 @@
 package com.toast.apocalypse.client.mobwiki;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.register.ApocalypseEntities;
+import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.util.MobWikiIndexes;
 import com.toast.apocalypse.common.util.References;
 

@@ -3,7 +3,7 @@ package com.toast.apocalypse.common.util;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.core.config.CommonConfigReloadListener;
 import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
-import com.toast.apocalypse.common.register.ApocalypseItems;
+import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;

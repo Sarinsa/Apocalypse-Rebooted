@@ -1,8 +1,9 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.common.core.register.ApocalypseEffects;
+import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.entity.living.goals.MoonMobPlayerTargetGoal;
-import com.toast.apocalypse.common.register.ApocalypseEffects;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -21,11 +22,9 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Hand;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -33,7 +32,9 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeMod;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
@@ -42,10 +43,16 @@ import java.util.Random;
 import java.util.UUID;
 
 /**
- * This is a full moon mob that has the odd ability to completely ignore blocks. To compliment this, it has
+ * This is a full moon mob that has the odd ability to completely ignore block collision. To compliment this, it has
  * unlimited aggro range and ignores line of sight.
  * These are the bread and butter of invasions. Ghosts deal light damage that can't be reduced below 1 and apply
  * a short increased gravity effect to help deal with flying players.
+ *
+ * The ghost will also occasionally maneuver away if damaged, potentially phasing
+ * through walls and disorienting the target.
+ *
+ * //TODO - "Freezing Counter": Provide the player with a gadget for temporarily
+ *          immobilizing/freezing ghosts in place.
  */
 public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
@@ -76,7 +83,6 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
                 .add(Attributes.ATTACK_DAMAGE, 1.0D)
                 .add(Attributes.MAX_HEALTH, 4.0D)
                 .add(Attributes.FLYING_SPEED, 0.50D)
-                .add(ForgeMod.SWIM_SPEED.get(), 1.1F)
                 .add(Attributes.FOLLOW_RANGE, Double.POSITIVE_INFINITY);
     }
 
@@ -102,11 +108,6 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
     }
 
     @Override
-    public void die(DamageSource damageSource) {
-        super.die(damageSource);
-    }
-
-    @Override
     protected boolean shouldDespawnInPeaceful() {
         return true;
     }
@@ -117,18 +118,27 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
     }
 
     @Override
+    public void knockback(float strength, double xRatio, double zRatio) {
+        if (!isFrozen())
+            super.knockback(strength, xRatio, zRatio);
+    }
+
+    @Override
     public boolean hurt(DamageSource damageSource, float damage) {
-        if (super.hurt(damageSource, damage)) {
-            Entity entity = damageSource.getEntity();
+        Entity entity = damageSource.getEntity();
 
-            if (entity instanceof LivingEntity) {
-                LivingEntity livingEntity = (LivingEntity) entity;
+        if (entity instanceof LivingEntity) {
+            LivingEntity livingEntity = (LivingEntity) entity;
 
-                if (livingEntity.getItemInHand(Hand.MAIN_HAND).getItem() == Items.BEDROCK) {
-                    freeze(200);
-                    return true;
+            if (!isFrozen() && livingEntity.getItemInHand(Hand.MAIN_HAND).getItem() == Items.BEDROCK) {
+                freeze(200);
+
+                if (!level.isClientSide) {
+                    playSound(ApocalypseSounds.GHOST_FREEZE.get(), 1.0F, 1.0F - (random.nextFloat() / 5));
                 }
             }
+        }
+        if (super.hurt(damageSource, damage)) {
             if (!isFrozen() && entity != null && entity == getTarget() && random.nextInt(2) == 0) {
                 setManeuvering(true);
             }
@@ -185,6 +195,11 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         super.aiStep();
     }
 
+    @Override
+    public SoundCategory getSoundSource() {
+        return SoundCategory.HOSTILE;
+    }
+
     /**
      * Completely ignore line of sight; the target
      * is always "visible"
@@ -237,16 +252,40 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
     }
 
     protected void freeze(int freezeTime) {
-        freeze();
-        this.freezeTime = freezeTime;
-    }
-
-    protected void freeze() {
         this.entityData.set(IS_FROZEN, true);
+        this.freezeTime = freezeTime;
+
+        if (level != null && !level.isClientSide) {
+            level.broadcastEntityEvent(this, (byte) 7);
+        }
     }
 
     private void unfreeze() {
         this.entityData.set(IS_FROZEN, false);
+    }
+
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void handleEntityEvent(byte eventId) {
+        if (eventId == 7) {
+            displayFreezeParticles();
+        }
+        else {
+            super.handleEntityEvent(eventId);
+        }
+    }
+
+    private void displayFreezeParticles() {
+        for (int i = 0; i < 13; i++) {
+            level.addParticle(
+                    ParticleTypes.END_ROD,
+                    getX() + 0.5D,
+                    getY() + 0.5D,
+                    getZ() + 0.5D,
+                    random.nextGaussian() / 3,
+                    random.nextGaussian() / 3,
+                    random.nextGaussian() / 3);
+        }
     }
 
     @Override
@@ -257,6 +296,14 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
     @Override
     protected SoundEvent getHurtSound(DamageSource damageSource) {
         return SoundEvents.ENDERMAN_SCREAM;
+    }
+
+    @Override
+    protected void playHurtSound(DamageSource damageSource) {
+        if (isFrozen())
+            return;
+
+        super.playHurtSound(damageSource);
     }
 
     @Override
@@ -309,10 +356,6 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         }
         if (compoundNBT.contains("FreezeTime", Constants.NBT.TAG_ANY_NUMERIC)) {
             this.freezeTime = compoundNBT.getInt("FreezeTime");
-
-            if (this.freezeTime > 0) {
-                this.freeze();
-            }
         }
     }
 
@@ -411,59 +454,58 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
         private int ticksUntilNextAttack;
 
         public MeleeAttackGoal(T ghost) {
-            this.setFlags(EnumSet.of(Goal.Flag.MOVE));
+            setFlags(EnumSet.of(Goal.Flag.MOVE));
             this.ghost = ghost;
         }
 
         private void setWantedPosition(LivingEntity target) {
-            Vector3d vector = target.getEyePosition(1.0F).add(0.0D, -(this.ghost.getBbHeight() / 1.8), 0.0D);
-            final double speed = this.ghost.getAttributeValue(Attributes.FLYING_SPEED);
-            this.ghost.moveControl.setWantedPosition(vector.x, vector.y, vector.z, speed);
+            Vector3d vector = target.getEyePosition(1.0F).add(0.0D, -(ghost.getBbHeight() / 1.8), 0.0D);
+            final double speed = ghost.getAttributeValue(Attributes.FLYING_SPEED);
+            ghost.moveControl.setWantedPosition(vector.x, vector.y, vector.z, speed);
         }
 
         @Override
         public boolean canUse() {
-            return this.ghost.getTarget() != null && this.ghost.getTarget().isAlive();
+            return !ghost.isFrozen() && ghost.getTarget() != null && ghost.getTarget().isAlive();
         }
 
         @Override
         public boolean canContinueToUse() {
-            return this.canUse();
+            return canUse();
         }
 
         @Override
         public void start() {
-            this.ghost.setAggressive(true);
+            ghost.setAggressive(true);
         }
 
         @Override
         public void stop() {
-            this.ghost.setAggressive(false);
-            this.ghost.setTarget(null);
+            ghost.setAggressive(false);
+            ghost.setTarget(null);
         }
 
         @Override
         public void tick() {
-            LivingEntity target = this.ghost.getTarget();
-            double distance = this.ghost.distanceToSqr(target);
+            LivingEntity target = ghost.getTarget();
+            double distance = ghost.distanceToSqr(target);
 
-            if (!this.ghost.isManeuvering()) {
-                this.setWantedPosition(target);
+            if (!ghost.isManeuvering()) {
+                setWantedPosition(target);
             }
-
-            if (this.ticksUntilNextAttack <= 0) {
+            if (ticksUntilNextAttack <= 0) {
                 if (canAttackReach(target, distance)) {
-                    this.ghost.doHurtTarget(target);
-                    this.ticksUntilNextAttack = 20;
+                    ghost.doHurtTarget(target);
+                    ticksUntilNextAttack = 20;
                 }
             }
             else {
-                --this.ticksUntilNextAttack;
+                --ticksUntilNextAttack;
             }
         }
 
         private boolean canAttackReach(LivingEntity target, double distance) {
-            return distance <= (double)(this.ghost.getBbWidth() * 2.0F * this.ghost.getBbWidth() * 2.0F + target.getBbWidth());
+            return distance <= (double)(ghost.getBbWidth() * 2.0F * ghost.getBbWidth() * 2.0F + target.getBbWidth());
         }
     }
 

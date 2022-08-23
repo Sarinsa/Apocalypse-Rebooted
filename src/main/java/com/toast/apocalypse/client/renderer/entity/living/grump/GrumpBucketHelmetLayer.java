@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.toast.apocalypse.client.renderer.model.armor.GrumpBucketHelmetModel;
 import com.toast.apocalypse.common.entity.living.GrumpEntity;
 import com.toast.apocalypse.common.item.BucketHelmetItem;
-import com.toast.apocalypse.common.register.ApocalypseItems;
+import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderType;

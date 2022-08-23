@@ -1,4 +1,4 @@
-package com.toast.apocalypse.common.register;
+package com.toast.apocalypse.common.core.register;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.item.BucketHelmetItem;
@@ -8,7 +8,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.item.SpawnEggItem;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;

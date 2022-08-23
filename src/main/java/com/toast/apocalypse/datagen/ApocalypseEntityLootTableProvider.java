@@ -1,18 +1,15 @@
 package com.toast.apocalypse.datagen;
 
-import com.toast.apocalypse.common.register.ApocalypseEntities;
-import com.toast.apocalypse.common.register.ApocalypseItems;
+import com.toast.apocalypse.common.core.register.ApocalypseEntities;
+import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import net.minecraft.data.loot.EntityLootTables;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Items;
 import net.minecraft.loot.*;
-import net.minecraft.loot.conditions.EntityHasProperty;
 import net.minecraft.loot.functions.LootingEnchantBonus;
 import net.minecraft.loot.functions.SetCount;
-import net.minecraft.loot.functions.Smelt;
 
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 public class ApocalypseEntityLootTableProvider extends EntityLootTables {

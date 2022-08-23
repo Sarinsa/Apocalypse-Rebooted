@@ -1,15 +1,12 @@
 package com.toast.apocalypse.datagen;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.register.ApocalypseEntities;
-import com.toast.apocalypse.common.register.ApocalypseItems;
+import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.triggers.PassedGracePeriodTrigger;
 import com.toast.apocalypse.common.triggers.TamedGrumpTrigger;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.FrameType;
-import net.minecraft.advancements.criterion.EntityPredicate;
 import net.minecraft.advancements.criterion.InventoryChangeTrigger;
-import net.minecraft.advancements.criterion.TameAnimalTrigger;
 import net.minecraft.data.AdvancementProvider;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.item.Items;

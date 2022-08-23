@@ -1,7 +1,7 @@
 package com.toast.apocalypse.datagen;
 
-import com.toast.apocalypse.common.register.ApocalypseBlocks;
-import com.toast.apocalypse.common.register.ApocalypseItems;
+import com.toast.apocalypse.common.core.register.ApocalypseBlocks;
+import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import net.minecraft.data.*;
 import net.minecraft.item.Items;
 import net.minecraft.tags.ItemTags;

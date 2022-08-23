@@ -35,6 +35,8 @@
 
   "effect.apocalypse.heavy": "Strong Gravity",
 
+  "sound_event.apocalypse.subtitle.ghost_freeze": "Ghost freezes",
+
   "apocalypse.item_desc.fatherly_toast": "Mmmm, toasty!",
   "apocalypse.item.desc.fatherly_toast.level": "Toast Level: %s",
   "apocalypse.item_desc.bucket_helm": "Protects you from the rain",

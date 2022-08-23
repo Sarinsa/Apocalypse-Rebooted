@@ -1,17 +1,14 @@
 package com.toast.apocalypse.common.entity.projectile;
 
 import com.toast.apocalypse.common.entity.living.SeekerEntity;
-import com.toast.apocalypse.common.misc.DestroyerExplosionContext;
 import com.toast.apocalypse.common.misc.SeekerExplosionContext;
-import com.toast.apocalypse.common.register.ApocalypseEntities;
+import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import net.minecraft.block.AbstractFireBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.projectile.AbstractFireballEntity;
-import net.minecraft.entity.projectile.FireballEntity;
-import net.minecraft.item.Item;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.util.*;
@@ -23,7 +20,6 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
-import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;

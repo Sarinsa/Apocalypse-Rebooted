@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.tile;
 
 import com.toast.apocalypse.common.block.LunarPhaseSensorBlock;
-import com.toast.apocalypse.common.register.ApocalypseTileEntities;
+import com.toast.apocalypse.common.core.register.ApocalypseTileEntities;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.tileentity.ITickableTileEntity;

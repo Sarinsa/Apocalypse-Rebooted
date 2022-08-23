@@ -2,15 +2,12 @@ package com.toast.apocalypse.common.entity.projectile;
 
 import com.toast.apocalypse.common.entity.living.DestroyerEntity;
 import com.toast.apocalypse.common.misc.DestroyerExplosionContext;
-import com.toast.apocalypse.common.register.ApocalypseEntities;
-import com.toast.apocalypse.common.util.BlockHelper;
+import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.AbstractFireballEntity;
-import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;

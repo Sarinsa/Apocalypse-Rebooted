@@ -16,19 +16,17 @@ import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.event.*;
 import com.toast.apocalypse.common.network.PacketHandler;
-import com.toast.apocalypse.common.register.*;
+import com.toast.apocalypse.common.core.register.*;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.util.MobWikiIndexes;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import com.toast.apocalypse.common.util.VersionCheckHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.VersionChecker;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -98,6 +96,7 @@ public class Apocalypse {
 
         ApocalypseBlocks.BLOCKS.register(eventBus);
         ApocalypseItems.ITEMS.register(eventBus);
+        ApocalypseSounds.SOUNDS.register(eventBus);
         ApocalypseEffects.EFFECTS.register(eventBus);
         ApocalypseEntities.ENTITIES.register(eventBus);
         ApocalypseParticles.PARTICLES.register(eventBus);

@@ -3,7 +3,7 @@ package com.toast.apocalypse.common.triggers;
 import com.google.gson.JsonObject;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.living.GrumpEntity;
-import com.toast.apocalypse.common.register.ApocalypseEntities;
+import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import net.minecraft.advancements.criterion.AbstractCriterionTrigger;
 import net.minecraft.advancements.criterion.CriterionInstance;
 import net.minecraft.advancements.criterion.EntityPredicate;

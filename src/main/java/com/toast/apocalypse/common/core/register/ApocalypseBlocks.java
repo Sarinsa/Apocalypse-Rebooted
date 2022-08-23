@@ -1,4 +1,4 @@
-package com.toast.apocalypse.common.register;
+package com.toast.apocalypse.common.core.register;
 
 import com.toast.apocalypse.common.block.LunarPhaseSensorBlock;
 import com.toast.apocalypse.common.core.Apocalypse;

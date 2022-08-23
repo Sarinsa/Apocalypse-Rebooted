@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.event;
 
-import com.toast.apocalypse.common.register.ApocalypseItems;
+import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import net.minecraft.entity.merchant.villager.VillagerProfession;
 import net.minecraft.entity.merchant.villager.VillagerTrades;
 import net.minecraftforge.event.village.VillagerTradesEvent;

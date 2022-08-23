@@ -66,7 +66,10 @@ public class GhostModel<T extends GhostEntity> extends SegmentedModel<T> {
     public void setupAnim(T ghost, float limbSwing, float limbSwingAmount, float ageInTicks, float headYaw, float headPitch){
         this.head.yRot = headYaw * (float) Math.PI / 180.0F;
         this.head.xRot = headPitch * (float) Math.PI / 180.0F;
-        bobArmsAndHead(this.rightArm, this.leftArm, this.head, ageInTicks);
+
+        if (!ghost.isFrozen()) {
+            bobArmsAndHead(this.rightArm, this.leftArm, this.head, ageInTicks);
+        }
     }
 
     private static void bobArmsAndHead(ModelRenderer rightArm, ModelRenderer leftArm, ModelRenderer head, float ageInTicks) {
