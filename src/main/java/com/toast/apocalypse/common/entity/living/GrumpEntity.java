@@ -1,12 +1,16 @@
 package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.common.core.register.ApocalypseEffects;
+import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.entity.living.goals.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
-import com.toast.apocalypse.common.core.register.ApocalypseEffects;
-import com.toast.apocalypse.common.core.register.ApocalypseItems;
+import com.toast.apocalypse.common.inventory.container.GrumpInventoryContainer;
+import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
+import net.minecraft.client.gui.widget.list.KeyBindingList;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -16,10 +20,16 @@ import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.ai.goal.TargetGoal;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
+import net.minecraft.entity.passive.TameableEntity;
+import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.IInventoryChangedListener;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
@@ -31,6 +41,7 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.PathNodeType;
 import net.minecraft.pathfinding.WalkNodeProcessor;
 import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.Effects;
 import net.minecraft.server.management.PreYggdrasilConverter;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -43,8 +54,14 @@ import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.Optional;
@@ -58,21 +75,25 @@ import java.util.UUID;
  * Unlike most full moon mobs, this one has no means of breaking through defenses and therefore relies on the
  * player being vulnerable to attack - whether by will or by other mobs breaking through to the player.
  */
-public class GrumpEntity extends AbstractFullMoonGhastEntity {
+public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInventoryChangedListener {
 
     protected static final DataParameter<Optional<UUID>> OWNER_UUID = EntityDataManager.defineId(GrumpEntity.class, DataSerializers.OPTIONAL_UUID);
+    protected static final DataParameter<Boolean> STAND_BY = EntityDataManager.defineId(GrumpEntity.class, DataSerializers.BOOLEAN);
 
     /**The current fishhook entity launched by the grump. */
     private MonsterFishHook fishHook;
-    private boolean shouldStandBy;
     private final MoveHelperController moveHelperController;
+
+    protected final Inventory inventory = new Inventory(1);
 
 
     public GrumpEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
-        this.moveHelperController = new MoveHelperController(this);
-        this.moveControl = this.moveHelperController;
-        this.xpReward = 3;
+        moveHelperController = new MoveHelperController(this);
+        moveControl = moveHelperController;
+        xpReward = 3;
+        inventory.addListener(this);
+        setHeadItem(inventory.getItem(0));
     }
 
     public static AttributeModifierMap.MutableAttribute createGrumpAttributes() {
@@ -88,6 +109,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(OWNER_UUID, Optional.empty());
+        this.entityData.define(STAND_BY, false);
     }
 
     @Override
@@ -129,18 +151,6 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
     }
 
     @Override
-    protected void populateDefaultEquipmentSlots(DifficultyInstance difficultyInstance) {
-        double chance = ApocalypseCommonConfig.COMMON.getGrumpBucketHelmetChance();
-
-        if (chance <= 0)
-            return;
-
-        if (this.random.nextDouble() <= chance) {
-            this.setItemSlot(EquipmentSlotType.HEAD, new ItemStack(ApocalypseItems.BUCKET_HELM.get()));
-        }
-    }
-
-    @Override
     public boolean hurt(DamageSource damageSource, float damage) {
         if (damageSource.getDirectEntity() instanceof AbstractArrowEntity) {
             if (this.getItemBySlot(EquipmentSlotType.HEAD).getItem() == ApocalypseItems.BUCKET_HELM.get()) {
@@ -166,7 +176,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
 
     @Override
     public void checkDespawn() {
-        if (getOwnerUUID() != null)
+        if (hasOwner())
             return;
 
         super.checkDespawn();
@@ -176,7 +186,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
     public ActionResultType mobInteract(PlayerEntity player, Hand hand) {
         ItemStack itemStack = player.getItemInHand(hand);
 
-        if (itemStack.getItem() == ApocalypseItems.FATHERLY_TOAST.get() && getOwnerUUID() == null) {
+        if (itemStack.getItem() == ApocalypseItems.FATHERLY_TOAST.get() && !hasOwner()) {
             if (!level.isClientSide) {
                 if (level.getRandom().nextInt(5) == 0) {
                     usePlayerItem(player, itemStack);
@@ -198,15 +208,53 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
                 heal((getMaxHealth() + 1.0F) / 6);
                 performEatEffects(2);
                 usePlayerItem(player, itemStack);
+                return ActionResultType.SUCCESS;
             }
         }
         else {
-            if (!level.isClientSide && player.getUUID().equals(getOwnerUUID()) && player.isShiftKeyDown()) {
-                shouldStandBy = !shouldStandBy;
+            if (getOwner() == player) {
+                if (player.isShiftKeyDown()) {
+                    setStandBy(!shouldStandBy());
+                }
+                else if (getHeadItem().getItem() == Items.SADDLE) {
+                    if (getPassengers().isEmpty()) {
+                        player.startRiding(this);
+                        return ActionResultType.SUCCESS;
+                    }
+                }
+                else {
+                    if (!level.isClientSide)
+                    openContainerForPlayer((ServerPlayerEntity) player);
+                }
                 return ActionResultType.SUCCESS;
             }
         }
         return super.mobInteract(player, hand);
+    }
+
+    public void openContainerForPlayer(ServerPlayerEntity player) {
+        if (player.containerMenu != player.inventoryMenu) {
+            player.closeContainer();
+        }
+        player.nextContainerCounter();
+        Container container = new GrumpInventoryContainer(player.containerCounter, player.inventory, this.inventory, this);
+        NetworkHelper.openGrumpInventory(player, container.containerId, this);
+        player.containerMenu = container;
+        container.addSlotListener(player);
+
+        MinecraftForge.EVENT_BUS.post(new PlayerContainerEvent.Open(player, player.containerMenu));
+    }
+
+    public IInventory getInventory() {
+        return this.inventory;
+    }
+
+    public ItemStack getHeadItem() {
+        return getItemBySlot(EquipmentSlotType.HEAD);
+    }
+
+    public void setHeadItem(@Nonnull ItemStack itemStack) {
+        setItemSlot(EquipmentSlotType.HEAD, itemStack);
     }
 
     protected void usePlayerItem(PlayerEntity player, ItemStack itemStack) {
@@ -249,49 +297,128 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
     @OnlyIn(Dist.CLIENT)
     public void handleEntityEvent(byte eventId) {
         if (eventId == 7) {
-            this.performEatEffects(1);
+            performEatEffects(1);
         }
         else if (eventId == 6) {
-            this.performEatEffects(0);
+            performEatEffects(0);
         }
         else {
             super.handleEntityEvent(eventId);
         }
     }
 
+    @Override
+    protected boolean isImmobile() {
+        return super.isImmobile() && this.isVehicle();
+    }
+
+    @Override
+    public boolean canBeControlledByRider() {
+        return this.getControllingPassenger() instanceof LivingEntity;
+    }
+
+    @Override
+    @Nullable
+    public Entity getControllingPassenger() {
+        return this.getPassengers().isEmpty() ? null : this.getPassengers().get(0);
+    }
+
+    @Override
+    public void travel(Vector3d vec) {
+        if (this.isAlive()) {
+            if (this.isVehicle() && this.canBeControlledByRider() && getHeadItem().getItem() == Items.SADDLE) {
+                if (getControllingPassenger() != null && getControllingPassenger() instanceof LivingEntity) {
+                    LivingEntity rider = (LivingEntity) this.getControllingPassenger();
+
+                    this.yRot = rider.yRot;
+                    this.yRotO = this.yRot;
+                    this.xRot = rider.xRot * 0.5F;
+                    this.setRot(this.yRot, this.xRot);
+                    this.yBodyRot = this.yRot;
+                    this.yHeadRot = this.yBodyRot;
+
+                    float xSpeed = rider.xxa;
+                    float ySpeed = rider.yya * 1.15F;
+                    float zSpeed = rider.zza;
+
+                    if (rider instanceof PlayerEntity) {
+                        PlayerEntity player = (PlayerEntity) rider;
+
+                        if (player.isShiftKeyDown()) {
+                            ySpeed = -0.5F;
+                        }
+                        else if (player.jumping) {
+                            ySpeed = 0.5F;
+                        }
+                    }
+                    super.travel(new Vector3d(xSpeed, ySpeed, zSpeed));
+                }
+            }
+            else {
+                super.travel(vec);
+            }
+        }
+    }
+
     public void setOwnerUUID(UUID uuid) {
-        this.entityData.set(OWNER_UUID, Optional.of(uuid));
+        entityData.set(OWNER_UUID, Optional.of(uuid));
     }
 
     @Nullable
     public UUID getOwnerUUID() {
-        return this.entityData.get(OWNER_UUID).orElse(null);
+        return entityData.get(OWNER_UUID).orElse(null);
+    }
+
+    public boolean hasOwner() {
+        return getOwnerUUID() != null;
     }
 
     @Nullable
     public LivingEntity getOwner() {
         try {
-            UUID uuid = this.getOwnerUUID();
-            return uuid == null ? null : this.level.getPlayerByUUID(uuid);
+            UUID uuid = getOwnerUUID();
+            return uuid == null ? null : level.getPlayerByUUID(uuid);
         }
         catch (IllegalArgumentException exception) {
             return null;
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean shouldStandBy() {
+        return this.entityData.get(STAND_BY);
+    }
+
+    public void setStandBy(boolean standBy) {
+        this.entityData.set(STAND_BY, standBy);
+    }
+
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void addAdditionalSaveData(CompoundNBT compoundNBT) {
         super.addAdditionalSaveData(compoundNBT);
 
-        if (this.getOwnerUUID() != null) {
-            compoundNBT.putUUID("Owner", this.getOwnerUUID());
+        compoundNBT.putBoolean("StandBy", this.entityData.get(STAND_BY));
+
+        if (hasOwner()) {
+            compoundNBT.putUUID("Owner", getOwnerUUID());
         }
-        compoundNBT.putBoolean("StandBy", this.shouldStandBy);
+        if (inventory != null && !getHeadItem().isEmpty()) {
+            compoundNBT.put("HeadItem", getHeadItem().save(new CompoundNBT()));
+        }
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void readAdditionalSaveData(CompoundNBT compoundNBT) {
         super.readAdditionalSaveData(compoundNBT);
+
+        setStandBy(compoundNBT.getBoolean("StandBy"));
+
+        if (compoundNBT.contains("HeadItem", Constants.NBT.TAG_COMPOUND)) {
+            setHeadItem(ItemStack.of(compoundNBT.getCompound("HeadItem")));
+        }
+
         UUID uuid;
 
         if (compoundNBT.hasUUID("Owner")) {
@@ -309,7 +436,6 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
 
             }
         }
-        this.shouldStandBy = compoundNBT.getBoolean("Sitting");
     }
 
     @Nullable
@@ -319,6 +445,27 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
         return spawnData;
     }
 
+    @Override
+    protected void populateDefaultEquipmentSlots(DifficultyInstance difficultyInstance) {
+        double chance = ApocalypseCommonConfig.COMMON.getGrumpBucketHelmetChance();
+
+        if (chance <= 0)
+            return;
+
+        if (this.random.nextDouble() <= chance) {
+            this.setItemSlot(EquipmentSlotType.HEAD, new ItemStack(ApocalypseItems.BUCKET_HELM.get()));
+        }
+    }
+
+    @Override
+    public void containerChanged(IInventory inventory) {
+        ItemStack itemStack = inventory.getItem(0);
+        setItemSlot(EquipmentSlotType.HEAD, itemStack);
+
+        if (this.tickCount > 20 && itemStack.getItem() == Items.SADDLE || itemStack.getItem() == ApocalypseItems.BUCKET_HELM.get()) {
+            this.playSound(SoundEvents.HORSE_SADDLE, 0.5F, 1.0F);
+        }
+    }
 
     /** Copied from ghast */
     static class LookAroundGoal extends Goal {
@@ -459,45 +606,45 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
 
         @Override
         public void tick() {
-            MonsterFishHook hook = this.grump.fishHook;
+            MonsterFishHook hook = grump.fishHook;
 
             if (hook == null) {
-                if (++this.timeNextHookLaunch >= 40) {
-                    this.spawnMonsterFishHook(this.grump.getTarget());
-                    this.timeNextHookLaunch = 0;
+                if (++timeNextHookLaunch >= 40) {
+                    spawnMonsterFishHook(grump.getTarget());
+                    timeNextHookLaunch = 0;
                 }
             }
             else {
                 if (hook.getHookedIn() != null) {
                     // The grump might end up accidentally hooking itself, who knows?
-                    if (hook.getHookedIn() != this.grump) {
+                    if (hook.getHookedIn() != grump) {
                         hook.bringInHookedEntity();
                     }
-                    this.removeMonsterFishHook();
+                    removeMonsterFishHook();
                     return;
                 }
 
-                if (++this.timeHookExisted >= 60) {
-                    this.timeHookExisted = 0;
-                    this.removeMonsterFishHook();
+                if (++timeHookExisted >= 60) {
+                    timeHookExisted = 0;
+                    removeMonsterFishHook();
                 }
             }
         }
 
         private void removeMonsterFishHook() {
-            this.grump.fishHook.remove();
-            this.grump.fishHook = null;
+            grump.fishHook.remove();
+            grump.fishHook = null;
         }
 
         private void spawnMonsterFishHook(@Nullable LivingEntity target) {
             if (target == null)
                 return;
 
-            World world = this.grump.getCommandSenderWorld();
-            MonsterFishHook fishHook = new MonsterFishHook(this.grump, target, world);
+            World world = grump.getCommandSenderWorld();
+            MonsterFishHook fishHook = new MonsterFishHook(grump, target, world);
             world.addFreshEntity(fishHook);
-            this.grump.fishHook = fishHook;
-            world.playSound(null, this.grump.blockPosition(), SoundEvents.FISHING_BOBBER_THROW, SoundCategory.NEUTRAL, 0.6F, 0.4F / (world.random.nextFloat() * 0.4F + 0.8F));
+            grump.fishHook = fishHook;
+            world.playSound(null, grump.blockPosition(), SoundEvents.FISHING_BOBBER_THROW, SoundCategory.NEUTRAL, 0.6F, 0.4F / (world.random.nextFloat() * 0.4F + 0.8F));
         }
     }
 
@@ -513,14 +660,21 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
 
         @Override
         public boolean canUse() {
-            if (grump.getOwner() != null) {
+            if (grump.isVehicle())
+                return false;
+
+            if (grump.getOwner() != null && grump.getOwner().isAlive()) {
                 LivingEntity owner = grump.getOwner();
 
                 LivingEntity target = owner.getLastHurtByMob() == null ? owner.getLastHurtMob() : owner.getLastHurtByMob();
 
                 if (target != null && target != grump) {
-                    this.target = target;
-                    return true;
+                    if (target instanceof TameableEntity) {
+                        if (!((TameableEntity) target).isOwnedBy(owner)) {
+                            this.target = target;
+                            return true;
+                        }
+                    }
                 }
             }
             return false;
@@ -544,7 +698,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
 
         @Override
         public boolean canUse() {
-            if (grump.getLastHurtByMob() == grump.getOwner())
+            if (grump.getLastHurtByMob() == grump.getOwner() || grump.isVehicle())
                 return false;
 
             return super.canUse();
@@ -575,7 +729,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
 
         @Override
         public boolean canUse() {
-            return grump.getOwnerUUID() == null && super.canUse();
+            return !grump.hasOwner() && super.canUse();
         }
 
         @Override
@@ -583,7 +737,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
             boolean canAttack = super.canAttack(target, predicate);
 
             if (canAttack) {
-                if (grump.getOwnerUUID() != null)
+                if (grump.hasOwner())
                     return !target.getUUID().equals(grump.getOwnerUUID());
             }
             return canAttack;
@@ -602,7 +756,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
 
         @Override
         public boolean canUse() {
-            if (this.grump.shouldStandBy)
+            if (grump.hasOwner() || grump.isVehicle())
                 return false;
 
             if (this.grump.getTarget() != null) {
@@ -642,6 +796,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
     }
 
     /** Mostly copy-pasted from {@link net.minecraft.entity.ai.goal.FollowOwnerGoal} */
+    @SuppressWarnings("ConstantConditions")
     static class FollowOwnerGoal extends Goal {
 
         private final GrumpEntity grump;
@@ -651,19 +806,23 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
             this.grump = grump;
         }
 
-        private void setWantedPosition() {
+        private void setWantedToOwner() {
             Vector3d vector = owner.getEyePosition(1.0F).add(0.0D, -(this.grump.getBbHeight() / 2), 0.0D);
             this.grump.moveControl.setWantedPosition(vector.x, vector.y, vector.z, 1.0D);
         }
 
+        private void setWantedPosition(double x, double y, double z) {
+            this.grump.moveControl.setWantedPosition(x, y, z, 1.0D);
+        }
+
         @Override
         public boolean canUse() {
-            return grump.getOwner() != null && !grump.shouldStandBy && grump.distanceToSqr(grump.getOwner()) > 100.0D;
+            return grump.getOwner() != null && !grump.shouldStandBy() && !grump.isVehicle() && grump.distanceToSqr(grump.getOwner()) > 100.0D;
         }
 
         @Override
         public boolean canContinueToUse() {
-            if (owner != null && owner.isAlive() && !grump.shouldStandBy && grump.distanceToSqr(owner) > 100.0D) {
+            if (owner != null && owner.isAlive() && !grump.shouldStandBy() && !grump.isVehicle() && grump.distanceToSqr(owner) > 40.0D) {
                 return this.grump.moveControl.hasWanted() && this.grump.moveHelperController.canReachCurrentWanted();
             }
             return false;
@@ -679,13 +838,12 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
         }
 
         @Override
-        @SuppressWarnings("ConstantConditions")
         public void tick() {
             if (grump.distanceToSqr(owner) > 200) {
                 teleportToOwner();
             }
             else {
-                this.setWantedPosition();
+                this.setWantedToOwner();
             }
         }
 
@@ -714,7 +872,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity {
             }
             else {
                 grump.moveTo((double)x + 0.5D, y + 0.4D, (double)z + 0.5D, grump.yRot, grump.xRot);
-                setWantedPosition();
+                setWantedPosition(grump.getX(), grump.getY(), grump.getZ());
                 return true;
             }
         }

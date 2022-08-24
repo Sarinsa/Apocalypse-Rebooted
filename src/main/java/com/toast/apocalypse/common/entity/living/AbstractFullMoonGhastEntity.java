@@ -113,7 +113,7 @@ public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements
         }
 
         public void tick() {
-            if (operation == MovementController.Action.MOVE_TO) {
+            if (operation == Action.MOVE_TO) {
                 if (floatDuration-- <= 0) {
                     floatDuration += ghast.getRandom().nextInt(5) + 2;
                     Vector3d vector3d = new Vector3d(wantedX - ghast.getX(), wantedY - ghast.getY(), wantedZ - ghast.getZ());
@@ -125,7 +125,7 @@ public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements
                         ghast.setDeltaMovement(ghast.getDeltaMovement().add(vector3d.scale(0.1D)));
                     }
                     else {
-                        operation = MovementController.Action.WAIT;
+                        operation = Action.WAIT;
                     }
                 }
             }

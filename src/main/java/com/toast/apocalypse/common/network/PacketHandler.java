@@ -44,6 +44,7 @@ public class PacketHandler {
         registerMessage(S2CUpdateMoonPhase.class, S2CUpdateMoonPhase::encode, S2CUpdateMoonPhase::decode, S2CUpdateMoonPhase::handle);
         registerMessage(S2CUpdateMobWikiIndexes.class, S2CUpdateMobWikiIndexes::encode, S2CUpdateMobWikiIndexes::decode, S2CUpdateMobWikiIndexes::handle);
         registerMessage(S2COpenMobWikiScreen.class, S2COpenMobWikiScreen::encode, S2COpenMobWikiScreen::decode, S2COpenMobWikiScreen::handle);
+        registerMessage(S2COpenGrumpInventory.class, S2COpenGrumpInventory::encode, S2COpenGrumpInventory::decode, S2COpenGrumpInventory::handle);
     }
 
     public <MSG> void registerMessage(Class<MSG> messageType, BiConsumer<MSG, PacketBuffer> encoder, Function<PacketBuffer, MSG> decoder, BiConsumer<MSG, Supplier<NetworkEvent.Context>> messageConsumer) {

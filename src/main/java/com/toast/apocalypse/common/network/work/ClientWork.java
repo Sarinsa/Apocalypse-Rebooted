@@ -3,14 +3,19 @@ package com.toast.apocalypse.common.network.work;
 import com.toast.apocalypse.client.ClientUtil;
 import com.toast.apocalypse.client.event.ClientEvents;
 import com.toast.apocalypse.client.event.DifficultyRenderHandler;
+import com.toast.apocalypse.client.screen.GrumpInventoryScreen;
 import com.toast.apocalypse.client.screen.MobWikiScreen;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.entity.living.GrumpEntity;
+import com.toast.apocalypse.common.inventory.container.GrumpInventoryContainer;
 import com.toast.apocalypse.common.network.message.*;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 
@@ -78,9 +83,35 @@ public class ClientWork {
     }
 
     public static void handleOpenMobWikiScreen(S2COpenMobWikiScreen message) {
-        if (!Minecraft.getInstance().player.getUUID().equals(message.uuid))
+        ClientPlayerEntity player = Minecraft.getInstance().player;
+
+        if (player != null && player.getUUID().equals(message.uuid))
             return;
 
         Minecraft.getInstance().setScreen(new MobWikiScreen());
+    }
+
+    public static void handleOpenGrumpInventory(S2COpenGrumpInventory message) {
+        ClientPlayerEntity player = Minecraft.getInstance().player;
+
+        if (player != null && player.getUUID().equals(message.uuid))
+            return;
+
+        ClientWorld world = Minecraft.getInstance().level;
+
+        if (world == null)
+            return;
+
+        Entity entity = world.getEntity(message.entityID);
+
+        if (!(entity instanceof GrumpEntity))
+            return;
+
+        GrumpEntity grump = (GrumpEntity) entity;
+        PlayerInventory playerInventory = Minecraft.getInstance().player.inventory;
+
+        GrumpInventoryContainer container = new GrumpInventoryContainer(message.containerId, playerInventory, grump.getInventory(), grump);
+        Minecraft.getInstance().player.containerMenu = container;
+        Minecraft.getInstance().setScreen(new GrumpInventoryScreen(container, playerInventory, grump));
     }
 }

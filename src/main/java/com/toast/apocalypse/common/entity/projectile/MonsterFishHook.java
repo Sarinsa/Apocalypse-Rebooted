@@ -40,6 +40,9 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
     private int life;
     private Entity hookedIn;
     private State currentState = State.FLYING;
+    /** Whether this fishhook was launched by a player. */
+    private boolean launchedOnCommand = false;
+
 
     public MonsterFishHook(EntityType<? extends MonsterFishHook> entityType, World world) {
         super(entityType, world);
@@ -60,6 +63,21 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
         final double dX = target.getX() - getX();
         final double dY = target.getY( 0.3333 ) - getY();
         final double dZ = target.getZ() - getZ();
+        final double dH = MathHelper.sqrt( dX * dX + dZ * dZ );
+        this.shoot(dX, dY + dH * 0.2, dZ, 1.3F, 0);
+    }
+
+    public MonsterFishHook(LivingEntity rider, MobEntity mobEntity, World world) {
+        this(world, mobEntity);
+        launchedOnCommand = true;
+
+        final Vector3d riderLookVec = rider.getViewVector(1.0F).scale(rider.getBbWidth());
+        final Vector3d grumpLookVec = mobEntity.getViewVector(1.0F).scale(mobEntity.getBbWidth());
+        this.setPos(mobEntity.getX() + grumpLookVec.x, mobEntity.getEyeY() - 0.1, mobEntity.getZ() + grumpLookVec.z);
+
+        final double dX = riderLookVec.x() - getX();
+        final double dY = riderLookVec.y() - getY();
+        final double dZ = riderLookVec.z() - getZ();
         final double dH = MathHelper.sqrt( dX * dX + dZ * dZ );
         this.shoot(dX, dY + dH * 0.2, dZ, 1.3F, 0);
     }
@@ -301,6 +319,6 @@ public class MonsterFishHook extends ProjectileEntity implements IEntityAddition
     enum State {
         FLYING,
         HOOKED_IN_ENTITY,
-        BOBBING;
+        BOBBING
     }
 }

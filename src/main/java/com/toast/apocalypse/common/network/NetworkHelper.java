@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.network;
 
+import com.toast.apocalypse.common.entity.living.GrumpEntity;
 import com.toast.apocalypse.common.network.message.*;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import net.minecraft.entity.Entity;
@@ -96,5 +97,9 @@ public class NetworkHelper {
      */
     public static void openMobWikiScreen(@Nonnull ServerPlayerEntity player) {
         PacketHandler.sendToClient(new S2COpenMobWikiScreen(player.getUUID()), player);
+    }
+
+    public static void openGrumpInventory(@Nonnull ServerPlayerEntity player, int containerId, @Nonnull GrumpEntity grump) {
+        PacketHandler.sendToClient(new S2COpenGrumpInventory(player.getUUID(), containerId, grump.getId()), player);
     }
 }
