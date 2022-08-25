@@ -25,8 +25,8 @@ public class ApocalypseAdvancementProvider extends AdvancementProvider {
     protected void registerAdvancements(Consumer<Advancement> consumer, ExistingFileHelper fileHelper) {
         Advancement root = Advancement.Builder.advancement()
                 .display(ApocalypseItems.SOUL_FRAGMENT.get(),
-                        new TranslationTextComponent("apocalypse.advancements.root.title"),
-                        new TranslationTextComponent("apocalypse.advancements.root.description"),
+                        new TranslationTextComponent(title("root")),
+                        new TranslationTextComponent(desc("root")),
                         Apocalypse.resourceLoc("textures/gui/advancements/backgrounds/night_sky.png"),
                         FrameType.TASK, true, true, false)
                 .addCriterion("pass_grace_period", PassedGracePeriodTrigger.Instance.gracePeriodPassed())
@@ -35,8 +35,8 @@ public class ApocalypseAdvancementProvider extends AdvancementProvider {
         Advancement toasty = Advancement.Builder.advancement()
                 .parent(root)
                 .display(ApocalypseItems.FATHERLY_TOAST.get(),
-                        new TranslationTextComponent("apocalypse.advancements.toasty.title"),
-                        new TranslationTextComponent("apocalypse.advancements.toasty.description"),
+                        new TranslationTextComponent(title("toasty")),
+                        new TranslationTextComponent(desc("toasty")),
                         null,
                         FrameType.CHALLENGE, true, true, true)
                 .addCriterion("obtain_fatherly_toast", InventoryChangeTrigger.Instance.hasItems(ApocalypseItems.FATHERLY_TOAST.get()))
@@ -45,12 +45,29 @@ public class ApocalypseAdvancementProvider extends AdvancementProvider {
         Advancement lessGrumpy = Advancement.Builder.advancement()
                 .parent(toasty)
                 .display(Items.COOKIE,
-                        new TranslationTextComponent("apocalypse.advancements.less_grumpy.title"),
-                        new TranslationTextComponent("apocalypse.advancements.less_grumpy.description"),
+                        new TranslationTextComponent(title("less_grumpy")),
+                        new TranslationTextComponent(desc("less_grumpy")),
                         null,
-                        FrameType.GOAL, true, true, true)
+                        FrameType.TASK, true, true, true)
                 .addCriterion("tame_grump", TamedGrumpTrigger.Instance.tamedGrump())
                 .save(consumer, Apocalypse.resourceLoc("less_grumpy"), fileHelper);
 
+        Advancement lunarium = Advancement.Builder.advancement()
+                .parent(root)
+                .display(ApocalypseItems.LUNARIUM_INGOT.get(),
+                        new TranslationTextComponent(title("lunarium")),
+                        new TranslationTextComponent(desc("lunarium")),
+                        null,
+                        FrameType.TASK, true, true, true)
+                .addCriterion("obtain_lunarium", InventoryChangeTrigger.Instance.hasItems(ApocalypseItems.LUNARIUM_INGOT.get()))
+                .save(consumer, Apocalypse.resourceLoc("lunarium"), fileHelper);
+    }
+
+    private static String title(String advancementName) {
+        return Apocalypse.MODID + ".advancements." + advancementName + ".title";
+    }
+
+    private static String desc(String advancementName) {
+        return Apocalypse.MODID + ".advancements." + advancementName + ".description";
     }
 }

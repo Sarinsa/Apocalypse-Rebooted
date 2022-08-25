@@ -9,6 +9,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.server.ServerWorld;
 
 import javax.annotation.Nonnull;
+import java.util.UUID;
 
 /** Helper class for easily sending messages */
 public class NetworkHelper {
@@ -101,5 +102,13 @@ public class NetworkHelper {
 
     public static void openGrumpInventory(@Nonnull ServerPlayerEntity player, int containerId, @Nonnull GrumpEntity grump) {
         PacketHandler.sendToClient(new S2COpenGrumpInventory(player.getUUID(), containerId, grump.getId()), player);
+    }
+
+    public static void requestOpenGrumpInventory(@Nonnull UUID playerUUID) {
+        PacketHandler.CHANNEL.sendToServer(new C2SOpenGrumpInventory(playerUUID));
+    }
+
+    public static void requestGrumpDescentUpdate(@Nonnull UUID playerUUID, boolean keyReleased) {
+        PacketHandler.CHANNEL.sendToServer(new C2SUpdateGrumpDescent(playerUUID, keyReleased));
     }
 }

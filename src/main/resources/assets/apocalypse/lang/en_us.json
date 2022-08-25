@@ -9,6 +9,7 @@
   "death.attack.apocalypse.rain.player": "%1$s died from rain whilst trying to escape %2$s",
 
   "block.apocalypse.lunar_phase_sensor": "Lunar Phase Sensor",
+  "block.apocalypse.lunarium_block": "Lunarium Block",
 
   "item.apocalypse.soul_fragment": "Soul Fragment",
   "item.apocalypse.lunarium_ingot": "Lunarium Ingot",
@@ -64,6 +65,8 @@
   "apocalypse.advancements.toasty.description": "Create Fatherly Toast by striking bread with lightning. Quite toasty!",
   "apocalypse.advancements.less_grumpy.title": "Slightly Less Grumpy",
   "apocalypse.advancements.less_grumpy.description": "Tame a Grump with a scrumptious slice of Fatherly Toast!",
+  "apocalypse.advancements.lunarium.title": "Moon Alloy",
+  "apocalypse.advancements.lunarium.description": "Craft a Lunarium Ingot from a piece of iron and a soul fragment. Neat!",
 
   "apocalypse.top.difficulty": "Difficulty: %1$s"
 }

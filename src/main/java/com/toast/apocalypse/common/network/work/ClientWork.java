@@ -94,7 +94,7 @@ public class ClientWork {
     public static void handleOpenGrumpInventory(S2COpenGrumpInventory message) {
         ClientPlayerEntity player = Minecraft.getInstance().player;
 
-        if (player != null && player.getUUID().equals(message.uuid))
+        if (player == null || !(player.getUUID().equals(message.uuid)))
             return;
 
         ClientWorld world = Minecraft.getInstance().level;

@@ -1,6 +1,7 @@
 package com.toast.apocalypse.client;
 
 import com.toast.apocalypse.client.event.ClientEvents;
+import com.toast.apocalypse.client.event.KeyInputListener;
 import com.toast.apocalypse.client.mobwiki.MobEntries;
 import com.toast.apocalypse.client.particle.LunarDespawnSmokeParticle;
 import com.toast.apocalypse.client.renderer.entity.living.breecher.BreecherRenderer;
@@ -35,7 +36,10 @@ public class ClientRegister {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        MinecraftForge.EVENT_BUS.register(new ClientEvents(event.getMinecraftSupplier().get()));
+        Minecraft mc = event.getMinecraftSupplier().get();
+
+        MinecraftForge.EVENT_BUS.register(new ClientEvents(mc));
+        MinecraftForge.EVENT_BUS.register(new KeyInputListener(mc));
 
         registerEntityRenderers(event.getMinecraftSupplier());
         ApocalypseKeyBindings.registerKeyBindings();

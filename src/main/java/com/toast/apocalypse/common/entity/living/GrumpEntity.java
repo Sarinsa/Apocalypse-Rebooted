@@ -7,10 +7,9 @@ import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTarget
 import com.toast.apocalypse.common.entity.living.goals.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
 import com.toast.apocalypse.common.inventory.container.GrumpInventoryContainer;
+import com.toast.apocalypse.common.misc.PlayerKeyBindInfo;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
-import net.minecraft.client.gui.widget.list.KeyBindingList;
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -21,7 +20,6 @@ import net.minecraft.entity.ai.goal.TargetGoal;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
@@ -41,7 +39,6 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraft.pathfinding.PathNodeType;
 import net.minecraft.pathfinding.WalkNodeProcessor;
 import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
 import net.minecraft.server.management.PreYggdrasilConverter;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -54,11 +51,9 @@ import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 
 import javax.annotation.Nonnull;
@@ -188,7 +183,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
 
         if (itemStack.getItem() == ApocalypseItems.FATHERLY_TOAST.get() && !hasOwner()) {
             if (!level.isClientSide) {
-                if (level.getRandom().nextInt(5) == 0) {
+                if (level.getRandom().nextInt(4) == 0) {
                     usePlayerItem(player, itemStack);
                     setOwnerUUID(player.getUUID());
                     ApocalypseTriggers.TAMED_GRUMP.trigger((ServerPlayerEntity)player, this);
@@ -216,20 +211,22 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
                 if (player.isShiftKeyDown()) {
                     setStandBy(!shouldStandBy());
                 }
-                else if (getHeadItem().getItem() == Items.SADDLE) {
+                else {
                     if (getPassengers().isEmpty()) {
                         player.startRiding(this);
                         return ActionResultType.SUCCESS;
                     }
                 }
-                else {
-                    if (!level.isClientSide)
-                    openContainerForPlayer((ServerPlayerEntity) player);
-                }
                 return ActionResultType.SUCCESS;
             }
         }
         return super.mobInteract(player, hand);
+    }
+
+    protected void usePlayerItem(PlayerEntity player, ItemStack itemStack) {
+        if (!player.abilities.instabuild) {
+            itemStack.shrink(1);
+        }
     }
 
     public void openContainerForPlayer(ServerPlayerEntity player) {
@@ -257,12 +254,6 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
         setItemSlot(EquipmentSlotType.HEAD, itemStack);
     }
 
-    protected void usePlayerItem(PlayerEntity player, ItemStack itemStack) {
-        if (!player.abilities.instabuild) {
-            itemStack.shrink(1);
-        }
-    }
-
     /**
      * @param type Determines which particles should be displayed when the grump is fed.<br>
      *             <br>
@@ -273,16 +264,11 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
     protected void performEatEffects(int type) {
         IParticleData particleType;
 
-        switch (type) {
-            case 0:
-                particleType = ParticleTypes.SMOKE;
-                break;
-            case 1:
-                particleType = ParticleTypes.HAPPY_VILLAGER;
-                break;
-            default:
-                particleType = ParticleTypes.HEART;
-                break;
+        if (type == 0) {
+            particleType = ParticleTypes.SMOKE;
+        }
+        else {
+            particleType = ParticleTypes.HEART;
         }
         for(int i = 0; i < 7; ++i) {
             double x = random.nextGaussian() * 0.02D;
@@ -337,18 +323,18 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
                     this.yBodyRot = this.yRot;
                     this.yHeadRot = this.yBodyRot;
 
-                    float xSpeed = rider.xxa;
+                    float xSpeed = rider.xxa * 1.25F;
                     float ySpeed = rider.yya * 1.15F;
-                    float zSpeed = rider.zza;
+                    float zSpeed = rider.zza * 1.25F;
 
                     if (rider instanceof PlayerEntity) {
                         PlayerEntity player = (PlayerEntity) rider;
 
-                        if (player.isShiftKeyDown()) {
-                            ySpeed = -0.5F;
+                        if (!level.isClientSide && PlayerKeyBindInfo.getInfo(player.getUUID()).grumpDescent.get()) {
+                            ySpeed = -1.1F;
                         }
                         else if (player.jumping) {
-                            ySpeed = 0.5F;
+                            ySpeed = 1.1F;
                         }
                     }
                     super.travel(new Vector3d(xSpeed, ySpeed, zSpeed));
@@ -462,8 +448,11 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
         ItemStack itemStack = inventory.getItem(0);
         setItemSlot(EquipmentSlotType.HEAD, itemStack);
 
-        if (this.tickCount > 20 && itemStack.getItem() == Items.SADDLE || itemStack.getItem() == ApocalypseItems.BUCKET_HELM.get()) {
-            this.playSound(SoundEvents.HORSE_SADDLE, 0.5F, 1.0F);
+        if (itemStack.getItem() == ApocalypseItems.BUCKET_HELM.get()) {
+            getPassengers().forEach(Entity::stopRiding);
+        }
+        else if (this.tickCount > 20 && itemStack.getItem() == Items.SADDLE || itemStack.getItem() == ApocalypseItems.BUCKET_HELM.get()) {
+            playSound(SoundEvents.HORSE_SADDLE, 0.5F, 1.0F);
         }
     }
 
@@ -473,7 +462,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
 
         public LookAroundGoal(GrumpEntity grump) {
             this.grump = grump;
-            this.setFlags(EnumSet.of(Goal.Flag.LOOK));
+            setFlags(EnumSet.of(Goal.Flag.LOOK));
         }
 
         @Override
@@ -482,19 +471,20 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
         }
 
         public void tick() {
-            if (this.grump.getTarget() == null) {
-                Vector3d vector3d = this.grump.getDeltaMovement();
-                this.grump.yRot = -((float) MathHelper.atan2(vector3d.x, vector3d.z)) * (180F / (float)Math.PI);
-                this.grump.xRot = 0.0F;
-            } else {
-                LivingEntity target = this.grump.getTarget();
-
-                double x = target.getX() - this.grump.getX();
-                double z = target.getZ() - this.grump.getZ();
-                this.grump.yRot = -((float)MathHelper.atan2(x, z)) * (180F / (float)Math.PI);
-                this.grump.xRot = (float) target.getEyeY() - (float) this.grump.getEyeY();
+            if (grump.getTarget() == null) {
+                Vector3d vector3d = grump.getDeltaMovement();
+                grump.yRot = -((float) MathHelper.atan2(vector3d.x, vector3d.z)) * (180F / (float)Math.PI);
+                grump.xRot = 0.0F;
             }
-            this.grump.yBodyRot = this.grump.yRot;
+            else {
+                LivingEntity target = grump.getTarget();
+
+                double x = target.getX() - grump.getX();
+                double z = target.getZ() - grump.getZ();
+                grump.yRot = -((float)MathHelper.atan2(x, z)) * (180F / (float)Math.PI);
+                grump.xRot = (float) target.getEyeY() - (float) grump.getEyeY();
+            }
+            grump.yBodyRot = grump.yRot;
         }
     }
 
@@ -503,37 +493,37 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
         final GrumpEntity grump;
 
         public MeleeAttackGoal(GrumpEntity grump) {
-            this.setFlags(EnumSet.of(Flag.MOVE));
+            setFlags(EnumSet.of(Flag.MOVE));
             this.grump = grump;
         }
 
         private void setWantedPosition(LivingEntity target) {
-            Vector3d vector = target.getEyePosition(1.0F).add(0.0D, -(this.grump.getBbHeight() / 2), 0.0D);
-            this.grump.moveControl.setWantedPosition(vector.x, vector.y, vector.z, 1.0D);
+            Vector3d vector = target.getEyePosition(1.0F).add(0.0D, -(grump.getBbHeight() / 2), 0.0D);
+            grump.moveControl.setWantedPosition(vector.x, vector.y, vector.z, 1.0D);
         }
 
         @Override
         public boolean canUse() {
-            LivingEntity target = this.grump.getTarget();
-            return target != null && this.grump.canSeeDirectly(target);
+            LivingEntity target = grump.getTarget();
+            return target != null && grump.canSeeDirectly(target);
         }
 
         @Override
         public boolean canContinueToUse() {
-            LivingEntity target = this.grump.getTarget();
+            LivingEntity target = grump.getTarget();
 
             if (target != null && target.isAlive()) {
-                return this.grump.moveControl.hasWanted() && this.grump.moveHelperController.canReachCurrentWanted();
+                return grump.moveControl.hasWanted() && grump.moveHelperController.canReachCurrentWanted();
             }
             return false;
         }
 
         @Override
         public void start() {
-            LivingEntity target = this.grump.getTarget();
+            LivingEntity target = grump.getTarget();
 
             if (target != null) {
-                this.setWantedPosition(target);
+                setWantedPosition(target);
             }
         }
 
@@ -544,13 +534,13 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
         @Override
         @SuppressWarnings("ConstantConditions")
         public void tick() {
-            LivingEntity target = this.grump.getTarget();
+            LivingEntity target = grump.getTarget();
 
-            if (this.grump.getBoundingBox().inflate(0.3F).intersects(target.getBoundingBox())) {
-                this.grump.doHurtTarget(target);
+            if (grump.getBoundingBox().inflate(0.3F).intersects(target.getBoundingBox())) {
+                grump.doHurtTarget(target);
             }
             else {
-                this.setWantedPosition(target);
+                setWantedPosition(target);
             }
         }
     }
@@ -562,19 +552,19 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
         private int timeNextHookLaunch;
 
         public LaunchMonsterHookGoal(GrumpEntity grump) {
-            this.setFlags(EnumSet.of(Flag.TARGET));
+            setFlags(EnumSet.of(Flag.TARGET));
             this.grump = grump;
         }
 
         @Override
         public boolean canUse() {
-            if (this.grump.fluidOnEyes != null) {
+            if (grump.fluidOnEyes != null) {
                 return false;
             }
 
-            if (this.grump.getTarget() != null) {
-                LivingEntity target = this.grump.getTarget();
-                return this.grump.canSee(target) && this.grump.distanceToSqr(target) < 180.0D;
+            if (grump.getTarget() != null) {
+                LivingEntity target = grump.getTarget();
+                return grump.canSee(target) && grump.distanceToSqr(target) < 180.0D;
             }
             return false;
         }
@@ -596,12 +586,12 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
 
         @Override
         public void stop() {
-            if (this.grump.fishHook != null) {
-                this.grump.fishHook.remove();
-                this.grump.fishHook = null;
+            if (grump.fishHook != null) {
+                grump.fishHook.remove();
+                grump.fishHook = null;
             }
-            this.timeHookExisted = 0;
-            this.timeNextHookLaunch = 0;
+            timeHookExisted = 0;
+            timeNextHookLaunch = 0;
         }
 
         @Override
@@ -724,7 +714,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
         /** Friggin' large bounding box */
         @Override
         protected AxisAlignedBB getTargetSearchArea(double followRange) {
-            return this.mob.getBoundingBox().inflate(followRange, followRange, followRange);
+            return mob.getBoundingBox().inflate(followRange, followRange, followRange);
         }
 
         @Override
@@ -759,7 +749,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
             if (grump.hasOwner() || grump.isVehicle())
                 return false;
 
-            if (this.grump.getTarget() != null) {
+            if (grump.getTarget() != null) {
                 return false;
             }
             MovementController movementcontroller = this.grump.getMoveControl();
@@ -817,7 +807,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
 
         @Override
         public boolean canUse() {
-            return grump.getOwner() != null && !grump.shouldStandBy() && !grump.isVehicle() && grump.distanceToSqr(grump.getOwner()) > 100.0D;
+            return grump.getOwner() != null && !grump.shouldStandBy() && !grump.isVehicle() && grump.distanceToSqr(grump.getOwner()) > 80.0D;
         }
 
         @Override
@@ -835,6 +825,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
 
         @Override
         public void stop() {
+            grump.moveHelperController.setAction(MovementController.Action.WAIT);
         }
 
         @Override
@@ -871,7 +862,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
                 return false;
             }
             else {
-                grump.moveTo((double)x + 0.5D, y + 0.4D, (double)z + 0.5D, grump.yRot, grump.xRot);
+                grump.moveTo((double)x + 0.5D, y + 1.0D, (double)z + 0.5D, grump.yRot, grump.xRot);
                 setWantedPosition(grump.getX(), grump.getY(), grump.getZ());
                 return true;
             }
@@ -884,8 +875,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
                 return false;
             }
             else {
-                BlockPos blockpos = pos.subtract(grump.blockPosition());
-                return grump.level.noCollision(grump, grump.getBoundingBox().move(blockpos));
+                return grump.level.noCollision(grump, grump.getBoundingBox().move(pos.above()).inflate(2));
             }
         }
 

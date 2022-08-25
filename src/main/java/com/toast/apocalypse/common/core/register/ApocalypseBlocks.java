@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.core.register;
 
 import com.toast.apocalypse.common.block.LunarPhaseSensorBlock;
+import com.toast.apocalypse.common.block.LunariumBlock;
 import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
@@ -17,6 +18,8 @@ public class ApocalypseBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Apocalypse.MODID);
 
     public static final RegistryObject<Block> LUNAR_PHASE_SENSOR = registerBlock("lunar_phase_sensor", LunarPhaseSensorBlock::new, ItemGroup.TAB_REDSTONE);
+    public static final RegistryObject<Block> LUNARIUM_BLOCK = registerBlock("lunarium_block", LunariumBlock::new, ItemGroup.TAB_BUILDING_BLOCKS);
+
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> blockSupplier, ItemGroup itemGroup) {
         RegistryObject<T> blockRegistryObject = BLOCKS.register(name, blockSupplier);

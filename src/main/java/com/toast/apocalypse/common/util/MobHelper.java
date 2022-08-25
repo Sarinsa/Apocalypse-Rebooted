@@ -17,12 +17,13 @@ import java.util.function.Predicate;
 public class MobHelper {
 
     /**
-     * Checks the area around a mob to see if it can spawn.
+     * Checks the area around a mob to see if it can spawn (no preventing collision).
+     *
      * @param entity The entity to check around.
      * @return True if the area is valid for spawning.
      */
     public static boolean canSpawn(LivingEntity entity) {
-        World world = entity.getCommandSenderWorld();
+        World world = entity.level;
         return world.noCollision(entity.getBoundingBox()) && world.noCollision(entity, entity.getBoundingBox());
     }
 

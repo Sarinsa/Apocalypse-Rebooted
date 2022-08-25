@@ -1,0 +1,13 @@
+----- v. 2.6.0 -----
+
+- Added new config list of mobs that can only start spawning when the nearest player is at X difficulty level.
+- Added "lunarium block"
+- Added new advancements
+- Fixed full moon ghasts' NBT not always being read properly
+- Fixed rain damage bug in multiplayer
+- Improved Grump's fishhook precision
+- Finished implementing Fearwolf
+- Finished mob armor handler
+
+- WIP Grump taming
+- WIP Ghost freezing

@@ -7,7 +7,7 @@ import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.core.register.ApocalypseParticles;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
-import com.toast.apocalypse.common.util.StorageUtils;
+import com.toast.apocalypse.common.util.DataStructureUtils;
 import net.minecraft.entity.EntitySpawnPlacementRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MobEntity;
@@ -248,7 +248,7 @@ public final class FullMoonEvent extends AbstractEvent {
      * or -1 if there are no mob types left to spawn.
      */
     private int getRandomMobIndex(Random random) {
-        Integer type = StorageUtils.randomMapKeyFiltered(random, this.mobsToSpawn, (id, count) -> count > 0);
+        Integer type = DataStructureUtils.randomMapKeyFiltered(random, this.mobsToSpawn, (id, count) -> count > 0);
         return type != null ? type : -1;
     }
 

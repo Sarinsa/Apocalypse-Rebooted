@@ -112,6 +112,11 @@ public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements
             super.setWantedPosition(x, y, z, speedMod);
         }
 
+        public void setAction(Action action) {
+            this.operation = action;
+        }
+
+        @Override
         public void tick() {
             if (operation == Action.MOVE_TO) {
                 if (floatDuration-- <= 0) {

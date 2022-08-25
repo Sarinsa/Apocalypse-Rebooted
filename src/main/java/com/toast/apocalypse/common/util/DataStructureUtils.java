@@ -7,7 +7,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 // Uh, I couldn't come up with a better name for this class
-public class StorageUtils {
+public class DataStructureUtils {
 
     @Nullable
     public static <T> T getRandomListElement(@Nonnull Random random, @Nonnull List<T> list) {

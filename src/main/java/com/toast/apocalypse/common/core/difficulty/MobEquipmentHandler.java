@@ -1,14 +1,12 @@
 package com.toast.apocalypse.common.core.difficulty;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
-import com.google.common.collect.Lists;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.common.util.DataStructureUtils;
 import com.toast.apocalypse.common.util.References;
-import com.toast.apocalypse.common.util.StorageUtils;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.TNTEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.Item;
@@ -104,7 +102,7 @@ public final class MobEquipmentHandler {
                     }
                 }
                 List<Item> weaponList = WEAPON_LISTS.get(tier);
-                Item item = StorageUtils.getRandomListElement(random, weaponList);
+                Item item = DataStructureUtils.getRandomListElement(random, weaponList);
 
                 if (item != null) {
                     weapon = new ItemStack(item);
@@ -121,8 +119,8 @@ public final class MobEquipmentHandler {
                 if (availableTiers.isEmpty())
                     return;
 
-                List<Item> weaponList = WEAPON_LISTS.get(StorageUtils.getRandomListElement(random, availableTiers));
-                Item item = StorageUtils.getRandomListElement(random, weaponList);
+                List<Item> weaponList = WEAPON_LISTS.get(DataStructureUtils.getRandomListElement(random, availableTiers));
+                Item item = DataStructureUtils.getRandomListElement(random, weaponList);
 
                 if (item != null) {
                     weapon = new ItemStack(item);
@@ -153,10 +151,10 @@ public final class MobEquipmentHandler {
                     }
                 }
                 Map<EquipmentSlotType, List<Item>> armors = ARMOR_MAPS.get(tier);
-                toEquip[0] = new ItemStack(StorageUtils.getRandomListElement(random, armors.get(EquipmentSlotType.FEET)));
-                toEquip[1] = new ItemStack(StorageUtils.getRandomListElement(random, armors.get(EquipmentSlotType.LEGS)));
-                toEquip[2] = new ItemStack(StorageUtils.getRandomListElement(random, armors.get(EquipmentSlotType.CHEST)));
-                toEquip[3] = new ItemStack(StorageUtils.getRandomListElement(random, armors.get(EquipmentSlotType.HEAD)));
+                toEquip[0] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlotType.FEET)));
+                toEquip[1] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlotType.LEGS)));
+                toEquip[2] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlotType.CHEST)));
+                toEquip[3] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlotType.HEAD)));
             }
             else {
                 List<Integer> availableTiers = new ArrayList<>();
@@ -169,11 +167,11 @@ public final class MobEquipmentHandler {
                 if (availableTiers.isEmpty())
                     return;
 
-                Map<EquipmentSlotType, List<Item>> armors = ARMOR_MAPS.get(StorageUtils.getRandomListElement(random, availableTiers));
-                toEquip[0] = new ItemStack(StorageUtils.getRandomListElement(random, armors.get(EquipmentSlotType.FEET)));
-                toEquip[1] = new ItemStack(StorageUtils.getRandomListElement(random, armors.get(EquipmentSlotType.LEGS)));
-                toEquip[2] = new ItemStack(StorageUtils.getRandomListElement(random, armors.get(EquipmentSlotType.CHEST)));
-                toEquip[3] = new ItemStack(StorageUtils.getRandomListElement(random, armors.get(EquipmentSlotType.HEAD)));
+                Map<EquipmentSlotType, List<Item>> armors = ARMOR_MAPS.get(DataStructureUtils.getRandomListElement(random, availableTiers));
+                toEquip[0] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlotType.FEET)));
+                toEquip[1] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlotType.LEGS)));
+                toEquip[2] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlotType.CHEST)));
+                toEquip[3] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlotType.HEAD)));
             }
         }
         for (int i = 0; i < toEquip.length; i++) {
