@@ -66,7 +66,7 @@ public class PlayerKeyBindInfo {
         }
     }
 
-
+    /** Functions as a server-side cache for mod key binding states */
     public static class KeyBindInfo {
 
         public KeyInfo grumpDescent = new KeyInfo((player) -> !(player.getVehicle() instanceof GrumpEntity));
@@ -78,9 +78,14 @@ public class PlayerKeyBindInfo {
         }
     }
 
+    /** Represents the "value" of a key binding (has it been pressed?) */
     public static class KeyInfo {
 
         private boolean value;
+        /**
+         * Used for keys that should reset on player tick under given
+         * conditions instead of waiting for a key release packet.
+         */
         private final Predicate<ServerPlayerEntity> resetPredicate;
 
         private KeyInfo(Predicate<ServerPlayerEntity> resetPredicate) {

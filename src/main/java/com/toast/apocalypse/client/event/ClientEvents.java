@@ -1,31 +1,17 @@
 package com.toast.apocalypse.client.event;
 
-import com.toast.apocalypse.client.ApocalypseKeyBindings;
 import com.toast.apocalypse.client.screen.ApocalypseWorldCreateConfigScreen;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
-import com.toast.apocalypse.common.entity.living.GrumpEntity;
-import com.toast.apocalypse.common.network.NetworkHelper;
-import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.screen.CreateWorldScreen;
-import net.minecraft.client.gui.screen.MainMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.gui.widget.button.ImageButton;
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.config.ConfigTracker;
-import org.lwjgl.glfw.GLFW;
 
 public class ClientEvents {
 

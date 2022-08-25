@@ -212,7 +212,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
                     setStandBy(!shouldStandBy());
                 }
                 else {
-                    if (getPassengers().isEmpty()) {
+                    if (getPassengers().isEmpty() && getHeadItem().getItem() != ApocalypseItems.BUCKET_HELM.get()) {
                         player.startRiding(this);
                         return ActionResultType.SUCCESS;
                     }
