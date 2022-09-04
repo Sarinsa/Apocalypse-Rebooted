@@ -2,6 +2,7 @@ package com.toast.apocalypse.client.event;
 
 import com.toast.apocalypse.client.ApocalypseKeyBindings;
 import com.toast.apocalypse.common.entity.living.GrumpEntity;
+import com.toast.apocalypse.common.util.PlayerKeyBindInfo;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -49,6 +50,8 @@ public class KeyInputListener {
     private void handleGrumpDescent(boolean keyReleased) {
         if (mc.player != null) {
             ClientPlayerEntity player = mc.player;
+
+            PlayerKeyBindInfo.getInfo(player.getUUID()).grumpDescent.setValue(keyReleased);
 
             if (player.getVehicle() instanceof GrumpEntity) {
                 NetworkHelper.requestGrumpDescentUpdate(player.getUUID(), keyReleased);

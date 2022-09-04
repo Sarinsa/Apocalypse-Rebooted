@@ -76,8 +76,8 @@ public class EntityEvents {
         EntityType<?> entityType = event.getEntityLiving().getType();
 
         if (MOB_DIFFICULTIES.containsKey(entityType)) {
-            final double neededDifficulty = MOB_DIFFICULTIES.get(entityType) / References.DAY_LENGTH;
-            final long nearestDifficulty = PlayerDifficultyManager.getNearestPlayerDifficulty(event.getWorld(), event.getEntityLiving());
+            final double neededDifficulty = MOB_DIFFICULTIES.get(entityType);
+            final long nearestDifficulty = (PlayerDifficultyManager.getNearestPlayerDifficulty(event.getWorld(), event.getEntityLiving())) / References.DAY_LENGTH;
 
             if (nearestDifficulty < neededDifficulty)
                 event.setResult(Event.Result.DENY);

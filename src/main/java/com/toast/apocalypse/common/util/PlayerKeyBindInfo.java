@@ -1,10 +1,14 @@
-package com.toast.apocalypse.common.misc;
+package com.toast.apocalypse.common.util;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.living.GrumpEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityLeaveWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
@@ -15,30 +19,26 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
 
+/**
+ * Helper class for storing info about mod key binds both
+ * client and server side (has one of our key binds been pressed/released?)
+ */
 @Mod.EventBusSubscriber(modid = Apocalypse.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class PlayerKeyBindInfo {
 
     private static final Map<UUID, KeyBindInfo> KEYBIND_INFO = new HashMap<>();
 
-
     @SubscribeEvent
-    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase == TickEvent.Phase.END && event.side == LogicalSide.SERVER) {
-            getInfo(event.player.getUUID()).resetPressables((ServerPlayerEntity) event.player);
+    public static void onPlayerJoinWorld(EntityJoinWorldEvent event) {
+        if (event.getEntity() instanceof PlayerEntity) {
+            createInfo(event.getEntity().getUUID());
         }
     }
 
     @SubscribeEvent
-    public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        if (!event.getPlayer().level.isClientSide) {
-            createInfo(event.getPlayer().getUUID());
-        }
-    }
-
-    @SubscribeEvent
-    public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
-        if (!event.getPlayer().level.isClientSide) {
-            clearInfo(event.getPlayer().getUUID());
+    public static void onPlayerLogout(EntityLeaveWorldEvent event) {
+        if (event.getEntity() instanceof PlayerEntity) {
+            clearInfo(event.getEntity().getUUID());
         }
     }
 
@@ -69,32 +69,16 @@ public class PlayerKeyBindInfo {
     /** Functions as a server-side cache for mod key binding states */
     public static class KeyBindInfo {
 
-        public KeyInfo grumpDescent = new KeyInfo((player) -> !(player.getVehicle() instanceof GrumpEntity));
-        public KeyInfo grumpInteract = new KeyInfo((player -> true));
-
-        private void resetPressables(ServerPlayerEntity player) {
-            grumpDescent.checkReset(player);
-            grumpInteract.checkReset(player);
-        }
+        public KeyInfo grumpDescent = new KeyInfo();
+        public KeyInfo grumpInteract = new KeyInfo();
     }
 
     /** Represents the "value" of a key binding (has it been pressed?) */
     public static class KeyInfo {
 
         private boolean value;
-        /**
-         * Used for keys that should reset on player tick under given
-         * conditions instead of waiting for a key release packet.
-         */
-        private final Predicate<ServerPlayerEntity> resetPredicate;
 
-        private KeyInfo(Predicate<ServerPlayerEntity> resetPredicate) {
-            this.resetPredicate = resetPredicate;
-        }
-
-        public void checkReset(ServerPlayerEntity player) {
-            if (resetPredicate.test(player))
-                value = false;
+        private KeyInfo() {
         }
 
         public void setValue(boolean value) {

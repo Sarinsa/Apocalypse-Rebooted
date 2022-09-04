@@ -351,6 +351,8 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
     @Override
     public void readAdditionalSaveData(CompoundNBT compoundNBT) {
+        super.readAdditionalSaveData(compoundNBT);
+
         if (compoundNBT.hasUUID(PLAYER_UUID_KEY)) {
             this.setPlayerTargetUUID(compoundNBT.getUUID(PLAYER_UUID_KEY));
         }

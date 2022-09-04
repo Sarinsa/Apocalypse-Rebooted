@@ -7,9 +7,10 @@ import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTarget
 import com.toast.apocalypse.common.entity.living.goals.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
 import com.toast.apocalypse.common.inventory.container.GrumpInventoryContainer;
-import com.toast.apocalypse.common.misc.PlayerKeyBindInfo;
+import com.toast.apocalypse.common.util.PlayerKeyBindInfo;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
+import net.minecraft.block.Block;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
 import net.minecraft.entity.ai.attributes.Attributes;
@@ -56,7 +57,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.Optional;
@@ -66,7 +66,7 @@ import java.util.UUID;
 /**
  * This is a full moon mob that is meant to be a high threat to players that are not in a safe area from them.
  * Grumps fly, have a pulling attack, and have a melee attack that can't be reduced below 2 damage and applies a
- * short gravity effect.<br>
+ * short gravity effect. The pull attack/hook attack can also disable the player's shield temporarily.<br><br>
  * Unlike most full moon mobs, this one has no means of breaking through defenses and therefore relies on the
  * player being vulnerable to attack - whether by will or by other mobs breaking through to the player.
  */
@@ -114,7 +114,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
         this.goalSelector.addGoal(2, new LookAroundGoal(this));
         this.goalSelector.addGoal(3, new LaunchMonsterHookGoal(this));
         this.goalSelector.addGoal(4, new GrumpEntity.RandomFlyGoal(this));
-        this.targetSelector.addGoal(0, new GrumpEntity.OwnersAttackerTargetGoal(this));
+        this.targetSelector.addGoal(0, new GrumpEntity.OwnerAttackerTargetGoal(this));
         this.targetSelector.addGoal(1, new GrumpMobEntityAttackedByTargetGoal(this, IMob.class));
         this.targetSelector.addGoal(2, new MoonMobPlayerTargetGoal<>(this, true));
         this.targetSelector.addGoal(3, new GrumpNearestAttackableTargetGoal<>(this, PlayerEntity.class));
@@ -145,6 +145,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
         return world.getDifficulty() != Difficulty.PEACEFUL && MobEntity.checkMobSpawnRules(entityType, world, spawnReason, pos, random);
     }
 
+    /** Limit arrow damage to max 1 if the Grump is wearing a Bucket Helmet. */
     @Override
     public boolean hurt(DamageSource damageSource, float damage) {
         if (damageSource.getDirectEntity() instanceof AbstractArrowEntity) {
@@ -155,6 +156,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
         return super.hurt(damageSource, damage);
     }
 
+    /** Apply Heavy effect on players on melee attack. */
     @Override
     public boolean doHurtTarget(Entity entity) {
         if (super.doHurtTarget(entity)) {
@@ -169,6 +171,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
         }
     }
 
+    /** Do not despawn if Grump has an owner. */
     @Override
     public void checkDespawn() {
         if (hasOwner())
@@ -212,7 +215,12 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
                     setStandBy(!shouldStandBy());
                 }
                 else {
-                    if (getPassengers().isEmpty() && getHeadItem().getItem() != ApocalypseItems.BUCKET_HELM.get()) {
+                    if (getPassengers().isEmpty()) {
+                        if (getHeadItem().getItem() == ApocalypseItems.BUCKET_HELM.get()) {
+                            Block.popResource(level, blockPosition(), getHeadItem());
+                            setHeadItem(null);
+                            return ActionResultType.SUCCESS;
+                        }
                         player.startRiding(this);
                         return ActionResultType.SUCCESS;
                     }
@@ -229,6 +237,12 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
         }
     }
 
+    /**
+     * Opens the Grump inventory and container for the given player.<br>
+     * <br>
+     * Requested from client when the player is riding<br>
+     * a Grump and presses the inventory key binding.
+     */
     public void openContainerForPlayer(ServerPlayerEntity player) {
         if (player.containerMenu != player.inventoryMenu) {
             player.closeContainer();
@@ -250,8 +264,8 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
         return getItemBySlot(EquipmentSlotType.HEAD);
     }
 
-    public void setHeadItem(@Nonnull ItemStack itemStack) {
-        setItemSlot(EquipmentSlotType.HEAD, itemStack);
+    public void setHeadItem(@Nullable ItemStack itemStack) {
+        setItemSlot(EquipmentSlotType.HEAD, itemStack == null ? ItemStack.EMPTY : itemStack);
     }
 
     /**
@@ -330,7 +344,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
                     if (rider instanceof PlayerEntity) {
                         PlayerEntity player = (PlayerEntity) rider;
 
-                        if (!level.isClientSide && PlayerKeyBindInfo.getInfo(player.getUUID()).grumpDescent.get()) {
+                        if (PlayerKeyBindInfo.getInfo(player.getUUID()).grumpDescent.get()) {
                             ySpeed = -1.1F;
                         }
                         else if (player.jumping) {
@@ -529,6 +543,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
 
         @Override
         public void stop() {
+            grump.moveHelperController.setAction(MovementController.Action.WAIT);
         }
 
         @Override
@@ -638,12 +653,12 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
         }
     }
 
-    private static class OwnersAttackerTargetGoal extends TargetGoal {
+    private static class OwnerAttackerTargetGoal extends TargetGoal {
 
         private final GrumpEntity grump;
         private LivingEntity target;
 
-        public OwnersAttackerTargetGoal(GrumpEntity grump) {
+        public OwnerAttackerTargetGoal(GrumpEntity grump) {
             super(grump, true, true);
             this.grump = grump;
         }
@@ -665,6 +680,8 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
                             return true;
                         }
                     }
+                    this.target = target;
+                    return true;
                 }
             }
             return false;
@@ -752,15 +769,15 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
             if (grump.getTarget() != null) {
                 return false;
             }
-            MovementController movementcontroller = this.grump.getMoveControl();
+            MovementController movementcontroller = grump.getMoveControl();
 
             if (!movementcontroller.hasWanted()) {
                 return true;
             }
             else {
-                double x = movementcontroller.getWantedX() - this.grump.getX();
-                double y = movementcontroller.getWantedY() - this.grump.getY();
-                double z = movementcontroller.getWantedZ() - this.grump.getZ();
+                double x = movementcontroller.getWantedX() - grump.getX();
+                double y = movementcontroller.getWantedY() - grump.getY();
+                double z = movementcontroller.getWantedZ() - grump.getZ();
                 double d3 = x * x + y * y + z * z;
                 return d3 < 1.0D || d3 > 3600.0D;
             }
@@ -768,6 +785,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
 
         @Override
         public void stop() {
+            grump.moveHelperController.setAction(MovementController.Action.WAIT);
         }
 
         @Override
@@ -778,10 +796,10 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
         @Override
         public void start() {
             Random random = this.grump.getRandom();
-            double x = this.grump.getX() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
-            double y = this.grump.getY() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
-            double z = this.grump.getZ() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
-            this.grump.getMoveControl().setWantedPosition(x, y, z, 1.0D);
+            double x = grump.getX() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
+            double y = grump.getY() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
+            double z = grump.getZ() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
+            grump.getMoveControl().setWantedPosition(x, y, z, 1.0D);
         }
     }
 
@@ -833,9 +851,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
             if (grump.distanceToSqr(owner) > 200) {
                 teleportToOwner();
             }
-            else {
-                this.setWantedToOwner();
-            }
+            this.setWantedToOwner();
         }
 
         private void teleportToOwner() {
