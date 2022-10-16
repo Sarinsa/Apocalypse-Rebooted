@@ -18,7 +18,7 @@ public class BiomeEvents {
         if (event.getCategory() != Biome.Category.THEEND && event.getCategory() != Biome.Category.NETHER)
             event.getSpawns().addSpawn(EntityClassification.MONSTER, new MobSpawnInfo.Spawners(
                     ApocalypseEntities.FEARWOLF.get(),
-                    40,
+                    20,
                     1,
                     4
             ));

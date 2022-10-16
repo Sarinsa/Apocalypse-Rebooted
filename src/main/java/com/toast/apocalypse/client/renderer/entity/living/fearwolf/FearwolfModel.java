@@ -77,10 +77,10 @@ public class FearwolfModel <T extends FearwolfEntity> extends TintedAgeableModel
         this.leg1.setPos(0.5F, 16.0F, 7.0F);
         this.leg2.setPos(-2.5F, 16.0F, -4.0F);
         this.leg3.setPos(0.5F, 16.0F, -4.0F);
-        this.leg0.xRot = MathHelper.cos(p_212843_2_ * 0.6662F) * 1.4F * p_212843_3_;
-        this.leg1.xRot = MathHelper.cos(p_212843_2_ * 0.6662F + (float) Math.PI) * 1.4F * p_212843_3_;
-        this.leg2.xRot = MathHelper.cos(p_212843_2_ * 0.6662F + (float) Math.PI) * 1.4F * p_212843_3_;
-        this.leg3.xRot = MathHelper.cos(p_212843_2_ * 0.6662F) * 1.4F * p_212843_3_;
+        this.leg0.xRot = MathHelper.cos(p_212843_2_ * 0.4662F) * 1.1F * p_212843_3_;
+        this.leg1.xRot = MathHelper.cos(p_212843_2_ * 0.4662F + (float) Math.PI) * 1.1F * p_212843_3_;
+        this.leg2.xRot = MathHelper.cos(p_212843_2_ * 0.4662F + (float) Math.PI) * 1.1F * p_212843_3_;
+        this.leg3.xRot = MathHelper.cos(p_212843_2_ * 0.4662F) * 1.1F * p_212843_3_;
         this.tail.xRot = -35.0F;
     }
 

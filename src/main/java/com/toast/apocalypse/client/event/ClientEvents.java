@@ -23,20 +23,19 @@ public class ClientEvents {
     /** The location of the Apocalypse world config button icon */
     private static final ResourceLocation GHOSTLY_ICON = Apocalypse.resourceLoc("textures/gui/button/ghostly.png");
     /** The Minecraft client instance. **/
-    private final Minecraft minecraftClient;
+    private final Minecraft minecraft;
 
 
     public ClientEvents(Minecraft minecraft) {
-        this.minecraftClient = minecraft;
+        this.minecraft = minecraft;
     }
-
 
     /**
      * Renders the difficulty seen in-game
      */
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public void afterRenderGameOverlay(RenderGameOverlayEvent.Post event) {
-        DifficultyRenderHandler.renderDifficulty(event, this.minecraftClient);
+        DifficultyRenderHandler.renderDifficulty(event, this.minecraft);
     }
 
     /**
@@ -80,9 +79,8 @@ public class ClientEvents {
             x += X_OFFSET;
             y += Y_OFFSET;
 
-            event.addWidget(new ImageButton(x, y, 20, 20, 0, 0, 20, GHOSTLY_ICON, 32, 64, (button) -> {
-                this.minecraftClient.setScreen(new ApocalypseWorldCreateConfigScreen(screen));
-            }));
+            event.addWidget(new ImageButton(x, y, 20, 20, 0, 0, 20, GHOSTLY_ICON, 32, 64,
+                    (button) -> this.minecraft.setScreen(new ApocalypseWorldCreateConfigScreen(screen))));
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.toast.apocalypse.client.renderer.entity.living.grump;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.entity.living.GrumpEntity;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.MobRenderer;
@@ -21,6 +20,11 @@ public class GrumpRenderer<T extends GrumpEntity> extends MobRenderer<T, GhastMo
             Apocalypse.resourceLoc("textures/entity/grump/saddled_chill_grump.png")
     };
 
+    private static final ResourceLocation[] POUTING_GRUMP_TEXTURES = new ResourceLocation[] {
+            Apocalypse.resourceLoc("textures/entity/grump/pouting_grump.png"),
+            Apocalypse.resourceLoc("textures/entity/grump/saddled_pouting_grump.png")
+    };
+
 
     public GrumpRenderer(EntityRendererManager rendererManager) {
         super(rendererManager, new GhastModel<>(), 0.5F);
@@ -31,8 +35,11 @@ public class GrumpRenderer<T extends GrumpEntity> extends MobRenderer<T, GhastMo
     public ResourceLocation getTextureLocation(T grump) {
         boolean saddled = grump.getHeadItem().getItem() == Items.SADDLE;
 
-        if (grump.getOwnerUUID() == null) {
+        if (grump.getTarget() != null || grump.getOwnerUUID() == null) {
             return saddled ? GRUMP_TEXTURES[1] : GRUMP_TEXTURES[0];
+        }
+        if (grump.shouldStandBy()) {
+            return saddled ? POUTING_GRUMP_TEXTURES[1] : POUTING_GRUMP_TEXTURES[0];
         }
         return saddled ? TAMED_GRUMP_TEXTURES[1] : TAMED_GRUMP_TEXTURES[0];
     }

@@ -2,8 +2,9 @@ package com.toast.apocalypse.common.util;
 
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.core.config.CommonConfigReloadListener;
-import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
+import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
+import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -45,16 +46,17 @@ public class RainDamageTickHelper {
      * Called from {@link com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager#onServerTick(TickEvent.ServerTickEvent)}<br>
      * <br>
      */
-    public void checkAndPerformRainDamageTick(Iterable<ServerWorld> serverLevels) {
+    public void checkAndPerformRainDamageTick(Iterable<ServerWorld> serverLevels, PlayerDifficultyManager difficultyManager) {
         if (!ApocalypseCommonConfig.COMMON.rainDamageEnabled())
             return;
 
         if (++this.timeRainDmgCheck >= RAIN_TICK_RATE) {
-
             for (ServerWorld level : serverLevels) {
-
                 for (ServerPlayerEntity player : level.players()) {
-                    if (EnchantmentHelper.hasAquaAffinity(player) || !level.isRainingAt(player.blockPosition()))
+                    if (!difficultyManager.isRainingAcid(level))
+                        continue;
+
+                    if (EnchantmentHelper.hasAquaAffinity(player) || !level.isRainingAt(player.blockPosition().offset(0.0D, player.getEyeHeight(), 0.0D)))
                         continue;
 
                     ItemStack headStack = player.getItemBySlot(EquipmentSlotType.HEAD);

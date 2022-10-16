@@ -8,14 +8,14 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
         classpath group: "org.spongepowered", name: "mixingradle", version: "0.7-SNAPSHOT"
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
-apply plugin: "org.spongepowered.mixin"
+apply plugin: 'org.spongepowered.mixin'
 
 mixin {
     add sourceSets.main, "apocalypse.mixins.refmap.json"
@@ -92,7 +92,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 repositories {
     maven {
         name 'prog'
-        url "http://dvs1.progwml6.com/files/maven"
+        url "https://dvs1.progwml6.com/files/maven"
     }
     maven {
         name 'CurseMaven'
@@ -126,7 +126,7 @@ dependencies {
 
     //runtimeOnly fg.deobf("blank:Druidcraft-1.16.5:0.4.54")
 
-    annotationProcessor 'org.spongepowered:mixin:0.8.2:processor'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
 jar {
@@ -153,6 +153,7 @@ task apiJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
+// G
 task updateVersionCheck {
     try {
         File jsonFile = file('version_check.json')
@@ -178,7 +179,7 @@ task updateVersionCheck {
                     versions.remove(key)
                 }
             }
-            versions.put(latest, modVersion + "-" + modState)
+            versions.put(latest, mcVersion + "-" + modVersion + "-" + modState)
             jsonFile.setText(JsonOutput.prettyPrint(JsonOutput.toJson(parsedJson)))
         }
     }

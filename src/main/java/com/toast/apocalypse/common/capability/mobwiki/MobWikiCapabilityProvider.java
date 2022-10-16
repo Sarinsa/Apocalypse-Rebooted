@@ -1,8 +1,6 @@
 package com.toast.apocalypse.common.capability.mobwiki;
 
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
-import com.toast.apocalypse.common.capability.event_data.IEventDataCapability;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.IntArrayNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
@@ -12,6 +10,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+@SuppressWarnings("ConstantConditions")
 public class MobWikiCapabilityProvider implements ICapabilitySerializable<IntArrayNBT> {
 
     private final IMobWikiCapability INSTANCE = ApocalypseCapabilities.MOB_WIKI_CAPABILITY.getDefaultInstance();

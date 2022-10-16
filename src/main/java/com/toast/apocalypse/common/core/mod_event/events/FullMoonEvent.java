@@ -2,12 +2,11 @@ package com.toast.apocalypse.common.core.mod_event.events;
 
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
-import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
-import com.toast.apocalypse.common.core.register.ApocalypseParticles;
+import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import com.toast.apocalypse.common.util.CapabilityHelper;
-import com.toast.apocalypse.common.util.References;
 import com.toast.apocalypse.common.util.DataStructureUtils;
+import com.toast.apocalypse.common.util.References;
 import net.minecraft.entity.EntitySpawnPlacementRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MobEntity;
@@ -22,9 +21,7 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.spawner.WorldEntitySpawner;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -93,12 +90,6 @@ public final class FullMoonEvent extends AbstractEvent {
     /** A map containing all the full moon mobs that will be spawned for the player */
     private final HashMap<Integer, Integer> mobsToSpawn = new HashMap<>();
 
-    // TODO - TEMPORARY SOLUTION - Unloaded mobs cannot be tracked this way.
-    /**
-     *  A List of mobs that have already been spawned and are still alive.
-     */
-    private final List<MobEntity> currentMobs = new ArrayList<>();
-
     public FullMoonEvent(EventType<?> type) {
         super(type);
     }
@@ -112,7 +103,7 @@ public final class FullMoonEvent extends AbstractEvent {
     }
 
     @Override
-    public void update(ServerWorld world, ServerPlayerEntity player) {
+    public void update(ServerWorld world, ServerPlayerEntity player, PlayerDifficultyManager difficultyManager) {
         // Tick grace period
         if (this.gracePeriod > 0) {
             this.gracePeriod -= PlayerDifficultyManager.TICKS_PER_UPDATE;
@@ -121,8 +112,6 @@ public final class FullMoonEvent extends AbstractEvent {
         if (this.timeUntilNextSpawn > 0) {
             timeUntilNextSpawn -= PlayerDifficultyManager.TICKS_PER_UPDATE;
         }
-        // Update the list of current mobs. Remove any entries of null or dead mobs.
-        this.currentMobs.removeIf(mob -> mob == null || !mob.isAlive());
 
         if (this.canSpawn()) {
             boolean hasMobsLeft = false;
@@ -153,33 +142,12 @@ public final class FullMoonEvent extends AbstractEvent {
     }
 
     @Override
-    public void onEnd() {
-        this.currentMobs.clear();
+    public void onEnd(MinecraftServer server, ServerPlayerEntity player) {
+
     }
 
     @Override
     public void stop(ServerWorld world) {}
-
-    @Override
-    public void onPlayerDeath(ServerPlayerEntity player, ServerWorld world) {
-        // Despawn all current full moon mobs
-        // within loaded chunks to avoid spawn killing.
-        for (MobEntity mob : this.currentMobs) {
-            spawnSmoke(world, mob);
-            mob.remove();
-        }
-    }
-
-    /**
-     * Helper method for spawning smoke particles
-     * when an existing mob is despawned on player
-     * logout or if the player changes dimension.
-     */
-    private static void spawnSmoke(ServerWorld world, MobEntity mob) {
-        for (int i = 0; i < 8; i++) {
-            world.sendParticles(ApocalypseParticles.LUNAR_DESPAWN_SMOKE.get(), mob.getX(), mob.getY(), mob.getZ(), 4, 0.1, 0.1, 0.1, 0.1);
-        }
-    }
 
     /**
      * Returns true if it is time to spawn a new full moon mob.
@@ -283,12 +251,14 @@ public final class FullMoonEvent extends AbstractEvent {
         if (mob == null)
             return;
 
-        ((IFullMoonMob) mob).setPlayerTargetUUID(player.getUUID());
-        this.currentMobs.add(mob);
+        ((IFullMoonMob<?>) mob).setPlayerTargetUUID(player.getUUID());
+        ((IFullMoonMob<?>) mob).setEventGeneration(getEventGeneration());
     }
 
+
+    @SuppressWarnings("deprecation")
     @Nullable
-    private <T extends MobEntity & IFullMoonMob> T spawnMob(EntityType<T> entityType, ServerPlayerEntity player, ServerWorld world) {
+    private <T extends MobEntity & IFullMoonMob<?>> T spawnMob(EntityType<T> entityType, ServerPlayerEntity player, ServerWorld world) {
         Random random = world.getRandom();
         BlockPos playerPos = player.blockPosition();
         BlockPos spawnPos = null;
@@ -314,8 +284,8 @@ public final class FullMoonEvent extends AbstractEvent {
             EntitySpawnPlacementRegistry.PlacementType placementType = EntitySpawnPlacementRegistry.getPlacementType(entityType);
 
             for (int i = 0; i < 10; i++) {
-                int startX = random.nextInt(2) == 1 ? minDist : -minDist;
-                int startZ = random.nextInt(2) == 1 ? minDist : -minDist;
+                int startX = random.nextBoolean() ? minDist : -minDist;
+                int startZ = random.nextBoolean() ? minDist : -minDist;
                 int x = playerPos.getX() + startX + (startX < 1 ? -random.nextInt(46) : random.nextInt(46));
                 int z = playerPos.getZ() + startZ + (startZ < 1 ? -random.nextInt(46) : random.nextInt(46));
                 int y = world.getHeight(EntitySpawnPlacementRegistry.getHeightmapType(entityType), x, z);
@@ -332,14 +302,12 @@ public final class FullMoonEvent extends AbstractEvent {
                     }
                     while(world.getBlockState(pos).isAir(world, pos) && pos.getY() > 0);
                 }
-
                 if (placementType == EntitySpawnPlacementRegistry.PlacementType.ON_GROUND) {
                     BlockPos blockpos = pos.below();
                     if (world.getBlockState(blockpos).isPathfindable(world, blockpos, PathType.LAND)) {
                         pos = blockpos.mutable();
                     }
                 }
-
                 if (world.isLoaded(pos) && WorldEntitySpawner.isSpawnPositionOk(placementType, world, pos, entityType)) {
                     if (world.noCollision(entityType.getAABB((double) pos.getX() + 0.5D, pos.getY(), (double) pos.getZ() + 0.5D))) {
                         spawnPos = pos.immutable();
@@ -348,7 +316,6 @@ public final class FullMoonEvent extends AbstractEvent {
                 }
             }
         }
-
         if (spawnPos == null)
             return null;
 
@@ -357,9 +324,10 @@ public final class FullMoonEvent extends AbstractEvent {
 
     @Override
     public void writeAdditional(CompoundNBT data) {
-        data.putInt("GracePeriod", this.gracePeriod);
-        data.putInt("TimeNextSpawn", this.timeUntilNextSpawn);
-        data.putInt("SpawnTime", this.spawnTime);
+        data.putInt("GracePeriod", gracePeriod);
+        data.putInt("TimeNextSpawn", timeUntilNextSpawn);
+        data.putInt("SpawnTime", spawnTime);
+        data.putInt("EventGeneration", eventGeneration);
 
         CompoundNBT mobsToSpawn = new CompoundNBT();
         mobsToSpawn.putInt("Ghost", this.mobsToSpawn.getOrDefault(GHOST_ID, 0));
@@ -372,10 +340,11 @@ public final class FullMoonEvent extends AbstractEvent {
     }
 
     @Override
-    public void read(CompoundNBT data, ServerWorld world) {
-        this.gracePeriod = data.getInt("GracePeriod");
-        this.timeUntilNextSpawn = data.getInt("TimeNextSpawn");
-        this.spawnTime = data.getInt("SpawnTime");
+    public void read(CompoundNBT data, ServerPlayerEntity player, ServerWorld world) {
+        gracePeriod = data.getInt("GracePeriod");
+        timeUntilNextSpawn = data.getInt("TimeNextSpawn");
+        spawnTime = data.getInt("SpawnTime");
+        eventGeneration = data.getInt("EventGeneration");
 
         CompoundNBT mobsToSpawn = data.getCompound("MobsToSpawn");
         this.mobsToSpawn.put(GHOST_ID, mobsToSpawn.getInt("Ghost"));

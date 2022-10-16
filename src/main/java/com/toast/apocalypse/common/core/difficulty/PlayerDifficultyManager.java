@@ -1,12 +1,13 @@
 package com.toast.apocalypse.common.core.difficulty;
 
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.config.CommonConfigReloadListener;
 import com.toast.apocalypse.common.core.config.util.ServerConfigHelper;
 import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
-import com.toast.apocalypse.common.core.config.CommonConfigReloadListener;
 import com.toast.apocalypse.common.network.NetworkHelper;
+import com.toast.apocalypse.common.network.message.S2CSimpleClientTask;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
@@ -34,9 +35,8 @@ import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 import org.apache.logging.log4j.Level;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import javax.annotation.Nullable;
+import java.util.*;
 
 /**
  * This class manages player difficulty and mod events
@@ -49,6 +49,8 @@ public final class PlayerDifficultyManager {
      *
      *  @see CommonConfigReloadListener#updateInfo()
      */
+
+    public static double ACID_RAIN_CHANCE;
     public static boolean MULTIPLAYER_DIFFICULTY_SCALING;
     public static double MULTIPLAYER_DIFFICULTY_MULT;
     public static double SLEEP_PENALTY;
@@ -69,8 +71,11 @@ public final class PlayerDifficultyManager {
     /** Time until next advancement trigger check. */
     private int timeAdvCheck = 0;
 
+    /** Contains miscellaneous info about each world. */
+    private final Map<World, WorldInfo> worldInfo = new HashMap<>();
+
     /** A Map containing each online player's current event. */
-    private final HashMap<UUID, AbstractEvent> playerEvents = new HashMap<>();
+    private final Map<UUID, AbstractEvent> playerEvents = new HashMap<>();
 
     /** Manages rain damage. */
     private final RainDamageTickHelper rainDamageHelper;
@@ -122,6 +127,10 @@ public final class PlayerDifficultyManager {
         return this.isFullMoon() && dayTime > 13000L && dayTime < 23500L;
     }
 
+    public boolean isRainingAcid(ServerWorld world) {
+        return worldInfo.get(world).isRainingAcid();
+    }
+
     /** Fetch the server instance and update integrated server mod server config. */
     @SubscribeEvent
     public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
@@ -134,6 +143,7 @@ public final class PlayerDifficultyManager {
     @SubscribeEvent
     public void onServerStarted(FMLServerStartedEvent event) {
         this.serverStopped = false;
+        event.getServer().getAllLevels().forEach((world) -> worldInfo.put(world, new WorldInfo(world)));
     }
 
     /** Clean up references and save player event data */
@@ -149,14 +159,18 @@ public final class PlayerDifficultyManager {
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (!event.getPlayer().getCommandSenderWorld().isClientSide) {
-            ServerWorld overworld = this.server.overworld();
             ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
+            ServerWorld overworld = this.server.overworld();
+            ServerWorld playerWorld = player.getLevel();
 
             NetworkHelper.sendUpdatePlayerDifficulty(player);
             NetworkHelper.sendUpdatePlayerDifficultyMult(player);
             NetworkHelper.sendUpdatePlayerMaxDifficulty(player);
             NetworkHelper.sendMobWikiIndexUpdate(player);
             NetworkHelper.sendMoonPhaseUpdate(player, overworld);
+
+            if (isRainingAcid(playerWorld))
+                NetworkHelper.sendSimpleClientTaskRequest(player, S2CSimpleClientTask.SET_ACID_RAIN);
 
             this.loadEventData(player);
         }
@@ -221,18 +235,31 @@ public final class PlayerDifficultyManager {
         if (event.phase == TickEvent.Phase.END) {
             MinecraftServer server = this.server;
 
-            // Check and inflict rain damage on players
-            this.rainDamageHelper.checkAndPerformRainDamageTick(server.getAllLevels());
+            rainDamageHelper.checkAndPerformRainDamageTick(server.getAllLevels(), this);
 
             // Update player difficulty and event
             if (++this.timeUpdate >= TICKS_PER_UPDATE) {
                 this.timeUpdate = 0;
 
-                final boolean isFullMoonNight = this.isFullMoonNight();
-
+                // Update player difficulty and event
                 for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
                     this.updatePlayerDifficulty(player);
-                    this.updatePlayerEvent(player, isFullMoonNight);
+                    this.updatePlayerEvent(player);
+                }
+
+                // Update world info
+                for (ServerWorld world : server.getAllLevels()) {
+                    WorldInfo info = worldInfo.get(world);
+
+                    if (world.isRaining()) {
+                        if (!info.justStartedRaining()) {
+                            info.setJustStartedRaining(true, world.random);
+                        }
+                    }
+                    else {
+                        info.setJustStartedRaining(false, world.random);
+                        info.setRainingAcid(false);
+                    }
                 }
             }
 
@@ -274,7 +301,8 @@ public final class PlayerDifficultyManager {
         if (MULTIPLAYER_DIFFICULTY_SCALING) {
             if (playerCount > 1) {
                 difficultyMultiplier = 1.0D + ((playerCount - 1.0D) * MULTIPLAYER_DIFFICULTY_MULT);
-            } else {
+            }
+            else {
                 difficultyMultiplier = 1.0D;
             }
         }
@@ -301,32 +329,35 @@ public final class PlayerDifficultyManager {
      *
      * @param player The player to update event for.
      */
-    public void updatePlayerEvent(ServerPlayerEntity player, boolean isFullMoonNight) {
+    @SuppressWarnings("ConstantConditions")
+    public void updatePlayerEvent(ServerPlayerEntity player) {
         ServerWorld world = player.getLevel();
         ServerWorld overworld = this.server.overworld();
-        AbstractEvent currentEvent = this.playerEvents.get(player.getUUID());
+        AbstractEvent currentEvent = getCurrentEvent(player);
+
+        // This should never happen, and it would be super weird if it did
+        if (currentEvent == null)
+            return;
+
         EventType<?> eventType = currentEvent.getType();
 
-        if (CapabilityHelper.getPlayerDifficulty(player) > 0 && overworld.getGameTime() > 0L) {
+        // Update current event
+        currentEvent.update(world, player, this);
 
+        if (CapabilityHelper.getPlayerDifficulty(player) > 0 && overworld.getGameTime() > 0L) {
             for (EventType<?> type : EventRegistry.EVENTS.values()) {
-                if (type.getStartPredicate().canStart(world, eventType, player, isFullMoonNight) && currentEvent.getType().canBeInterrupted()) {
+                if (eventType != type && type.getStartPredicate().test(world, eventType, player, this) && currentEvent.getType().canBeInterrupted()) {
+                    // Copy over event generation
+                    int generation = currentEvent.getEventGeneration();
                     eventType = this.startEvent(player, currentEvent, type);
+                    getCurrentEvent(player).setEventGeneration(generation);
                     break;
                 }
             }
-            // Stop the full moon event when it becomes day time.
-            if (eventType == EventRegistry.FULL_MOON && !isFullMoonNight) {
-                eventType = this.endEvent(player);
-            }
-
-            // Stop the thunderstorm event when the weather clears up.
-            if (eventType == EventRegistry.THUNDERSTORM && !world.isThundering()) {
-                this.endEvent(player);
+            if (!eventType.getPersistPredicate().test(world, eventType, player, this)) {
+                endEvent(player);
             }
         }
-        // Update current event
-        currentEvent.update(world, player);
     }
 
     /** Starts an event for the given player, if possible.
@@ -341,7 +372,7 @@ public final class PlayerDifficultyManager {
         if (currentEvent != null) {
             if (!currentEvent.getType().canBeInterrupted())
                 return currentEvent.getType();
-            currentEvent.onEnd();
+            currentEvent.onEnd(server, player);
         }
         AbstractEvent newEvent = eventType.createEvent();
         newEvent.onStart(this.server, player);
@@ -359,23 +390,30 @@ public final class PlayerDifficultyManager {
         return this.playerEvents.containsKey(uuid) ? this.playerEvents.get(uuid).getType().getId() : -1;
     }
 
-    /** Ends the current active event, if any. */
-    public EventType<?> endEvent(ServerPlayerEntity player) {
+    // SHOULD not return null, but who knows
+    @Nullable
+    public AbstractEvent getCurrentEvent(ServerPlayerEntity player) {
         UUID uuid = player.getUUID();
-        this.playerEvents.get(uuid).onEnd();
+        return this.playerEvents.getOrDefault(uuid, null);
+    }
+
+    /** Ends the current active event, if any. */
+    public void endEvent(ServerPlayerEntity player) {
+        UUID uuid = player.getUUID();
+        this.playerEvents.get(uuid).onEnd(server, player);
         this.playerEvents.put(uuid, EventRegistry.NONE.createEvent());
         this.saveEventData(player);
-        return EventRegistry.NONE;
     }
 
     /** Cleans up the references to things in a server when the server stops. */
     public void cleanup() {
-        this.server = null;
-        this.timeUpdate = 0;
-        this.timeSave = 0;
-        this.timeAdvCheck = 0;
-        this.playerEvents.clear();
-        this.rainDamageHelper.resetTimer();
+        server = null;
+        timeUpdate = 0;
+        timeSave = 0;
+        timeAdvCheck = 0;
+        playerEvents.clear();
+        rainDamageHelper.resetTimer();
+        worldInfo.clear();
     }
 
     /** Loads the given player's event data. */
@@ -386,7 +424,7 @@ public final class PlayerDifficultyManager {
 
             if (eventData != null && eventData.contains("EventId", Constants.NBT.TAG_INT)) {
                 currentEvent = EventRegistry.getFromId(eventData.getInt("EventId")).createEvent();
-                currentEvent.read(eventData, player.getLevel());
+                currentEvent.read(eventData, player, player.getLevel());
             }
             this.playerEvents.put(player.getUUID(), currentEvent);
         }
@@ -419,5 +457,43 @@ public final class PlayerDifficultyManager {
     /** Helper method for logging. */
     private static void log(Level level, String message) {
         Apocalypse.LOGGER.log(level, "[{}] " + message, PlayerDifficultyManager.class.getSimpleName());
+    }
+
+
+
+    /** Contains miscellaneous info about a world. */
+    public static class WorldInfo {
+
+        private final ServerWorld world;
+
+        private boolean justStartedRaining;
+        private boolean isRainingAcid;
+
+        private WorldInfo(ServerWorld world) {
+            this.world = world;
+        }
+
+        protected void setRainingAcid(boolean value) {
+            isRainingAcid = value;
+
+            for (ServerPlayerEntity player : world.players()) {
+                NetworkHelper.sendSimpleClientTaskRequest(player, value ? S2CSimpleClientTask.SET_ACID_RAIN : S2CSimpleClientTask.REMOVE_ACID_RAIN);
+            }
+        }
+
+        public boolean isRainingAcid() {
+            return isRainingAcid;
+        }
+
+        public boolean justStartedRaining() {
+            return justStartedRaining;
+        }
+
+        public void setJustStartedRaining(boolean value, Random random) {
+            justStartedRaining = value;
+
+            if (value && random.nextDouble() <= ACID_RAIN_CHANCE)
+                setRainingAcid(true);
+        }
     }
 }

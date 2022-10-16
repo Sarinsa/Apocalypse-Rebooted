@@ -7,15 +7,16 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.server.ServerWorld;
 
-public final class EmptyEvent extends AbstractEvent {
+// TODO - Currently does nothing other than displaying an event message.
+//        Perhaps other mechanics or mobs can be introduced in the future.
+public class AcidRainEvent extends AbstractEvent {
 
-    public EmptyEvent(EventType<?> type) {
+    public AcidRainEvent(EventType<?> type) {
         super(type);
     }
 
     @Override
     public void onStart(MinecraftServer server, ServerPlayerEntity player) {
-
     }
 
     @Override
@@ -25,7 +26,6 @@ public final class EmptyEvent extends AbstractEvent {
 
     @Override
     public void onEnd(MinecraftServer server, ServerPlayerEntity player) {
-
     }
 
     @Override
@@ -35,10 +35,10 @@ public final class EmptyEvent extends AbstractEvent {
 
     @Override
     public void writeAdditional(CompoundNBT data) {
+
     }
 
     @Override
-    public void read(CompoundNBT data, ServerPlayerEntity player, ServerWorld world)  {
-
+    public void read(CompoundNBT data, ServerPlayerEntity player, ServerWorld world) {
     }
 }

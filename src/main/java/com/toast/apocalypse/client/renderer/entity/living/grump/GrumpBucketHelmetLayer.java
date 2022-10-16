@@ -4,9 +4,9 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.toast.apocalypse.api.MethodsReturnNonnullByDefault;
 import com.toast.apocalypse.client.renderer.model.armor.GrumpBucketHelmetModel;
+import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.entity.living.GrumpEntity;
 import com.toast.apocalypse.common.item.BucketHelmetItem;
-import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderType;
@@ -14,7 +14,6 @@ import net.minecraft.client.renderer.entity.IEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.client.renderer.entity.model.GhastModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 

@@ -1,15 +1,18 @@
 package com.toast.apocalypse.client.event;
 
-import com.toast.apocalypse.client.screen.ApocalypseWorldCreateConfigScreen;
+import com.toast.apocalypse.client.renderer.weather.AcidRainRenderHandler;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 
-import static com.toast.apocalypse.common.core.config.ApocalypseClientConfig.PositionWidthAnchor;
+import java.awt.*;
+
 import static com.toast.apocalypse.common.core.config.ApocalypseClientConfig.PositionHeightAnchor;
+import static com.toast.apocalypse.common.core.config.ApocalypseClientConfig.PositionWidthAnchor;
 
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Apocalypse.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -47,5 +50,12 @@ public final class ClientConfigReloadListener {
         ClientEvents.HEIGHT = ApocalypseClientConfig.CLIENT.getWorldConfigButtonPosHeight();
         ClientEvents.X_OFFSET = ApocalypseClientConfig.CLIENT.getWorldConfigButtonXOffset();
         ClientEvents.Y_OFFSET = ApocalypseClientConfig.CLIENT.getWorldConfigButtonYOffset();
+
+        AcidRainRenderHandler.RAIN_COLOR = decodeRGB(ApocalypseClientConfig.CLIENT.getAcidRainColor());
+    }
+
+    private static Vector3f decodeRGB(String hexColor) {
+        Color color = Color.decode(hexColor);
+        return new Vector3f(color.getRed() / 255.0F, color.getGreen() / 255.0F, color.getBlue() / 255.0F);
     }
 }

@@ -100,6 +100,20 @@ public class NetworkHelper {
         PacketHandler.sendToClient(new S2COpenMobWikiScreen(player.getUUID()), player);
     }
 
+
+    /**
+     * Sends a message from the server to client
+     * to request one of the listed tasks depending on
+     * the value of "action":<br>
+     * <br>
+     *
+     * 0 - Replaces weather render handlers with acid rain render handlers.<br>
+     * 1 - Removes acid rain weather render handlers from WorldRenderer if present.
+     */
+    public static void sendSimpleClientTaskRequest(@Nonnull ServerPlayerEntity player, byte action) {
+        PacketHandler.sendToClient(new S2CSimpleClientTask(action), player);
+    }
+
     public static void openGrumpInventory(@Nonnull ServerPlayerEntity player, int containerId, @Nonnull GrumpEntity grump) {
         PacketHandler.sendToClient(new S2COpenGrumpInventory(player.getUUID(), containerId, grump.getId()), player);
     }

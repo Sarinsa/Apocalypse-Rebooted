@@ -1,13 +1,10 @@
 package com.toast.apocalypse.common.capability.difficulty;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.util.References;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.LongNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
 

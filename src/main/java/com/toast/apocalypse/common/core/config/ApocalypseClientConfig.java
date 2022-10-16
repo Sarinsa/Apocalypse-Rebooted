@@ -3,6 +3,8 @@ package com.toast.apocalypse.common.core.config;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.awt.*;
+
 /**
  * Apocalypse's client side config.
  */
@@ -44,6 +46,10 @@ public class ApocalypseClientConfig {
         private final ForgeConfigSpec.BooleanValue renderDifficultyInCreative;
         private final ForgeConfigSpec.BooleanValue keybindOnly;
 
+        private final ForgeConfigSpec.ConfigValue<String> rainColor;
+        private final ForgeConfigSpec.ConfigValue<String> snowColor;
+
+
         private Client(ForgeConfigSpec.Builder configBuilder) {
             configBuilder.push("in_game_gui");
             this.difficultyRenderPosWidth = configBuilder.comment("Determines the base X position on the screen where the world difficulty count should render")
@@ -77,6 +83,37 @@ public class ApocalypseClientConfig {
 
             this.worldConfigButtonYOffset = configBuilder.comment("Additional Y offset.")
                     .defineInRange("worldConfigButtonYOffset", 100, -10000, 10000);
+            configBuilder.pop();
+
+            configBuilder.push("acid_rain_properties");
+            this.rainColor = configBuilder.comment("Decides the color to be used for acid rain. Must be hex color. Keep in mind that the color of the rain texture itself will \"mix\" with this setting.")
+                            .define("rainColor", "#ACFF75", (o) -> {
+                                try {
+                                    if (o instanceof String) {
+                                        Color.decode((String) o);
+                                        return true;
+                                    }
+                                    return false;
+                                }
+                                catch(NumberFormatException ignored) {
+                                    return false;
+                                }
+                            });
+
+            this.snowColor = configBuilder.comment("Decides the color to be used for snow during acid rain. Must be hex color. Keep in mind that the color of the snow texture itself will \"mix\" with this setting.")
+                    .define("snowColor", "#52FF3F", (o) -> {
+                        try {
+                            if (o instanceof String) {
+                                Color.decode((String) o);
+                                return true;
+                            }
+                            return false;
+                        }
+                        catch(NumberFormatException ignored) {
+                            return false;
+                        }
+                    });
+
             configBuilder.pop();
         }
 
@@ -118,6 +155,14 @@ public class ApocalypseClientConfig {
 
         public boolean getKeybindOnly() {
             return this.keybindOnly.get();
+        }
+
+        public String getAcidRainColor() {
+            return this.rainColor.get();
+        }
+
+        public String getSnowColor() {
+            return this.snowColor.get();
         }
     }
 }

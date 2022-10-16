@@ -1,7 +1,6 @@
 package com.toast.apocalypse.client;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import net.minecraft.client.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraftforge.client.settings.IKeyConflictContext;

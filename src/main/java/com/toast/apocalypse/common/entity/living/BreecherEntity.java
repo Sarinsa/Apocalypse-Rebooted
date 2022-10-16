@@ -2,7 +2,6 @@ package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.entity.living.goals.MoonMobPlayerTargetGoal;
-import com.toast.apocalypse.common.util.MobWikiIndexes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;
@@ -13,14 +12,10 @@ import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.CatEntity;
 import net.minecraft.entity.passive.OcelotEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.pathfinding.Path;
-import net.minecraft.pathfinding.PathNavigator;
 import net.minecraft.util.DamageSource;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -30,10 +25,11 @@ import java.util.UUID;
  * that ignores line of sight, moves slightly faster and will explode when they detect that they can't get any closer to the player.<br>
  * Visually, the ony difference is that their eyes are entranced by the moon's power.
  */
-public class BreecherEntity extends CreeperEntity implements IFullMoonMob {
+public class BreecherEntity extends CreeperEntity implements IFullMoonMob<BreecherEntity> {
 
     /** The constant player target, if this mob was spawned by the full moon event */
     private UUID playerTargetUUID;
+    protected int eventGeneration = 0;
 
     public BreecherEntity(EntityType<? extends CreeperEntity> entityType, World world) {
         super(entityType, world);
@@ -74,19 +70,17 @@ public class BreecherEntity extends CreeperEntity implements IFullMoonMob {
 
 
     @Override
-    public void tick() {
-        super.tick();
-    }
+    public void aiStep() {
+        super.aiStep();
 
-    /** @return True if this breecher should explode. */
-    public boolean shouldExplode() {
-        if (this.getTarget() != null && this.navigation.getPath() != null) {
-            Path path = this.navigation.getPath();
-            PathNavigator navigator = this.getNavigation();
+        if (!level.isClientSide) {
+            ServerWorld serverWorld = (ServerWorld) level;
 
-            return !path.canReach();
+            if (IFullMoonMob.shouldDisappear(getPlayerTargetUUID(), serverWorld, this)) {
+                IFullMoonMob.spawnSmoke(serverWorld, this);
+                remove();
+            }
         }
-        return false;
     }
 
     @Nullable
@@ -96,8 +90,18 @@ public class BreecherEntity extends CreeperEntity implements IFullMoonMob {
     }
 
     @Override
-    public void setPlayerTargetUUID(UUID playerTargetUUID) {
+    public void setPlayerTargetUUID(@Nullable UUID playerTargetUUID) {
         this.playerTargetUUID = playerTargetUUID;
+    }
+
+    @Override
+    public int getEventGeneration() {
+        return eventGeneration;
+    }
+
+    @Override
+    public void setEventGeneration(int generation) {
+        eventGeneration = generation;
     }
 
     @Override

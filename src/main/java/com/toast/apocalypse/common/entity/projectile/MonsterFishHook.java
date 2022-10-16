@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.entity.projectile;
 
-import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
+import com.toast.apocalypse.common.network.NetworkHelper;
 import net.minecraft.entity.*;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;

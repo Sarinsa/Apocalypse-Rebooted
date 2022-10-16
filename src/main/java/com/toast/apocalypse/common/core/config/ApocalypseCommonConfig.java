@@ -5,9 +5,9 @@ import com.electronwill.nightconfig.toml.TomlFormat;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.toast.apocalypse.common.core.config.util.ConfigList;
-import com.toast.apocalypse.common.entity.living.*;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
+import com.toast.apocalypse.common.entity.living.*;
 import com.toast.apocalypse.common.util.RLHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.block.Blocks;
@@ -21,7 +21,10 @@ import net.minecraft.world.Dimension;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.function.Predicate;
 
 /**
@@ -38,15 +41,18 @@ public class ApocalypseCommonConfig {
         COMMON_SPEC = commonPair.getRight();
     }
 
+    @SuppressWarnings("ConstantConditions")
     public static final class Common {
 
         // Cool lists
         private static final List<? extends String> DEFAULT_PENALTY_DIMENSIONS = Arrays.asList(
                 Dimension.NETHER.location().toString(),
                 Dimension.END.location().toString());
+
         private static final List<? extends String> DEFAULT_DESTROYER_PROOF_BLOCKS = Arrays.asList(
                 Blocks.BARRIER.getRegistryName().toString(),
                 Blocks.BEDROCK.getRegistryName().toString());
+
         private static final List<? extends String> DEFAULT_CAN_HAVE_WEAPONS = Arrays.asList(
                 EntityType.ZOMBIE.getRegistryName().toString(),
                 EntityType.ZOMBIE_VILLAGER.getRegistryName().toString(),
@@ -56,8 +62,8 @@ public class ApocalypseCommonConfig {
                 EntityType.PIGLIN.getRegistryName().toString(),
                 EntityType.ZOMBIFIED_PIGLIN.getRegistryName().toString(),
                 EntityType.PIGLIN_BRUTE.getRegistryName().toString(),
-                EntityType.VINDICATOR.getRegistryName().toString()
-        );
+                EntityType.VINDICATOR.getRegistryName().toString());
+
         private static final List<? extends String> DEFAULT_CAN_HAVE_ARMOR = Arrays.asList(
                 EntityType.ZOMBIE.getRegistryName().toString(),
                 EntityType.ZOMBIE_VILLAGER.getRegistryName().toString(),
@@ -71,13 +77,17 @@ public class ApocalypseCommonConfig {
                 EntityType.PIGLIN_BRUTE.getRegistryName().toString()
         );
 
+
         // Version check
         private final ForgeConfigSpec.BooleanValue sendUpdateMessage;
 
+
         // Rain
+        private final ForgeConfigSpec.DoubleValue acidRainChance;
         private final ForgeConfigSpec.IntValue rainTickRate;
         private final ForgeConfigSpec.IntValue rainDamage;
         private final ForgeConfigSpec.BooleanValue rainDamageEnabled;
+
 
         // Difficulty
         private final ForgeConfigSpec.BooleanValue multiplayerDifficultyScaling;
@@ -89,11 +99,13 @@ public class ApocalypseCommonConfig {
         private final ForgeConfigSpec.ConfigValue<CommentedConfig> mobDifficulties;
 
         // Full moon stuff
+        private final ForgeConfigSpec.BooleanValue despawnMobsOnDeath;
         private final ForgeConfigSpec.DoubleValue difficultyUntilNextIncrease;
-        private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.LongValue> moonMobStartDifficulties = new HashMap<>();
-        private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.DoubleValue> moonMobAdditionalCount = new HashMap<>();
-        private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.IntValue> moonMobMinCount = new HashMap<>();
-        private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.IntValue> moonMobCountCap = new HashMap<>();
+        private final HashMap<Class<? extends IFullMoonMob<?>>, ForgeConfigSpec.LongValue> moonMobStartDifficulties = new HashMap<>();
+        private final HashMap<Class<? extends IFullMoonMob<?>>, ForgeConfigSpec.DoubleValue> moonMobAdditionalCount = new HashMap<>();
+        private final HashMap<Class<? extends IFullMoonMob<?>>, ForgeConfigSpec.IntValue> moonMobMinCount = new HashMap<>();
+        private final HashMap<Class<? extends IFullMoonMob<?>>, ForgeConfigSpec.IntValue> moonMobCountCap = new HashMap<>();
+
 
         // Attributes
         private final ForgeConfigSpec.BooleanValue mobsOnly;
@@ -128,6 +140,7 @@ public class ApocalypseCommonConfig {
         private final ForgeConfigSpec.DoubleValue knockbackResFlatBonus;
         private final ForgeConfigSpec.DoubleValue knockbackResFlatBonusMax;
 
+
         // Equipment
         private final ForgeConfigSpec.ConfigValue<List<? extends String>> canHaveWeapons;
         private final ForgeConfigSpec.ConfigValue<CommentedConfig> weaponLists;
@@ -153,12 +166,16 @@ public class ApocalypseCommonConfig {
         private final ForgeConfigSpec.DoubleValue potionEffectLunarChance;
         private final ForgeConfigSpec.DoubleValue potionEffectMaxChance;
 
+
         // Misc
+        private final ForgeConfigSpec.BooleanValue destroyerTargetRespawnPos;
         private final ForgeConfigSpec.ConfigValue<List<? extends String>> destroyerProofBlocks;
         private final ForgeConfigSpec.DoubleValue grumpBucketHelmetChance;
         private final ForgeConfigSpec.IntValue seekerExplosionPower;
         private final ForgeConfigSpec.IntValue destroyerExplosionPower;
+        private final ForgeConfigSpec.IntValue destroyerEquipmentDamage;
         private final ForgeConfigSpec.BooleanValue pauseDaylightCycle;
+
 
         // Compat
         private final ForgeConfigSpec.BooleanValue requireExtendedProbe;
@@ -170,14 +187,17 @@ public class ApocalypseCommonConfig {
                     .define("sendUpdateMessage", true);
             configBuilder.pop();
 
-            configBuilder.push("rain");
-            this.rainTickRate = configBuilder.comment("Determines the interval in which rain damage should be dealt in seconds. A value of 2 will inflict rain damage on players every 2 seconds.")
+            configBuilder.push("acid_rain");
+            this.acidRainChance = configBuilder.comment("The chance of triggering an Acid Rain event when it starts raining. 1 = 100% chance, 0.5 = 50% etc. Defaults to 0.33 (roughly 1/3 chance).")
+                    .defineInRange("acidRainChance", 0.33D, 0.0D, 1.0D);
+
+            this.rainTickRate = configBuilder.comment("Determines the interval in which acid rain damage should be dealt in seconds. A value of 2 will inflict acid rain damage on players every 2 seconds.")
                     .defineInRange("rainTickRate", 3, 1, 1000);
 
-            this.rainDamage = configBuilder.comment("The amount of damage that should be dealt to players on rain tick.")
+            this.rainDamage = configBuilder.comment("The amount of damage that should be dealt to players on acid rain tick.")
                     .defineInRange("rainDamage", 1, 1, 10000);
 
-            this.rainDamageEnabled = configBuilder.comment("Set to false to disable rain damage, or to true to turn it on.")
+            this.rainDamageEnabled = configBuilder.comment("Set to false to disable acid rain damage, or to true to turn it on.")
                     .define("enableRainDamage", true);
             configBuilder.pop();
 
@@ -207,6 +227,9 @@ public class ApocalypseCommonConfig {
             configBuilder.comment("This section revolves around everything related to the full moon sieges.");
             configBuilder.push("full_moon");
 
+            this.despawnMobsOnDeath = configBuilder.comment("If enabled, all full moon mobs spawned for a specific player will despawn if the player dies, which can help prevent spawn killing.")
+                    .define("despawnMobsOnDeath", true);
+
             this.difficultyUntilNextIncrease = configBuilder.comment("How many levels of difficulty must pass before the additional full moon mob counts increases. For example, a value of 30.5 will increase the number of full moon mobs spawning during sieges for every 30.5 levels of difficulty passed.")
                     .defineInRange("difficultyUntilNextIncrease", 40.0D, 0.1D, 100000.0D);
 
@@ -214,7 +237,7 @@ public class ApocalypseCommonConfig {
             configBuilder.push("spawn_start_difficulties");
             createStartDifficulty(BreecherEntity.class, "breecher", 10, configBuilder);
             createStartDifficulty(GhostEntity.class, "ghost", 0, configBuilder);
-            createStartDifficulty(DestroyerEntity.class, "destroyer", 75, configBuilder);
+            createStartDifficulty(DestroyerEntity.class, "destroyer", 80, configBuilder);
             createStartDifficulty(SeekerEntity.class, "seeker", 50, configBuilder);
             createStartDifficulty(GrumpEntity.class, "grump", 20, configBuilder);
             configBuilder.pop();
@@ -404,6 +427,10 @@ public class ApocalypseCommonConfig {
             configBuilder.pop();
 
             configBuilder.push("misc");
+            this.destroyerTargetRespawnPos = configBuilder.comment("If enabled, Destroyers will attempt to blow up their target player's respawn point (bed, respawn anchor etc.). " +
+                    "This does not apply to the global respawn point (where players respawn if they have no bed etc.)")
+                    .define("destroyerTargetRespawnPos", false);
+
             this.destroyerProofBlocks = configBuilder.comment("A list of blocks that the destroyer cannot explode. Generally speaking this list should be empty since destroyers are supposed to destroy any block, but if an exception is absolutely needed, the block in question can be whitelisted here.")
                     .defineListAllowEmpty(split("destroyerProofBlocks"), () -> DEFAULT_DESTROYER_PROOF_BLOCKS, isResourceLocation());
 
@@ -415,6 +442,9 @@ public class ApocalypseCommonConfig {
 
             this.destroyerExplosionPower = configBuilder.comment("The explosion power of Destroyer fireballs.")
                     .defineInRange("destroyerExplosionPower", 2, 1, 10);
+
+            this.destroyerEquipmentDamage = configBuilder.comment("Additional damage destroyer fireballs deals to its target's equipment (armor, shield etc.). Set this to 0 to deal no extra damage.")
+                    .defineInRange("destroyerEquipmentDamage", 50, 0, Integer.MAX_VALUE);
 
             this.pauseDaylightCycle = configBuilder.comment("(For dedicated servers) If enabled, the day-night cycle will pause if no players are online.")
                     .comment("Useful if you want your players to be unable to just skip through full moons by disconnecting.")
@@ -440,6 +470,10 @@ public class ApocalypseCommonConfig {
         //
         // RAIN DAMAGE
         //
+        public double getAcidRainChance() {
+            return this.acidRainChance.get();
+        }
+
         public int getRainTickRate() { return this.rainTickRate.get() * 20; }
 
         public float getRainDamage() {
@@ -486,23 +520,27 @@ public class ApocalypseCommonConfig {
         //
         // FULL MOON
         //
+        public boolean getDespawnMobsOnDeath() {
+            return this.despawnMobsOnDeath.get();
+        }
+
         public double getDifficultyUntilNextIncrease() {
             return this.difficultyUntilNextIncrease.get();
         }
 
-        public long getMoonMobStartDifficulty(Class<? extends IFullMoonMob> entityClass) {
+        public long getMoonMobStartDifficulty(Class<? extends IFullMoonMob<?>> entityClass) {
             return this.moonMobStartDifficulties.containsKey(entityClass) ? (this.moonMobStartDifficulties.get(entityClass).get()) : 0;
         }
 
-        public double getMoonMobAdditionalCount(Class<? extends IFullMoonMob> entityClass) {
+        public double getMoonMobAdditionalCount(Class<? extends IFullMoonMob<?>> entityClass) {
             return this.moonMobAdditionalCount.containsKey(entityClass) ? this.moonMobAdditionalCount.get(entityClass).get() : 0.0D;
         }
 
-        public int getMoonMobMinCount(Class<? extends IFullMoonMob> entityClass) {
+        public int getMoonMobMinCount(Class<? extends IFullMoonMob<?>> entityClass) {
             return this.moonMobMinCount.containsKey(entityClass) ? this.moonMobMinCount.get(entityClass).get() : 0;
         }
 
-        public int getMoonMobMaxCount(Class<? extends IFullMoonMob> entityClass) {
+        public int getMoonMobMaxCount(Class<? extends IFullMoonMob<?>> entityClass) {
             return this.moonMobCountCap.containsKey(entityClass) ? this.moonMobCountCap.get(entityClass).get() : 0;
         }
 
@@ -655,7 +693,7 @@ public class ApocalypseCommonConfig {
         }
 
         public List<? extends String> getCanHaveArmor() {
-            return this.canHaveWeapons.get();
+            return this.canHaveArmor.get();
         }
 
         public double getArmorTimeSpan() {
@@ -708,6 +746,10 @@ public class ApocalypseCommonConfig {
         //
         // MISC
         //
+        public boolean getDestroyerTargetRespawnPos() {
+            return destroyerTargetRespawnPos.get();
+        }
+
         public List<? extends String> getDestroyerProofBlocks() {
             return this.destroyerProofBlocks.get();
         }
@@ -722,6 +764,10 @@ public class ApocalypseCommonConfig {
 
         public int getDestroyerExplosionPower() {
             return this.destroyerExplosionPower.get();
+        }
+
+        public int getDestroyerEquipmentDamage() {
+            return this.destroyerEquipmentDamage.get();
         }
 
         public boolean getPauseDaylightCycle() {
@@ -741,19 +787,19 @@ public class ApocalypseCommonConfig {
 
 
 
-        private void createStartDifficulty(Class<? extends IFullMoonMob> entityClass, String name, long defaultStart, ForgeConfigSpec.Builder configBuilder) {
+        private void createStartDifficulty(Class<? extends IFullMoonMob<?>> entityClass, String name, long defaultStart, ForgeConfigSpec.Builder configBuilder) {
             this.moonMobStartDifficulties.put(entityClass, configBuilder.defineInRange(name, defaultStart, 0, 100000));
         }
 
-        private void createMobAdditionalCount(Class<? extends IFullMoonMob> entityClass, String name, double defaultAdditional, ForgeConfigSpec.Builder configBuilder) {
+        private void createMobAdditionalCount(Class<? extends IFullMoonMob<?>> entityClass, String name, double defaultAdditional, ForgeConfigSpec.Builder configBuilder) {
             this.moonMobAdditionalCount.put(entityClass, configBuilder.defineInRange(name, defaultAdditional, 0, 100));
         }
 
-        private void createMobMinCount(Class<? extends IFullMoonMob> entityClass, String name, int defaultMin, ForgeConfigSpec.Builder configBuilder) {
+        private void createMobMinCount(Class<? extends IFullMoonMob<?>> entityClass, String name, int defaultMin, ForgeConfigSpec.Builder configBuilder) {
             this.moonMobMinCount.put(entityClass, configBuilder.defineInRange(name, defaultMin, 0, 100));
         }
 
-        private void createMobMaxCap(Class<? extends IFullMoonMob> entityClass, String name, int defaultMax, ForgeConfigSpec.Builder configBuilder) {
+        private void createMobMaxCap(Class<? extends IFullMoonMob<?>> entityClass, String name, int defaultMax, ForgeConfigSpec.Builder configBuilder) {
             this.moonMobCountCap.put(entityClass, configBuilder.defineInRange(name, defaultMax, 0, 100));
         }
 

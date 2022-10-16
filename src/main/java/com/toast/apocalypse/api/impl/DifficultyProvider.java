@@ -1,7 +1,6 @@
 package com.toast.apocalypse.api.impl;
 
 import com.toast.apocalypse.api.plugin.IDifficultyProvider;
-import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;

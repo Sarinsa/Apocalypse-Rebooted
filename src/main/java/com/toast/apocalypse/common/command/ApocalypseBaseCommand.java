@@ -1,27 +1,19 @@
 package com.toast.apocalypse.common.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.toast.apocalypse.common.command.argument.DifficultyArgument;
 import com.toast.apocalypse.common.command.argument.MaxDifficultyArgument;
-import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.command.arguments.EntityArgument;
-import net.minecraft.command.arguments.ItemArgument;
-import net.minecraft.command.impl.EffectCommand;
-import net.minecraft.command.impl.GiveCommand;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.storage.WorldSavedData;
-import net.minecraftforge.common.util.WorldCapabilityData;
 
 import java.util.Collection;
 
@@ -73,6 +65,9 @@ public class ApocalypseBaseCommand {
                     break;
                 case 1:
                     eventName = "thunderstorm";
+                    break;
+                case 2:
+                    eventName = "acid_rain";
                     break;
             }
             source.sendSuccess(new StringTextComponent("Player difficulty: " + (difficulty < 0 ? TextFormatting.YELLOW : TextFormatting.GREEN) + difficulty), true);

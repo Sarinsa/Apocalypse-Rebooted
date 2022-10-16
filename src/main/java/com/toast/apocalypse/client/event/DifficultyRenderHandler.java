@@ -2,7 +2,6 @@ package com.toast.apocalypse.client.event;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.toast.apocalypse.client.ApocalypseKeyBindings;
-import com.toast.apocalypse.client.ClientRegister;
 import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import net.minecraft.client.Minecraft;

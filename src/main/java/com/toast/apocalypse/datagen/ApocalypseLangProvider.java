@@ -1,7 +1,6 @@
 package com.toast.apocalypse.datagen;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import net.minecraft.block.Blocks;
 import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.data.LanguageProvider;
 

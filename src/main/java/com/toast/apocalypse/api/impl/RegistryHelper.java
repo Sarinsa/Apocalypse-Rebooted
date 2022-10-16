@@ -1,19 +1,9 @@
 package com.toast.apocalypse.api.impl;
 
 import com.google.common.collect.Lists;
-import com.toast.apocalypse.api.TriConsumer;
 import com.toast.apocalypse.api.plugin.IRegistryHelper;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.entity.living.SeekerEntity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.monster.GhastEntity;
-import net.minecraftforge.fml.RegistryObject;
 import org.apache.logging.log4j.Level;
-
-import java.util.HashMap;
-import java.util.Objects;
 
 public final class RegistryHelper implements IRegistryHelper {
 

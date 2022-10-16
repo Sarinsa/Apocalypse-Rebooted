@@ -1,12 +1,12 @@
 package com.toast.apocalypse.common.network.work;
 
 import com.toast.apocalypse.client.ClientUtil;
-import com.toast.apocalypse.client.event.ClientEvents;
 import com.toast.apocalypse.client.event.DifficultyRenderHandler;
+import com.toast.apocalypse.client.renderer.weather.AcidRainParticleRenderHandler;
+import com.toast.apocalypse.client.renderer.weather.AcidRainRenderHandler;
 import com.toast.apocalypse.client.screen.GrumpInventoryScreen;
 import com.toast.apocalypse.client.screen.MobWikiScreen;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
-import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.living.GrumpEntity;
 import com.toast.apocalypse.common.inventory.container.GrumpInventoryContainer;
 import com.toast.apocalypse.common.network.message.*;
@@ -14,6 +14,7 @@ import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.client.world.DimensionRenderInfo;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.world.World;
@@ -26,10 +27,12 @@ import net.minecraftforge.common.capabilities.Capability;
  */
 public class ClientWork {
 
-    @SuppressWarnings("all")
+
+    @SuppressWarnings("ConstantConditions")
     private static <T> T getCapability(ClientPlayerEntity player, Capability<T> capability) {
         return player.getCapability(capability).orElse(capability.getDefaultInstance());
     }
+
 
     public static void handleDifficultyUpdate(S2CUpdatePlayerDifficulty message) {
         ClientPlayerEntity player = Minecraft.getInstance().player;
@@ -39,6 +42,7 @@ public class ClientWork {
         }
     }
 
+
     public static void handleDifficultyRateUpdate(S2CUpdatePlayerDifficultyRate message) {
         ClientPlayerEntity player = Minecraft.getInstance().player;
 
@@ -46,6 +50,7 @@ public class ClientWork {
             getCapability(player, ApocalypseCapabilities.DIFFICULTY_CAPABILITY).setDifficultyMult(message.multiplier);
         }
     }
+
 
     public static void handleMaxDifficultyUpdate(S2CUpdatePlayerMaxDifficulty message) {
         ClientPlayerEntity player = Minecraft.getInstance().player;
@@ -56,6 +61,7 @@ public class ClientWork {
             DifficultyRenderHandler.COLOR_CHANGE = maxDifficulty > -1 ? maxDifficulty : References.DEFAULT_COLOR_CHANGE;
         }
     }
+
 
     public static void handleEntityVelocityUpdate(S2CUpdateEntityVelocity message) {
         World world = Minecraft.getInstance().level;
@@ -69,9 +75,11 @@ public class ClientWork {
         }
     }
 
+
     public static void handleMoonPhaseUpdate(S2CUpdateMoonPhase message) {
         ClientUtil.OVERWORLD_MOON_PHASE = message.moonPhase;
     }
+
 
     public static void handleMobWikiIndexUpdate(S2CUpdateMobWikiIndexes message) {
         ClientPlayerEntity player = Minecraft.getInstance().player;
@@ -82,6 +90,7 @@ public class ClientWork {
         }
     }
 
+
     public static void handleOpenMobWikiScreen(S2COpenMobWikiScreen message) {
         ClientPlayerEntity player = Minecraft.getInstance().player;
 
@@ -90,6 +99,7 @@ public class ClientWork {
 
         Minecraft.getInstance().setScreen(new MobWikiScreen());
     }
+
 
     public static void handleOpenGrumpInventory(S2COpenGrumpInventory message) {
         ClientPlayerEntity player = Minecraft.getInstance().player;
@@ -113,5 +123,33 @@ public class ClientWork {
         GrumpInventoryContainer container = new GrumpInventoryContainer(message.containerId, playerInventory, grump.getInventory(), grump);
         Minecraft.getInstance().player.containerMenu = container;
         Minecraft.getInstance().setScreen(new GrumpInventoryScreen(container, playerInventory, grump));
+    }
+
+
+    @SuppressWarnings("ConstantConditions")
+    public static void handleSimpleClientTaskRequest(S2CSimpleClientTask message) {
+
+        if (message.action == S2CSimpleClientTask.SET_ACID_RAIN) {
+            ClientWorld world = Minecraft.getInstance().level;
+
+            if (world != null) {
+                DimensionRenderInfo renderInfo = world.effects();
+                renderInfo.setWeatherRenderHandler(new AcidRainRenderHandler());
+                renderInfo.setWeatherParticleRenderHandler(new AcidRainParticleRenderHandler());
+            }
+        }
+        else if (message.action == S2CSimpleClientTask.REMOVE_ACID_RAIN) {
+            ClientWorld world = Minecraft.getInstance().level;
+
+            if (world != null) {
+                DimensionRenderInfo renderInfo = world.effects();
+
+                if (renderInfo.getWeatherRenderHandler() instanceof AcidRainRenderHandler)
+                    renderInfo.setWeatherRenderHandler(null);
+
+                if (renderInfo.getWeatherParticleRenderHandler() instanceof AcidRainParticleRenderHandler)
+                    renderInfo.setWeatherParticleRenderHandler(null);
+            }
+        }
     }
 }

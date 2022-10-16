@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.core.mod_event.events;
 
+import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
@@ -18,12 +19,12 @@ public final class ThunderstormEvent extends AbstractEvent {
     }
 
     @Override
-    public void update(ServerWorld world, ServerPlayerEntity player) {
+    public void update(ServerWorld world, ServerPlayerEntity player, PlayerDifficultyManager difficultyManager) {
 
     }
 
     @Override
-    public void onEnd() {
+    public void onEnd(MinecraftServer server, ServerPlayerEntity player) {
 
     }
 
@@ -33,16 +34,11 @@ public final class ThunderstormEvent extends AbstractEvent {
     }
 
     @Override
-    public void onPlayerDeath(ServerPlayerEntity player, ServerWorld world) {
-
-    }
-
-    @Override
     public void writeAdditional(CompoundNBT data) {
     }
 
     @Override
-    public void read(CompoundNBT data, ServerWorld world) {
+    public void read(CompoundNBT data, ServerPlayerEntity player, ServerWorld world) {
 
     }
 }

@@ -2,15 +2,11 @@ package com.toast.apocalypse.common.network;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.network.message.*;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.ItemModelGenerator;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.client.model.ItemLayerModel;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.IndexedMessageCodec;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 import java.util.Optional;
@@ -46,6 +42,7 @@ public class PacketHandler {
         registerMessage(S2CUpdateMobWikiIndexes.class, S2CUpdateMobWikiIndexes::encode, S2CUpdateMobWikiIndexes::decode, S2CUpdateMobWikiIndexes::handle);
         registerMessage(S2COpenMobWikiScreen.class, S2COpenMobWikiScreen::encode, S2COpenMobWikiScreen::decode, S2COpenMobWikiScreen::handle);
         registerMessage(S2COpenGrumpInventory.class, S2COpenGrumpInventory::encode, S2COpenGrumpInventory::decode, S2COpenGrumpInventory::handle);
+        registerMessage(S2CSimpleClientTask.class, S2CSimpleClientTask::encode, S2CSimpleClientTask::decode, S2CSimpleClientTask::handle);
 
         // Client -> Server
         registerMessage(C2SOpenGrumpInventory.class, C2SOpenGrumpInventory::encode, C2SOpenGrumpInventory::decode, C2SOpenGrumpInventory::handle);

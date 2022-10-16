@@ -2,8 +2,8 @@ package com.toast.apocalypse.client.event;
 
 import com.toast.apocalypse.client.ApocalypseKeyBindings;
 import com.toast.apocalypse.common.entity.living.GrumpEntity;
-import com.toast.apocalypse.common.util.PlayerKeyBindInfo;
 import com.toast.apocalypse.common.network.NetworkHelper;
+import com.toast.apocalypse.common.util.PlayerKeyBindInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.settings.KeyBinding;
@@ -23,17 +23,20 @@ public class KeyInputListener {
     /** Misc keybinding handling */
     @SubscribeEvent
     public void onKey(InputEvent.KeyInputEvent event) {
-        if (keyPressed(event, mc.options.keyInventory)) {
-            handleInventoryPress();
-        }
-        else if (keyPressed(event, ApocalypseKeyBindings.GRUMP_DESCENT)) {
-            handleGrumpDescent(false);
-        }
-        else if (keyReleased(event, ApocalypseKeyBindings.GRUMP_DESCENT)) {
-            handleGrumpDescent(true);
-        }
-        else if (keyPressed(event, ApocalypseKeyBindings.GRUMP_INTERACTION)) {
-            handleGrumpInteract();
+        // Check if the player has no open GUIs
+        if (mc.player != null && mc.screen == null) {
+            if (keyPressed(event, mc.options.keyInventory)) {
+                handleInventoryPress();
+            }
+            else if (keyPressed(event, ApocalypseKeyBindings.GRUMP_DESCENT)) {
+                handleGrumpDescent(false);
+            }
+            else if (keyReleased(event, ApocalypseKeyBindings.GRUMP_DESCENT)) {
+                handleGrumpDescent(true);
+            }
+            else if (keyPressed(event, ApocalypseKeyBindings.GRUMP_INTERACTION)) {
+                handleGrumpInteract();
+            }
         }
     }
 

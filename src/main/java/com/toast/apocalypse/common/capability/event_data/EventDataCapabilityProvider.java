@@ -10,7 +10,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-@SuppressWarnings("all")
+@SuppressWarnings("ConstantConditions")
 public class EventDataCapabilityProvider implements ICapabilitySerializable<CompoundNBT> {
 
     private final IEventDataCapability INSTANCE = ApocalypseCapabilities.EVENT_DATA_CAPABILITY.getDefaultInstance();

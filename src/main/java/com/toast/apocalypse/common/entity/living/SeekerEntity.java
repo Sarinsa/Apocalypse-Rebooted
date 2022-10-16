@@ -1,6 +1,5 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.google.common.collect.ImmutableList;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
 import com.toast.apocalypse.common.entity.living.goals.MoonMobPlayerTargetGoal;
@@ -18,7 +17,6 @@ import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
@@ -27,7 +25,6 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
@@ -76,7 +73,7 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new SeekerEntity.AlertOtherMonstersGoal(this));
         this.goalSelector.addGoal(1, new SeekerEntity.FireballAttackGoal(this));
-        this.goalSelector.addGoal(2, new SeekerEntity.LookAroundGoal(this));
+        this.goalSelector.addGoal(2, new LookAroundGoal(this));
         this.goalSelector.addGoal(2, new SeekerEntity.RandomOrRelativeToTargetFlyGoal(this));
         this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IMob.class));
         this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
@@ -236,35 +233,6 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         }
     }
 
-    /** Copied from ghast */
-    static class LookAroundGoal extends Goal {
-        private final SeekerEntity seeker;
-
-        public LookAroundGoal(SeekerEntity seeker) {
-            this.seeker = seeker;
-            this.setFlags(EnumSet.of(Goal.Flag.LOOK));
-        }
-
-        @Override
-        public boolean canUse() {
-            return true;
-        }
-
-        public void tick() {
-            if (this.seeker.getTarget() == null) {
-                Vector3d vector3d = this.seeker.getDeltaMovement();
-                this.seeker.yRot = -((float) MathHelper.atan2(vector3d.x, vector3d.z)) * (180F / (float)Math.PI);
-            } else {
-                LivingEntity target = this.seeker.getTarget();
-
-                double x = target.getX() - this.seeker.getX();
-                double z = target.getZ() - this.seeker.getZ();
-                this.seeker.yRot = -((float)MathHelper.atan2(x, z)) * (180F / (float)Math.PI);
-            }
-            this.seeker.yBodyRot = this.seeker.yRot;
-        }
-    }
-
     static class RandomOrRelativeToTargetFlyGoal extends Goal {
 
         private static final double maxDistanceBeforeFollow = 3000.0D;
@@ -390,28 +358,6 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         @Override
         public void tick() {
             ++this.timeAlerting;
-        }
-    }
-
-    // TODO - Hmmmmmmmm
-    private static class DestroySpawnPointGoal<T extends SeekerEntity> extends Goal {
-
-        private final T seeker;
-
-        private DestroySpawnPointGoal(T seeker) {
-            this.seeker = seeker;
-        }
-
-        @Override
-        public boolean canUse() {
-            if (this.seeker.getTarget() != null && this.seeker.getTarget() instanceof ServerPlayerEntity) {
-                ServerPlayerEntity player = (ServerPlayerEntity) this.seeker.getTarget();
-
-                if (player.getRespawnPosition() != null && (player.getRespawnDimension().equals(this.seeker.level.dimension()))) {
-
-                }
-            }
-            return false;
         }
     }
 }

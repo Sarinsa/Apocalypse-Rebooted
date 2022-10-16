@@ -6,6 +6,8 @@ import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nonnull;
+
 public class GhostRenderer<T extends GhostEntity> extends MobRenderer<T, GhostModel<T>> {
 
     protected static final ResourceLocation GHOST_TEXTURE = Apocalypse.resourceLoc("textures/entity/ghost/ghost.png");
@@ -16,6 +18,7 @@ public class GhostRenderer<T extends GhostEntity> extends MobRenderer<T, GhostMo
         this.addLayer(new GhostFrozenLayer<>(this));
     }
 
+    @Nonnull
     @Override
     public ResourceLocation getTextureLocation(T ghost) {
         return GHOST_TEXTURE;

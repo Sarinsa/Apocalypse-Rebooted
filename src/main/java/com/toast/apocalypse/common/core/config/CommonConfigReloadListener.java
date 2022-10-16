@@ -50,13 +50,11 @@ public class CommonConfigReloadListener {
         PlayerDifficultyManager.SLEEP_PENALTY = COMMON.getSleepPenalty();
 
         List<RegistryKey<World>> list = new ArrayList<>();
-        COMMON.getDifficultyPenaltyDimensions().forEach((s -> {
-            list.add(RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(s)));
-        }));
+        COMMON.getDifficultyPenaltyDimensions().forEach((s -> list.add(RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(s)))));
         PlayerDifficultyManager.DIMENSION_PENALTY_LIST = list;
-
         PlayerDifficultyManager.DIMENSION_PENALTY = COMMON.getDimensionPenalty();
-        PlayerGroup.USE_AVERAGE_DIFFICULTY = COMMON.getAverageGroupDifficulty();
+        PlayerDifficultyManager.ACID_RAIN_CHANCE = COMMON.getAcidRainChance();
+
         EntityEvents.refreshMobDifficulties();
 
         RainDamageTickHelper.RAIN_TICK_RATE = COMMON.getRainTickRate();

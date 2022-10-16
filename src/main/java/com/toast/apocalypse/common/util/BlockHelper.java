@@ -1,21 +1,14 @@
 package com.toast.apocalypse.common.util;
 
-import com.toast.apocalypse.common.misc.DestroyerExplosionContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Effects;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.ExplosionContext;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.event.ForgeEventFactory;
-import sun.security.krb5.internal.crypto.Des;
 
 /**
  * Used to determine whether mobs can harvest blocks and how fast they can break them.

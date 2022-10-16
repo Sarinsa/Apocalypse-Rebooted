@@ -1,8 +1,6 @@
 package com.toast.apocalypse.client.renderer.entity.living.ghost;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.toast.apocalypse.client.ApocalypseRenderTypes;
 import com.toast.apocalypse.common.entity.living.GhostEntity;
 import net.minecraft.client.renderer.entity.model.SegmentedModel;

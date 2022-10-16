@@ -3,13 +3,10 @@ package com.toast.apocalypse.common.inventory.container;
 import com.toast.apocalypse.api.MethodsReturnNonnullByDefault;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.entity.living.GrumpEntity;
-import net.minecraft.client.network.play.ClientPlayNetHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.HorseInventoryContainer;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -33,7 +30,7 @@ public class GrumpInventoryContainer extends Container {
         grumpInventory.startOpen(playerInventory.player);
 
         // Grump inventory
-        this.addSlot(new Slot(grumpInventory, 0, 8, 18) {
+        this.addSlot(new Slot(grumpInventory, 0, 6, 18) {
             @Override
             public boolean mayPlace(ItemStack itemStack) {
                 return itemStack.getItem() == Items.SADDLE || itemStack.getItem() == ApocalypseItems.BUCKET_HELM.get() && !this.hasItem();

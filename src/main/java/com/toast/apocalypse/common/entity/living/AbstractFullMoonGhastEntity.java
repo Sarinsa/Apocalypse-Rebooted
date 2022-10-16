@@ -2,24 +2,26 @@ package com.toast.apocalypse.common.entity.living;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.controller.MovementController;
+import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.*;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
 import javax.annotation.Nullable;
+import java.util.EnumSet;
 import java.util.UUID;
 
-public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements IFullMoonMob {
+public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements IFullMoonMob<AbstractFullMoonGhastEntity> {
 
     protected UUID playerTargetUUID;
+    protected int eventGeneration = 0;
 
     public AbstractFullMoonGhastEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
@@ -33,6 +35,10 @@ public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements
      */
     public final double horizontalDistanceToSqr(Entity entity) {
         return this.horizontalDistanceToSqr(entity.position());
+    }
+
+    public final double horizontalDistanceToSqr(BlockPos pos) {
+        return this.horizontalDistanceToSqr(new Vector3d(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D));
     }
 
     public final double horizontalDistanceToSqr(Vector3d vec) {
@@ -78,11 +84,36 @@ public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements
     }
 
     @Override
+    public int getEventGeneration() {
+        return eventGeneration;
+    }
+
+    @Override
+    public void setEventGeneration(int generation) {
+        eventGeneration = generation;
+    }
+
+    @Override
+    public void aiStep() {
+        super.aiStep();
+
+        if (!level.isClientSide) {
+            ServerWorld serverWorld = (ServerWorld) level;
+
+            if (IFullMoonMob.shouldDisappear(getPlayerTargetUUID(), serverWorld, this)) {
+                IFullMoonMob.spawnSmoke(serverWorld, this);
+                remove();
+            }
+        }
+    }
+
+    @Override
     public void addAdditionalSaveData(CompoundNBT compoundNBT) {
         super.addAdditionalSaveData(compoundNBT);
 
         if (this.getPlayerTargetUUID() != null) {
-            compoundNBT.putUUID(PLAYER_UUID_KEY, this.getPlayerTargetUUID());
+            compoundNBT.putUUID(PLAYER_UUID_KEY, getPlayerTargetUUID());
+            compoundNBT.putInt(EVENT_GEN_KEY, getEventGeneration());
         }
     }
 
@@ -145,6 +176,36 @@ public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements
 
         public boolean canReachCurrentWanted() {
             return canReachCurrent;
+        }
+    }
+
+    /** Copied from ghast */
+    protected static class LookAroundGoal extends Goal {
+        private final AbstractFullMoonGhastEntity ghast;
+
+        public LookAroundGoal(AbstractFullMoonGhastEntity ghast) {
+            this.ghast = ghast;
+            this.setFlags(EnumSet.of(Goal.Flag.LOOK));
+        }
+
+        @Override
+        public boolean canUse() {
+            return true;
+        }
+
+        public void tick() {
+            if (ghast.getTarget() == null) {
+                Vector3d vector3d = ghast.getDeltaMovement();
+                ghast.yRot = -((float) MathHelper.atan2(vector3d.x, vector3d.z)) * (180F / (float)Math.PI);
+            }
+            else {
+                LivingEntity target = ghast.getTarget();
+
+                double x = target.getX() - ghast.getX();
+                double z = target.getZ() - ghast.getZ();
+                ghast.yRot = -((float)MathHelper.atan2(x, z)) * (180F / (float)Math.PI);
+            }
+            ghast.yBodyRot = ghast.yRot;
         }
     }
 }

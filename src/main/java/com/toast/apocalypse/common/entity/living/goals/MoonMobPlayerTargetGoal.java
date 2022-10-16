@@ -5,54 +5,44 @@ import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.ai.goal.TargetGoal;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.world.server.ServerWorld;
 
 import java.util.UUID;
 
-public class MoonMobPlayerTargetGoal<T extends MobEntity & IFullMoonMob> extends TargetGoal {
+public class MoonMobPlayerTargetGoal<T extends MobEntity & IFullMoonMob<?>> extends TargetGoal {
 
     private final T moonMob;
 
     public MoonMobPlayerTargetGoal(T mobEntity, boolean mustSee) {
         super(mobEntity, mustSee);
-        this.moonMob = mobEntity;
+        moonMob = mobEntity;
     }
 
     @Override
     public boolean canUse() {
-        UUID playerTargetUUID = this.moonMob.getPlayerTargetUUID();
+        UUID playerTargetUUID = moonMob.getPlayerTargetUUID();
 
         if (playerTargetUUID == null)
             return false;
 
-        if (this.moonMob instanceof GrumpEntity) {
-            GrumpEntity grump = (GrumpEntity) this.moonMob;
-
+        if (moonMob instanceof GrumpEntity) {
+            GrumpEntity grump = (GrumpEntity) moonMob;
             return !(playerTargetUUID.equals(grump.getOwnerUUID()));
         }
+        PlayerEntity player = moonMob.level.getPlayerByUUID(playerTargetUUID);
 
-        if (this.moonMob.level instanceof ServerWorld) {
-            ServerWorld world = (ServerWorld) moonMob.level;
+        if (player == null)
+            return false;
 
-            PlayerEntity player = world.getServer().getPlayerList().getPlayer(playerTargetUUID);
-
-            if (player == null)
+        if (this.mustSee) {
+            if (!this.mob.getSensing().canSee(player))
                 return false;
-
-            if (this.mustSee) {
-                if (!this.mob.getSensing().canSee(player))
-                    return false;
-            }
-
-            return player.isAlive() && !player.isCreative() && !player.isSpectator();
         }
-        return false;
+        return player.isAlive() && !player.isCreative() && !player.isSpectator();
     }
 
+    @SuppressWarnings("ConstantConditions")
     public void start() {
-        ServerWorld world = (ServerWorld) this.moonMob.level;
-
-        this.mob.setTarget(world.getServer().getPlayerList().getPlayer(this.moonMob.getPlayerTargetUUID()));
+        moonMob.setTarget(moonMob.level.getPlayerByUUID(moonMob.getPlayerTargetUUID()));
         super.start();
     }
 }

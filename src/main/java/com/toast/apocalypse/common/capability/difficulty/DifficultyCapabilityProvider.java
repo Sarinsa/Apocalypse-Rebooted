@@ -2,7 +2,6 @@ package com.toast.apocalypse.common.capability.difficulty;
 
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.LongNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
@@ -11,7 +10,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-@SuppressWarnings("all")
+@SuppressWarnings("ConstantConditions")
 public class DifficultyCapabilityProvider implements ICapabilitySerializable<CompoundNBT> {
 
     private final IDifficultyCapability INSTANCE = ApocalypseCapabilities.DIFFICULTY_CAPABILITY.getDefaultInstance();

@@ -9,8 +9,8 @@ import net.minecraft.loot.*;
 import net.minecraft.loot.functions.LootingEnchantBonus;
 import net.minecraft.loot.functions.SetCount;
 
+import javax.annotation.Nonnull;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 public class ApocalypseEntityLootTableProvider extends EntityLootTables {
@@ -18,6 +18,7 @@ public class ApocalypseEntityLootTableProvider extends EntityLootTables {
     private final Set<EntityType<?>> knownEntities = new HashSet<>();
 
     @Override
+    @Nonnull
     protected Iterable<EntityType<?>> getKnownEntities() {
         return this.knownEntities;
     }

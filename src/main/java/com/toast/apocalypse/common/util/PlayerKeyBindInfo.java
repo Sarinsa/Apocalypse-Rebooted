@@ -1,23 +1,16 @@
 package com.toast.apocalypse.common.util;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.entity.living.GrumpEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.EntityLeaveWorldEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 /**
  * Helper class for storing info about mod key binds both
@@ -45,9 +38,6 @@ public class PlayerKeyBindInfo {
     private static void createInfo(UUID playerUUID) {
         if (!KEYBIND_INFO.containsKey(playerUUID)) {
             KEYBIND_INFO.put(playerUUID, new KeyBindInfo());
-        }
-        else {
-            Apocalypse.LOGGER.warn("Attempted to create KeyBindInfo for player UUID {} with already existing KeyBindInfo.", playerUUID);
         }
     }
 

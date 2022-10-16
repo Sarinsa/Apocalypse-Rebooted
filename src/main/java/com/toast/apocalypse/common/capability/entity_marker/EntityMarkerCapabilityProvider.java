@@ -10,7 +10,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-@SuppressWarnings("all")
+@SuppressWarnings("ConstantConditions")
 public class EntityMarkerCapabilityProvider implements ICapabilitySerializable<ByteNBT> {
 
     private final IEntityMarkerCapability INSTANCE = ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY.getDefaultInstance();

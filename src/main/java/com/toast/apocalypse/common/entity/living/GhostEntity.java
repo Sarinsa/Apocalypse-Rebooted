@@ -54,18 +54,17 @@ import java.util.UUID;
  * //TODO - "Freezing Counter": Provide the player with a gadget for temporarily
  *          immobilizing/freezing ghosts in place.
  */
-public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
+public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob<GhostEntity> {
 
     /**
      *  Used to determine if the ghost should be frozen in place
-     *  and if the time freeze render effect should be rendered.<br>
-     *  <br>
-     *  <strong>(Currently unused)</strong>
+     *  and if the time freeze render should be rendered.<br>
      */
     private static final DataParameter<Boolean> IS_FROZEN = EntityDataManager.defineId(GhostEntity.class, DataSerializers.BOOLEAN);
 
     /** The constant player target, if this mob was spawned by the full moon event */
     private UUID playerTargetUUID;
+    protected int eventGeneration = 0;
     /** If the ghost should move away from its target in a random direction */
     private boolean isManeuvering;
     /** How long the ghost should be frozen in ticks */
@@ -193,6 +192,15 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
             }
         }
         super.aiStep();
+
+        if (!level.isClientSide) {
+            ServerWorld serverWorld = (ServerWorld) level;
+
+            if (IFullMoonMob.shouldDisappear(getPlayerTargetUUID(), serverWorld, this)) {
+                IFullMoonMob.spawnSmoke(serverWorld, this);
+                remove();
+            }
+        }
     }
 
     @Override
@@ -335,8 +343,18 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
     }
 
     @Override
-    public void setPlayerTargetUUID(UUID playerTargetUUID) {
+    public void setPlayerTargetUUID(@Nullable UUID playerTargetUUID) {
         this.playerTargetUUID = playerTargetUUID;
+    }
+
+    @Override
+    public int getEventGeneration() {
+        return eventGeneration;
+    }
+
+    @Override
+    public void setEventGeneration(int generation) {
+        eventGeneration = generation;
     }
 
     @Override

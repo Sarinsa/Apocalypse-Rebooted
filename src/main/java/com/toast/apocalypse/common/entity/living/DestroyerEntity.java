@@ -13,12 +13,12 @@ import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.AbstractFireballEntity;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.*;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
@@ -55,9 +55,10 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(0, new DestroyerEntity.FireballAttackGoal(this));
-        this.goalSelector.addGoal(0, new DestroyerEntity.LookAroundGoal(this));
-        this.goalSelector.addGoal(1, new DestroyerEntity.RandomOrRelativeToTargetFlyGoal(this));
+        this.goalSelector.addGoal(0, new DestroySpawnPointGoal<>(this));
+        this.goalSelector.addGoal(1, new DestroyerEntity.FireballAttackGoal(this));
+        this.goalSelector.addGoal(1, new LookAroundGoal(this));
+        this.goalSelector.addGoal(2, new DestroyerEntity.RandomOrRelativeToTargetFlyGoal(this));
         this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IMob.class));
         this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
         this.targetSelector.addGoal(2, new DestroyerNearestAttackableTargetGoal<>(this, PlayerEntity.class));
@@ -143,78 +144,49 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
 
         @Override
         public boolean canUse() {
-            return this.destroyer.getTarget() != null;
+            return destroyer.getTarget() != null;
         }
 
         @Override
         public void start() {
-            this.chargeTime = 0;
+            chargeTime = 0;
         }
 
         @Override
         public void stop() {
-            this.destroyer.setCharging(false);
+            destroyer.setCharging(false);
         }
 
         @Override
         public void tick() {
-            LivingEntity target = this.destroyer.getTarget();
+            LivingEntity target = destroyer.getTarget();
 
-            if (this.destroyer.horizontalDistanceToSqr(target) < 4096.0D && this.destroyer.canSee(target)) {
-                World world = this.destroyer.level;
-                ++this.chargeTime;
-                if (this.chargeTime == 10 && !this.destroyer.isSilent()) {
-                    world.levelEvent(null, 1015, this.destroyer.blockPosition(), 0);
+            if (destroyer.horizontalDistanceToSqr(target) < 4096.0D && destroyer.canSee(target)) {
+                World world = destroyer.level;
+                ++chargeTime;
+                if (chargeTime == 10 && !destroyer.isSilent()) {
+                    world.levelEvent(null, 1015, destroyer.blockPosition(), 0);
                 }
 
-                if (this.chargeTime == 20) {
-                    Vector3d vector3d = this.destroyer.getViewVector(1.0F);
-                    double x = target.getX() - (this.destroyer.getX() + vector3d.x * 4.0D);
-                    double y = target.getY(0.5D) - (0.5D + this.destroyer.getY(0.5D));
-                    double z = target.getZ() - (this.destroyer.getZ() + vector3d.z * 4.0D);
+                if (chargeTime == 20) {
+                    Vector3d vector3d = destroyer.getViewVector(1.0F);
+                    double x = target.getX() - (destroyer.getX() + vector3d.x * 4.0D);
+                    double y = target.getY(0.5D) - (0.5D + destroyer.getY(0.5D));
+                    double z = target.getZ() - (destroyer.getZ() + vector3d.z * 4.0D);
 
-                    if (!this.destroyer.isSilent()) {
-                        world.levelEvent(null, 1016, this.destroyer.blockPosition(), 0);
+                    if (!destroyer.isSilent()) {
+                        world.levelEvent(null, 1016, destroyer.blockPosition(), 0);
                     }
-                    DestroyerFireballEntity fireball = new DestroyerFireballEntity(world, this.destroyer, x, y, z);
-                    fireball.setPos(this.destroyer.getX() + vector3d.x * 4.0D, this.destroyer.getY(0.5D) + 0.5D, fireball.getZ() + vector3d.z * 4.0D);
+                    DestroyerFireballEntity fireball = new DestroyerFireballEntity(world, destroyer, x, y, z);
+                    fireball.setPos(destroyer.getX() + vector3d.x * 4.0D, destroyer.getY(0.5D) + 0.5D, fireball.getZ() + vector3d.z * 4.0D);
                     world.addFreshEntity(fireball);
-                    this.chargeTime = -40;
+                    chargeTime = -40;
                 }
             }
-            else if (this.chargeTime > 0) {
-                --this.chargeTime;
+            else if (chargeTime > 0) {
+                --chargeTime;
             }
-            this.destroyer.setCharging(this.chargeTime > 10);
-        }
-    }
-
-    /** Copied from ghast */
-    static class LookAroundGoal extends Goal {
-        private final DestroyerEntity destroyer;
-
-        public LookAroundGoal(DestroyerEntity destroyer) {
-            this.destroyer = destroyer;
-            this.setFlags(EnumSet.of(Goal.Flag.LOOK));
-        }
-
-        @Override
-        public boolean canUse() {
-            return true;
-        }
-
-        public void tick() {
-            if (this.destroyer.getTarget() == null) {
-                Vector3d vector3d = this.destroyer.getDeltaMovement();
-                this.destroyer.yRot = -((float) MathHelper.atan2(vector3d.x, vector3d.z)) * (180F / (float)Math.PI);
-            } else {
-                LivingEntity target = this.destroyer.getTarget();
-
-                double x = target.getX() - this.destroyer.getX();
-                double z = target.getZ() - this.destroyer.getZ();
-                this.destroyer.yRot = -((float)MathHelper.atan2(x, z)) * (180F / (float)Math.PI);
-            }
-            this.destroyer.yBodyRot = this.destroyer.yRot;
+            destroyer.setCharging(chargeTime > 10);
         }
     }
 
@@ -275,6 +247,75 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
             else {
                 this.setRandomWantedPosition();
             }
+        }
+    }
+
+    private static class DestroySpawnPointGoal<T extends DestroyerEntity> extends Goal {
+
+        private final T destroyer;
+        private BlockPos respawnPos;
+        public int chargeTime;
+
+        private DestroySpawnPointGoal(T destroyer) {
+            this.destroyer = destroyer;
+        }
+
+        @Override
+        @SuppressWarnings("ConstantConditions")
+        public boolean canUse() {
+            if (!ApocalypseCommonConfig.COMMON.getDestroyerTargetRespawnPos())
+                return false;
+
+            if (IFullMoonMob.getEventTarget(destroyer) instanceof ServerPlayerEntity && destroyer.getLastHurtByMob() == null) {
+                ServerPlayerEntity targetPlayer = (ServerPlayerEntity) IFullMoonMob.getEventTarget(destroyer);
+
+                if (targetPlayer.getRespawnPosition() != null && (targetPlayer.getRespawnDimension().equals(destroyer.level.dimension()))) {
+                    respawnPos = targetPlayer.getRespawnPosition();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public void start() {
+            chargeTime = 0;
+        }
+
+        @Override
+        public void stop() {
+            respawnPos = null;
+            destroyer.setCharging(false);
+        }
+
+        @Override
+        public void tick() {
+            if (destroyer.horizontalDistanceToSqr(respawnPos) < 4096.0D) {
+                World world = destroyer.level;
+                ++chargeTime;
+                if (chargeTime == 10 && !destroyer.isSilent()) {
+                    world.levelEvent(null, 1015, destroyer.blockPosition(), 0);
+                }
+
+                if (chargeTime == 20) {
+                    Vector3d vector3d = destroyer.getViewVector(1.0F);
+                    double x = respawnPos.getX() - (destroyer.getX() + vector3d.x * 4.0D);
+                    double y = respawnPos.getY() - (0.5D + destroyer.getY(0.5D));
+                    double z = respawnPos.getZ() - (destroyer.getZ() + vector3d.z * 4.0D);
+
+                    if (!destroyer.isSilent()) {
+                        world.levelEvent(null, 1016, destroyer.blockPosition(), 0);
+                    }
+                    DestroyerFireballEntity fireball = new DestroyerFireballEntity(world, destroyer, x, y, z);
+                    fireball.setPos(destroyer.getX() + vector3d.x * 4.0D, destroyer.getY(0.5D) + 0.5D, fireball.getZ() + vector3d.z * 4.0D);
+                    world.addFreshEntity(fireball);
+                    chargeTime = -40;
+                }
+            }
+            else if (chargeTime > 0) {
+                --chargeTime;
+            }
+            destroyer.setCharging(chargeTime > 10);
         }
     }
 }

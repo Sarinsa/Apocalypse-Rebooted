@@ -1,8 +1,9 @@
 package com.toast.apocalypse.common.entity.projectile;
 
+import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.entity.living.DestroyerEntity;
 import com.toast.apocalypse.common.misc.DestroyerExplosionContext;
-import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -62,27 +63,28 @@ public class DestroyerFireballEntity extends AbstractFireballEntity {
             if (entity instanceof LivingEntity) {
                 LivingEntity livingEntity = (LivingEntity) entity;
                 boolean damageBlocked = livingEntity.isDamageSourceBlocked(directImpact);
-                final int armorDamage = 100;
+                final int armorDamage = ApocalypseCommonConfig.COMMON.getDestroyerEquipmentDamage();
 
-                // Deal heavy damage to shield, if blocking
-                if (damageBlocked) {
-                    livingEntity.hurtCurrentlyUsedShield(armorDamage);
-                }
-                // Deal heavy damage to armor, if not blocking
-                else {
-                    if (livingEntity instanceof ServerPlayerEntity) {
-                        ServerPlayerEntity player = (ServerPlayerEntity) livingEntity;
-
-                        for (ItemStack armorStack : livingEntity.getArmorSlots()) {
-                            armorStack.hurt(armorDamage, player.getRandom(), player);
-                        }
+                if (armorDamage > 0) {
+                    // Deal heavy damage to shield, if blocking
+                    if (damageBlocked) {
+                        livingEntity.hurtCurrentlyUsedShield(armorDamage);
                     }
+                    // Deal heavy damage to armor, if not blocking
                     else {
-                        for (ItemStack armorStack : livingEntity.getArmorSlots()) {
-                            armorStack.hurtAndBreak(armorDamage, livingEntity, (e) -> {
-                                if (armorStack.getEquipmentSlot() != null)
-                                    e.broadcastBreakEvent(armorStack.getEquipmentSlot());
-                            });
+                        if (livingEntity instanceof ServerPlayerEntity) {
+                            ServerPlayerEntity player = (ServerPlayerEntity) livingEntity;
+
+                            for (ItemStack armorStack : livingEntity.getArmorSlots()) {
+                                armorStack.hurt(armorDamage, player.getRandom(), player);
+                            }
+                        } else {
+                            for (ItemStack armorStack : livingEntity.getArmorSlots()) {
+                                armorStack.hurtAndBreak(armorDamage, livingEntity, (e) -> {
+                                    if (armorStack.getEquipmentSlot() != null)
+                                        e.broadcastBreakEvent(armorStack.getEquipmentSlot());
+                                });
+                            }
                         }
                     }
                 }
@@ -99,7 +101,7 @@ public class DestroyerFireballEntity extends AbstractFireballEntity {
         super.tick();
 
         if (this.fuseTime >= 0 && --this.fuseTime < 0) {
-            // Could have called this.onHit() here with a miss
+            // Could have called onHit() here with a miss
             // BlockRayTraceResult, but just in case some other mod
             // wants to use the dummy info that would be parsed, lets not.
             // Did that explanation make sense? Probably not.
