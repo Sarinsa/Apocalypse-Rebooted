@@ -5,6 +5,7 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -21,7 +22,11 @@ import java.util.List;
 public class FatherlyToastItem extends Item {
 
     public FatherlyToastItem() {
-        super(new Item.Properties().fireResistant().food(ApocalypseFoods.FATHERLY_TOAST));
+        super(new Item.Properties()
+                .fireResistant()
+                .food(ApocalypseFoods.FATHERLY_TOAST)
+                .tab(ItemGroup.TAB_FOOD)
+        );
     }
 
     @Override

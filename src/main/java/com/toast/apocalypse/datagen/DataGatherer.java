@@ -23,6 +23,7 @@ public class DataGatherer {
             BlockTagsProvider blockTagProvider = new ApocalypseBlockTagProvider(dataGenerator, fileHelper);
             dataGenerator.addProvider(blockTagProvider);
             dataGenerator.addProvider(new ApocalypseItemTagProvider(dataGenerator, blockTagProvider, fileHelper));
+            dataGenerator.addProvider(new ApocalypseLootModProvider(dataGenerator));
         }
     }
 }

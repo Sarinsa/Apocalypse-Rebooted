@@ -83,7 +83,6 @@ public class Apocalypse {
         eventBus.addListener(this::onCommonSetup);
         eventBus.addListener(this::onLoadComplete);
         eventBus.addListener(this::sendIMCMessages);
-        eventBus.addListener(this::readIMCMessages);
 
         MinecraftForge.EVENT_BUS.register(new RainDamageTickHelper());
         MinecraftForge.EVENT_BUS.register(new EntityEvents());
@@ -100,6 +99,7 @@ public class Apocalypse {
         ApocalypseEffects.EFFECTS.register(eventBus);
         ApocalypseEntities.ENTITIES.register(eventBus);
         ApocalypseParticles.PARTICLES.register(eventBus);
+        ApocalypseLootMods.LOOT_MODIFIERS.register(eventBus);
         ApocalypseTileEntities.TILE_ENTITIES.register(eventBus);
 
         ModLoadingContext context = ModLoadingContext.get();
@@ -160,18 +160,6 @@ public class Apocalypse {
         if (ModList.get().isLoaded("theoneprobe")) {
             InterModComms.sendTo("theoneprobe", "getTheOneProbe", TOPEntityInfoProvider::new);
         }
-    }
-
-    /**
-     * Yeets the API instance to mods asking for it.
-     */
-    public void readIMCMessages(InterModProcessEvent event) {
-        event.getIMCStream().forEach((message) -> {
-            if (message.getMethod().equals("getApocalypseApi")) {
-                Supplier<Function<IApocalypseApi, Void>> supplier = message.getMessageSupplier();
-                supplier.get().apply(this.getApi());
-            }
-        });
     }
 
     public static ResourceLocation resourceLoc(String path) {
