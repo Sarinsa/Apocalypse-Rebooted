@@ -43,6 +43,7 @@ public class FatherlyToastItem extends Item {
     }
 
     @OnlyIn(Dist.CLIENT)
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void appendHoverText(ItemStack itemStack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
         tooltip.add(new TranslationTextComponent(References.FATHERLY_TOAST_DESC).withStyle(TextFormatting.GRAY));
