@@ -28,7 +28,7 @@ public class ApocalypseLootModProvider extends GlobalLootModifierProvider {
                 ApocalypseItems.FATHERLY_TOAST,
                 0.3D,
                 1,
-                4
+                6
         ));
     }
 }
