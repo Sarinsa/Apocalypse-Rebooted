@@ -1,4 +1,4 @@
-package com.toast.apocalypse.common.util;
+package com.toast.apocalypse.common.misc;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.entity.player.PlayerEntity;

@@ -3,7 +3,6 @@ package com.toast.apocalypse.common.core;
 import com.toast.apocalypse.api.impl.ApocalypseAPI;
 import com.toast.apocalypse.api.impl.RegistryHelper;
 import com.toast.apocalypse.api.plugin.ApocalypsePlugin;
-import com.toast.apocalypse.api.plugin.IApocalypseApi;
 import com.toast.apocalypse.api.plugin.IApocalypsePlugin;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.command.CommandRegister;
@@ -18,7 +17,7 @@ import com.toast.apocalypse.common.core.register.*;
 import com.toast.apocalypse.common.event.*;
 import com.toast.apocalypse.common.network.PacketHandler;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
-import com.toast.apocalypse.common.util.MobWikiIndexes;
+import com.toast.apocalypse.common.misc.MobWikiIndexes;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import com.toast.apocalypse.common.util.VersionCheckHelper;
 import net.minecraft.util.ResourceLocation;
@@ -32,13 +31,9 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 @Mod(Apocalypse.MODID)
 public class Apocalypse {

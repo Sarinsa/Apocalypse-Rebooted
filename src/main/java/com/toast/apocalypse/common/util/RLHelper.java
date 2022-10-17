@@ -1,5 +1,7 @@
 package com.toast.apocalypse.common.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 import static net.minecraft.util.ResourceLocation.validPathChar;
 
 /**
@@ -11,7 +13,7 @@ public class RLHelper {
 
     public static boolean isValidResourceLocation(String s) {
         String[] string = decompose(s, ':');
-        return isValidNamespace(org.apache.commons.lang3.StringUtils.isEmpty(string[0]) ? "minecraft" : string[0]) && isValidPath(string[1]);
+        return isValidNamespace(StringUtils.isEmpty(string[0]) ? "minecraft" : string[0]) && isValidPath(string[1]);
     }
 
     protected static String[] decompose(String s, char c) {

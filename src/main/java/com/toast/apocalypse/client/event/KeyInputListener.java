@@ -3,7 +3,7 @@ package com.toast.apocalypse.client.event;
 import com.toast.apocalypse.client.ApocalypseKeyBindings;
 import com.toast.apocalypse.common.entity.living.GrumpEntity;
 import com.toast.apocalypse.common.network.NetworkHelper;
-import com.toast.apocalypse.common.util.PlayerKeyBindInfo;
+import com.toast.apocalypse.common.misc.PlayerKeyBindInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.settings.KeyBinding;

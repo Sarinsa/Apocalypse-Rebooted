@@ -3,7 +3,7 @@ package com.toast.apocalypse.common.network.work;
 import com.toast.apocalypse.common.entity.living.GrumpEntity;
 import com.toast.apocalypse.common.network.message.C2SOpenGrumpInventory;
 import com.toast.apocalypse.common.network.message.C2SUpdateGrumpDescent;
-import com.toast.apocalypse.common.util.PlayerKeyBindInfo;
+import com.toast.apocalypse.common.misc.PlayerKeyBindInfo;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.LogicalSide;

@@ -1,6 +1,7 @@
-package com.toast.apocalypse.common.util;
+package com.toast.apocalypse.common.misc;
 
 import com.toast.apocalypse.common.entity.living.*;
+import com.toast.apocalypse.common.util.CapabilityHelper;
 import net.minecraft.entity.player.ServerPlayerEntity;
 
 import javax.annotation.Nonnull;
