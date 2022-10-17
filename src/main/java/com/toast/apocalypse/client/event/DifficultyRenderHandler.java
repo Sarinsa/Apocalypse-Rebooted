@@ -4,9 +4,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.toast.apocalypse.client.ApocalypseKeyBindings;
 import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
 import com.toast.apocalypse.common.util.CapabilityHelper;
+import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 
 public class DifficultyRenderHandler {
@@ -99,14 +102,14 @@ public class DifficultyRenderHandler {
             }
         }
         difficulty /= 24000L;
-
-        String difficultyInfo = "Difficulty: " + difficulty + "." + partialDifficulty;
+        String parsedDifficulty = difficulty > 0L ? (difficulty + "." + partialDifficulty) : "0.0";
+        String difficultyInfo = new TranslationTextComponent(References.DIFFICULTY, parsedDifficulty).getString();
 
         // Calculate % of increase in difficulty rate
         double difficultyRate = CapabilityHelper.getPlayerDifficultyMult(player);
 
         if (difficultyRate != 1.0) {
-            difficultyInfo = difficultyInfo + " Rate: " + (int)(difficultyRate * 100.0) + "%";
+            difficultyInfo = difficultyInfo + " " + new TranslationTextComponent(References.DIFFICULTY_RATE, (int)(difficultyRate * 100.0) + "%").getString();
         }
         int x;
         int y;

@@ -35,7 +35,8 @@ public class References {
 
     public static final String FULL_MOON_MOB_BOOK = "apocalypse.screen.full_moon_mob_book.title";
 
-    public static final String DIFFICULTY = "apocalypse.top.difficulty";
+    public static final String DIFFICULTY = "apocalypse.hud.difficulty";
+    public static final String DIFFICULTY_RATE = "apocalypse.hud.rate";
 
 
     //
