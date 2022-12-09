@@ -2,8 +2,8 @@ package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.common.core.register.ApocalypseEffects;
 import com.toast.apocalypse.common.core.register.ApocalypseSounds;
-import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
-import com.toast.apocalypse.common.entity.living.goals.MoonMobPlayerTargetGoal;
+import com.toast.apocalypse.common.entity.living.ai.MobEntityAttackedByTargetGoal;
+import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;

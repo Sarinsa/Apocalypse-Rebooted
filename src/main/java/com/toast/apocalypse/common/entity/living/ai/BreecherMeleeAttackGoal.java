@@ -1,4 +1,4 @@
-package com.toast.apocalypse.common.entity.living.goals;
+package com.toast.apocalypse.common.entity.living.ai;
 
 import com.toast.apocalypse.common.entity.living.BreecherEntity;
 import net.minecraft.entity.ai.goal.MeleeAttackGoal;

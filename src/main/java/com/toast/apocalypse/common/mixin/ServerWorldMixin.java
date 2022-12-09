@@ -17,16 +17,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Supplier;
 
-@Mixin(ServerWorld.class)
+//@Mixin(ServerWorld.class)
 public abstract class ServerWorldMixin extends World implements ISeedReader, IForgeWorldServer {
 
     protected ServerWorldMixin(ISpawnWorldInfo spawnWorldInfo, RegistryKey<World> dimension, DimensionType dimensionType, Supplier<IProfiler> profilerSupplier, boolean clientSide, boolean debug, long seed) {
         super(spawnWorldInfo, dimension, dimensionType, profilerSupplier, clientSide, debug, seed);
     }
 
+    /*
     @Final
     @Inject(method = "setDayTime", at = @At("HEAD"), cancellable = true)
     public void onSetDayTime(long time, CallbackInfo ci) {
         ServerMixinHooks.onServerWorldSetDayTime((ServerWorld) (Object) this, ci);
     }
+
+     */
 }

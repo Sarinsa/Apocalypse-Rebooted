@@ -130,6 +130,9 @@ dependencies {
 }
 
 jar {
+    include 'path_to_your_jars/*'
+    from sourceSets.main.allSource
+
     manifest {
         attributes([
             "Specification-Title": "Apocalypse",

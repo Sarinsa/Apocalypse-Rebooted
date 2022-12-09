@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.common.entity.living.goals.FearwolfRunAwayGoal;
+import com.toast.apocalypse.common.entity.living.ai.FearwolfRunAwayGoal;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;

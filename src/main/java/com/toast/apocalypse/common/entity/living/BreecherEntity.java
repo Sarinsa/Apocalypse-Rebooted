@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
-import com.toast.apocalypse.common.entity.living.goals.MoonMobPlayerTargetGoal;
+import com.toast.apocalypse.common.entity.living.ai.MobEntityAttackedByTargetGoal;
+import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.attributes.AttributeModifierMap;

@@ -1,4 +1,4 @@
-package com.toast.apocalypse.common.entity.living.goals;
+package com.toast.apocalypse.common.entity.living.ai;
 
 import net.minecraft.entity.EntityPredicate;
 import net.minecraft.entity.EntityType;

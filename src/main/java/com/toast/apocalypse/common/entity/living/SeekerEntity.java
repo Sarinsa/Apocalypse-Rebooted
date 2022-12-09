@@ -1,8 +1,8 @@
 package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
-import com.toast.apocalypse.common.entity.living.goals.MobEntityAttackedByTargetGoal;
-import com.toast.apocalypse.common.entity.living.goals.MoonMobPlayerTargetGoal;
+import com.toast.apocalypse.common.entity.living.ai.MobEntityAttackedByTargetGoal;
+import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
 import com.toast.apocalypse.common.util.ApocalypseEventFactory;
