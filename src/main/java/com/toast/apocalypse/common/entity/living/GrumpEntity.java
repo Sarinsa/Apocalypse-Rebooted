@@ -22,6 +22,7 @@ import net.minecraft.entity.ai.goal.TargetGoal;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.TameableEntity;
+import net.minecraft.entity.passive.horse.HorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
@@ -33,6 +34,7 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -55,6 +57,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
+import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -73,6 +76,8 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
 
     protected static final DataParameter<Optional<UUID>> OWNER_UUID = EntityDataManager.defineId(GrumpEntity.class, DataSerializers.OPTIONAL_UUID);
     protected static final DataParameter<Boolean> STAND_BY = EntityDataManager.defineId(GrumpEntity.class, DataSerializers.BOOLEAN);
+    protected static final DataParameter<ItemStack> HEAD_ITEM = EntityDataManager.defineId(GrumpEntity.class, DataSerializers.ITEM_STACK);
+
 
     /**The current fishhook entity launched by the grump. */
     private MonsterFishHook fishHook;
@@ -104,6 +109,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
         super.defineSynchedData();
         this.entityData.define(OWNER_UUID, Optional.empty());
         this.entityData.define(STAND_BY, false);
+        this.entityData.define(HEAD_ITEM, ItemStack.EMPTY);
     }
 
     @Override
@@ -266,17 +272,18 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
     }
 
     public ItemStack getHeadItem() {
-        return inventory.getItem(0);
+        return entityData.get(HEAD_ITEM);
     }
 
     public void setHeadItem(@Nullable ItemStack itemStack) {
+        entityData.set(HEAD_ITEM, itemStack == null ? ItemStack.EMPTY : itemStack);
         setItemSlot(EquipmentSlotType.HEAD, itemStack == null ? ItemStack.EMPTY : itemStack);
     }
 
     protected void updateContainerEquipment() {
         if (!level.isClientSide) {
-            this.setHeadItem(inventory.getItem(0));
-            this.setDropChance(EquipmentSlotType.HEAD, 0.0F);
+            setHeadItem(inventory.getItem(0));
+            setDropChance(EquipmentSlotType.HEAD, 0.0F);
         }
     }
 
@@ -333,22 +340,22 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
     @Override
     @Nullable
     public Entity getControllingPassenger() {
-        return this.getPassengers().isEmpty() ? null : this.getPassengers().get(0);
+        return getPassengers().isEmpty() ? null : getPassengers().get(0);
     }
 
     @Override
     public void travel(Vector3d vec) {
-        if (this.isAlive()) {
-            if (this.isVehicle() && this.canBeControlledByRider() && getHeadItem().getItem() == Items.SADDLE) {
+        if (isAlive()) {
+            if (isVehicle() && canBeControlledByRider() && getHeadItem().getItem() == Items.SADDLE) {
                 if (getControllingPassenger() != null && getControllingPassenger() instanceof LivingEntity) {
-                    LivingEntity rider = (LivingEntity) this.getControllingPassenger();
+                    LivingEntity rider = (LivingEntity) getControllingPassenger();
 
-                    this.yRot = rider.yRot;
-                    this.yRotO = this.yRot;
-                    this.xRot = rider.xRot * 0.5F;
-                    this.setRot(this.yRot, this.xRot);
-                    this.yBodyRot = this.yRot;
-                    this.yHeadRot = this.yBodyRot;
+                    yRot = rider.yRot;
+                    yRotO = yRot;
+                    xRot = rider.xRot * 0.5F;
+                    setRot(yRot, xRot);
+                    yBodyRot = yRot;
+                    yHeadRot = yBodyRot;
 
                     float xSpeed = rider.xxa * 1.25F;
                     float ySpeed = rider.yya * 1.15F;
@@ -399,11 +406,11 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean shouldStandBy() {
-        return this.entityData.get(STAND_BY);
+        return entityData.get(STAND_BY);
     }
 
     public void setStandBy(boolean standBy) {
-        this.entityData.set(STAND_BY, standBy);
+        entityData.set(STAND_BY, standBy);
     }
 
 
@@ -412,14 +419,12 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
     public void addAdditionalSaveData(CompoundNBT compoundNBT) {
         super.addAdditionalSaveData(compoundNBT);
 
-        compoundNBT.putBoolean("StandBy", this.entityData.get(STAND_BY));
+        compoundNBT.putBoolean("StandBy", entityData.get(STAND_BY));
 
         if (hasOwner()) {
             compoundNBT.putUUID("Owner", getOwnerUUID());
         }
-        if (!inventory.getItem(0).isEmpty()) {
-            compoundNBT.put("HeadItem", inventory.getItem(0).save(new CompoundNBT()));
-        }
+        compoundNBT.put("HeadItem", entityData.get(HEAD_ITEM).save(new CompoundNBT()));
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -433,7 +438,6 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
             ItemStack headItem = ItemStack.of(compoundNBT.getCompound("HeadItem"));
             inventory.setItem(0, headItem);
             setHeadItem(headItem);
-            updateContainerEquipment();
         }
         UUID uuid;
 
@@ -452,6 +456,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
 
             }
         }
+        updateContainerEquipment();
     }
 
     @Nullable
@@ -469,14 +474,14 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
             return;
 
         if (random.nextDouble() <= chance) {
-            setItemSlot(EquipmentSlotType.HEAD, new ItemStack(ApocalypseItems.BUCKET_HELM.get()));
+            setHeadItem(new ItemStack(ApocalypseItems.BUCKET_HELM.get()));
         }
     }
 
     @Override
     public void containerChanged(IInventory inventory) {
         ItemStack itemStack = inventory.getItem(0);
-        setItemSlot(EquipmentSlotType.HEAD, itemStack);
+        setHeadItem(itemStack);
 
         if (itemStack.getItem() == ApocalypseItems.BUCKET_HELM.get()) {
             getPassengers().forEach(Entity::stopRiding);
@@ -649,7 +654,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
             if (grump.isVehicle())
                 return false;
 
-            if (grump.getOwner() != null && grump.getOwner().isAlive()) {
+            if (grump.getOwner() != null && grump.getOwner().isAlive() && !grump.shouldStandBy()) {
                 LivingEntity owner = grump.getOwner();
 
                 LivingEntity target = owner.getLastHurtByMob() == null ? owner.getLastHurtMob() : owner.getLastHurtByMob();
