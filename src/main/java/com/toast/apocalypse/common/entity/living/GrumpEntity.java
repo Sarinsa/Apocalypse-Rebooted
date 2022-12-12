@@ -510,7 +510,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
         public boolean canContinueToUse() {
             LivingEntity target = grump.getTarget();
 
-            if (target != null && target.isAlive()) {
+            if (!grump.isVehicle() && target != null && target.isAlive()) {
                 return grump.moveControl.hasWanted() && grump.moveHelperController.canReachCurrentWanted();
             }
             return false;
@@ -563,16 +563,11 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
                 return false;
             }
 
-            if (grump.getTarget() != null) {
+            if (!grump.isVehicle() && grump.getTarget() != null) {
                 LivingEntity target = grump.getTarget();
                 return grump.canSee(target) && grump.distanceToSqr(target) < 180.0D;
             }
             return false;
-        }
-
-        @Override
-        public boolean canContinueToUse() {
-            return this.canUse();
         }
 
         @Override
@@ -660,14 +655,24 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
                 LivingEntity target = owner.getLastHurtByMob() == null ? owner.getLastHurtMob() : owner.getLastHurtByMob();
 
                 if (target != null && target != grump) {
+                    // Is the target owned by our owner?
                     if (target instanceof TameableEntity) {
                         if (!((TameableEntity) target).isOwnedBy(owner)) {
                             this.target = target;
                             return true;
                         }
                     }
-                    this.target = target;
-                    return true;
+                    // Is the target a grump also owned by my owner?
+                    else if (target instanceof GrumpEntity) {
+                        if (((GrumpEntity)target).getOwner() != owner) {
+                            this.target = target;
+                            return true;
+                        }
+                    }
+                    else {
+                        this.target = target;
+                        return true;
+                    }
                 }
             }
             return false;
@@ -675,7 +680,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
 
         @Override
         public void start() {
-            this.mob.setTarget(this.target);
+            mob.setTarget(target);
             super.start();
         }
     }

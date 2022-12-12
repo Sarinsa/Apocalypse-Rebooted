@@ -266,27 +266,27 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
 
         private void setRandomWantedPosition() {
             Random random = this.seeker.getRandom();
-            double x = this.seeker.getX() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
-            double y = this.seeker.getY() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 6.0F);
-            double z = this.seeker.getZ() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            double x = seeker.getX() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            double y = seeker.getY() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 6.0F);
+            double z = seeker.getZ() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
             this.seeker.getMoveControl().setWantedPosition(x, y, z, 1.0D);
         }
 
         @Override
         public void start() {
             if (this.seeker.getTarget() != null) {
-                LivingEntity target = this.seeker.getTarget();
-                double distanceToTarget = this.seeker.distanceToSqr(target);
+                LivingEntity target = seeker.getTarget();
+                double distanceToTarget = seeker.distanceToSqr(target);
 
                 if (distanceToTarget > maxDistanceBeforeFollow) {
-                    this.seeker.moveControl.setWantedPosition(target.getX(), target.getY() + 10.0D, target.getZ(), 1.0D);
+                    seeker.moveControl.setWantedPosition(target.getX(), target.getY() + 10.0D, target.getZ(), 1.0D);
                 }
                 else {
-                    this.setRandomWantedPosition();
+                    setRandomWantedPosition();
                 }
             }
             else {
-                this.setRandomWantedPosition();
+                setRandomWantedPosition();
             }
         }
     }
@@ -304,36 +304,36 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
 
         @Override
         public boolean canUse() {
-            if (this.seeker.getTarget() != null) {
-                return this.seeker.canAlert()
-                        && this.seeker.distanceToSqr(this.seeker.getTarget()) < 4096.0D
-                        && this.seeker.canSeeDirectly(this.seeker.getTarget())
-                        && this.seeker.currentTarget != this.seeker.getTarget();
+            if (seeker.getTarget() != null) {
+                return seeker.canAlert()
+                        && seeker.distanceToSqr(seeker.getTarget()) < 4096.0D
+                        && seeker.canSeeDirectly(seeker.getTarget())
+                        && seeker.currentTarget != seeker.getTarget();
             }
             return false;
         }
 
         @Override
         public boolean canContinueToUse() {
-            return this.timeAlerting < 0;
+            return timeAlerting < 0;
         }
 
         @Override
         @SuppressWarnings("all")
         public void start() {
-            LivingEntity target = this.seeker.getTarget();
-            this.timeAlerting = -60;
+            LivingEntity target = seeker.getTarget();
+            timeAlerting = -60;
 
             if (target != null) {
                 AxisAlignedBB searchBox = target.getBoundingBox().inflate(60.0D, 30.0D, 60.0D);
-                List<MobEntity> toAlert = MobHelper.getLoadedEntitiesCapped(MobEntity.class, this.seeker.level, searchBox, (entity) -> ALERT_PREDICATE.test(entity, this.seeker), maxAlertCount);
+                List<MobEntity> toAlert = MobHelper.getLoadedEntitiesCapped(MobEntity.class, seeker.level, searchBox, (entity) -> ALERT_PREDICATE.test(entity, seeker), maxAlertCount);
 
                 if (toAlert.isEmpty()) {
                     // No need to perform further checks if the list is empty
-                    this.timeAlerting = 0;
+                    timeAlerting = 0;
                     return;
                 }
-                ApocalypseEventFactory.fireSeekerAlertEvent(this.seeker.level, this.seeker, toAlert, target);
+                ApocalypseEventFactory.fireSeekerAlertEvent(seeker.level, seeker, toAlert, target);
 
                 for (MobEntity mob : toAlert) {
                     if (mob.getTarget() != target) {
@@ -343,21 +343,21 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
                         attributeInstance.setBaseValue(Math.max(attributeInstance.getValue(), 60.0D));
                     }
                 }
-                this.seeker.currentTarget = this.seeker.getTarget();
-                this.seeker.setAlerting(true);
-                this.seeker.playSound(SoundEvents.GHAST_SCREAM, 5.0F, 0.6F);
+                seeker.currentTarget = seeker.getTarget();
+                seeker.setAlerting(true);
+                seeker.playSound(SoundEvents.GHAST_SCREAM, 5.0F, 0.6F);
             }
         }
 
         @Override
         public void stop() {
-            this.timeAlerting = 0;
-            this.seeker.setAlerting(false);
+            timeAlerting = 0;
+            seeker.setAlerting(false);
         }
 
         @Override
         public void tick() {
-            ++this.timeAlerting;
+            ++timeAlerting;
         }
     }
 }
