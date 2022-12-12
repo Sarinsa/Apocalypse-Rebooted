@@ -654,7 +654,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
 
                 LivingEntity target = owner.getLastHurtByMob() == null ? owner.getLastHurtMob() : owner.getLastHurtByMob();
 
-                if (target != null && target != grump) {
+                if (target != null && target != grump && target != owner) {
                     // Is the target owned by our owner?
                     if (target instanceof TameableEntity) {
                         if (!((TameableEntity) target).isOwnedBy(owner)) {
