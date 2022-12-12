@@ -199,6 +199,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
                     return ActionResultType.SUCCESS;
                 }
                 else {
+                    usePlayerItem(player, itemStack);
                     level.broadcastEntityEvent(this, (byte)6);
                     return ActionResultType.CONSUME;
                 }
