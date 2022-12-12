@@ -467,7 +467,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
         if (chance <= 0)
             return;
 
-        if (this.random.nextDouble() <= chance) {
+        if (random.nextDouble() <= chance) {
             setItemSlot(EquipmentSlotType.HEAD, new ItemStack(ApocalypseItems.BUCKET_HELM.get()));
         }
     }
@@ -480,7 +480,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
         if (itemStack.getItem() == ApocalypseItems.BUCKET_HELM.get()) {
             getPassengers().forEach(Entity::stopRiding);
         }
-        else if (this.tickCount > 20 && itemStack.getItem() == Items.SADDLE || itemStack.getItem() == ApocalypseItems.BUCKET_HELM.get()) {
+        else if (tickCount > 20 && itemStack.getItem() == Items.SADDLE || itemStack.getItem() == ApocalypseItems.BUCKET_HELM.get()) {
             playSound(SoundEvents.HORSE_SADDLE, 0.5F, 1.0F);
         }
     }
@@ -538,7 +538,9 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
                 grump.doHurtTarget(target);
             }
             else {
-                setWantedPosition(target);
+                if ((grump.tickCount & 20) == 0) {
+                    setWantedPosition(target);
+                }
             }
         }
     }

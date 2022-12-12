@@ -389,24 +389,24 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob<Ghos
         }
 
         public void tick() {
-            if (this.operation == MovementController.Action.MOVE_TO) {
+            if (operation == MovementController.Action.MOVE_TO) {
 
-                T ghost = this.ghostEntity;
+                T ghost = ghostEntity;
 
                 if (ghost.isFrozen())
                     return;
 
-                Vector3d vector3d = new Vector3d(this.wantedX - ghost.getX(), this.wantedY - ghost.getY(), this.wantedZ - ghost.getZ());
+                Vector3d vector3d = new Vector3d(wantedX - ghost.getX(), wantedY - ghost.getY(), wantedZ - ghost.getZ());
                 double d0 = vector3d.length();
 
                 if (d0 < ghost.getBoundingBox().getSize()) {
-                    this.operation = MovementController.Action.WAIT;
+                    operation = MovementController.Action.WAIT;
                     ghost.setDeltaMovement(ghost.getDeltaMovement().scale(0.5D));
                 }
                 else {
-                    ghost.setDeltaMovement(ghost.getDeltaMovement().add(vector3d.scale(this.speedModifier * 0.05D / d0)));
+                    ghost.setDeltaMovement(ghost.getDeltaMovement().add(vector3d.scale(speedModifier * 0.05D / d0)));
 
-                    if (this.ghostEntity.getTarget() == null) {
+                    if (ghostEntity.getTarget() == null) {
                         Vector3d velocity = ghost.getDeltaMovement();
                         ghost.yRot = -((float) MathHelper.atan2(velocity.x, velocity.z)) * (180F / (float)Math.PI);
                     }
@@ -510,7 +510,7 @@ public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob<Ghos
             LivingEntity target = ghost.getTarget();
             double distance = ghost.distanceToSqr(target);
 
-            if (!ghost.isManeuvering()) {
+            if (!ghost.isManeuvering() && ghost.tickCount % 20 == 0) {
                 setWantedPosition(target);
             }
             if (ticksUntilNextAttack <= 0) {
