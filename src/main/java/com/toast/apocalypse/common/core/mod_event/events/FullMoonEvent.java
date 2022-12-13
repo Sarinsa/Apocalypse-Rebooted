@@ -113,11 +113,11 @@ public final class FullMoonEvent extends AbstractEvent {
             timeUntilNextSpawn -= PlayerDifficultyManager.TICKS_PER_UPDATE;
         }
 
-        if (this.canSpawn()) {
+        if (canSpawn()) {
             boolean hasMobsLeft = false;
 
-            for (int id : this.mobsToSpawn.keySet()) {
-                if (this.mobsToSpawn.get(id) > 0) {
+            for (int id : mobsToSpawn.keySet()) {
+                if (mobsToSpawn.get(id) > 0) {
                     hasMobsLeft = true;
                     break;
                 }
@@ -128,14 +128,14 @@ public final class FullMoonEvent extends AbstractEvent {
                 return;
 
             Random random = world.getRandom();
-            int mobIndex = this.getRandomMobIndex(random);
+            int mobIndex = getRandomMobIndex(random);
 
             if (mobIndex < 0)
                 return;
 
-            int currentCount = this.mobsToSpawn.get(mobIndex);
-            this.mobsToSpawn.put(mobIndex, --currentCount);
-            this.spawnMobFromIndex(mobIndex, world, player);
+            int currentCount = mobsToSpawn.get(mobIndex);
+            mobsToSpawn.put(mobIndex, --currentCount);
+            spawnMobFromIndex(mobIndex, world, player);
 
             timeUntilNextSpawn = spawnTime;
         }
@@ -153,7 +153,7 @@ public final class FullMoonEvent extends AbstractEvent {
      * Returns true if it is time to spawn a new full moon mob.
      */
     private boolean canSpawn() {
-        return this.gracePeriod <= 0 && this.hasMobsLeft && this.timeUntilNextSpawn <= 0;
+        return gracePeriod <= 0 && hasMobsLeft && timeUntilNextSpawn <= 0;
     }
 
     /**
@@ -167,11 +167,11 @@ public final class FullMoonEvent extends AbstractEvent {
         int count;
 
         // Ensure nothing is null before proceeding.
-        this.mobsToSpawn.put(GHOST_ID, 0);
-        this.mobsToSpawn.put(BREECHER_ID, 0);
-        this.mobsToSpawn.put(GRUMP_ID, 0);
-        this.mobsToSpawn.put(SEEKER_ID, 0);
-        this.mobsToSpawn.put(DESTROYER_ID, 0);
+        mobsToSpawn.put(GHOST_ID, 0);
+        mobsToSpawn.put(BREECHER_ID, 0);
+        mobsToSpawn.put(GRUMP_ID, 0);
+        mobsToSpawn.put(SEEKER_ID, 0);
+        mobsToSpawn.put(DESTROYER_ID, 0);
 
         if (GHOST_START >= 0L && GHOST_START <= scaledDifficulty) {
             effectiveDifficulty = (scaledDifficulty - GHOST_START) / MOB_COUNT_TIME_SPAN;
@@ -205,8 +205,8 @@ public final class FullMoonEvent extends AbstractEvent {
         final int defaultSpawnTime = 500;
         int totalMobCount = 0;
 
-        for (int mobId : this.mobsToSpawn.keySet()) {
-            totalMobCount += this.mobsToSpawn.get(mobId);
+        for (int mobId : mobsToSpawn.keySet()) {
+            totalMobCount += mobsToSpawn.get(mobId);
         }
         this.spawnTime = totalMobCount <= 0 ? defaultSpawnTime : (10500 - MAX_GRACE_PERIOD) / totalMobCount;
     }
@@ -216,7 +216,7 @@ public final class FullMoonEvent extends AbstractEvent {
      * or -1 if there are no mob types left to spawn.
      */
     private int getRandomMobIndex(Random random) {
-        Integer type = DataStructureUtils.randomMapKeyFiltered(random, this.mobsToSpawn, (id, count) -> count > 0);
+        Integer type = DataStructureUtils.randomMapKeyFiltered(random, mobsToSpawn, (id, count) -> count > 0);
         return type != null ? type : -1;
     }
 
@@ -251,14 +251,14 @@ public final class FullMoonEvent extends AbstractEvent {
         if (mob == null)
             return;
 
-        ((IFullMoonMob<?>) mob).setPlayerTargetUUID(player.getUUID());
-        ((IFullMoonMob<?>) mob).setEventGeneration(getEventGeneration());
+        ((IFullMoonMob) mob).setPlayerTargetUUID(player.getUUID());
+        ((IFullMoonMob) mob).setEventGeneration(getEventGeneration());
     }
 
 
     @SuppressWarnings("deprecation")
     @Nullable
-    private <T extends MobEntity & IFullMoonMob<?>> T spawnMob(EntityType<T> entityType, ServerPlayerEntity player, ServerWorld world) {
+    private <T extends MobEntity & IFullMoonMob> T spawnMob(EntityType<T> entityType, ServerPlayerEntity player, ServerWorld world) {
         Random random = world.getRandom();
         BlockPos playerPos = player.blockPosition();
         BlockPos spawnPos = null;

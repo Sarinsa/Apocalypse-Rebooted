@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public final class MobWikiIndexes {
 
-    private static final Map<Class<? extends IFullMoonMob<?>>, Integer> INDEXES = new HashMap<>();
+    private static final Map<Class<? extends IFullMoonMob>, Integer> INDEXES = new HashMap<>();
 
     public static final int GHOST_INDEX = 0;
     public static final int BREECHER_INDEX = 1;
@@ -37,7 +37,7 @@ public final class MobWikiIndexes {
      * the given mob class. Returns -1
      * if there is no match.
      */
-    public static int getFromClass(Class<? extends IFullMoonMob<?>> clazz) {
+    public static int getFromClass(Class<? extends IFullMoonMob> clazz) {
         if (INDEXES.containsKey(clazz)) {
             return INDEXES.get(clazz);
         }
@@ -52,7 +52,7 @@ public final class MobWikiIndexes {
      * @param player The player to unlock the index for.
      * @param clazz The class of the entity to get the index for.
      */
-    public static void awardIndex(@Nonnull ServerPlayerEntity player, Class<? extends IFullMoonMob<?>> clazz) {
+    public static void awardIndex(@Nonnull ServerPlayerEntity player, Class<? extends IFullMoonMob> clazz) {
         int[] unlockedIndexes = CapabilityHelper.getMobWikiIndexes(player);
         int awardedIndex = getFromClass(clazz);
 

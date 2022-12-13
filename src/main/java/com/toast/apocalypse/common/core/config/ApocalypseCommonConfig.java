@@ -101,10 +101,10 @@ public class ApocalypseCommonConfig {
         // Full moon stuff
         private final ForgeConfigSpec.BooleanValue despawnMobsOnDeath;
         private final ForgeConfigSpec.DoubleValue difficultyUntilNextIncrease;
-        private final HashMap<Class<? extends IFullMoonMob<?>>, ForgeConfigSpec.LongValue> moonMobStartDifficulties = new HashMap<>();
-        private final HashMap<Class<? extends IFullMoonMob<?>>, ForgeConfigSpec.DoubleValue> moonMobAdditionalCount = new HashMap<>();
-        private final HashMap<Class<? extends IFullMoonMob<?>>, ForgeConfigSpec.IntValue> moonMobMinCount = new HashMap<>();
-        private final HashMap<Class<? extends IFullMoonMob<?>>, ForgeConfigSpec.IntValue> moonMobCountCap = new HashMap<>();
+        private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.LongValue> moonMobStartDifficulties = new HashMap<>();
+        private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.DoubleValue> moonMobAdditionalCount = new HashMap<>();
+        private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.IntValue> moonMobMinCount = new HashMap<>();
+        private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.IntValue> moonMobCountCap = new HashMap<>();
 
 
         // Attributes
@@ -528,19 +528,19 @@ public class ApocalypseCommonConfig {
             return this.difficultyUntilNextIncrease.get();
         }
 
-        public long getMoonMobStartDifficulty(Class<? extends IFullMoonMob<?>> entityClass) {
+        public long getMoonMobStartDifficulty(Class<? extends IFullMoonMob> entityClass) {
             return this.moonMobStartDifficulties.containsKey(entityClass) ? (this.moonMobStartDifficulties.get(entityClass).get()) : 0;
         }
 
-        public double getMoonMobAdditionalCount(Class<? extends IFullMoonMob<?>> entityClass) {
+        public double getMoonMobAdditionalCount(Class<? extends IFullMoonMob> entityClass) {
             return this.moonMobAdditionalCount.containsKey(entityClass) ? this.moonMobAdditionalCount.get(entityClass).get() : 0.0D;
         }
 
-        public int getMoonMobMinCount(Class<? extends IFullMoonMob<?>> entityClass) {
+        public int getMoonMobMinCount(Class<? extends IFullMoonMob> entityClass) {
             return this.moonMobMinCount.containsKey(entityClass) ? this.moonMobMinCount.get(entityClass).get() : 0;
         }
 
-        public int getMoonMobMaxCount(Class<? extends IFullMoonMob<?>> entityClass) {
+        public int getMoonMobMaxCount(Class<? extends IFullMoonMob> entityClass) {
             return this.moonMobCountCap.containsKey(entityClass) ? this.moonMobCountCap.get(entityClass).get() : 0;
         }
 
@@ -787,19 +787,19 @@ public class ApocalypseCommonConfig {
 
 
 
-        private void createStartDifficulty(Class<? extends IFullMoonMob<?>> entityClass, String name, long defaultStart, ForgeConfigSpec.Builder configBuilder) {
+        private void createStartDifficulty(Class<? extends IFullMoonMob> entityClass, String name, long defaultStart, ForgeConfigSpec.Builder configBuilder) {
             this.moonMobStartDifficulties.put(entityClass, configBuilder.defineInRange(name, defaultStart, 0, 100000));
         }
 
-        private void createMobAdditionalCount(Class<? extends IFullMoonMob<?>> entityClass, String name, double defaultAdditional, ForgeConfigSpec.Builder configBuilder) {
+        private void createMobAdditionalCount(Class<? extends IFullMoonMob> entityClass, String name, double defaultAdditional, ForgeConfigSpec.Builder configBuilder) {
             this.moonMobAdditionalCount.put(entityClass, configBuilder.defineInRange(name, defaultAdditional, 0, 100));
         }
 
-        private void createMobMinCount(Class<? extends IFullMoonMob<?>> entityClass, String name, int defaultMin, ForgeConfigSpec.Builder configBuilder) {
+        private void createMobMinCount(Class<? extends IFullMoonMob> entityClass, String name, int defaultMin, ForgeConfigSpec.Builder configBuilder) {
             this.moonMobMinCount.put(entityClass, configBuilder.defineInRange(name, defaultMin, 0, 100));
         }
 
-        private void createMobMaxCap(Class<? extends IFullMoonMob<?>> entityClass, String name, int defaultMax, ForgeConfigSpec.Builder configBuilder) {
+        private void createMobMaxCap(Class<? extends IFullMoonMob> entityClass, String name, int defaultMax, ForgeConfigSpec.Builder configBuilder) {
             this.moonMobCountCap.put(entityClass, configBuilder.defineInRange(name, defaultMax, 0, 100));
         }
 
@@ -807,9 +807,7 @@ public class ApocalypseCommonConfig {
         /** Creates the default difficulty mob config. */
         private CommentedConfig createDefaultDifficultyMobs() {
             CommentedConfig difficultyMobs = TomlFormat.newConfig();
-
             difficultyMobs.add(String.valueOf(40), ApocalypseEntities.FEARWOLF.getId().toString());
-
             return difficultyMobs;
         }
 

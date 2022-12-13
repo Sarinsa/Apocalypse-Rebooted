@@ -25,7 +25,7 @@ import java.util.UUID;
  * that ignores line of sight, moves slightly faster and will explode when they detect that they can't get any closer to the player.<br>
  * Visually, the ony difference is that their eyes are entranced by the moon's power.
  */
-public class BreecherEntity extends CreeperEntity implements IFullMoonMob<BreecherEntity> {
+public class BreecherEntity extends CreeperEntity implements IFullMoonMob {
 
     /** The constant player target, if this mob was spawned by the full moon event */
     private UUID playerTargetUUID;

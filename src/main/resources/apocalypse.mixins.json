@@ -5,7 +5,7 @@
   "minVersion": "0.8",
   "refmap": "apocalypse.mixins.refmap.json",
   "mixins": [
-
+    "CreeperEntityMixin"
   ],
   "server": [
 

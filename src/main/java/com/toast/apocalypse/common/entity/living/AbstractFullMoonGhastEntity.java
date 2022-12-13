@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.UUID;
 
-public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements IFullMoonMob<AbstractFullMoonGhastEntity> {
+public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements IFullMoonMob {
 
     protected UUID playerTargetUUID;
     protected int eventGeneration = 0;

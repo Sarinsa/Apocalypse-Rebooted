@@ -8,7 +8,7 @@ import net.minecraft.entity.player.PlayerEntity;
 
 import java.util.UUID;
 
-public class MoonMobPlayerTargetGoal<T extends MobEntity & IFullMoonMob<?>> extends TargetGoal {
+public class MoonMobPlayerTargetGoal<T extends MobEntity & IFullMoonMob> extends TargetGoal {
 
     private final T moonMob;
 

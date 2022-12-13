@@ -54,7 +54,7 @@ import java.util.UUID;
  * //TODO - "Freezing Counter": Provide the player with a gadget for temporarily
  *          immobilizing/freezing ghosts in place.
  */
-public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob<GhostEntity> {
+public class GhostEntity extends FlyingEntity implements IMob, IFullMoonMob {
 
     /**
      *  Used to determine if the ghost should be frozen in place

@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 
 /** Represents a mob type that spawns during full moons */
-public interface IFullMoonMob<T extends LivingEntity> {
+public interface IFullMoonMob {
 
     /** Key used for storing the full moon mob's player target UUID to NBT. */
     String PLAYER_UUID_KEY = "PlayerTargetUUID";
@@ -57,7 +57,7 @@ public interface IFullMoonMob<T extends LivingEntity> {
     void setPlayerTargetUUID(@Nullable UUID playerTargetUUID);
 
     @Nullable
-    static <E extends LivingEntity & IFullMoonMob<E>> PlayerEntity getEventTarget(E moonMob) {
+    static <E extends LivingEntity & IFullMoonMob> PlayerEntity getEventTarget(E moonMob) {
         if (moonMob.getPlayerTargetUUID() != null) {
             return moonMob.level.getPlayerByUUID(moonMob.getPlayerTargetUUID());
         }
@@ -72,7 +72,7 @@ public interface IFullMoonMob<T extends LivingEntity> {
      * checks if the full moon mob's stored value is <strong>different</strong> from the player's current
      * event generation, in which case it should despawn.
      */
-    static boolean shouldDisappear(@Nullable UUID playerTargetUUID, ServerWorld world, IFullMoonMob<?> moonMob) {
+    static boolean shouldDisappear(@Nullable UUID playerTargetUUID, ServerWorld world, IFullMoonMob moonMob) {
         if (!ApocalypseCommonConfig.COMMON.getDespawnMobsOnDeath())
             return false;
 

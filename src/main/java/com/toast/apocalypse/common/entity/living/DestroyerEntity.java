@@ -367,18 +367,18 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
             }
             else if (destroyer.getTarget() instanceof ServerPlayerEntity) {
                 ServerPlayerEntity player = (ServerPlayerEntity) destroyer.getTarget();
+                double x, z;
 
                 if (player.getRespawnPosition() != null && (player.getRespawnDimension().equals(destroyer.level.dimension())) && isPlayerSpawnValid(player.getRespawnPosition(), destroyer.level)) {
                     BlockPos respawnPos = player.getRespawnPosition();
-                    double x = respawnPos.getX() - destroyer.getX();
-                    double z = respawnPos.getZ() - destroyer.getZ();
-                    destroyer.yRot = -((float)MathHelper.atan2(x, z)) * (180F / (float)Math.PI);
+                    x = respawnPos.getX() - destroyer.getX();
+                    z = respawnPos.getZ() - destroyer.getZ();
                 }
                 else {
-                    double x = player.getX() - destroyer.getX();
-                    double z = player.getZ() - destroyer.getZ();
-                    destroyer.yRot = -((float)MathHelper.atan2(x, z)) * (180F / (float)Math.PI);
+                    x = player.getX() - destroyer.getX();
+                    z = player.getZ() - destroyer.getZ();
                 }
+                destroyer.yRot = -((float)MathHelper.atan2(x, z)) * (180F / (float)Math.PI);
             }
             else {
                 LivingEntity target = destroyer.getTarget();
