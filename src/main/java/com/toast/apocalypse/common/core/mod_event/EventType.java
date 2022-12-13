@@ -7,15 +7,15 @@ public class EventType<T extends AbstractEvent> {
     private final IEventFactory<T> factory;
     private final int id;
     private final String startMessage;
-    private final boolean canBeInterrupted;
+    private final int priority;
     private final IEventPredicate startPredicate;
     private final IEventPredicate continuePredicate;
 
-    public EventType(int id, IEventFactory<T> factory, String startMessage, boolean canBeInterrupted, IEventPredicate startPredicate, IEventPredicate continuePredicate) {
+    public EventType(int id, IEventFactory<T> factory, String startMessage, int priority, IEventPredicate startPredicate, IEventPredicate continuePredicate) {
         this.factory = factory;
         this.id = id;
         this.startMessage = startMessage;
-        this.canBeInterrupted = canBeInterrupted;
+        this.priority = priority;
         this.startPredicate = startPredicate;
         this.continuePredicate = continuePredicate;
     }
@@ -44,8 +44,8 @@ public class EventType<T extends AbstractEvent> {
      *
      * @return True if this event can be interrupted.
      */
-    public final boolean canBeInterrupted() {
-        return this.canBeInterrupted;
+    public final int getPriority() {
+        return this.priority;
     }
 
     public IEventPredicate getStartPredicate() {

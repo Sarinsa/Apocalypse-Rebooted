@@ -23,6 +23,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -49,7 +50,6 @@ public final class PlayerDifficultyManager {
      *
      *  @see CommonConfigReloadListener#updateInfo()
      */
-
     public static double ACID_RAIN_CHANCE;
     public static boolean MULTIPLAYER_DIFFICULTY_SCALING;
     public static double MULTIPLAYER_DIFFICULTY_MULT;
@@ -346,7 +346,7 @@ public final class PlayerDifficultyManager {
 
         if (CapabilityHelper.getPlayerDifficulty(player) > 0 && overworld.getGameTime() > 0L) {
             for (EventType<?> type : EventRegistry.EVENTS.values()) {
-                if (eventType != type && type.getStartPredicate().test(world, eventType, player, this) && currentEvent.getType().canBeInterrupted()) {
+                if (eventType != type && type.getStartPredicate().test(world, eventType, player, this) && type.getPriority() > currentEvent.getType().getPriority()) {
                     // Copy over event generation
                     int generation = currentEvent.getEventGeneration();
                     eventType = this.startEvent(player, currentEvent, type);
@@ -370,14 +370,12 @@ public final class PlayerDifficultyManager {
             return currentEvent.getType();
 
         if (currentEvent != null) {
-            if (!currentEvent.getType().canBeInterrupted())
-                return currentEvent.getType();
             currentEvent.onEnd(server, player);
         }
         AbstractEvent newEvent = eventType.createEvent();
-        newEvent.onStart(this.server, player);
-        this.playerEvents.put(player.getUUID(), newEvent);
-        this.saveEventData(player);
+        newEvent.onStart(server, player);
+        playerEvents.put(player.getUUID(), newEvent);
+        saveEventData(player);
 
         if (eventType.getEventStartMessage() != null) {
             player.displayClientMessage(new TranslationTextComponent(eventType.getEventStartMessage()), true);
@@ -387,7 +385,7 @@ public final class PlayerDifficultyManager {
 
     public int getEventId(ServerPlayerEntity player) {
         UUID uuid = player.getUUID();
-        return this.playerEvents.containsKey(uuid) ? this.playerEvents.get(uuid).getType().getId() : -1;
+        return playerEvents.containsKey(uuid) ? playerEvents.get(uuid).getType().getId() : -1;
     }
 
     // SHOULD not return null, but who knows
@@ -460,17 +458,20 @@ public final class PlayerDifficultyManager {
     }
 
 
-
     /** Contains miscellaneous info about a world. */
     public static class WorldInfo {
+
+        protected static final String saveDataId = Apocalypse.resourceLoc("world_info").toString();
 
         private final ServerWorld world;
 
         private boolean justStartedRaining;
         private boolean isRainingAcid;
 
+
         private WorldInfo(ServerWorld world) {
             this.world = world;
+            world.getDataStorage().computeIfAbsent(() -> new WorldInfoSavedData(this), saveDataId);
         }
 
         protected void setRainingAcid(boolean value) {
@@ -494,6 +495,29 @@ public final class PlayerDifficultyManager {
 
             if (value && random.nextDouble() <= ACID_RAIN_CHANCE)
                 setRainingAcid(true);
+        }
+
+        protected static class WorldInfoSavedData extends WorldSavedData {
+
+            private final WorldInfo worldInfo;
+
+            public WorldInfoSavedData(WorldInfo worldInfo) {
+                super(saveDataId);
+                this.worldInfo = worldInfo;
+            }
+
+            @Override
+            public void load(CompoundNBT compoundNBT) {
+                if (compoundNBT.contains("RainingAcid", Constants.NBT.TAG_BYTE)) {
+                    worldInfo.isRainingAcid = compoundNBT.getBoolean("RainingAcid");
+                }
+            }
+
+            @Override
+            public CompoundNBT save(CompoundNBT compoundNBT) {
+                compoundNBT.putBoolean("RainingAcid", worldInfo.isRainingAcid);
+                return compoundNBT;
+            }
         }
     }
 }
