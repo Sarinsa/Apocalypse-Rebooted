@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(CreeperEntity.class)
+//@Mixin(CreeperEntity.class)
 public abstract class CreeperEntityMixin extends MonsterEntity implements IChargeableMob {
 
     protected CreeperEntityMixin(EntityType<? extends CreeperEntity> entityType, World world) {
@@ -25,6 +25,7 @@ public abstract class CreeperEntityMixin extends MonsterEntity implements ICharg
      * Creepers from spawning lingering effect
      * clouds that can grant "infinite" buffs.
      */
+    /*
     @Redirect(
             method = "spawnLingeringCloud",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;addFreshEntity(Lnet/minecraft/entity/Entity;)Z"))
@@ -32,4 +33,6 @@ public abstract class CreeperEntityMixin extends MonsterEntity implements ICharg
         CommonMixinHooks.capAreaEffectCloudDurations((AreaEffectCloudEntity) entity);
         return world.addFreshEntity(entity);
     }
+
+     */
 }

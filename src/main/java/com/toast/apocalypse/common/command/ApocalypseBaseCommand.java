@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.toast.apocalypse.common.command.argument.DifficultyArgument;
 import com.toast.apocalypse.common.command.argument.MaxDifficultyArgument;
+import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.command.CommandSource;
@@ -50,29 +51,16 @@ public class ApocalypseBaseCommand {
 
         private static int showPlayerDebugInfo(CommandSource source, ServerPlayerEntity playerEntity) {
             long difficulty = CapabilityHelper.getPlayerDifficulty(playerEntity);
+            int scaledDifficulty = (int) difficulty / (int) References.DAY_LENGTH;
+            int partialDifficulty = difficulty <= 0 ? 0 : (int) (difficulty % References.DAY_LENGTH / (References.DAY_LENGTH / 10));
             long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(playerEntity);
+            double scaledMaxDifficulty = (double) maxDifficulty / References.DAY_LENGTH;
             int eventId = CapabilityHelper.getEventId(playerEntity);
 
-            String eventName;
-
-            switch(eventId) {
-                default:
-                case -1:
-                    eventName = "none";
-                    break;
-                case 0:
-                    eventName = "full_moon_siege";
-                    break;
-                case 1:
-                    eventName = "thunderstorm";
-                    break;
-                case 2:
-                    eventName = "acid_rain";
-                    break;
-            }
-            source.sendSuccess(new StringTextComponent("Player difficulty: " + (difficulty < 0 ? TextFormatting.YELLOW : TextFormatting.GREEN) + difficulty), true);
-            source.sendSuccess(new StringTextComponent("Player max difficulty: " + TextFormatting.GREEN + maxDifficulty), false);
-            source.sendSuccess(new StringTextComponent("Current event: " + TextFormatting.GREEN + eventId  + TextFormatting.WHITE + " (" + TextFormatting.GRAY + eventName + TextFormatting.GRAY + ")"), false);
+            String eventName = EventRegistry.EVENTS.get(eventId).getName();
+            source.sendSuccess(new StringTextComponent("Player difficulty: " + (difficulty < 0 ? TextFormatting.YELLOW : TextFormatting.GREEN) + scaledDifficulty + "." + partialDifficulty + TextFormatting.WHITE + " (" +  TextFormatting.GRAY + difficulty + " ticks" + TextFormatting.WHITE + ")"), true);
+            source.sendSuccess(new StringTextComponent("Player max difficulty: " + TextFormatting.GREEN + scaledMaxDifficulty + TextFormatting.WHITE + " (" + TextFormatting.GRAY + maxDifficulty + " ticks" + TextFormatting.WHITE + ")"), false);
+            source.sendSuccess(new StringTextComponent("Current event: " + TextFormatting.GREEN + eventId  + TextFormatting.WHITE + " (" + TextFormatting.GRAY + eventName + TextFormatting.WHITE + ")"), false);
             return 1;
         }
     }

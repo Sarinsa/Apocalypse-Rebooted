@@ -6,13 +6,15 @@ public class EventType<T extends AbstractEvent> {
 
     private final IEventFactory<T> factory;
     private final int id;
+    private final String name;
     private final String startMessage;
     private final int priority;
     private final IEventPredicate startPredicate;
     private final IEventPredicate continuePredicate;
 
-    public EventType(int id, IEventFactory<T> factory, String startMessage, int priority, IEventPredicate startPredicate, IEventPredicate continuePredicate) {
+    public EventType(int id, String name, IEventFactory<T> factory, String startMessage, int priority, IEventPredicate startPredicate, IEventPredicate continuePredicate) {
         this.factory = factory;
+        this.name = name;
         this.id = id;
         this.startMessage = startMessage;
         this.priority = priority;
@@ -21,11 +23,11 @@ public class EventType<T extends AbstractEvent> {
     }
 
     public final T createEvent() {
-        return this.factory.create(this);
+        return factory.create(this);
     }
 
     public final int getId() {
-        return this.id;
+        return id;
     }
 
     /**
@@ -35,7 +37,7 @@ public class EventType<T extends AbstractEvent> {
      *         parsed to a TranslationTextComponent
      */
     public final String getEventStartMessage() {
-        return this.startMessage;
+        return startMessage;
     }
 
     /**
@@ -45,15 +47,19 @@ public class EventType<T extends AbstractEvent> {
      * @return True if this event can be interrupted.
      */
     public final int getPriority() {
-        return this.priority;
+        return priority;
     }
 
     public IEventPredicate getStartPredicate() {
-        return this.startPredicate;
+        return startPredicate;
     }
 
     public IEventPredicate getPersistPredicate() {
-        return this.continuePredicate;
+        return continuePredicate;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public interface IEventFactory<T> {
