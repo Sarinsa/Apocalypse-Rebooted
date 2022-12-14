@@ -16,6 +16,7 @@ import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.core.register.*;
 import com.toast.apocalypse.common.event.*;
 import com.toast.apocalypse.common.network.PacketHandler;
+import com.toast.apocalypse.common.tag.ApocalypseEntityTags;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.misc.MobWikiIndexes;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
@@ -69,8 +70,9 @@ public class Apocalypse {
         EventRegistry.init();
         ApocalypseTriggers.init();
         MobWikiIndexes.init();
+        ApocalypseEntityTags.init();
 
-        this.packetHandler.registerMessages();
+        packetHandler.registerMessages();
 
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
@@ -113,7 +115,7 @@ public class Apocalypse {
 
     public void onLoadComplete(FMLLoadCompleteEvent event) {
         event.enqueueWork(() -> {
-            this.processPlugins();
+            processPlugins();
             VersionCheckHelper.setUpdateMessage();
         });
     }
@@ -133,8 +135,8 @@ public class Apocalypse {
 
                             if (IApocalypsePlugin.class.isAssignableFrom(pluginClass)) {
                                 IApocalypsePlugin plugin = (IApocalypsePlugin) pluginClass.newInstance();
-                                this.registryHelper.setCurrentPluginId(plugin.getPluginId());
-                                plugin.load(this.getApi());
+                                registryHelper.setCurrentPluginId(plugin.getPluginId());
+                                plugin.load(getApi());
                                 LOGGER.info("Found Apocalypse plugin at {} with plugin ID: {}", annotationData.getMemberName(), plugin.getPluginId());
                             }
                         }
@@ -147,7 +149,7 @@ public class Apocalypse {
             });
         });
         // Post setup
-        this.registryHelper.postSetup();
+        registryHelper.postSetup();
     }
 
     public void sendIMCMessages(InterModEnqueueEvent event) {
@@ -162,18 +164,18 @@ public class Apocalypse {
     }
 
     public PlayerDifficultyManager getDifficultyManager() {
-        return this.difficultyManager;
+        return difficultyManager;
     }
 
     public RegistryHelper getRegistryHelper() {
-        return this.registryHelper;
+        return registryHelper;
     }
 
     public ApocalypseAPI getApi() {
-        return this.api;
+        return api;
     }
 
     public PacketHandler getPacketHandler() {
-        return this.packetHandler;
+        return packetHandler;
     }
 }

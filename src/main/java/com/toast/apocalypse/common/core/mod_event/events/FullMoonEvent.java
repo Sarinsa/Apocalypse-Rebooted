@@ -4,6 +4,7 @@ import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
+import com.toast.apocalypse.common.tag.ApocalypseEntityTags;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.DataStructureUtils;
 import com.toast.apocalypse.common.util.References;
@@ -264,6 +265,7 @@ public final class FullMoonEvent extends AbstractEvent {
         BlockPos spawnPos = null;
         final int minDist = 25;
 
+        // The ghost is a special case, and we don't need to care about placement at all really
         if (entityType == ApocalypseEntities.GHOST.get()) {
             BlockPos pos;
 
@@ -283,7 +285,7 @@ public final class FullMoonEvent extends AbstractEvent {
         else {
             EntitySpawnPlacementRegistry.PlacementType placementType = EntitySpawnPlacementRegistry.getPlacementType(entityType);
 
-            for (int i = 0; i < 10; i++) {
+            for (int tries = 0; tries < 10; tries++) {
                 int startX = random.nextBoolean() ? minDist : -minDist;
                 int startZ = random.nextBoolean() ? minDist : -minDist;
                 int x = playerPos.getX() + startX + (startX < 1 ? -random.nextInt(46) : random.nextInt(46));
@@ -309,9 +311,21 @@ public final class FullMoonEvent extends AbstractEvent {
                     }
                 }
                 if (world.isLoaded(pos) && WorldEntitySpawner.isSpawnPositionOk(placementType, world, pos, entityType)) {
-                    if (world.noCollision(entityType.getAABB((double) pos.getX() + 0.5D, pos.getY(), (double) pos.getZ() + 0.5D))) {
-                        spawnPos = pos.immutable();
-                        break;
+                    // We check for collisions around the entity and a bit above if we are dealing with a flying
+                    // entity, so we can spawn it in the air a bit above ground to help prevent them getting stuck in the ground.
+                    if (isFlyingType(entityType)) {
+                        if (world.noCollision(entityType.getAABB((double) pos.getX() + 0.5D, pos.getY(), (double) pos.getZ() + 0.5D)
+                                .inflate(0.0D, 2.0D, 0.5D)
+                                .move(0.0D, 2.0D, 0.0D))) {
+                            spawnPos = pos.above(2).immutable();
+                            break;
+                        }
+                    }
+                    else {
+                        if (world.noCollision(entityType.getAABB((double) pos.getX() + 0.5D, pos.getY(), (double) pos.getZ() + 0.5D))) {
+                            spawnPos = pos.immutable();
+                            break;
+                        }
                     }
                 }
             }
@@ -320,6 +334,10 @@ public final class FullMoonEvent extends AbstractEvent {
             return null;
 
         return entityType.spawn(world, null, null, null, spawnPos, SpawnReason.EVENT, true, true);
+    }
+
+    private static boolean isFlyingType(EntityType<?> entityType) {
+        return ApocalypseEntityTags.FLYING_ENTITIES.contains(entityType);
     }
 
     @Override

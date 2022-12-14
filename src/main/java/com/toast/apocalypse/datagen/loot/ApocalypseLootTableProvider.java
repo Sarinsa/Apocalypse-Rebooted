@@ -1,4 +1,4 @@
-package com.toast.apocalypse.datagen;
+package com.toast.apocalypse.datagen.loot;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;

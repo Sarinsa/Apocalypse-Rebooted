@@ -1,4 +1,4 @@
-package com.toast.apocalypse.datagen;
+package com.toast.apocalypse.datagen.loot;
 
 import com.toast.apocalypse.common.core.register.ApocalypseBlocks;
 import net.minecraft.block.Block;

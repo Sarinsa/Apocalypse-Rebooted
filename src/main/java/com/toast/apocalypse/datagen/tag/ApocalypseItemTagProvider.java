@@ -1,4 +1,4 @@
-package com.toast.apocalypse.datagen;
+package com.toast.apocalypse.datagen.tag;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
