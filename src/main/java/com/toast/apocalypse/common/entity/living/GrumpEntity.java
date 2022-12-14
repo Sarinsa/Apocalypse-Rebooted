@@ -19,6 +19,7 @@ import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.LookAtGoal;
 import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
 import net.minecraft.entity.ai.goal.TargetGoal;
+import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.TameableEntity;
@@ -659,7 +660,7 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
 
                 LivingEntity target = owner.getLastHurtByMob() == null ? owner.getLastHurtMob() : owner.getLastHurtByMob();
 
-                if (target != null && target != grump && target != owner) {
+                if (target != null && target != grump && target != owner && !(target instanceof CreeperEntity)) {
                     // Is the target owned by our owner?
                     if (target instanceof TameableEntity) {
                         if (!((TameableEntity) target).isOwnedBy(owner)) {
@@ -673,10 +674,6 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
                             this.target = target;
                             return true;
                         }
-                    }
-                    else {
-                        this.target = target;
-                        return true;
                     }
                 }
             }
