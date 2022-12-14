@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.entity.living.ai;
 
+import com.toast.apocalypse.common.entity.living.AbstractFullMoonGhastEntity;
 import com.toast.apocalypse.common.entity.living.GrumpEntity;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import net.minecraft.entity.MobEntity;
@@ -24,17 +25,24 @@ public class MoonMobPlayerTargetGoal<T extends MobEntity & IFullMoonMob> extends
         if (playerTargetUUID == null)
             return false;
 
-        if (moonMob instanceof GrumpEntity) {
-            GrumpEntity grump = (GrumpEntity) moonMob;
-            return !(playerTargetUUID.equals(grump.getOwnerUUID()));
-        }
         PlayerEntity player = moonMob.level.getPlayerByUUID(playerTargetUUID);
 
         if (player == null)
             return false;
 
-        if (this.mustSee) {
-            if (!this.mob.getSensing().canSee(player))
+        if (moonMob instanceof GrumpEntity) {
+            GrumpEntity grump = (GrumpEntity) moonMob;
+
+            if (grump.hasOwner())
+                return false;
+        }
+
+        if (mustSee) {
+            if (mob instanceof AbstractFullMoonGhastEntity) {
+                if (!((AbstractFullMoonGhastEntity) moonMob).canSeeDirectly(player))
+                    return false;
+            }
+            else if (!mob.getSensing().canSee(player))
                 return false;
         }
         return player.isAlive() && !player.isCreative() && !player.isSpectator();

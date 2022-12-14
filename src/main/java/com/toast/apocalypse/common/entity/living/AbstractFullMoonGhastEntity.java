@@ -63,13 +63,13 @@ public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements
     }
 
     /**
-     * Checks if the seeker actually has direct
+     * Checks if this ghast type has direct
      * line of sight to the target entity.
      */
     public boolean canSeeDirectly(Entity entity) {
         Vector3d vector3d = new Vector3d(this.getX(), this.getEyeY(), this.getZ());
         Vector3d vector3d1 = new Vector3d(entity.getX(), entity.getEyeY(), entity.getZ());
-        return this.level.clip(new RayTraceContext(vector3d, vector3d1, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, this)).getType() == RayTraceResult.Type.MISS;
+        return level.clip(new RayTraceContext(vector3d, vector3d1, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, this)).getType() == RayTraceResult.Type.MISS;
     }
 
     @Nullable
