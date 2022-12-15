@@ -20,7 +20,7 @@ public class EventRegistry {
             (serverWorld, currentEvent, player, difficultyManager) -> difficultyManager.isFullMoonNight(),
             (serverWorld, currentEvent, player, difficultyManager) -> difficultyManager.isFullMoonNight());
 
-    public static final EventType<?> THUNDERSTORM = register(1, "thunderstorm", ThunderstormEvent::new, null, 2,
+    public static final EventType<?> THUNDERSTORM = register(1, "thunderstorm", ThunderstormEvent::new, References.THUNDERSTORM, 2,
             (serverWorld, currentEvent, player, difficultyManager) -> serverWorld.isThundering(),
             (serverWorld, currentEvent, player, difficultyManager) -> serverWorld.isThundering());
 

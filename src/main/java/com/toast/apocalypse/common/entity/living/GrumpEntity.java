@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.core.register.ApocalypseEffects;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
@@ -23,6 +24,8 @@ import net.minecraft.entity.monster.CreeperEntity;
 import net.minecraft.entity.monster.GhastEntity;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.TameableEntity;
+import net.minecraft.entity.passive.WolfEntity;
+import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.entity.passive.horse.HorseEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -117,10 +120,10 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new GrumpEntity.MeleeAttackGoal(this));
         this.goalSelector.addGoal(1, new GrumpEntity.FollowOwnerGoal(this));
-        this.goalSelector.addGoal(2, new LookAroundGoal(this));
-        this.goalSelector.addGoal(3, new LaunchMonsterHookGoal(this));
-        this.goalSelector.addGoal(4, new GrumpEntity.RandomFlyGoal(this));
-        this.goalSelector.addGoal(5, new GrumpEntity.LookAtOwnerGoal(this, PlayerEntity.class, 10.0F));
+        this.goalSelector.addGoal(2, new GrumpEntity.LookAtOwnerGoal(this, PlayerEntity.class, 10.0F));
+        this.goalSelector.addGoal(3, new LookAroundGoal(this));
+        this.goalSelector.addGoal(4, new LaunchMonsterHookGoal(this));
+        this.goalSelector.addGoal(5, new GrumpEntity.RandomFlyGoal(this));
         this.targetSelector.addGoal(0, new GrumpEntity.OwnerAttackerTargetGoal(this));
         this.targetSelector.addGoal(1, new GrumpMobEntityAttackedByTargetGoal(this, IMob.class));
         this.targetSelector.addGoal(2, new MoonMobPlayerTargetGoal<>(this, true));
@@ -351,6 +354,8 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
                 if (getControllingPassenger() != null && getControllingPassenger() instanceof LivingEntity) {
                     LivingEntity rider = (LivingEntity) getControllingPassenger();
 
+                    setDeltaMovement(getDeltaMovement().scale(1.05D));
+
                     yRot = rider.yRot;
                     yRotO = yRot;
                     xRot = rider.xRot * 0.5F;
@@ -358,18 +363,18 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
                     yBodyRot = yRot;
                     yHeadRot = yBodyRot;
 
-                    float xSpeed = rider.xxa * 1.25F;
-                    float ySpeed = rider.yya * 1.15F;
-                    float zSpeed = rider.zza * 1.25F;
+                    float xSpeed = rider.xxa;
+                    float ySpeed = rider.yya;
+                    float zSpeed = rider.zza;
 
                     if (rider instanceof PlayerEntity) {
                         PlayerEntity player = (PlayerEntity) rider;
 
                         if (PlayerKeyBindInfo.getInfo(player.getUUID()).grumpDescent.get()) {
-                            ySpeed = -1.1F;
+                            ySpeed = -1.2F;
                         }
                         else if (player.jumping) {
-                            ySpeed = 1.1F;
+                            ySpeed = 1.2F;
                         }
                     }
                     super.travel(new Vector3d(xSpeed, ySpeed, zSpeed));
@@ -379,6 +384,35 @@ public class GrumpEntity extends AbstractFullMoonGhastEntity implements IInvento
                 super.travel(vec);
             }
         }
+    }
+
+    private void doTravel(Vector3d deltaMovement, float speedMult) {
+        if (isInWater()) {
+            moveRelative(0.02F, deltaMovement);
+            move(MoverType.SELF, getDeltaMovement());
+            setDeltaMovement(getDeltaMovement().scale(0.8F));
+        }
+        else if (isInLava()) {
+            moveRelative(0.02F, deltaMovement);
+            move(MoverType.SELF, getDeltaMovement());
+            setDeltaMovement(getDeltaMovement().scale(0.5D));
+        }
+        else {
+            BlockPos ground = new BlockPos(getX(), getY() - 1.0D, getZ());
+
+            if (onGround) {
+                speedMult = level.getBlockState(ground).getSlipperiness(level, ground, this) * 0.91F;
+            }
+            float ye = 0.16277137F / (speedMult * speedMult * speedMult);
+
+            if (onGround) {
+                speedMult = level.getBlockState(ground).getSlipperiness(level, ground, this) * 0.91F;
+            }
+            moveRelative(onGround ? 0.1F * ye : 0.02F, deltaMovement);
+            move(MoverType.SELF, getDeltaMovement());
+            setDeltaMovement(getDeltaMovement().scale(speedMult));
+        }
+        calculateEntityAnimation(this, false);
     }
 
     public void setOwnerUUID(UUID uuid) {

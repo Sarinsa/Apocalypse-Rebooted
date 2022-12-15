@@ -1,8 +1,8 @@
 {
   "event.apocalypse.sleep_penalty": "The monsters grow impatient",
   "event.apocalypse.full_moon": "Death lingers in the air, a bad moon rises",
-  "event.apocalypse.thunderstorm": "Yeah",
-  "event.apocalypse.acid_rain": "The air smells foul, death is pouring from the sky",
+  "event.apocalypse.thunderstorm": "The sky grows dark, a storm is coming",
+  "event.apocalypse.acid_rain": "The air reeks of sulphur, death pours from the sky",
 
   "title.bed.apocalypse.full_moon": "You may not rest during a full moon",
 
