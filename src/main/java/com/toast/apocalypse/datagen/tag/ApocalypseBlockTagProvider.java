@@ -18,6 +18,6 @@ public class ApocalypseBlockTagProvider extends BlockTagsProvider {
     @Override
     protected void addTags() {
         tag(BlockTags.BEACON_BASE_BLOCKS)
-                .add(ApocalypseBlocks.LUNARIUM_BLOCK.get());
+                .add(ApocalypseBlocks.MIDNIGHT_STEEL_BLOCK.get());
     }
 }

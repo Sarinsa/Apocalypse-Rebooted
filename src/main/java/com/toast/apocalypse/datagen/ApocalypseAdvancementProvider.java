@@ -24,7 +24,7 @@ public class ApocalypseAdvancementProvider extends AdvancementProvider {
     @Override
     protected void registerAdvancements(Consumer<Advancement> consumer, ExistingFileHelper fileHelper) {
         Advancement root = Advancement.Builder.advancement()
-                .display(ApocalypseItems.SOUL_FRAGMENT.get(),
+                .display(ApocalypseItems.FRAGMENTED_SOUL.get(),
                         new TranslationTextComponent(title("root")),
                         new TranslationTextComponent(desc("root")),
                         Apocalypse.resourceLoc("textures/gui/advancements/backgrounds/night_sky.png"),
@@ -54,12 +54,12 @@ public class ApocalypseAdvancementProvider extends AdvancementProvider {
 
         Advancement lunarium = Advancement.Builder.advancement()
                 .parent(root)
-                .display(ApocalypseItems.LUNARIUM_INGOT.get(),
+                .display(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get(),
                         new TranslationTextComponent(title("lunarium")),
                         new TranslationTextComponent(desc("lunarium")),
                         null,
                         FrameType.TASK, true, true, true)
-                .addCriterion("obtain_lunarium", InventoryChangeTrigger.Instance.hasItems(ApocalypseItems.LUNARIUM_INGOT.get()))
+                .addCriterion("obtain_lunarium", InventoryChangeTrigger.Instance.hasItems(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()))
                 .save(consumer, Apocalypse.resourceLoc("lunarium"), fileHelper);
     }
 

@@ -16,15 +16,13 @@ import java.lang.annotation.Target;
 public @interface ApocalypsePlugin {
 
     /**
-     * If your plugin happens to be a standalone thing
-     * that doesn't interact with anything else than
-     * Apocalypse and vanilla you can leave this empty.
-     *
-     * If not, you should return your mod's modid.
-     *
      * @return Your mod's modid or an empty String
      *         if this plugin does not depend on
      *         a mod being loaded.
+     *         <br><br>
+     *         This is used to make sure plugins doesn't
+     *         get loaded if the mod that adds them failed to load
+     *         itself.
      */
     String modid() default "";
 }

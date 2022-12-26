@@ -1,13 +1,18 @@
 ----- v. 2.6.0 -----
 
 - Added new config list of mobs that can only start spawning when the nearest player is at X difficulty level.
-- Added "lunarium block"
+- Lunarium Ingot and Soul Fragment have been renamed and retextured (now called Midnight Steel Ingot and Fragmented Soul)
+- Added "midnight steel block"
 - Added new advancements
+- Added optional logic for Destroyers to try and destroy their target player's respawn point
 - Fixed full moon ghasts' NBT not always being read properly
 - Fixed rain damage bug in multiplayer
+- Acid rain has been converted into an event rather than something that happens whenever it rains
 - Improved Grump's fishhook precision
+- Fixed Grump target logic
 - Finished implementing Fearwolf
 - Finished mob armor handler
+- Grumps can be tamed with Fatherly Toast
+- Full moon mobs now properly despawns if their target player dies, if enabled
 
-- WIP Grump taming
-- WIP Ghost freezing
+- WIP Ghost freezing - Not implemented in any meaningful way

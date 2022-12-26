@@ -22,8 +22,8 @@ public class ApocalypseRecipeProvider extends RecipeProvider {
     protected void buildShapelessRecipes(Consumer<IFinishedRecipe> consumer) {
 
         //----------------------- SHAPELESS ----------------------
-        simpleShapelessRecipe(ApocalypseItems.LUNARIUM_INGOT.get(), 1, consumer, ApocalypseItems.SOUL_FRAGMENT.get());
-        simpleShapelessRecipe(ApocalypseItems.LUNARIUM_INGOT.get(), 9, consumer, "lunarium_ingots_from_lunarium_block", ApocalypseBlocks.LUNARIUM_BLOCK.get());
+        simpleShapelessRecipe(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get(), 1, consumer, ApocalypseItems.FRAGMENTED_SOUL.get());
+        simpleShapelessRecipe(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get(), 9, consumer, "midnight_steel_ingots_from_midnight_steel_block", ApocalypseBlocks.MIDNIGHT_STEEL_BLOCK.get());
         simpleShapelessRecipe(ApocalypseItems.BUCKET_HELM.get(), 1, consumer, Items.BUCKET);
 
 
@@ -33,26 +33,26 @@ public class ApocalypseRecipeProvider extends RecipeProvider {
                 .pattern("LLL")
                 .pattern("SSS")
                 .define('#', Tags.Items.GLASS)
-                .define('L', ApocalypseItems.LUNARIUM_INGOT.get())
+                .define('L', ApocalypseItems.MIDNIGHT_STEEL_INGOT.get())
                 .define('S', ItemTags.WOODEN_SLABS)
-                .unlockedBy("has_" + ApocalypseItems.LUNARIUM_INGOT.get().getRegistryName().getPath(), has(ApocalypseItems.LUNARIUM_INGOT.get()))
+                .unlockedBy("has_" + ApocalypseItems.MIDNIGHT_STEEL_INGOT.get().getRegistryName().getPath(), has(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()))
                 .save(consumer);
 
         ShapedRecipeBuilder.shaped(ApocalypseItems.LUNAR_CLOCK.get(), 1)
                 .pattern(" # ")
                 .pattern("#R#")
                 .pattern(" # ")
-                .define('#', ApocalypseItems.LUNARIUM_INGOT.get())
+                .define('#', ApocalypseItems.MIDNIGHT_STEEL_INGOT.get())
                 .define('R', Tags.Items.DUSTS_REDSTONE)
-                .unlockedBy("has_" + ApocalypseItems.LUNARIUM_INGOT.get().getRegistryName().getPath(), has(ApocalypseItems.LUNARIUM_INGOT.get()))
+                .unlockedBy("has_" + ApocalypseItems.MIDNIGHT_STEEL_INGOT.get().getRegistryName().getPath(), has(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()))
                 .save(consumer);
 
-        ShapedRecipeBuilder.shaped(ApocalypseBlocks.LUNARIUM_BLOCK.get(), 1)
+        ShapedRecipeBuilder.shaped(ApocalypseBlocks.MIDNIGHT_STEEL_BLOCK.get(), 1)
                 .pattern("###")
                 .pattern("###")
                 .pattern("###")
-                .define('#', ApocalypseItems.LUNARIUM_INGOT.get())
-                .unlockedBy("has_" + ApocalypseItems.LUNARIUM_INGOT.get().getRegistryName().getPath(), has(ApocalypseItems.LUNARIUM_INGOT.get()))
+                .define('#', ApocalypseItems.MIDNIGHT_STEEL_INGOT.get())
+                .unlockedBy("has_" + ApocalypseItems.MIDNIGHT_STEEL_INGOT.get().getRegistryName().getPath(), has(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()))
                 .save(consumer);
     }
 

@@ -39,7 +39,7 @@ public class ApocalypseEntityLootTableProvider extends EntityLootTables {
                                 .apply(LootingEnchantBonus.lootingMultiplier(RandomValueRange.between(0.0F, 2.0F)))))
                 .withPool(LootPool.lootPool()
                         .setRolls(ConstantRange.exactly(1))
-                        .add(ItemLootEntry.lootTableItem(ApocalypseItems.SOUL_FRAGMENT.get())
+                        .add(ItemLootEntry.lootTableItem(ApocalypseItems.FRAGMENTED_SOUL.get())
                                 .apply(SetCount.setCount(RandomValueRange.between(0.0F, 2.0F)))
                                 .apply(LootingEnchantBonus.lootingMultiplier(RandomValueRange.between(0.0F, 1.0F))))));
 
@@ -51,7 +51,7 @@ public class ApocalypseEntityLootTableProvider extends EntityLootTables {
                                 .apply(LootingEnchantBonus.lootingMultiplier(RandomValueRange.between(0.0F, 2.0F)))))
                 .withPool(LootPool.lootPool()
                         .setRolls(ConstantRange.exactly(1))
-                        .add(ItemLootEntry.lootTableItem(ApocalypseItems.SOUL_FRAGMENT.get())
+                        .add(ItemLootEntry.lootTableItem(ApocalypseItems.FRAGMENTED_SOUL.get())
                                 .apply(SetCount.setCount(RandomValueRange.between(0.0F, 2.0F)))
                                 .apply(LootingEnchantBonus.lootingMultiplier(RandomValueRange.between(0.0F, 1.0F))))));
 
@@ -63,7 +63,7 @@ public class ApocalypseEntityLootTableProvider extends EntityLootTables {
                                 .apply(LootingEnchantBonus.lootingMultiplier(RandomValueRange.between(0.0F, 2.0F)))))
                 .withPool(LootPool.lootPool()
                         .setRolls(ConstantRange.exactly(1))
-                        .add(ItemLootEntry.lootTableItem(ApocalypseItems.SOUL_FRAGMENT.get())
+                        .add(ItemLootEntry.lootTableItem(ApocalypseItems.FRAGMENTED_SOUL.get())
                                 .apply(SetCount.setCount(RandomValueRange.between(0.0F, 2.0F)))
                                 .apply(LootingEnchantBonus.lootingMultiplier(RandomValueRange.between(0.0F, 1.0F))))));
 
@@ -75,7 +75,7 @@ public class ApocalypseEntityLootTableProvider extends EntityLootTables {
                                 .apply(LootingEnchantBonus.lootingMultiplier(RandomValueRange.between(0.0F, 2.0F)))))
                 .withPool(LootPool.lootPool()
                         .setRolls(ConstantRange.exactly(1))
-                        .add(ItemLootEntry.lootTableItem(ApocalypseItems.SOUL_FRAGMENT.get())
+                        .add(ItemLootEntry.lootTableItem(ApocalypseItems.FRAGMENTED_SOUL.get())
                                 .apply(SetCount.setCount(RandomValueRange.between(0.0F, 2.0F)))
                                 .apply(LootingEnchantBonus.lootingMultiplier(RandomValueRange.between(0.0F, 1.0F))))));
 
@@ -87,7 +87,7 @@ public class ApocalypseEntityLootTableProvider extends EntityLootTables {
                                 .apply(LootingEnchantBonus.lootingMultiplier(RandomValueRange.between(0.0F, 2.0F)))))
                 .withPool(LootPool.lootPool()
                         .setRolls(ConstantRange.exactly(1))
-                        .add(ItemLootEntry.lootTableItem(ApocalypseItems.SOUL_FRAGMENT.get())
+                        .add(ItemLootEntry.lootTableItem(ApocalypseItems.FRAGMENTED_SOUL.get())
                                 .apply(SetCount.setCount(RandomValueRange.between(0.0F, 2.0F)))
                                 .apply(LootingEnchantBonus.lootingMultiplier(RandomValueRange.between(0.0F, 1.0F))))));
 

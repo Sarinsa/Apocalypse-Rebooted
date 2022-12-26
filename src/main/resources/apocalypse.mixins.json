@@ -5,9 +5,12 @@
   "minVersion": "0.8",
   "refmap": "apocalypse.mixins.refmap.json",
   "mixins": [
+    "CreeperEntityMixin",
+    "LivingEntityMixin",
+    "PlayerEntityMixin"
   ],
   "server": [
-
+    "ServerWorldMixin"
   ],
   "injectors": {
     "defaultRequire": 1

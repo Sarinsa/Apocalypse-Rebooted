@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "apocalypse:item/soul_fragment"
+    "layer0": "apocalypse:item/apocalypse_compendium"
   }
 }

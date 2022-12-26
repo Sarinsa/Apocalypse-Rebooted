@@ -10,14 +10,14 @@
   "death.attack.apocalypse.rain.player": "%1$s died from rain whilst trying to escape %2$s",
 
   "block.apocalypse.lunar_phase_sensor": "Lunar Phase Sensor",
-  "block.apocalypse.lunarium_block": "Lunarium Block",
+  "block.apocalypse.midnight_steel_block": "Midnight Steel Block",
 
-  "item.apocalypse.soul_fragment": "Soul Fragment",
-  "item.apocalypse.lunarium_ingot": "Lunarium Ingot",
+  "item.apocalypse.fragmented_soul": "Fragmented Soul",
+  "item.apocalypse.midnight_steel_ingot": "Midnight Steel Ingot",
   "item.apocalypse.fatherly_toast": "Fatherly Toast",
   "item.apocalypse.bucket_helm": "Bucket Helmet",
   "item.apocalypse.lunar_clock": "Lunar Clock",
-  "item.apocalypse.mob_wiki_book": "Compendium of The Apocalypse [WIP]",
+  "item.apocalypse.apocalypse_compendium": "Compendium of The Apocalypse [WIP]",
   "item.apocalypse.ghost_spawn_egg": "Ghost Spawn Egg",
   "item.apocalypse.destroyer_spawn_egg": "Destroyer Spawn Egg",
   "item.apocalypse.seeker_spawn_egg": "Seeker Spawn Egg",

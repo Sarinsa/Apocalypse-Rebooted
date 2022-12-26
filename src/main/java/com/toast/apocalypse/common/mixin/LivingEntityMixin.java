@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-//@Mixin(LivingEntity.class)
+@Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity {
 
     public LivingEntityMixin(EntityType<?> entityType, World world) {
@@ -23,7 +23,6 @@ public abstract class LivingEntityMixin extends Entity {
     @Unique
     private long timeAirborne = 0;
 
-    /*
     @ModifyVariable(method = "travel", at = @At("STORE"), index = 4)
     public ModifiableAttributeInstance getGravityAttribute(ModifiableAttributeInstance attributeInstance) {
         return CommonMixinHooks.livingEntityOnTravelModifyVariable(attributeInstance, (LivingEntity) (Object) this, this.timeAirborne);
@@ -39,6 +38,4 @@ public abstract class LivingEntityMixin extends Entity {
             this.timeAirborne = 0;
         }
     }
-
-     */
 }

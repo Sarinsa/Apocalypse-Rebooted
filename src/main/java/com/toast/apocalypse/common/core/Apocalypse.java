@@ -21,8 +21,11 @@ import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.misc.MobWikiIndexes;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import com.toast.apocalypse.common.util.VersionCheckHelper;
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.ModList;
@@ -31,6 +34,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLModIdMappingEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
@@ -67,20 +71,24 @@ public class Apocalypse {
     public Apocalypse() {
         INSTANCE = this;
 
+        // Static init stuff
         EventRegistry.init();
         ApocalypseTriggers.init();
         MobWikiIndexes.init();
         ApocalypseEntityTags.init();
 
+        // Wahoo
         packetHandler.registerMessages();
 
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
+        // Misc events
         eventBus.addListener(ApocalypseEntities::createEntityAttributes);
         eventBus.addListener(this::onCommonSetup);
         eventBus.addListener(this::onLoadComplete);
         eventBus.addListener(this::sendIMCMessages);
 
+        // Register event listeners
         MinecraftForge.EVENT_BUS.register(new RainDamageTickHelper());
         MinecraftForge.EVENT_BUS.register(new EntityEvents());
         MinecraftForge.EVENT_BUS.register(new PlayerEvents());
@@ -90,6 +98,7 @@ public class Apocalypse {
         MinecraftForge.EVENT_BUS.register(new BiomeEvents());
         MinecraftForge.EVENT_BUS.addListener(CommandRegister::registerCommands);
 
+        // Register game objects
         ApocalypseBlocks.BLOCKS.register(eventBus);
         ApocalypseItems.ITEMS.register(eventBus);
         ApocalypseSounds.SOUNDS.register(eventBus);
@@ -99,6 +108,11 @@ public class Apocalypse {
         ApocalypseLootMods.LOOT_MODIFIERS.register(eventBus);
         ApocalypseTileEntities.TILE_ENTITIES.register(eventBus);
 
+        // Missing mapping listeners
+        MinecraftForge.EVENT_BUS.addGenericListener(Block.class, ApocalypseBlocks::onMissingMappings);
+        MinecraftForge.EVENT_BUS.addGenericListener(Item.class, ApocalypseItems::onMissingMappings);
+
+        // Config stuff
         ModLoadingContext context = ModLoadingContext.get();
         context.registerConfig(ModConfig.Type.COMMON, ApocalypseCommonConfig.COMMON_SPEC);
         context.registerConfig(ModConfig.Type.CLIENT, ApocalypseClientConfig.CLIENT_SPEC);
@@ -173,9 +187,5 @@ public class Apocalypse {
 
     public ApocalypseAPI getApi() {
         return api;
-    }
-
-    public PacketHandler getPacketHandler() {
-        return packetHandler;
     }
 }

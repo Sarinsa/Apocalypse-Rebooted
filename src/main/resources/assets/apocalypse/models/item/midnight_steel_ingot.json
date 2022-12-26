@@ -1,6 +1,6 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "apocalypse:item/lunarium_ingot"
+    "layer0": "apocalypse:item/midnight_steel_ingot"
   }
 }

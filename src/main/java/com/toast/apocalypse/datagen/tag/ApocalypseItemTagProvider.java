@@ -19,9 +19,9 @@ public class ApocalypseItemTagProvider extends ItemTagsProvider {
 
     protected void addTags() {
         tag(Tags.Items.INGOTS)
-                .add(ApocalypseItems.LUNARIUM_INGOT.get());
+                .add(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get());
 
         tag(ItemTags.BEACON_PAYMENT_ITEMS)
-                .add(ApocalypseItems.LUNARIUM_INGOT.get());
+                .add(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get());
     }
 }

@@ -26,6 +26,6 @@ public class ApocalypseBlockLootTableProvider extends BlockLootTables {
     @Override
     protected void addTables() {
         this.dropSelf(ApocalypseBlocks.LUNAR_PHASE_SENSOR.get());
-        this.dropSelf(ApocalypseBlocks.LUNARIUM_BLOCK.get());
+        this.dropSelf(ApocalypseBlocks.MIDNIGHT_STEEL_BLOCK.get());
     }
 }

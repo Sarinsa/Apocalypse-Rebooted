@@ -7,6 +7,7 @@ import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -18,12 +19,23 @@ public class ApocalypseBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Apocalypse.MODID);
 
     public static final RegistryObject<Block> LUNAR_PHASE_SENSOR = registerBlock("lunar_phase_sensor", LunarPhaseSensorBlock::new, ItemGroup.TAB_REDSTONE);
-    public static final RegistryObject<Block> LUNARIUM_BLOCK = registerBlock("lunarium_block", LunariumBlock::new, ItemGroup.TAB_BUILDING_BLOCKS);
+    public static final RegistryObject<Block> MIDNIGHT_STEEL_BLOCK = registerBlock("midnight_steel_block", LunariumBlock::new, ItemGroup.TAB_BUILDING_BLOCKS);
 
 
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> blockSupplier, ItemGroup itemGroup) {
         RegistryObject<T> blockRegistryObject = BLOCKS.register(name, blockSupplier);
         ApocalypseItems.ITEMS.register(name, () -> new BlockItem(blockRegistryObject.get(), new Item.Properties().tab(itemGroup)));
         return blockRegistryObject;
+    }
+
+    public static void onMissingMappings(RegistryEvent.MissingMappings<Block> event) {
+        /*
+        ImmutableList<RegistryEvent.MissingMappings.Mapping<Block>> mappings = event.getAllMappings();
+
+        for (RegistryEvent.MissingMappings.Mapping<Block> mapping : mappings) {
+
+        }
+
+         */
     }
 }
