@@ -11,7 +11,7 @@ issueTrackerURL="https://github.com/Sarinsa/Apocalypse-Rebooted/issues"
     logoFile="logo.png"
     credits="Sarinsa (Maintenance and porting), Frenderman (Artwork), Evo (Artwork), SoyTutta (Artwork)"
     authors="FatherToast (Original author and brainstormer)"
-    description="The longer you stay in the world, the more powerful the monsters get. The rain hurts you, thunderstorms causes strange things to happen, and full moon nights empowers monsters and summons deadly foes that will do anything in their power to hunt you down. Good luck!"
+    description="The longer you stay in the world, the more powerful the monsters get. It may start raining acid, thunderstorms causes strange things to happen, and full moon nights empowers monsters and summons deadly foes that will do anything in their power to hunt you down. Good luck!"
 
 [[dependencies.apocalypse]]
     modId="forge"

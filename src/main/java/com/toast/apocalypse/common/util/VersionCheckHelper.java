@@ -49,7 +49,7 @@ public class VersionCheckHelper {
         String[] s = version.toString().split("-");
 
         // This shouldn't really happen; indicates malformed version name
-        if (s.length == 0 || s.length > 2) {
+        if (s.length == 0 || s.length > 3) {
             return PREFIX + " " + TextFormatting.YELLOW + "New version available: " + version;
         }
         String versionState = s[1];

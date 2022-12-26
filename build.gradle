@@ -1,5 +1,5 @@
-import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 
 buildscript {
     repositories {
@@ -153,7 +153,6 @@ task apiJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
-// G
 task updateVersionCheck {
     try {
         File jsonFile = file('version_check.json')
