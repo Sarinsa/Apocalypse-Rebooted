@@ -22,5 +22,6 @@
 - Full moon ghasts now try spawning in the air in dimensions with no ceiling to avoid getting stuck
 - Creepers spawning with potion buffs from Apocalypse will no longer create lingering clouds granting "infinite" buffs
 - Made the Ghost and Grump's movement a bit more sluggish
+- Made the difficulty text in the HUD translatable
 
 - WIP Ghost freezing - Not implemented in any meaningful way
