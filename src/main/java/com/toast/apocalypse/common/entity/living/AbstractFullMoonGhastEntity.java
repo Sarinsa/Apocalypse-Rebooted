@@ -126,6 +126,22 @@ public abstract class AbstractFullMoonGhastEntity extends GhastEntity implements
         }
     }
 
+    protected boolean canReachDist(double x, double y, double z, int dist) {
+        Vector3d vector3d = new Vector3d(x - getX(), y - getY(), z - getZ());
+        vector3d = vector3d.normalize();
+
+        AxisAlignedBB axisalignedbb = getBoundingBox().inflate(0.5F);
+
+        for (int i = 0; i < dist; i++) {
+            axisalignedbb = axisalignedbb.move(vector3d);
+
+            if (!level.noCollision(this, axisalignedbb)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** Slightly modified version of the ghast's movement controller */
     protected static class MoveHelperController extends MovementController {
 

@@ -314,10 +314,12 @@ public final class FullMoonEvent extends AbstractEvent {
                     // We check for collisions around the entity and a bit above if we are dealing with a flying
                     // entity, so we can spawn it in the air a bit above ground to help prevent them getting stuck in the ground.
                     if (isFlyingType(entityType)) {
+                        pos = pos.above(20).mutable();
+
                         if (world.noCollision(entityType.getAABB((double) pos.getX() + 0.5D, pos.getY(), (double) pos.getZ() + 0.5D)
                                 .inflate(0.0D, 2.0D, 0.5D)
                                 .move(0.0D, 2.0D, 0.0D))) {
-                            spawnPos = pos.above(2).immutable();
+                            spawnPos = pos.immutable();
                             break;
                         }
                     }

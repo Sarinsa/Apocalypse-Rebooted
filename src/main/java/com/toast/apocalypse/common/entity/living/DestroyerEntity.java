@@ -20,6 +20,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.AbstractFireballEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -41,14 +44,19 @@ import java.util.Random;
 
 /**
  * This is a full moon mob similar to a ghast, though it has unlimited aggro range ignoring line of sight and
- * its fireballs can destroy anything within a small area.
+ * its fireballs can potentially destroy any type of block.<br>
+ * <br>
+ * In addition to the above, Destroyers can also attempt to destroy their target player's
+ * respawn point, forcing the player to confront it.
  */
 public class DestroyerEntity extends AbstractFullMoonGhastEntity {
 
+    public static final DataParameter<Boolean> ATTACKED_BY_PT = EntityDataManager.defineId(DestroyerEntity.class, DataSerializers.BOOLEAN);
     protected boolean isTargetingSpawnPoint = false;
 
     public DestroyerEntity(EntityType<? extends GhastEntity> entityType, World world) {
         super(entityType, world);
+        moveControl = new MoveHelperController(this);
         this.xpReward = 5;
     }
 
@@ -64,6 +72,12 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
     }
 
     @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        entityData.define(ATTACKED_BY_PT, false);
+    }
+
+    @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new DestroySpawnPointGoal<>(this));
         this.goalSelector.addGoal(1, new DestroyerEntity.FireballAttackGoal(this));
@@ -72,6 +86,15 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
         this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IMob.class));
         this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
         this.targetSelector.addGoal(2, new DestroyerNearestAttackableTargetGoal<>(this, PlayerEntity.class));
+    }
+
+    /**
+     * @return True if this Destroyer at any point
+     * has been attacked by their siege target player
+     * since it spawned.
+     */
+    public boolean attackedBySiegeTarget() {
+        return entityData.get(ATTACKED_BY_PT);
     }
 
     @Override
@@ -93,6 +116,17 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
         if (this.isInvulnerableTo(damageSource)) {
             return false;
         }
+
+        if (damageSource.getEntity() instanceof PlayerEntity) {
+            PlayerEntity player = (PlayerEntity) damageSource.getEntity();
+
+            // If attacked by siege target player, notify the Destroyer, so it
+            // focuses on the player rather than their respawn point.
+            if (getPlayerTargetUUID() != null && getPlayerTargetUUID() == player.getUUID()) {
+                entityData.set(ATTACKED_BY_PT, true);
+            }
+        }
+
         // Prevent instant fireball death and return to sender advancement
         else if (damageSource.getDirectEntity() instanceof AbstractFireballEntity) {
             // Prevent the destroyer from damaging itself
@@ -128,6 +162,10 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
             this.explosionPower = 0;
         }
         return data;
+    }
+
+    private boolean withinFiringRange(Vector3d vector3d) {
+        return horizontalDistanceToSqr(vector3d) < 4096.0D;
     }
 
     private static class DestroyerNearestAttackableTargetGoal<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {
@@ -171,7 +209,7 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
         public void tick() {
             LivingEntity target = destroyer.getTarget();
 
-            if (destroyer.horizontalDistanceToSqr(target) < 4096.0D && destroyer.canSee(target)) {
+            if (destroyer.withinFiringRange(target.position()) && destroyer.canSee(target)) {
                 World world = destroyer.level;
                 ++chargeTime;
                 if (chargeTime == 10 && !destroyer.isSilent()) {
@@ -207,20 +245,20 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
 
         public RandomOrRelativeToTargetFlyGoal(DestroyerEntity destroyer) {
             this.destroyer = destroyer;
-            this.setFlags(EnumSet.of(Goal.Flag.MOVE));
+            setFlags(EnumSet.of(Goal.Flag.MOVE));
         }
 
         @Override
         public boolean canUse() {
-            MovementController controller = this.destroyer.getMoveControl();
+            MovementController controller = destroyer.getMoveControl();
 
             if (!controller.hasWanted()) {
                 return true;
             }
             else {
-                double x = controller.getWantedX() - this.destroyer.getX();
-                double y = controller.getWantedY() - this.destroyer.getY();
-                double z = controller.getWantedZ() - this.destroyer.getZ();
+                double x = controller.getWantedX() - destroyer.getX();
+                double y = controller.getWantedY() - destroyer.getY();
+                double z = controller.getWantedZ() - destroyer.getZ();
                 double d3 = x * x + y * y + z * z;
                 return d3 < 1.0D || d3 > 3600.0D;
             }
@@ -232,30 +270,57 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
         }
 
         private void setRandomWantedPosition() {
-            Random random = this.destroyer.getRandom();
-            double x = this.destroyer.getX() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
-            double y = this.destroyer.getY() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 10.0F);
-            double z = this.destroyer.getZ() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            Random random = destroyer.getRandom();
+            double x = destroyer.getX() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            double y = destroyer.getY() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 10.0F);
+            double z = destroyer.getZ() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
             this.destroyer.getMoveControl().setWantedPosition(x, y, z, 1.0D);
         }
 
         @Override
         public void start() {
-            MovementController controller = this.destroyer.getMoveControl();
+            MovementController controller = destroyer.getMoveControl();
 
-            if (this.destroyer.getTarget() != null) {
-                LivingEntity target = this.destroyer.getTarget();
-                double distanceToTarget = this.destroyer.distanceToSqr(target);
+            if (destroyer.getTarget() != null) {
+                Optional<Vector3d> respawnPos = Optional.empty();
 
-                if (distanceToTarget > maxDistanceBeforeFollow) {
-                    controller.setWantedPosition(target.getX(), target.getY() + 10.0D, target.getZ(), 1.0D);
+                if (ApocalypseCommonConfig.COMMON.getDestroyerTargetRespawnPos() && destroyer.getTarget() instanceof ServerPlayerEntity && !destroyer.attackedBySiegeTarget()) {
+                    ServerPlayerEntity player = (ServerPlayerEntity) destroyer.getTarget();
+
+                    if (destroyer.getPlayerTargetUUID() != null && destroyer.getPlayerTargetUUID() == player.getUUID()) {
+                        BlockPos pos = player.getRespawnPosition();
+
+                        if (isPlayerSpawnValid(pos, destroyer.level)) {
+                            double x = pos.getX();
+                            double y = pos.getY() + 10.0D;
+                            double z = pos.getZ();
+
+                            if (destroyer.canReachDist(x, y, z, 10)) {
+                                respawnPos = Optional.of(new Vector3d(x, y, z));
+                            }
+                        }
+                    }
+                }
+                LivingEntity target = destroyer.getTarget();
+                double distanceToTarget = destroyer.distanceToSqr(target);
+
+                if (respawnPos.isPresent()) {
+                    Vector3d vec3d = respawnPos.get();
+
+                    if (!destroyer.withinFiringRange(vec3d))
+                        controller.setWantedPosition(vec3d.x, vec3d.y, vec3d.z, 1.0D);
                 }
                 else {
-                    this.setRandomWantedPosition();
+                    if (distanceToTarget > maxDistanceBeforeFollow) {
+                        controller.setWantedPosition(target.getX(), target.getY() + 10.0D, target.getZ(), 1.0D);
+                    }
+                    else {
+                        setRandomWantedPosition();
+                    }
                 }
             }
             else {
-                this.setRandomWantedPosition();
+                setRandomWantedPosition();
             }
         }
     }
@@ -276,7 +341,7 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
             if (!ApocalypseCommonConfig.COMMON.getDestroyerTargetRespawnPos())
                 return false;
 
-            if (IFullMoonMob.getEventTarget(destroyer) instanceof ServerPlayerEntity && destroyer.getLastHurtByMob() == null) {
+            if (IFullMoonMob.getEventTarget(destroyer) instanceof ServerPlayerEntity && !destroyer.attackedBySiegeTarget()) {
                 ServerPlayerEntity targetPlayer = (ServerPlayerEntity) IFullMoonMob.getEventTarget(destroyer);
 
                 if (targetPlayer.getRespawnPosition() != null && (targetPlayer.getRespawnDimension().equals(destroyer.level.dimension())) && isPlayerSpawnValid(targetPlayer.getRespawnPosition(), destroyer.level)) {
@@ -292,7 +357,7 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
             if (!ApocalypseCommonConfig.COMMON.getDestroyerTargetRespawnPos())
                 return false;
 
-            if (IFullMoonMob.getEventTarget(destroyer) instanceof ServerPlayerEntity && destroyer.getLastHurtByMob() == null) {
+            if (IFullMoonMob.getEventTarget(destroyer) instanceof ServerPlayerEntity && !destroyer.attackedBySiegeTarget()) {
                 ServerPlayerEntity targetPlayer = (ServerPlayerEntity) IFullMoonMob.getEventTarget(destroyer);
 
                 if (respawnPos != null && (targetPlayer.getRespawnDimension().equals(destroyer.level.dimension()))) {
@@ -369,7 +434,7 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
                 ServerPlayerEntity player = (ServerPlayerEntity) destroyer.getTarget();
                 double x, z;
 
-                if (player.getRespawnPosition() != null && (player.getRespawnDimension().equals(destroyer.level.dimension())) && isPlayerSpawnValid(player.getRespawnPosition(), destroyer.level)) {
+                if (!destroyer.attackedBySiegeTarget() && player.getRespawnPosition() != null && (player.getRespawnDimension().equals(destroyer.level.dimension())) && isPlayerSpawnValid(player.getRespawnPosition(), destroyer.level)) {
                     BlockPos respawnPos = player.getRespawnPosition();
                     x = respawnPos.getX() - destroyer.getX();
                     z = respawnPos.getZ() - destroyer.getZ();
@@ -395,7 +460,10 @@ public class DestroyerEntity extends AbstractFullMoonGhastEntity {
      * Checks if the player's respawn point is still valid
      * after possibly having been destroyed.
      */
-    private static boolean isPlayerSpawnValid(BlockPos pos, World world) {
+    private static boolean isPlayerSpawnValid(@Nullable BlockPos pos, World world) {
+        if (pos == null)
+            return false;
+
         Block block = world.getBlockState(pos).getBlock();
         return block instanceof BedBlock || block instanceof RespawnAnchorBlock;
     }
