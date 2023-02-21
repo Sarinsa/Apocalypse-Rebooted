@@ -5,11 +5,11 @@ import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import mcjty.theoneprobe.api.*;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 import java.util.function.Function;
 
@@ -17,6 +17,7 @@ public class TOPEntityInfoProvider implements IProbeInfoEntityProvider, Function
 
     private static final String ID = Apocalypse.MODID + "_player_difficulty";
 
+    @SuppressWarnings({"unused", "FieldCanBeLocal"})
     private IStyleManager styleManager;
 
     @Override
@@ -32,13 +33,13 @@ public class TOPEntityInfoProvider implements IProbeInfoEntityProvider, Function
     }
 
     @Override
-    public void addProbeEntityInfo(ProbeMode probeMode, IProbeInfo iProbeInfo, PlayerEntity playerEntity, World world, Entity entity, IProbeHitEntityData iProbeHitEntityData) {
-        if (entity instanceof ServerPlayerEntity) {
+    public void addProbeEntityInfo(ProbeMode probeMode, IProbeInfo iProbeInfo, Player playerEntity, Level level, Entity entity, IProbeHitEntityData iProbeHitEntityData) {
+        if (entity instanceof ServerPlayer) {
             if (ApocalypseCommonConfig.COMMON.requireExtendedProbe() && probeMode != ProbeMode.EXTENDED)
                 return;
 
-            long difficulty = CapabilityHelper.getPlayerDifficulty((ServerPlayerEntity) entity);
-            iProbeInfo.text(CompoundText.createLabelInfo(new TranslationTextComponent(References.DIFFICULTY).getString(), formatDifficulty(difficulty)));
+            long difficulty = CapabilityHelper.getPlayerDifficulty((ServerPlayer) entity);
+            iProbeInfo.text(CompoundText.createLabelInfo(Component.translatable(References.DIFFICULTY).getString(), formatDifficulty(difficulty)));
         }
     }
 

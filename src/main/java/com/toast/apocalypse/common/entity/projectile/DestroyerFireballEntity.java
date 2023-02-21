@@ -2,31 +2,33 @@ package com.toast.apocalypse.common.entity.projectile;
 
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
-import com.toast.apocalypse.common.entity.living.DestroyerEntity;
-import com.toast.apocalypse.common.misc.DestroyerExplosionContext;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.projectile.AbstractFireballEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.World;
+import com.toast.apocalypse.common.entity.living.Destroyer;
+import com.toast.apocalypse.common.misc.DestroyerExplosionCalculator;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Fireball;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.network.NetworkHooks;
 
 /**
  * This is the type of fireball shot by destroyers. It is capable of destroying any block (except bedrock).
  */
-public class DestroyerFireballEntity extends AbstractFireballEntity {
+public class DestroyerFireballEntity extends Fireball {
 
     /** The explosion power for this fireball */
     private int explosionPower = 1;
@@ -34,12 +36,12 @@ public class DestroyerFireballEntity extends AbstractFireballEntity {
      *  This makes it harder to damage the destroyer with it's own fireball. */
     private int fuseTime = -1;
 
-    public DestroyerFireballEntity(EntityType<? extends AbstractFireballEntity> entityType, World world) {
-        super(entityType, world);
+    public DestroyerFireballEntity(EntityType<? extends Fireball> entityType, Level level) {
+        super(entityType, level);
     }
 
-    public DestroyerFireballEntity(World world, DestroyerEntity destroyer, double x, double y, double z) {
-        super(ApocalypseEntities.DESTROYER_FIREBALL.get(), destroyer, x, y, z, world);
+    public DestroyerFireballEntity(Level level, Destroyer destroyer, double x, double y, double z) {
+        super(ApocalypseEntities.DESTROYER_FIREBALL.get(), destroyer, x, y, z, level);
         this.explosionPower = destroyer.getExplosionPower();
     }
 
@@ -47,21 +49,20 @@ public class DestroyerFireballEntity extends AbstractFireballEntity {
      * Helper method for creating the destroyer
      * explosion that can destroy any type of block.
      */
-    public static void destroyerExplosion(World world, Entity entity, DamageSource damageSource, double x, double y, double z, float explosionPower) {
-        Explosion.Mode mode = ForgeEventFactory.getMobGriefingEvent(world, entity) ? Explosion.Mode.DESTROY : Explosion.Mode.NONE;
-        world.explode(entity, damageSource, new DestroyerExplosionContext(), x, y, z, explosionPower, false, mode);
+    public static void destroyerExplosion(Level level, Entity entity, DamageSource damageSource, double x, double y, double z, float explosionPower) {
+        Explosion.BlockInteraction mode = ForgeEventFactory.getMobGriefingEvent(level, entity) ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE;
+        level.explode(entity, damageSource, new DestroyerExplosionCalculator(), x, y, z, explosionPower, false, mode);
     }
 
     @Override
-    protected void onHit(RayTraceResult result) {
-        if (result.getType() == RayTraceResult.Type.ENTITY) {
-            EntityRayTraceResult entityResult = (EntityRayTraceResult) result;
+    protected void onHit(HitResult result) {
+        if (result.getType() == HitResult.Type.ENTITY) {
+            EntityHitResult entityResult = (EntityHitResult) result;
             Entity entity = entityResult.getEntity();
-            DamageSource directImpact = DamageSource.fireball(this, this.getOwner());
+            DamageSource directImpact = DamageSource.fireball(this,getOwner());
             entity.hurt(directImpact, 4.0F);
 
-            if (entity instanceof LivingEntity) {
-                LivingEntity livingEntity = (LivingEntity) entity;
+            if (entity instanceof LivingEntity livingEntity) {
                 boolean damageBlocked = livingEntity.isDamageSourceBlocked(directImpact);
                 final int armorDamage = ApocalypseCommonConfig.COMMON.getDestroyerEquipmentDamage();
 
@@ -72,9 +73,7 @@ public class DestroyerFireballEntity extends AbstractFireballEntity {
                     }
                     // Deal heavy damage to armor, if not blocking
                     else {
-                        if (livingEntity instanceof ServerPlayerEntity) {
-                            ServerPlayerEntity player = (ServerPlayerEntity) livingEntity;
-
+                        if (livingEntity instanceof ServerPlayer player) {
                             for (ItemStack armorStack : livingEntity.getArmorSlots()) {
                                 armorStack.hurt(armorDamage, player.getRandom(), player);
                             }
@@ -90,9 +89,9 @@ public class DestroyerFireballEntity extends AbstractFireballEntity {
                 }
             }
         }
-        if (!this.level.isClientSide) {
-            destroyerExplosion(this.getCommandSenderWorld(), this, DamageSource.fireball(this, this.getOwner()), this.getX(), this.getY(), this.getZ(), this.explosionPower);
-            this.remove();
+        if (!level.isClientSide) {
+            destroyerExplosion(getCommandSenderWorld(), this, DamageSource.fireball(this, getOwner()), getX(), getY(), getZ(), explosionPower);
+            discard();
         }
     }
 
@@ -100,56 +99,56 @@ public class DestroyerFireballEntity extends AbstractFireballEntity {
     public void tick() {
         super.tick();
 
-        if (this.fuseTime >= 0 && --this.fuseTime < 0) {
+        if (fuseTime >= 0 && --fuseTime < 0) {
             // Could have called onHit() here with a miss
             // BlockRayTraceResult, but just in case some other mod
             // wants to use the dummy info that would be parsed, lets not.
             // Did that explanation make sense? Probably not.
-            if (!this.level.isClientSide) {
-                destroyerExplosion(this.getCommandSenderWorld(), this, DamageSource.fireball(this, this.getOwner()), this.getX(), this.getY(), this.getZ(), this.explosionPower);
-                this.remove();
+            if (!level.isClientSide) {
+                destroyerExplosion(getCommandSenderWorld(), this, DamageSource.fireball(this, getOwner()), getX(), getY(), getZ(), explosionPower);
+                discard();
             }
         }
     }
 
     @Override
     public boolean hurt(DamageSource damageSource, float damage) {
-        if (this.isInvulnerableTo(damageSource))
+        if (isInvulnerableTo(damageSource))
             return false;
 
-        this.markHurt();
+        markHurt();
 
-        if (this.fuseTime < 0 && damageSource.getEntity() != null) {
+        if (fuseTime < 0 && damageSource.getEntity() != null) {
             // Reflect fireball and set fuse time
             Entity entity = damageSource.getEntity();
-            Vector3d vec = entity.getLookAngle();
-            entity.getCommandSenderWorld().playSound(null, this.blockPosition(), SoundEvents.TNT_PRIMED, SoundCategory.NEUTRAL, 0.8F, 1.0F);
-            this.fuseTime = 10;
-            this.setDeltaMovement(vec);
-            this.xPower = vec.x * 0.1D;
-            this.yPower = vec.y * 0.1D;
-            this.zPower = vec.z * 0.1D;
-            this.setOwner(entity);
+            Vec3 vec = entity.getLookAngle();
+            entity.getCommandSenderWorld().playSound(null, blockPosition(), SoundEvents.TNT_PRIMED, SoundSource.NEUTRAL, 0.8F, 1.0F);
+            fuseTime = 10;
+            setDeltaMovement(vec);
+            xPower = vec.x * 0.1D;
+            yPower = vec.y * 0.1D;
+            zPower = vec.z * 0.1D;
+            setOwner(entity);
             return true;
         }
         return false;
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundNBT compoundNBT) {
-        super.addAdditionalSaveData(compoundNBT);
-        compoundNBT.putInt("ExplosionPower", this.explosionPower);
+    public void addAdditionalSaveData(CompoundTag compoundTag) {
+        super.addAdditionalSaveData(compoundTag);
+        compoundTag.putInt("ExplosionPower", explosionPower);
     }
 
-    public void readAdditionalSaveData(CompoundNBT compoundNBT) {
-        super.readAdditionalSaveData(compoundNBT);
-        if (compoundNBT.contains("ExplosionPower", 99)) {
-            this.explosionPower = compoundNBT.getInt("ExplosionPower");
-        }
+    public void readAdditionalSaveData(CompoundTag compoundTag) {
+        super.readAdditionalSaveData(compoundTag);
+
+        if (compoundTag.contains("ExplosionPower", Tag.TAG_ANY_NUMERIC))
+            explosionPower = compoundTag.getInt("ExplosionPower");
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 }

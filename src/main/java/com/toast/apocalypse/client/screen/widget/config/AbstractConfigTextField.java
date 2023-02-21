@@ -1,36 +1,36 @@
 package com.toast.apocalypse.client.screen.widget.config;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nullable;
 
-public abstract class AbstractConfigTextField<T> extends TextFieldWidget {
+public abstract class AbstractConfigTextField<T> extends EditBox {
 
-    private final TranslationTextComponent descriptor;
-    private final Button.ITooltip tooltip;
+    private final MutableComponent descriptor;
+    private final Button.OnTooltip tooltip;
     private T currentValue;
 
     protected final T defaultValue;
     protected final T minValue;
     protected final T maxValue;
 
-    public AbstractConfigTextField(FontRenderer fontRenderer, T defaultValue, T minValue, T maxValue, int x, int y, int width, int height, @Nullable TranslationTextComponent descriptor, @Nullable Button.ITooltip tooltip) {
-        super(fontRenderer, x, y, width, height, StringTextComponent.EMPTY);
+    public AbstractConfigTextField(Font fontRenderer, T defaultValue, T minValue, T maxValue, int x, int y, int width, int height, @Nullable MutableComponent descriptor, @Nullable Button.OnTooltip tooltip) {
+        super(fontRenderer, x, y, width, height, Component.empty());
         this.defaultValue = defaultValue;
         this.minValue = minValue;
         this.maxValue = maxValue;
         this.setValue(String.valueOf(defaultValue));
         this.currentValue = defaultValue;
-        this.descriptor = descriptor == null ? null : (TranslationTextComponent) descriptor.withStyle(TextFormatting.ITALIC).withStyle(TextFormatting.GRAY);
+        this.descriptor = descriptor == null ? null : descriptor.withStyle(ChatFormatting.ITALIC).withStyle(ChatFormatting.GRAY);
         this.tooltip = tooltip;
     }
 
@@ -39,23 +39,23 @@ public abstract class AbstractConfigTextField<T> extends TextFieldWidget {
     public void onValueChange(String value) {
         super.onValueChange(value);
 
-        if (this.checkIsValidValue(value)) {
-            this.setTextColor(TextFormatting.WHITE.getColor());
-            this.setCurrentValue(value);
+        if (checkIsValidValue(value)) {
+            setTextColor(ChatFormatting.WHITE.getColor());
+            setCurrentValue(value);
         }
         else {
-            this.setTextColor(TextFormatting.RED.getColor());
+            setTextColor(ChatFormatting.RED.getColor());
         }
     }
 
     @Override
     public boolean charTyped(char character, int upperCase) {
-        if (!this.canConsumeInput()) {
+        if (!canConsumeInput()) {
             return false;
         }
-        else if (this.isValidCharacter(this.getValue(), character, this.getCursorPosition())) {
-            if (this.isEditable() && this.getValue().length() < this.maxValueLength()) {
-                this.insertText(Character.toString(character));
+        else if (isValidCharacter(getValue(), character, getCursorPosition())) {
+            if (isEditable() && getValue().length() < maxValueLength()) {
+                insertText(Character.toString(character));
             }
             return true;
         }
@@ -67,11 +67,11 @@ public abstract class AbstractConfigTextField<T> extends TextFieldWidget {
     protected abstract boolean checkIsValidValue(String value);
 
     public final T getCurrentValue() {
-        return this.currentValue;
+        return currentValue;
     }
 
     public final void setCurrentValue(T value) {
-        this.currentValue = value;
+        currentValue = value;
     }
 
     protected abstract void setCurrentValue(String value);
@@ -81,21 +81,21 @@ public abstract class AbstractConfigTextField<T> extends TextFieldWidget {
     protected abstract int maxValueLength();
 
     @Nullable
-    public ITextComponent getDescriptor() {
-        return this.descriptor;
+    public Component getDescriptor() {
+        return descriptor;
     }
 
     @Nullable
-    public Button.ITooltip getTooltip() {
-        return this.tooltip;
+    public Button.OnTooltip getTooltip() {
+        return tooltip;
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int x, int y, float partialTick) {
-        super.render(matrixStack, x, y, partialTick);
+    public void render(PoseStack poseStack, int x, int y, float partialTick) {
+        super.render(poseStack, x, y, partialTick);
 
-        if (this.visible && this.descriptor != null) {
-            Screen.drawCenteredString(matrixStack, Minecraft.getInstance().font, this.descriptor, this.x + this.width / 2, this.y - (this.height / 2) - 3, -1);
+        if (visible && descriptor != null) {
+            Screen.drawCenteredString(poseStack, Minecraft.getInstance().font, descriptor, this.x + width / 2, this.y - (height / 2) - 3, -1);
         }
     }
 }

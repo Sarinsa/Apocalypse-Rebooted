@@ -4,11 +4,18 @@ import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.register.ApocalypseBlocks;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import net.minecraft.data.*;
-import net.minecraft.item.Items;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.IItemProvider;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.Tags;
+import net.minecraftforge.registries.ForgeRegistries;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -19,7 +26,7 @@ public class ApocalypseRecipeProvider extends RecipeProvider {
     }
 
     @Override
-    protected void buildShapelessRecipes(Consumer<IFinishedRecipe> consumer) {
+    protected void buildCraftingRecipes(Consumer<FinishedRecipe> consumer) {
 
         //----------------------- SHAPELESS ----------------------
         simpleShapelessRecipe(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get(), 1, consumer, ApocalypseItems.FRAGMENTED_SOUL.get());
@@ -35,7 +42,7 @@ public class ApocalypseRecipeProvider extends RecipeProvider {
                 .define('#', Tags.Items.GLASS)
                 .define('L', ApocalypseItems.MIDNIGHT_STEEL_INGOT.get())
                 .define('S', ItemTags.WOODEN_SLABS)
-                .unlockedBy("has_" + ApocalypseItems.MIDNIGHT_STEEL_INGOT.get().getRegistryName().getPath(), has(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()))
+                .unlockedBy("has_" + itemName(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()), has(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()))
                 .save(consumer);
 
         ShapedRecipeBuilder.shaped(ApocalypseItems.LUNAR_CLOCK.get(), 1)
@@ -44,7 +51,7 @@ public class ApocalypseRecipeProvider extends RecipeProvider {
                 .pattern(" # ")
                 .define('#', ApocalypseItems.MIDNIGHT_STEEL_INGOT.get())
                 .define('R', Tags.Items.DUSTS_REDSTONE)
-                .unlockedBy("has_" + ApocalypseItems.MIDNIGHT_STEEL_INGOT.get().getRegistryName().getPath(), has(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()))
+                .unlockedBy("has_" + itemName(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()), has(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()))
                 .save(consumer);
 
         ShapedRecipeBuilder.shaped(ApocalypseBlocks.MIDNIGHT_STEEL_BLOCK.get(), 1)
@@ -52,29 +59,36 @@ public class ApocalypseRecipeProvider extends RecipeProvider {
                 .pattern("###")
                 .pattern("###")
                 .define('#', ApocalypseItems.MIDNIGHT_STEEL_INGOT.get())
-                .unlockedBy("has_" + ApocalypseItems.MIDNIGHT_STEEL_INGOT.get().getRegistryName().getPath(), has(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()))
+                .unlockedBy("has_" + itemName(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()), has(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()))
                 .save(consumer);
     }
 
-    private void simpleShapelessRecipe(IItemProvider result, int count, Consumer<IFinishedRecipe> consumer, IItemProvider... ingredients) {
+    private void simpleShapelessRecipe(ItemLike result, int count, Consumer<FinishedRecipe> consumer, ItemLike... ingredients) {
         final ShapelessRecipeBuilder builder = ShapelessRecipeBuilder.shapeless(result, count);
 
-        for (IItemProvider ingredient : ingredients) {
+        for (ItemLike ingredient : ingredients) {
             builder.requires(ingredient);
-            String ingredientName = Objects.requireNonNull(ingredient.asItem().getRegistryName()).getPath();
+            String ingredientName = Objects.requireNonNull(itemName(ingredient));
             builder.unlockedBy("has_" + ingredientName, has(ingredient));
         }
         builder.save(consumer);
     }
 
-    private void simpleShapelessRecipe(IItemProvider result, int count, Consumer<IFinishedRecipe> consumer, String recipeName, IItemProvider... ingredients) {
+    private void simpleShapelessRecipe(ItemLike result, int count, Consumer<FinishedRecipe> consumer, String recipeName, ItemLike... ingredients) {
         final ShapelessRecipeBuilder builder = ShapelessRecipeBuilder.shapeless(result, count);
 
-        for (IItemProvider ingredient : ingredients) {
+        for (ItemLike ingredient : ingredients) {
             builder.requires(ingredient);
-            String ingredientName = Objects.requireNonNull(ingredient.asItem().getRegistryName()).getPath();
+            String ingredientName = Objects.requireNonNull(itemName(ingredient));
             builder.unlockedBy("has_" + ingredientName, has(ingredient));
         }
         builder.save(consumer, Apocalypse.resourceLoc(recipeName));
+    }
+
+    @Nullable
+    @SuppressWarnings("ConstantConditions")
+    private static String itemName(ItemLike itemLike) {
+        Item item = itemLike.asItem();
+        return ForgeRegistries.ITEMS.containsValue(item) ? ForgeRegistries.ITEMS.getKey(item).getPath() : null;
     }
 }

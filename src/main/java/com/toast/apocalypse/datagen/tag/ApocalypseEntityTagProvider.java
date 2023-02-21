@@ -4,7 +4,7 @@ import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.tag.ApocalypseEntityTags;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.EntityTypeTagsProvider;
+import net.minecraft.data.tags.EntityTypeTagsProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
 import javax.annotation.Nullable;

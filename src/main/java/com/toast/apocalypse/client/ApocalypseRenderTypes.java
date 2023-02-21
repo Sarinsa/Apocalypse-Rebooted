@@ -1,30 +1,29 @@
 package com.toast.apocalypse.client;
 
-import net.minecraft.client.renderer.RenderState;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class ApocalypseRenderTypes {
 
-    public static RenderState.AlphaState GHOST_ALPHA = new RenderState.AlphaState(0.001F);
 
     /**
      * This RenderType is the same as entityCutoutNoCull except
-     * with additive transparency. We use this for rendering the ghost entity.
+     * it can use whatever transparency state needed. We use this for rendering the ghost.
      *
      * @param resourceLocation The ResourceLocation pointing to a texture file.
      */
-    public static RenderType entityCutoutNoCullBlend(ResourceLocation resourceLocation, RenderState.AlphaState alphaState) {
-        RenderType.State state = RenderType.State.builder()
-                .setTextureState(new RenderState.TextureState(resourceLocation, false, false))
-                .setTransparencyState(RenderState.ADDITIVE_TRANSPARENCY)
-                .setDiffuseLightingState(RenderState.DIFFUSE_LIGHTING)
-                .setAlphaState(alphaState)
-                .setLightmapState(RenderState.LIGHTMAP)
-                .setOverlayState(RenderState.OVERLAY)
+    public static RenderType entityCutoutNoCullBlend(ResourceLocation resourceLocation, RenderStateShard.TransparencyStateShard transparencyState) {
+        RenderType.CompositeState state = RenderType.CompositeState.builder()
+                .setTextureState(new RenderStateShard.TextureStateShard(resourceLocation, false, false))
+                .setTransparencyState(transparencyState)
+                .setLightmapState(RenderStateShard.LightmapStateShard.LIGHTMAP)
+                .setOverlayState(RenderStateShard.OverlayStateShard.OVERLAY)
+                .setShaderState(RenderStateShard.ShaderStateShard.RENDERTYPE_ENTITY_ALPHA_SHADER)
                 .createCompositeState(true);
 
-        return RenderType.create("apocalypse_entity_cutout_no_cull_blend", DefaultVertexFormats.NEW_ENTITY, 7, 256, true, false, state);
+        return RenderType.create("apocalypse_entity_cutout_no_cull_blend", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, false, state);
     }
 }

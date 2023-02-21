@@ -1,9 +1,7 @@
 package com.toast.apocalypse.common.util;
 
+import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.StringUtils;
-
-import static net.minecraft.util.ResourceLocation.validPathChar;
-
 /**
  * Imagine if the side stripper didn't automatically
  * generate OnlyIn annotations on every single thing
@@ -30,7 +28,7 @@ public class RLHelper {
 
     private static boolean isValidPath(String string) {
         for(int i = 0; i < string.length(); ++i) {
-            if (!validPathChar(string.charAt(i))) {
+            if (!ResourceLocation.validPathChar(string.charAt(i))) {
                 return false;
             }
         }

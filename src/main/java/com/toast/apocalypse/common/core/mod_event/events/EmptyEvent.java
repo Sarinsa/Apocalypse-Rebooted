@@ -2,10 +2,11 @@ package com.toast.apocalypse.common.core.mod_event.events;
 
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 
 public final class EmptyEvent extends AbstractEvent {
 
@@ -14,31 +15,27 @@ public final class EmptyEvent extends AbstractEvent {
     }
 
     @Override
-    public void onStart(MinecraftServer server, ServerPlayerEntity player) {
+    public void onStart(MinecraftServer server, ServerPlayer player) {
 
     }
 
     @Override
-    public void update(ServerWorld world, ServerPlayerEntity player, PlayerDifficultyManager difficultyManager) {
+    public void update(ServerLevel level, ServerPlayer player, PlayerDifficultyManager difficultyManager) {
 
     }
 
     @Override
-    public void onEnd(MinecraftServer server, ServerPlayerEntity player) {
+    public void onEnd(MinecraftServer server, ServerPlayer player) {
 
     }
 
     @Override
-    public void stop(ServerWorld world) {
+    public void stop(ServerLevel level) {
 
     }
 
     @Override
-    public void writeAdditional(CompoundNBT data) {
-    }
-
-    @Override
-    public void read(CompoundNBT data, ServerPlayerEntity player, ServerWorld world)  {
+    public void writeAdditional(CompoundTag data) {
 
     }
 }

@@ -7,31 +7,32 @@ import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
 import com.toast.apocalypse.common.util.ApocalypseEventFactory;
 import com.toast.apocalypse.common.util.MobHelper;
-import net.minecraft.entity.*;
-import net.minecraft.entity.ai.attributes.AttributeModifierMap;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.ai.controller.MovementController;
-import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.goal.NearestAttackableTargetGoal;
-import net.minecraft.entity.monster.GhastEntity;
-import net.minecraft.entity.monster.IMob;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.IServerWorld;
-import net.minecraft.world.World;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.control.MoveControl;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.monster.Ghast;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeMod;
-import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -45,39 +46,39 @@ import java.util.function.BiPredicate;
  * clear line of sight. When it does have direct vision, it shoots much weaker fireballs that can be easily reflected
  * back at the seeker. The seeker also alerts nearby monsters of the player's whereabouts when in it's direct line of sight.
  */
-public class SeekerEntity extends AbstractFullMoonGhastEntity {
+public class Seeker extends AbstractFullMoonGhast {
 
-    private static final DataParameter<Boolean> ALERTING = EntityDataManager.defineId(SeekerEntity.class, DataSerializers.BOOLEAN);
-    private static final BiPredicate<MobEntity, SeekerEntity> ALERT_PREDICATE = (mob, seeker) -> !(mob instanceof IFullMoonMob) && mob instanceof IMob;
+    private static final EntityDataAccessor<Boolean> ALERTING = SynchedEntityData.defineId(Seeker.class, EntityDataSerializers.BOOLEAN);
+    private static final BiPredicate<Mob, Seeker> ALERT_PREDICATE = (mob, seeker) -> !(mob instanceof IFullMoonMob) && mob instanceof Enemy;
 
     /** The seeker's current target. Updated when the seeker alerts nearby mobs. */
     private LivingEntity currentTarget;
 
-    public SeekerEntity(EntityType<? extends GhastEntity> entityType, World world) {
-        super(entityType, world);
+    public Seeker(EntityType<? extends Ghast> entityType, Level level) {
+        super(entityType, level);
         this.xpReward = 5;
     }
 
-    public static AttributeModifierMap.MutableAttribute createSeekerAttributes() {
-        return MobEntity.createMobAttributes()
+    public static AttributeSupplier.Builder createSeekerAttributes() {
+        return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 12.0D)
                 .add(Attributes.FOLLOW_RANGE, Double.POSITIVE_INFINITY)
                 .add(ForgeMod.SWIM_SPEED.get(), 1.1D);
     }
 
-    public static boolean checkSeekerSpawnRules(EntityType<? extends SeekerEntity> entityType, IServerWorld world, SpawnReason spawnReason, BlockPos pos, Random random) {
-        return world.getDifficulty() != Difficulty.PEACEFUL && MobEntity.checkMobSpawnRules(entityType, world, spawnReason, pos, random);
+    public static boolean checkSeekerSpawnRules(EntityType<? extends Seeker> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
+        return level.getDifficulty() != Difficulty.PEACEFUL && Mob.checkMobSpawnRules(entityType, level, spawnType, pos, random);
     }
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(0, new SeekerEntity.AlertOtherMonstersGoal(this));
-        this.goalSelector.addGoal(1, new SeekerEntity.FireballAttackGoal(this));
+        this.goalSelector.addGoal(0, new Seeker.AlertOtherMonstersGoal(this));
+        this.goalSelector.addGoal(1, new Seeker.FireballAttackGoal(this));
         this.goalSelector.addGoal(2, new LookAroundGoal(this));
-        this.goalSelector.addGoal(2, new SeekerEntity.RandomOrRelativeToTargetFlyGoal(this));
-        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, IMob.class));
+        this.goalSelector.addGoal(2, new Seeker.RandomOrRelativeToTargetFlyGoal(this));
+        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, Enemy.class));
         this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
-        this.targetSelector.addGoal(2, new SeekerNearestAttackableTargetGoal<>(this, PlayerEntity.class));
+        this.targetSelector.addGoal(2, new SeekerNearestAttackableTargetGoal<>(this, Player.class));
     }
 
     @Override
@@ -99,10 +100,8 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         this.entityData.set(ALERTING, alerting);
     }
 
-    // Essentially just an inverted ghast.isCharging() check,
-    // but that method is client side only... so here we go!
     private boolean canAlert() {
-        return !this.entityData.get(DATA_IS_CHARGING);
+        return !isCharging();
     }
 
     /**
@@ -110,7 +109,7 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
      * is always "visible"
      */
     @Override
-    public boolean canSee(Entity entity) {
+    public boolean hasLineOfSight(Entity entity) {
         return true;
     }
 
@@ -141,11 +140,11 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
 
     @Override
     @Nullable
-    public ILivingEntityData finalizeSpawn(IServerWorld serverWorld, DifficultyInstance difficultyInstance, SpawnReason spawnReason, @Nullable ILivingEntityData data, @Nullable CompoundNBT compoundNBT) {
-        data = super.finalizeSpawn(serverWorld, difficultyInstance, spawnReason, data, compoundNBT);
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor serverLevel, DifficultyInstance difficultyInstance, MobSpawnType spawnType, @Nullable SpawnGroupData data, @Nullable CompoundTag compoundTag) {
+        data = super.finalizeSpawn(serverLevel, difficultyInstance, spawnType, data, compoundTag);
 
-        if (compoundNBT != null && compoundNBT.contains("ExplosionPower", Constants.NBT.TAG_ANY_NUMERIC)) {
-            this.explosionPower = compoundNBT.getInt("ExplosionPower");
+        if (compoundTag != null && compoundTag.contains("ExplosionPower", Tag.TAG_ANY_NUMERIC)) {
+            this.explosionPower = compoundTag.getInt("ExplosionPower");
         }
         else {
             this.explosionPower = 0;
@@ -155,12 +154,12 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
 
     private static class SeekerNearestAttackableTargetGoal<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {
 
-        public SeekerNearestAttackableTargetGoal(MobEntity entity, Class<T> targetClass) {
+        public SeekerNearestAttackableTargetGoal(Mob entity, Class<T> targetClass) {
             super(entity, targetClass, false, false);
         }
 
         /** Friggin' large bounding box */
-        protected AxisAlignedBB getTargetSearchArea(double followRange) {
+        protected AABB getTargetSearchArea(double followRange) {
             return this.mob.getBoundingBox().inflate(followRange, followRange, followRange);
         }
     }
@@ -168,10 +167,10 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
     /** Essentially a copy of the ghast's fireball goal */
     private static class FireballAttackGoal extends Goal {
 
-        private final SeekerEntity seeker;
+        private final Seeker seeker;
         public int chargeTime;
 
-        public FireballAttackGoal(SeekerEntity seeker) {
+        public FireballAttackGoal(Seeker seeker) {
             this.seeker = seeker;
         }
 
@@ -190,70 +189,70 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
 
         @Override
         public void start() {
-            this.chargeTime = 0;
+            chargeTime = 0;
         }
 
         @Override
         public void stop() {
-            this.seeker.setCharging(false);
+            seeker.setCharging(false);
         }
 
         @Override
         public void tick() {
-            LivingEntity target = this.seeker.getTarget();
+            LivingEntity target = seeker.getTarget();
 
-            if (this.seeker.horizontalDistanceToSqr(target) < 4096.0D) {
-                World world = this.seeker.level;
-                ++this.chargeTime;
-                if (this.chargeTime == 10 && !this.seeker.isSilent()) {
-                    world.levelEvent(null, 1015, this.seeker.blockPosition(), 0);
+            if (seeker.horizontalDistanceToSqr(target) < 4096.0D) {
+                Level level = seeker.level;
+                ++chargeTime;
+                if (chargeTime == 10 && !seeker.isSilent()) {
+                    level.levelEvent(null, 1015, seeker.blockPosition(), 0);
                 }
 
                 if (this.chargeTime == 20) {
-                    Vector3d vector3d = this.seeker.getViewVector(1.0F);
-                    double x = target.getX() - (this.seeker.getX() + vector3d.x * 4.0D);
-                    double y = target.getY(0.5D) - (0.5D + this.seeker.getY(0.5D));
-                    double z = target.getZ() - (this.seeker.getZ() + vector3d.z * 4.0D);
+                    Vec3 vec3 = seeker.getViewVector(1.0F);
+                    double x = target.getX() - (seeker.getX() + vec3.x * 4.0D);
+                    double y = target.getY(0.5D) - (0.5D + seeker.getY(0.5D));
+                    double z = target.getZ() - (seeker.getZ() + vec3.z * 4.0D);
 
                     if (!this.seeker.isSilent()) {
-                        world.levelEvent(null, 1016, this.seeker.blockPosition(), 0);
+                        level.levelEvent(null, 1016, seeker.blockPosition(), 0);
                     }
-                    boolean canSeeTarget = this.seeker.canSeeDirectly(target);
-                    SeekerFireballEntity fireball = new SeekerFireballEntity(world, this.seeker, canSeeTarget, x, y, z);
-                    fireball.setPos(this.seeker.getX() + vector3d.x * 4.0D, this.seeker.getY(0.5D) + 0.2D, fireball.getZ() + vector3d.z * 4.0D);
-                    world.addFreshEntity(fireball);
+                    boolean canSeeTarget = seeker.canSeeDirectly(target);
+                    SeekerFireballEntity fireball = new SeekerFireballEntity(level, seeker, canSeeTarget, x, y, z);
+                    fireball.setPos(seeker.getX() + vec3.x * 4.0D, seeker.getY(0.5D) + 0.2D, fireball.getZ() + vec3.z * 4.0D);
+                    level.addFreshEntity(fireball);
 
-                    this.chargeTime = -40;
+                    chargeTime = -40;
                 }
             }
-            else if (this.chargeTime > 0) {
-                --this.chargeTime;
+            else if (chargeTime > 0) {
+                --chargeTime;
             }
-            this.seeker.setCharging(this.chargeTime > 10);
+            seeker.setCharging(chargeTime > 10);
         }
     }
 
     static class RandomOrRelativeToTargetFlyGoal extends Goal {
 
         private static final double maxDistanceBeforeFollow = 3000.0D;
-        private final SeekerEntity seeker;
+        private final Seeker seeker;
 
-        public RandomOrRelativeToTargetFlyGoal(SeekerEntity seeker) {
+        public RandomOrRelativeToTargetFlyGoal(Seeker seeker) {
             this.seeker = seeker;
             this.setFlags(EnumSet.of(Goal.Flag.MOVE));
         }
 
         @Override
         public boolean canUse() {
-            MovementController controller = this.seeker.getMoveControl();
+            MoveControl moveControl = seeker.getMoveControl();
 
-            if (!controller.hasWanted()) {
+            if (!moveControl.hasWanted()) {
                 return true;
             }
             else {
-                double x = controller.getWantedX() - this.seeker.getX();
-                double y = controller.getWantedY() - this.seeker.getY();
-                double z = controller.getWantedZ() - this.seeker.getZ();
+                double x = moveControl.getWantedX() - seeker.getX();
+                double y = moveControl.getWantedY() - seeker.getY();
+                double z = moveControl.getWantedZ() - seeker.getZ();
                 double d3 = x * x + y * y + z * z;
                 return d3 < 1.0D || d3 > 3600.0D;
             }
@@ -265,7 +264,7 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
         }
 
         private void setRandomWantedPosition() {
-            Random random = this.seeker.getRandom();
+            RandomSource random = seeker.getRandom();
             double x = seeker.getX() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
             double y = seeker.getY() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 6.0F);
             double z = seeker.getZ() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
@@ -274,7 +273,7 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
 
         @Override
         public void start() {
-            if (this.seeker.getTarget() != null) {
+            if (seeker.getTarget() != null) {
                 LivingEntity target = seeker.getTarget();
                 double distanceToTarget = seeker.distanceToSqr(target);
 
@@ -295,10 +294,10 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
 
         private static final int maxAlertCount = 25;
 
-        private final SeekerEntity seeker;
+        private final Seeker seeker;
         private int timeAlerting;
 
-        public AlertOtherMonstersGoal(SeekerEntity seeker) {
+        public AlertOtherMonstersGoal(Seeker seeker) {
             this.seeker = seeker;
         }
 
@@ -325,8 +324,8 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
             timeAlerting = -60;
 
             if (target != null) {
-                AxisAlignedBB searchBox = target.getBoundingBox().inflate(60.0D, 30.0D, 60.0D);
-                List<MobEntity> toAlert = MobHelper.getLoadedEntitiesCapped(MobEntity.class, seeker.level, searchBox, (entity) -> ALERT_PREDICATE.test(entity, seeker), maxAlertCount);
+                AABB searchBox = target.getBoundingBox().inflate(60.0D, 30.0D, 60.0D);
+                List<? extends Mob> toAlert = MobHelper.getLoadedEntitiesCapped(Mob.class, seeker.level, searchBox, (entity) -> ALERT_PREDICATE.test(entity, seeker), maxAlertCount);
 
                 if (toAlert.isEmpty()) {
                     // No need to perform further checks if the list is empty
@@ -335,11 +334,11 @@ public class SeekerEntity extends AbstractFullMoonGhastEntity {
                 }
                 ApocalypseEventFactory.fireSeekerAlertEvent(seeker.level, seeker, toAlert, target);
 
-                for (MobEntity mob : toAlert) {
+                for (Mob mob : toAlert) {
                     if (mob.getTarget() != target) {
                         mob.setLastHurtByMob(null);
                         mob.setTarget(target);
-                        ModifiableAttributeInstance attributeInstance = mob.getAttribute(Attributes.FOLLOW_RANGE);
+                        AttributeInstance attributeInstance = mob.getAttribute(Attributes.FOLLOW_RANGE);
                         attributeInstance.setBaseValue(Math.max(attributeInstance.getValue(), 60.0D));
                     }
                 }

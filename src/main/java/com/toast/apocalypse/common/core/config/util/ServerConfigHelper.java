@@ -4,9 +4,9 @@ import com.electronwill.nightconfig.core.CommentedConfig;
 import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.config.ConfigTracker;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import java.lang.reflect.Field;
 import java.util.EnumMap;

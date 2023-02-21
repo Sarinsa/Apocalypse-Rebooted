@@ -1,13 +1,14 @@
 package com.toast.apocalypse.client.event;
 
-import com.toast.apocalypse.client.renderer.weather.AcidRainRenderHandler;
+import com.mojang.math.Vector3f;
+import com.toast.apocalypse.client.renderer.weather.AcidRainRenderHelper;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
-import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 
 import java.awt.*;
 
@@ -19,7 +20,7 @@ import static com.toast.apocalypse.common.core.config.ApocalypseClientConfig.Pos
 public final class ClientConfigReloadListener {
 
     @SubscribeEvent
-    public static void onConfigReload(ModConfig.Reloading event) {
+    public static void onConfigReload(ModConfigEvent.Reloading event) {
         ModConfig.Type type = event.getConfig().getType();
 
         if (type == ModConfig.Type.CLIENT) {
@@ -28,7 +29,7 @@ public final class ClientConfigReloadListener {
     }
 
     @SubscribeEvent
-    public static void onConfigLoad(ModConfig.Loading event) {
+    public static void onConfigLoad(ModConfigEvent.Loading event) {
         ModConfig.Type type = event.getConfig().getType();
 
         if (type == ModConfig.Type.CLIENT) {
@@ -51,7 +52,7 @@ public final class ClientConfigReloadListener {
         ClientEvents.X_OFFSET = ApocalypseClientConfig.CLIENT.getWorldConfigButtonXOffset();
         ClientEvents.Y_OFFSET = ApocalypseClientConfig.CLIENT.getWorldConfigButtonYOffset();
 
-        AcidRainRenderHandler.RAIN_COLOR = decodeRGB(ApocalypseClientConfig.CLIENT.getAcidRainColor());
+        AcidRainRenderHelper.RAIN_COLOR = decodeRGB(ApocalypseClientConfig.CLIENT.getAcidRainColor());
     }
 
     private static Vector3f decodeRGB(String hexColor) {

@@ -1,8 +1,8 @@
 package com.toast.apocalypse.common.capability.entity_marker;
 
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
-import net.minecraft.nbt.ByteNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.ByteTag;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
@@ -10,10 +10,9 @@ import net.minecraftforge.common.util.LazyOptional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-@SuppressWarnings("ConstantConditions")
-public class EntityMarkerCapabilityProvider implements ICapabilitySerializable<ByteNBT> {
+public class EntityMarkerProvider implements ICapabilitySerializable<ByteTag> {
 
-    private final IEntityMarkerCapability INSTANCE = ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY.getDefaultInstance();
+    public static final IEntityMarkerCapability INSTANCE = new EntityMarkerCapability();
     private final LazyOptional<IEntityMarkerCapability> optional = LazyOptional.of(() -> INSTANCE);
 
     @Nonnull
@@ -23,12 +22,12 @@ public class EntityMarkerCapabilityProvider implements ICapabilitySerializable<B
     }
 
     @Override
-    public ByteNBT serializeNBT() {
-        return (ByteNBT) ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY.getStorage().writeNBT(ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY, INSTANCE, null);
+    public ByteTag serializeNBT() {
+        return ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY.orEmpty(ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY, optional).orElse(INSTANCE).serializeNBT();
     }
 
     @Override
-    public void deserializeNBT(ByteNBT nbt) {
-        ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY.getStorage().readNBT(ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY, INSTANCE, null, nbt);
+    public void deserializeNBT(ByteTag nbt) {
+        ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY.orEmpty(ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY, optional).orElse(INSTANCE).deserializeNBT(nbt);
     }
 }

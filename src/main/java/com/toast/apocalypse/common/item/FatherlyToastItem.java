@@ -1,20 +1,18 @@
 package com.toast.apocalypse.common.item;
 
 import com.toast.apocalypse.common.util.References;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -25,14 +23,14 @@ public class FatherlyToastItem extends Item {
         super(new Item.Properties()
                 .fireResistant()
                 .food(ApocalypseFoods.FATHERLY_TOAST)
-                .tab(ItemGroup.TAB_FOOD)
+                .tab(CreativeModeTab.TAB_FOOD)
         );
     }
 
     @Override
-    public ItemStack finishUsingItem(ItemStack itemStack, World world, LivingEntity livingEntity) {
+    public ItemStack finishUsingItem(ItemStack itemStack, Level world, LivingEntity livingEntity) {
         if (this.isEdible()) {
-            if (livingEntity instanceof PlayerEntity && !((PlayerEntity) livingEntity).abilities.instabuild) {
+            if (livingEntity instanceof Player player && !player.getAbilities().instabuild) {
                 // Setting creative players on fire just makes the fire
                 // extinguish instantly, which is weird to look at.
                 livingEntity.setSecondsOnFire(1000);
@@ -45,12 +43,12 @@ public class FatherlyToastItem extends Item {
     @OnlyIn(Dist.CLIENT)
     @SuppressWarnings("ConstantConditions")
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
-        tooltip.add(new TranslationTextComponent(References.FATHERLY_TOAST_DESC).withStyle(TextFormatting.GRAY));
-        tooltip.add(new StringTextComponent(""));
+    public void appendHoverText(ItemStack itemStack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
+        tooltip.add(Component.translatable(References.FATHERLY_TOAST_DESC).withStyle(ChatFormatting.GRAY));
+        tooltip.add(Component.literal(""));
 
-        if (itemStack.hasTag() && itemStack.getTag().contains("ToastLevel", Constants.NBT.TAG_INT)) {
-            tooltip.add(new TranslationTextComponent(References.FATHERLY_TOAST_LEVEL, itemStack.getTag().getInt("ToastLevel")).withStyle(TextFormatting.GRAY));
+        if (itemStack.hasTag() && itemStack.getTag().contains("ToastLevel", Tag.TAG_INT)) {
+            tooltip.add(Component.translatable(References.FATHERLY_TOAST_LEVEL, itemStack.getTag().getInt("ToastLevel")).withStyle(ChatFormatting.GRAY));
         }
     }
 }

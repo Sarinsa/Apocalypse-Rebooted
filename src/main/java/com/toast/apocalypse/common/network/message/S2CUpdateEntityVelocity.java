@@ -1,10 +1,10 @@
 package com.toast.apocalypse.common.network.message;
 
 import com.toast.apocalypse.common.network.work.ClientWork;
-import net.minecraft.entity.Entity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -16,7 +16,7 @@ public class S2CUpdateEntityVelocity {
 
     public final int entityId;
 
-    public S2CUpdateEntityVelocity(Entity entity, Vector3d velocity) {
+    public S2CUpdateEntityVelocity(Entity entity, Vec3 velocity) {
         this(velocity.x, velocity.y, velocity.z, entity.getId());
     }
 
@@ -36,11 +36,11 @@ public class S2CUpdateEntityVelocity {
         context.setPacketHandled(true);
     }
 
-    public static S2CUpdateEntityVelocity decode(PacketBuffer buffer) {
+    public static S2CUpdateEntityVelocity decode(FriendlyByteBuf buffer) {
         return new S2CUpdateEntityVelocity(buffer.readDouble(), buffer.readDouble(), buffer.readDouble(), buffer.readInt());
     }
 
-    public static void encode(S2CUpdateEntityVelocity message, PacketBuffer buffer) {
+    public static void encode(S2CUpdateEntityVelocity message, FriendlyByteBuf buffer) {
         buffer.writeDouble(message.xMotion);
         buffer.writeDouble(message.yMotion);
         buffer.writeDouble(message.zMotion);

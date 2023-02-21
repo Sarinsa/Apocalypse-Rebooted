@@ -12,29 +12,31 @@ import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import com.toast.apocalypse.common.util.References;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.storage.WorldSavedData;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.storage.WorldData;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.world.SleepFinishedTimeEvent;
+import net.minecraftforge.event.level.SleepFinishedTimeEvent;
+import net.minecraftforge.event.server.ServerAboutToStartEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
-import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
-import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -56,7 +58,7 @@ public final class PlayerDifficultyManager {
     public static double MULTIPLAYER_DIFFICULTY_MULT;
     public static double SLEEP_PENALTY;
     public static double DIMENSION_PENALTY;
-    public static List<RegistryKey<World>> DIMENSION_PENALTY_LIST;
+    public static List<ResourceKey<Level>> DIMENSION_PENALTY_LIST;
 
     /** Number of ticks per update. */
     public static final int TICKS_PER_UPDATE = 5;
@@ -73,7 +75,7 @@ public final class PlayerDifficultyManager {
     private int timeAdvCheck = 0;
 
     /** Contains miscellaneous info about each world. */
-    private final Map<World, WorldInfo> worldInfo = new HashMap<>();
+    private final Map<Level, WorldInfo> worldInfo = new HashMap<>();
 
     /** A Map containing each online player's current event. */
     private final Map<UUID, AbstractEvent> playerEvents = new HashMap<>();
@@ -101,14 +103,14 @@ public final class PlayerDifficultyManager {
      * calculating mob attribute bonuses and equipment etc.<br>
      * <br>
      *
-     * @param world The World :)
+     * @param level The World :)
      * @param livingEntity The entity to use as reference point.<br>
      * <br>
      * @return The unscaled, raw difficulty of the nearest player.
      *         Defaults to 0 if no player can be found.
      */
-    public static long getNearestPlayerDifficulty(IWorld world, LivingEntity livingEntity) {
-        PlayerEntity player = world.getNearestPlayer(livingEntity, Double.MAX_VALUE);
+    public static long getNearestPlayerDifficulty(LevelAccessor level, LivingEntity livingEntity) {
+        Player player = level.getNearestPlayer(livingEntity, Double.MAX_VALUE);
 
         if (player != null) {
             return CapabilityHelper.getPlayerDifficulty(player);
@@ -117,24 +119,24 @@ public final class PlayerDifficultyManager {
     }
 
     public boolean isFullMoon() {
-        ServerWorld world =server.overworld();
+        ServerLevel world = server.overworld();
         return world.dimensionType().moonPhase(world.getDayTime()) == 0;
     }
 
     public boolean isFullMoonNight() {
-        ServerWorld world = server.overworld();
+        ServerLevel world = server.overworld();
         long dayTime = queryDayTime(world.getDayTime());
 
         return isFullMoon() && dayTime > 13000L && dayTime < 23500L;
     }
 
-    public boolean isRainingAcid(ServerWorld world) {
+    public boolean isRainingAcid(ServerLevel world) {
         return worldInfo.get(world).isRainingAcid();
     }
 
     /** Fetch the server instance and update integrated server mod server config. */
     @SubscribeEvent
-    public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
+    public void onServerAboutToStart(ServerAboutToStartEvent event) {
         server = event.getServer();
         if (!server.isDedicatedServer()) {
             ServerConfigHelper.updateModServerConfig();
@@ -142,15 +144,15 @@ public final class PlayerDifficultyManager {
     }
 
     @SubscribeEvent
-    public void onServerStarted(FMLServerStartedEvent event) {
+    public void onServerStarted(ServerStartedEvent event) {
         serverStopped = false;
         event.getServer().getAllLevels().forEach((world) -> worldInfo.put(world, new WorldInfo(world)));
     }
 
     /** Clean up references and save player event data */
     @SubscribeEvent
-    public void onServerStopping(FMLServerStoppingEvent event) {
-        for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
+    public void onServerStopping(ServerStoppingEvent event) {
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             saveEventData(player);
         }
         cleanup();
@@ -159,10 +161,10 @@ public final class PlayerDifficultyManager {
 
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        if (!event.getPlayer().getCommandSenderWorld().isClientSide) {
-            ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
-            ServerWorld overworld = server.overworld();
-            ServerWorld playerWorld = player.getLevel();
+        if (!event.getEntity().getCommandSenderWorld().isClientSide) {
+            ServerPlayer player = (ServerPlayer) event.getEntity();
+            ServerLevel overworld = server.overworld();
+            ServerLevel playerLevel = player.getLevel();
 
             NetworkHelper.sendUpdatePlayerDifficulty(player);
             NetworkHelper.sendUpdatePlayerDifficultyMult(player);
@@ -171,7 +173,7 @@ public final class PlayerDifficultyManager {
             //NetworkHelper.sendMobWikiIndexUpdate(player);
             NetworkHelper.sendMoonPhaseUpdate(player, overworld);
 
-            if (isRainingAcid(playerWorld))
+            if (isRainingAcid(playerLevel))
                 NetworkHelper.sendSimpleClientTaskRequest(player, S2CSimpleClientTask.SET_ACID_RAIN);
 
             loadEventData(player);
@@ -185,8 +187,8 @@ public final class PlayerDifficultyManager {
         // as it will have been taken care of already.
         if (serverStopped) return;
 
-        if (!event.getPlayer().getCommandSenderWorld().isClientSide) {
-            ServerPlayerEntity player = (ServerPlayerEntity) event.getPlayer();
+        if (!event.getEntity().getCommandSenderWorld().isClientSide) {
+            ServerPlayer player = (ServerPlayer) event.getEntity();
             saveEventData(player);
             playerEvents.get(player.getUUID()).stop(player.getLevel());
             playerEvents.remove(player.getUUID());
@@ -195,14 +197,13 @@ public final class PlayerDifficultyManager {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onSleepFinished(SleepFinishedTimeEvent event) {
-        if (event.getWorld() instanceof ServerWorld) {
-            ServerWorld world = (ServerWorld) event.getWorld();
+        if (event.getLevel() instanceof ServerLevel serverLevel) {
             long newTime = event.getNewTime();
-            long currentTime = world.getDayTime();
+            long currentTime = serverLevel.getDayTime();
             long timeSkipped = newTime - currentTime;
 
             if (timeSkipped > 20L) {
-                for (ServerPlayerEntity player : world.players()) {
+                for (ServerPlayer player : serverLevel.players()) {
                     long playerDifficulty = CapabilityHelper.getPlayerDifficulty(player);
                     long playerMaxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
                     double difficultyMult = CapabilityHelper.getPlayerDifficultyMult(player);
@@ -210,7 +211,7 @@ public final class PlayerDifficultyManager {
                     playerDifficulty += ((timeSkipped * SLEEP_PENALTY) * difficultyMult);
                     CapabilityHelper.setPlayerDifficulty(player, Math.min(playerDifficulty, playerMaxDifficulty));
 
-                    player.displayClientMessage(new TranslationTextComponent(References.SLEEP_PENALTY), true);
+                    player.displayClientMessage(Component.translatable(References.SLEEP_PENALTY), true);
                     player.playSound(SoundEvents.AMBIENT_CAVE, 1.0F, 0.8F);
                 }
             }
@@ -219,10 +220,8 @@ public final class PlayerDifficultyManager {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerDeath(LivingDeathEvent event) {
-        if (event.getEntityLiving() instanceof ServerPlayerEntity) {
-            ServerPlayerEntity player = (ServerPlayerEntity) event.getEntityLiving();
-
-            playerEvents.get(player.getUUID()).onPlayerDeath(player, (ServerWorld) player.level);
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            playerEvents.get(serverPlayer.getUUID()).onPlayerDeath(serverPlayer, (ServerLevel) serverPlayer.level);
         }
     }
 
@@ -244,22 +243,22 @@ public final class PlayerDifficultyManager {
                 timeUpdate = 0;
 
                 // Update player difficulty and event
-                for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
+                for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                     updatePlayerDifficulty(player);
                     updatePlayerEvent(player);
                 }
 
                 // Update world info
-                for (ServerWorld world : server.getAllLevels()) {
-                    WorldInfo info = worldInfo.get(world);
+                for (ServerLevel level : server.getAllLevels()) {
+                    WorldInfo info = worldInfo.get(level);
 
-                    if (world.isRaining()) {
+                    if (level.isRaining()) {
                         if (!info.justStartedRaining()) {
-                            info.setJustStartedRaining(true, world.random);
+                            info.setJustStartedRaining(true, level.random);
                         }
                     }
                     else {
-                        info.setJustStartedRaining(false, world.random);
+                        info.setJustStartedRaining(false, level.random);
                         info.setRainingAcid(false);
                     }
                 }
@@ -269,7 +268,7 @@ public final class PlayerDifficultyManager {
             if (++timeSave >= TICKS_PER_SAVE) {
                 timeSave = 0;
 
-                for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
+                for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                     saveEventData(player);
                     // Cheekily sneak in a moon phase update here, since
                     // it doesn't exactly need to happen often.
@@ -282,7 +281,7 @@ public final class PlayerDifficultyManager {
             if (++timeAdvCheck >= TICKS_PER_ADV_CHECK) {
                 timeAdvCheck = 0;
 
-                for (ServerPlayerEntity player : server.getPlayerList().getPlayers()) {
+                for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                     ApocalypseTriggers.PASSED_GRACE_PERIOD.trigger(player, CapabilityHelper.getPlayerDifficulty(player));
                 }
             }
@@ -293,7 +292,7 @@ public final class PlayerDifficultyManager {
     /**
      * Updates the player's difficulty.
      */
-    private void updatePlayerDifficulty(ServerPlayerEntity player) {
+    private void updatePlayerDifficulty(ServerPlayer player) {
         final int playerCount = server.getPlayerCount();
         final long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
         double difficultyMultiplier = CapabilityHelper.getPlayerDifficultyMult(player);
@@ -332,9 +331,9 @@ public final class PlayerDifficultyManager {
      * @param player The player to update event for.
      */
     @SuppressWarnings("ConstantConditions")
-    public void updatePlayerEvent(ServerPlayerEntity player) {
-        ServerWorld world = player.getLevel();
-        ServerWorld overworld = server.overworld();
+    public void updatePlayerEvent(ServerPlayer player) {
+        ServerLevel level = player.getLevel();
+        ServerLevel overworld = server.overworld();
         AbstractEvent currentEvent = getCurrentEvent(player);
 
         // This should never happen, and it would be super weird if it did
@@ -344,11 +343,11 @@ public final class PlayerDifficultyManager {
         EventType<?> eventType = currentEvent.getType();
 
         // Update current event
-        currentEvent.update(world, player, this);
+        currentEvent.update(level, player, this);
 
         if (CapabilityHelper.getPlayerDifficulty(player) > 0 && overworld.getGameTime() > 0L) {
             for (EventType<?> type : EventRegistry.EVENTS.values()) {
-                if (eventType != type && type.getStartPredicate().test(world, eventType, player, this) && type.getPriority() > currentEvent.getType().getPriority()) {
+                if (eventType != type && type.getStartPredicate().test(level, eventType, player, this) && type.getPriority() > currentEvent.getType().getPriority()) {
                     // Copy over event generation
                     int generation = currentEvent.getEventGeneration();
                     eventType = startEvent(player, currentEvent, type);
@@ -356,7 +355,7 @@ public final class PlayerDifficultyManager {
                     break;
                 }
             }
-            if (!eventType.getPersistPredicate().test(world, eventType, player, this)) {
+            if (!eventType.getPersistPredicate().test(level, eventType, player, this)) {
                 endEvent(player);
             }
         }
@@ -367,7 +366,7 @@ public final class PlayerDifficultyManager {
      * @param player The player to start the event for.
      * @param eventType The event type for the event to start.
      */
-    public EventType<?> startEvent(ServerPlayerEntity player, AbstractEvent currentEvent, @Nonnull EventType<?> eventType) {
+    public EventType<?> startEvent(ServerPlayer player, AbstractEvent currentEvent, @Nonnull EventType<?> eventType) {
         currentEvent.onEnd(server, player);
         AbstractEvent newEvent = eventType.createEvent();
         newEvent.onStart(server, player);
@@ -375,25 +374,25 @@ public final class PlayerDifficultyManager {
         saveEventData(player);
 
         if (eventType.getEventStartMessage() != null) {
-            player.displayClientMessage(new TranslationTextComponent(eventType.getEventStartMessage()), true);
+            player.displayClientMessage(Component.translatable(eventType.getEventStartMessage()), true);
         }
         return eventType;
     }
 
-    public int getEventId(ServerPlayerEntity player) {
+    public int getEventId(ServerPlayer player) {
         UUID uuid = player.getUUID();
         return playerEvents.containsKey(uuid) ? playerEvents.get(uuid).getType().getId() : -1;
     }
 
     // SHOULD not return null, but who knows
     @Nullable
-    public AbstractEvent getCurrentEvent(ServerPlayerEntity player) {
+    public AbstractEvent getCurrentEvent(ServerPlayer player) {
         UUID uuid = player.getUUID();
         return playerEvents.getOrDefault(uuid, null);
     }
 
     /** Ends the current active event, if any. */
-    public void endEvent(ServerPlayerEntity player) {
+    public void endEvent(ServerPlayer player) {
         UUID uuid = player.getUUID();
         playerEvents.get(uuid).onEnd(server, player);
         playerEvents.put(uuid, EventRegistry.NONE.createEvent());
@@ -412,46 +411,51 @@ public final class PlayerDifficultyManager {
     }
 
     /** Loads the given player's event data. */
-    public void loadEventData(ServerPlayerEntity player) {
+    public void loadEventData(ServerPlayer player) {
         try {
             AbstractEvent currentEvent = EventRegistry.NONE.createEvent();
-            CompoundNBT eventData = CapabilityHelper.getEventData(player);
+            CompoundTag eventData = CapabilityHelper.getEventData(player);
 
-            if (eventData != null && eventData.contains("EventId", Constants.NBT.TAG_INT)) {
+            if (eventData != null && eventData.contains("EventId", Tag.TAG_INT)) {
                 currentEvent = EventRegistry.getFromId(eventData.getInt("EventId")).createEvent();
                 currentEvent.read(eventData, player, player.getLevel());
             }
             playerEvents.put(player.getUUID(), currentEvent);
         }
         catch (Exception e) {
-            log(Level.ERROR, "Failed to read world save data for player " + player.getName().getString() + ". That shouldn't happen.");
+            logError("Failed to read world save data for player " + player.getName().getString() + ". That shouldn't happen.");
             e.printStackTrace();
         }
     }
 
     /** Saves the data of the player's current event. */
-    public void saveEventData(ServerPlayerEntity player) {
+    public void saveEventData(ServerPlayer player) {
         try {
             if (playerEvents.containsKey(player.getUUID())) {
                 AbstractEvent currentEvent = playerEvents.get(player.getUUID());
-                CompoundNBT eventData = new CompoundNBT();
+                CompoundTag eventData = new CompoundTag();
 
                 currentEvent.write(eventData);
                 CapabilityHelper.setEventData(player, eventData);
             }
             else {
-                log(Level.ERROR, "No event object found for player " + player.getName().getString() + ". Not good!");
+                logError("No event object found for player " + player.getName().getString() + ". Not good!");
             }
         }
         catch (Exception e) {
-            log(Level.ERROR, "Failed to write player event data for player " + player.getName().getString() + "! Not cool beans.");
+            logError("Failed to write player event data for player " + player.getName().getString() + "! Not cool beans.");
             e.printStackTrace();
         }
     }
 
     /** Helper method for logging. */
-    private static void log(Level level, String message) {
-        Apocalypse.LOGGER.log(level, "[{}] " + message, PlayerDifficultyManager.class.getSimpleName());
+    private static void logInfo(String message) {
+        Apocalypse.LOGGER.log(org.apache.logging.log4j.Level.INFO, "[{}] " + message, PlayerDifficultyManager.class.getSimpleName());
+    }
+
+    /** Helper method for logging. */
+    private static void logError(String message) {
+        Apocalypse.LOGGER.log(org.apache.logging.log4j.Level.ERROR, "[{}] " + message, PlayerDifficultyManager.class.getSimpleName());
     }
 
 
@@ -460,21 +464,22 @@ public final class PlayerDifficultyManager {
 
         protected static final String saveDataId = Apocalypse.resourceLoc("world_info").toString();
 
-        private final ServerWorld world;
+        private final ServerLevel level;
+        private final WorldInfoSavedData savedData;
 
         private boolean justStartedRaining;
         private boolean isRainingAcid;
 
 
-        private WorldInfo(ServerWorld world) {
-            this.world = world;
-            world.getDataStorage().computeIfAbsent(() -> new WorldInfoSavedData(this), saveDataId);
+        private WorldInfo(ServerLevel level) {
+            this.level = level;
+            this.savedData = level.getDataStorage().computeIfAbsent(this::load, this::create, saveDataId);
         }
 
         protected void setRainingAcid(boolean value) {
             isRainingAcid = value;
 
-            for (ServerPlayerEntity player : world.players()) {
+            for (ServerPlayer player : level.players()) {
                 NetworkHelper.sendSimpleClientTaskRequest(player, value ? S2CSimpleClientTask.SET_ACID_RAIN : S2CSimpleClientTask.REMOVE_ACID_RAIN);
             }
         }
@@ -487,31 +492,36 @@ public final class PlayerDifficultyManager {
             return justStartedRaining;
         }
 
-        public void setJustStartedRaining(boolean value, Random random) {
+        public void setJustStartedRaining(boolean value, RandomSource random) {
             justStartedRaining = value;
 
             if (value && random.nextDouble() <= ACID_RAIN_CHANCE)
                 setRainingAcid(true);
         }
 
-        protected static class WorldInfoSavedData extends WorldSavedData {
+        public WorldInfoSavedData load(CompoundTag compoundNBT) {
+            WorldInfoSavedData savedData = new WorldInfoSavedData(this);
+
+            if (compoundNBT.contains("RainingAcid", Tag.TAG_BYTE)) {
+                isRainingAcid = compoundNBT.getBoolean("RainingAcid");
+            }
+            return savedData;
+        }
+
+        public WorldInfoSavedData create() {
+            return new WorldInfoSavedData(this);
+        }
+
+        protected static class WorldInfoSavedData extends SavedData {
 
             private final WorldInfo worldInfo;
 
             public WorldInfoSavedData(WorldInfo worldInfo) {
-                super(saveDataId);
                 this.worldInfo = worldInfo;
             }
 
             @Override
-            public void load(CompoundNBT compoundNBT) {
-                if (compoundNBT.contains("RainingAcid", Constants.NBT.TAG_BYTE)) {
-                    worldInfo.isRainingAcid = compoundNBT.getBoolean("RainingAcid");
-                }
-            }
-
-            @Override
-            public CompoundNBT save(CompoundNBT compoundNBT) {
+            public CompoundTag save(CompoundTag compoundNBT) {
                 compoundNBT.putBoolean("RainingAcid", worldInfo.isRainingAcid);
                 return compoundNBT;
             }

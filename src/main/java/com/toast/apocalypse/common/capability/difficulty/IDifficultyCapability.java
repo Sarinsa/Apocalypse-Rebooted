@@ -1,6 +1,12 @@
 package com.toast.apocalypse.common.capability.difficulty;
 
-public interface IDifficultyCapability {
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraftforge.common.capabilities.AutoRegisterCapability;
+import net.minecraftforge.common.util.INBTSerializable;
+
+@AutoRegisterCapability
+public interface IDifficultyCapability extends INBTSerializable<CompoundTag> {
 
     void setDifficulty(long difficulty);
 

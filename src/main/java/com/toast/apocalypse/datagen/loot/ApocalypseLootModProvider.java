@@ -2,12 +2,13 @@ package com.toast.apocalypse.datagen.loot;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
-import com.toast.apocalypse.common.core.register.ApocalypseLootMods;
 import com.toast.apocalypse.common.loot_modifier.SimpleAddLootModifier;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.loot.conditions.ILootCondition;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraftforge.common.data.GlobalLootModifierProvider;
+
+import java.util.Arrays;
 
 public class ApocalypseLootModProvider extends GlobalLootModifierProvider {
 
@@ -17,18 +18,18 @@ public class ApocalypseLootModProvider extends GlobalLootModifierProvider {
 
     @Override
     protected void start() {
-        add("fatherly_toast", ApocalypseLootMods.SIMPLE_ADD_LOOT_MOD.get(), new SimpleAddLootModifier(
-                new ILootCondition[]{},
-                new ResourceLocation[] {
+        add("fatherly_toast", new SimpleAddLootModifier(
+                new LootItemCondition[]{},
+                ApocalypseItems.FATHERLY_TOAST.get(),
+                0.3D,
+                1,
+                6,
+                Arrays.asList(
                         new ResourceLocation("chests/simple_dungeon"),
                         new ResourceLocation("chests/desert_pyramid"),
                         new ResourceLocation("chests/jungle_temple"),
                         new ResourceLocation("chests/abandoned_mineshaft")
-                },
-                ApocalypseItems.FATHERLY_TOAST,
-                0.3D,
-                1,
-                6
-        ));
+                ))
+        );
     }
 }

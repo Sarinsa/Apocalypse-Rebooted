@@ -1,8 +1,8 @@
 package com.toast.apocalypse.common.network.message;
 
 import com.toast.apocalypse.common.network.work.ClientWork;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -23,11 +23,11 @@ public class S2CUpdateMobWikiIndexes {
         context.setPacketHandled(true);
     }
 
-    public static S2CUpdateMobWikiIndexes decode(PacketBuffer buffer) {
+    public static S2CUpdateMobWikiIndexes decode(FriendlyByteBuf buffer) {
         return new S2CUpdateMobWikiIndexes(buffer.readVarIntArray());
     }
 
-    public static void encode(S2CUpdateMobWikiIndexes message, PacketBuffer buffer) {
+    public static void encode(S2CUpdateMobWikiIndexes message, FriendlyByteBuf buffer) {
         buffer.writeVarIntArray(message.indexes);
     }
 }

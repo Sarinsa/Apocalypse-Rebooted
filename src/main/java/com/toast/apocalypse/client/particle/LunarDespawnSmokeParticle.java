@@ -1,20 +1,17 @@
 package com.toast.apocalypse.client.particle;
 
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 
-/**
- * Mostly a copy-paste of {@link net.minecraft.client.particle.CloudParticle}
- */
-public class LunarDespawnSmokeParticle extends SpriteTexturedParticle {
+public class LunarDespawnSmokeParticle extends TextureSheetParticle {
 
-    private final IAnimatedSprite sprites;
+    private final SpriteSet sprites;
 
-    public LunarDespawnSmokeParticle(ClientWorld world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, IAnimatedSprite animatedSprite) {
-        super(world, x, y, z, 0.0D, 0.0D, 0.0D);
+    public LunarDespawnSmokeParticle(ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, SpriteSet animatedSprite) {
+        super(level, x, y, z, 0.0D, 0.0D, 0.0D);
         this.sprites = animatedSprite;
         this.xd *= 0.1F;
         this.yd *= 0.1F;
@@ -34,31 +31,31 @@ public class LunarDespawnSmokeParticle extends SpriteTexturedParticle {
     }
 
     @Override
-    public IParticleRenderType getRenderType() {
-        return IParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
     }
 
     @Override
     public float getQuadSize(float partialTick) {
-        return this.quadSize * MathHelper.clamp(((float)this.age + partialTick) / (float)this.lifetime * 32.0F, 0.0F, 1.0F);
+        return this.quadSize * Mth.clamp(((float)this.age + partialTick) / (float)this.lifetime * 32.0F, 0.0F, 1.0F);
     }
 
     @Override
     public void tick() {
-        this.xo = this.x;
-        this.yo = this.y;
-        this.zo = this.z;
+        xo = x;
+        yo = y;
+        zo = z;
 
-        if (this.age++ >= this.lifetime) {
-            this.remove();
+        if (age++ >= lifetime) {
+            remove();
         }
         else {
-            this.setSpriteFromAge(this.sprites);
-            this.move(this.xd, this.yd, this.zd);
-            this.xd *= 0.96F;
-            this.yd *= 0.96F;
-            this.zd *= 0.96F;
-            PlayerEntity player = this.level.getNearestPlayer(this.x, this.y, this.z, 2.0D, false);
+            setSpriteFromAge(sprites);
+            move(xd, yd, zd);
+            xd *= 0.96F;
+            yd *= 0.96F;
+            zd *= 0.96F;
+            Player player = this.level.getNearestPlayer(this.x, this.y, this.z, 2.0D, false);
 
             if (player != null) {
                 double playerY = player.getY();
@@ -76,16 +73,17 @@ public class LunarDespawnSmokeParticle extends SpriteTexturedParticle {
         }
     }
 
-    public static class Factory implements IParticleFactory<BasicParticleType> {
+    public static class Factory implements ParticleProvider<SimpleParticleType> {
 
-        private final IAnimatedSprite sprites;
+        private final SpriteSet sprites;
 
-        public Factory(IAnimatedSprite animatedSprite) {
+        public Factory(SpriteSet animatedSprite) {
             this.sprites = animatedSprite;
         }
 
-        public Particle createParticle(BasicParticleType particleType, ClientWorld world, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-            return new LunarDespawnSmokeParticle(world, x, y, z, xSpeed, ySpeed, zSpeed, this.sprites);
+        @Override
+        public Particle createParticle(SimpleParticleType particleType, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+            return new LunarDespawnSmokeParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, this.sprites);
         }
     }
 }

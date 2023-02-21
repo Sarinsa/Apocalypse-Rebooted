@@ -1,14 +1,14 @@
 package com.toast.apocalypse.client.screen.widget.config;
 
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nullable;
 
 public class IntegerConfigTextField extends AbstractConfigTextField<Integer> {
 
-    public IntegerConfigTextField(FontRenderer fontRenderer, Integer defaultValue, Integer minValue, Integer maxValue, int x, int y, int width, int height, @Nullable TranslationTextComponent descriptor, @Nullable Button.ITooltip tooltip) {
+    public IntegerConfigTextField(Font fontRenderer, Integer defaultValue, Integer minValue, Integer maxValue, int x, int y, int width, int height, @Nullable MutableComponent descriptor, @Nullable Button.OnTooltip tooltip) {
         super(fontRenderer, defaultValue, minValue, maxValue, x, y, width, height, descriptor, tooltip);
     }
 

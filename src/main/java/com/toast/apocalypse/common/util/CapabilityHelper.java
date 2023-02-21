@@ -1,13 +1,18 @@
 package com.toast.apocalypse.common.util;
 
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
+import com.toast.apocalypse.common.capability.difficulty.DifficultyCapability;
+import com.toast.apocalypse.common.capability.difficulty.DifficultyProvider;
+import com.toast.apocalypse.common.capability.entity_marker.EntityMarkerProvider;
+import com.toast.apocalypse.common.capability.event_data.EventDataProvider;
 import com.toast.apocalypse.common.capability.mobwiki.IMobWikiCapability;
+import com.toast.apocalypse.common.capability.mobwiki.MobWikiProvider;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.network.NetworkHelper;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
 
@@ -21,45 +26,45 @@ public class CapabilityHelper {
     //
     // DIFFICULTY
     //
-    public static void setPlayerDifficulty(@Nonnull ServerPlayerEntity player, long difficulty) {
-        player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(ApocalypseCapabilities.DIFFICULTY_CAPABILITY.getDefaultInstance()).setDifficulty(difficulty);
+    public static void setPlayerDifficulty(@Nonnull ServerPlayer player, long difficulty) {
+        player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyProvider.INSTANCE).setDifficulty(difficulty);
         NetworkHelper.sendUpdatePlayerDifficulty(player, difficulty);
     }
 
-    public static long getPlayerDifficulty(@Nonnull PlayerEntity player) {
-        return player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(ApocalypseCapabilities.DIFFICULTY_CAPABILITY.getDefaultInstance()).getDifficulty();
+    public static long getPlayerDifficulty(@Nonnull Player player) {
+        return player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyProvider.INSTANCE).getDifficulty();
     }
 
-    public static void setMaxPlayerDifficulty(@Nonnull ServerPlayerEntity player, long maxDifficulty) {
-        player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(ApocalypseCapabilities.DIFFICULTY_CAPABILITY.getDefaultInstance()).setMaxDifficulty(maxDifficulty);
+    public static void setMaxPlayerDifficulty(@Nonnull ServerPlayer player, long maxDifficulty) {
+        player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyProvider.INSTANCE).setMaxDifficulty(maxDifficulty);
         NetworkHelper.sendUpdatePlayerMaxDifficulty(player, maxDifficulty);
     }
 
-    public static long getMaxPlayerDifficulty(@Nonnull PlayerEntity player) {
-        return player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(ApocalypseCapabilities.DIFFICULTY_CAPABILITY.getDefaultInstance()).getMaxDifficulty();
+    public static long getMaxPlayerDifficulty(@Nonnull Player player) {
+        return player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyProvider.INSTANCE).getMaxDifficulty();
     }
 
-    public static void setPlayerDifficultyMult(@Nonnull ServerPlayerEntity player, double multiplier) {
-        player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(ApocalypseCapabilities.DIFFICULTY_CAPABILITY.getDefaultInstance()).setDifficultyMult(multiplier);
+    public static void setPlayerDifficultyMult(@Nonnull ServerPlayer player, double multiplier) {
+        player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyProvider.INSTANCE).setDifficultyMult(multiplier);
         NetworkHelper.sendUpdatePlayerDifficultyMult(player, multiplier);
     }
 
-    public static double getPlayerDifficultyMult(@Nonnull PlayerEntity player) {
-        return player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(ApocalypseCapabilities.DIFFICULTY_CAPABILITY.getDefaultInstance()).getDifficultyMult();
+    public static double getPlayerDifficultyMult(@Nonnull Player player) {
+        return player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyProvider.INSTANCE).getDifficultyMult();
     }
 
     //
     // EVENT DATA
     //
-    public static void setEventData(@Nonnull ServerPlayerEntity player, CompoundNBT data) {
-        player.getCapability(ApocalypseCapabilities.EVENT_DATA_CAPABILITY).orElse(ApocalypseCapabilities.EVENT_DATA_CAPABILITY.getDefaultInstance()).setEventData(data);
+    public static void setEventData(@Nonnull ServerPlayer player, CompoundTag data) {
+        player.getCapability(ApocalypseCapabilities.EVENT_DATA_CAPABILITY).orElse(EventDataProvider.INSTANCE).setEventData(data);
     }
 
-    public static CompoundNBT getEventData(@Nonnull ServerPlayerEntity player) {
-        return player.getCapability(ApocalypseCapabilities.EVENT_DATA_CAPABILITY).orElse(ApocalypseCapabilities.EVENT_DATA_CAPABILITY.getDefaultInstance()).getEventData();
+    public static CompoundTag getEventData(@Nonnull ServerPlayer player) {
+        return player.getCapability(ApocalypseCapabilities.EVENT_DATA_CAPABILITY).orElse(EventDataProvider.INSTANCE).getEventData();
     }
 
-    public static int getEventId(@Nonnull ServerPlayerEntity player) {
+    public static int getEventId(@Nonnull ServerPlayer player) {
         return Apocalypse.INSTANCE.getDifficultyManager().getEventId(player);
     }
 
@@ -67,28 +72,28 @@ public class CapabilityHelper {
     // ENTITY INIT MARK
     //
     public static void markEntity(@Nonnull LivingEntity livingEntity) {
-        livingEntity.getCapability(ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY).orElse(ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY.getDefaultInstance()).setMarked(true);
+        livingEntity.getCapability(ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY).orElse(EntityMarkerProvider.INSTANCE).setMarked(true);
     }
 
     public static boolean isEntityMarked(@Nonnull LivingEntity livingEntity) {
-        return livingEntity.getCapability(ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY).orElse(ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY.getDefaultInstance()).getMarked();
+        return livingEntity.getCapability(ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY).orElse(EntityMarkerProvider.INSTANCE).getMarked();
     }
 
     //
     // MOB WIKI
     //
-    public static void addMobWikiIndex(@Nonnull ServerPlayerEntity player, int mobIndex) {
-        IMobWikiCapability mobWikiCapability = player.getCapability(ApocalypseCapabilities.MOB_WIKI_CAPABILITY).orElse(ApocalypseCapabilities.MOB_WIKI_CAPABILITY.getDefaultInstance());
+    public static void addMobWikiIndex(@Nonnull ServerPlayer player, int mobIndex) {
+        IMobWikiCapability mobWikiCapability = player.getCapability(ApocalypseCapabilities.MOB_WIKI_CAPABILITY).orElse(MobWikiProvider.INSTANCE);
         mobWikiCapability.addEntry(mobIndex);
         NetworkHelper.sendMobWikiIndexUpdate(player, mobWikiCapability.getEntries());
     }
 
-    public static void setMobWikiIndexes(@Nonnull ServerPlayerEntity player, int[] entries) {
-        player.getCapability(ApocalypseCapabilities.MOB_WIKI_CAPABILITY).orElse(ApocalypseCapabilities.MOB_WIKI_CAPABILITY.getDefaultInstance()).setEntries(entries);
+    public static void setMobWikiIndexes(@Nonnull ServerPlayer player, int[] entries) {
+        player.getCapability(ApocalypseCapabilities.MOB_WIKI_CAPABILITY).orElse(MobWikiProvider.INSTANCE).setEntries(entries);
         NetworkHelper.sendMobWikiIndexUpdate(player);
     }
 
-    public static int[] getMobWikiIndexes(@Nonnull ServerPlayerEntity player) {
-        return player.getCapability(ApocalypseCapabilities.MOB_WIKI_CAPABILITY).orElse(ApocalypseCapabilities.MOB_WIKI_CAPABILITY.getDefaultInstance()).getEntries();
+    public static int[] getMobWikiIndexes(@Nonnull ServerPlayer player) {
+        return player.getCapability(ApocalypseCapabilities.MOB_WIKI_CAPABILITY).orElse(MobWikiProvider.INSTANCE).getEntries();
     }
 }

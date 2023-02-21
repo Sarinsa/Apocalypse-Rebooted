@@ -1,18 +1,16 @@
 package com.toast.apocalypse.client.screen.widget.config;
 
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 public class InfoPoint extends Button {
 
-    private static final ITextComponent GAMERE = new StringTextComponent("?");
+    private static final MutableComponent GAMERE = Component.literal("?");
 
-    private final ITextComponent tooltipMessage;
+    private final MutableComponent tooltipMessage;
 
-    public InfoPoint(int x, int y, Button.ITooltip tooltip, ITextComponent tooltipMessage) {
+    public InfoPoint(int x, int y, Button.OnTooltip tooltip, MutableComponent tooltipMessage) {
         super(x, y, 20, 20, GAMERE, (button) -> {}, tooltip);
         this.tooltipMessage = tooltipMessage;
     }
@@ -32,8 +30,20 @@ public class InfoPoint extends Button {
         return false;
     }
 
+    // TODO - Check out how the narration stuff works
+    /*
     @Override
-    protected IFormattableTextComponent createNarrationMessage() {
-        return new TranslationTextComponent("gui.narrate.button", this.tooltipMessage);
+    protected void defaultButtonNarrationText(NarrationElementOutput p_168803_) {
+        p_168803_.add(NarratedElementType.TITLE, this.createNarrationMessage());
+        if (this.active) {
+            if (this.isFocused()) {
+                p_168803_.add(NarratedElementType.USAGE, Component.translatable("narration.button.usage.focused"));
+            } else {
+                p_168803_.add(NarratedElementType.USAGE, Component.translatable("narration.button.usage.hovered"));
+            }
+        }
+
     }
+
+     */
 }

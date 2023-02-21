@@ -8,19 +8,19 @@ import com.toast.apocalypse.common.command.argument.MaxDifficultyArgument;
 import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.command.arguments.EntityArgument;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Collection;
 
 public class ApocalypseBaseCommand {
 
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("apocalypse")
                 .then(DifficultyBaseCommand.register())
                 .then(ModDebugCommand.register()));
@@ -31,7 +31,7 @@ public class ApocalypseBaseCommand {
      */
     private static class DifficultyBaseCommand {
 
-        private static ArgumentBuilder<CommandSource, ?> register() {
+        private static ArgumentBuilder<CommandSourceStack, ?> register() {
             return Commands.literal("difficulty")
                     .requires((source) -> source.hasPermission(3))
                     .then(DifficultySetCommand.register())
@@ -42,14 +42,14 @@ public class ApocalypseBaseCommand {
     /** Displays a player's Apocalypse properties (Difficulty, current event etc.) */
     private static class ModDebugCommand {
 
-        private static ArgumentBuilder<CommandSource, ?> register() {
+        private static ArgumentBuilder<CommandSourceStack, ?> register() {
             return Commands.literal("debug")
                     .requires((source) -> source.hasPermission(3))
                     .then(Commands.argument("target", EntityArgument.player())
-                            .executes((context) -> showPlayerDebugInfo(context.getSource(), EntityArgument.getPlayer(context, "target"))));
+                            .executes((context) -> showPlayerDebugInfo(context.getSource().source, EntityArgument.getPlayer(context, "target"))));
         }
 
-        private static int showPlayerDebugInfo(CommandSource source, ServerPlayerEntity playerEntity) {
+        private static int showPlayerDebugInfo(CommandSource source, ServerPlayer playerEntity) {
             long difficulty = CapabilityHelper.getPlayerDifficulty(playerEntity);
             int scaledDifficulty = (int) difficulty / (int) References.DAY_LENGTH;
             int partialDifficulty = difficulty <= 0 ? 0 : (int) (difficulty % References.DAY_LENGTH / (References.DAY_LENGTH / 10));
@@ -58,9 +58,9 @@ public class ApocalypseBaseCommand {
             int eventId = CapabilityHelper.getEventId(playerEntity);
 
             String eventName = EventRegistry.EVENTS.get(eventId).getName();
-            source.sendSuccess(new StringTextComponent("Player difficulty: " + (difficulty < 0 ? TextFormatting.YELLOW : TextFormatting.GREEN) + scaledDifficulty + "." + partialDifficulty + TextFormatting.WHITE + " (" +  TextFormatting.GRAY + difficulty + " ticks" + TextFormatting.WHITE + ")"), true);
-            source.sendSuccess(new StringTextComponent("Player max difficulty: " + TextFormatting.GREEN + scaledMaxDifficulty + TextFormatting.WHITE + " (" + TextFormatting.GRAY + maxDifficulty + " ticks" + TextFormatting.WHITE + ")"), false);
-            source.sendSuccess(new StringTextComponent("Current event: " + TextFormatting.GREEN + eventId  + TextFormatting.WHITE + " (" + TextFormatting.GRAY + eventName + TextFormatting.WHITE + ")"), false);
+            source.sendSystemMessage(Component.literal("Player difficulty: " + (difficulty < 0 ? ChatFormatting.YELLOW : ChatFormatting.GREEN) + scaledDifficulty + "." + partialDifficulty + ChatFormatting.WHITE + " (" +  ChatFormatting.GRAY + difficulty + " ticks" + ChatFormatting.WHITE + ")"));
+            source.sendSystemMessage(Component.literal("Player max difficulty: " + ChatFormatting.GREEN + scaledMaxDifficulty + ChatFormatting.WHITE + " (" + ChatFormatting.GRAY + maxDifficulty + " ticks" + ChatFormatting.WHITE + ")"));
+            source.sendSystemMessage(Component.literal("Current event: " + ChatFormatting.GREEN + eventId  + ChatFormatting.WHITE + " (" + ChatFormatting.GRAY + eventName + ChatFormatting.WHITE + ")"));
             return 1;
         }
     }
@@ -70,15 +70,15 @@ public class ApocalypseBaseCommand {
      */
     private static class DifficultySetCommand {
 
-        private static ArgumentBuilder<CommandSource, ?> register() {
+        private static ArgumentBuilder<CommandSourceStack, ?> register() {
             return Commands.literal("set")
                     .then(Commands.argument("targets", EntityArgument.players())
                             .then(Commands.argument("difficulty", DifficultyArgument.difficulty())
                                     .executes((context) -> setPlayerDifficulty(context.getSource(), EntityArgument.getPlayers(context, "targets"), LongArgumentType.getLong(context, "difficulty")))));
         }
 
-        private static int setPlayerDifficulty(CommandSource source, Collection<ServerPlayerEntity> players, long difficulty) {
-            for (ServerPlayerEntity player  : players) {
+        private static int setPlayerDifficulty(CommandSourceStack source, Collection<ServerPlayer> players, long difficulty) {
+            for (ServerPlayer player  : players) {
                 long actualDifficulty = difficulty * References.DAY_LENGTH;
                 long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
 
@@ -87,15 +87,15 @@ public class ApocalypseBaseCommand {
                 }
                 CapabilityHelper.setPlayerDifficulty(player, actualDifficulty);
             }
-            TranslationTextComponent message;
+            Component message;
 
             if (players.size() == 1) {
-                message = new TranslationTextComponent(References.DIFFICULTY_SET_SINGLE, difficulty, players.iterator().next().getDisplayName());
+                message = Component.translatable(References.DIFFICULTY_SET_SINGLE, difficulty, players.iterator().next().getDisplayName());
             }
             else {
-                message = new TranslationTextComponent(References.DIFFICULTY_SET_MULTIPLE, difficulty, players.size());
+                message = Component.translatable(References.DIFFICULTY_SET_MULTIPLE, difficulty, players.size());
             }
-            source.sendSuccess(message, true);
+            source.sendSystemMessage(message);
             return players.size();
         }
     }
@@ -105,15 +105,15 @@ public class ApocalypseBaseCommand {
      */
     private static class DifficultySetMaxCommand {
 
-        private static ArgumentBuilder<CommandSource, ?> register() {
+        private static ArgumentBuilder<CommandSourceStack, ?> register() {
             return Commands.literal("max")
                     .then(Commands.argument("targets", EntityArgument.players())
                             .then(Commands.argument("difficulty", MaxDifficultyArgument.maxDifficulty())
                                     .executes((context) -> setPlayerMaxDifficulty(context.getSource(), EntityArgument.getPlayers(context, "targets"), LongArgumentType.getLong(context, "difficulty")))));
         }
 
-        private static int setPlayerMaxDifficulty(CommandSource source, Collection<ServerPlayerEntity> players, long maxDifficulty) {
-            for (ServerPlayerEntity player : players) {
+        private static int setPlayerMaxDifficulty(CommandSourceStack source, Collection<ServerPlayer> players, long maxDifficulty) {
+            for (ServerPlayer player : players) {
                 if (maxDifficulty == -1) {
                     CapabilityHelper.setMaxPlayerDifficulty(player, maxDifficulty);
                 }
@@ -127,15 +127,15 @@ public class ApocalypseBaseCommand {
                     }
                 }
             }
-            TranslationTextComponent message;
+            Component message;
 
             if (players.size() == 1) {
-                message = new TranslationTextComponent(References.MAX_DIFFICULTY_SET_SINGLE, maxDifficulty, players.iterator().next().getDisplayName());
+                message = Component.translatable(References.MAX_DIFFICULTY_SET_SINGLE, maxDifficulty, players.iterator().next().getDisplayName());
             }
             else {
-                message = new TranslationTextComponent(References.MAX_DIFFICULTY_SET_MULTIPLE, maxDifficulty, players.size());
+                message = Component.translatable(References.MAX_DIFFICULTY_SET_MULTIPLE, maxDifficulty, players.size());
             }
-            source.sendSuccess(message, true);
+            source.sendSystemMessage(message);
             return players.size();
         }
     }

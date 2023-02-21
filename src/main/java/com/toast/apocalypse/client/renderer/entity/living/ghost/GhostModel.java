@@ -1,78 +1,71 @@
 package com.toast.apocalypse.client.renderer.entity.living.ghost;
 
-import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.toast.apocalypse.client.ApocalypseRenderTypes;
-import com.toast.apocalypse.common.entity.living.GhostEntity;
-import net.minecraft.client.renderer.entity.model.SegmentedModel;
-import net.minecraft.client.renderer.model.ModelHelper;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.util.math.MathHelper;
+import com.toast.apocalypse.common.entity.living.Ghost;
+import net.minecraft.client.model.*;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.*;
+import net.minecraft.client.renderer.RenderStateShard;
+import net.minecraft.util.Mth;
 
-// Made with Blockbench 3.8.4
-// Exported for Minecraft version 1.15 - 1.16
-//
 // Model author: Frenderman
 
-public class GhostModel<T extends GhostEntity> extends SegmentedModel<T> {
+public class GhostModel<T extends Ghost> extends HierarchicalModel<T> {
 
-    private final ModelRenderer body;
-    private final ModelRenderer head;
-    private final ModelRenderer skull;
-    private final ModelRenderer rightArm;
-    private final ModelRenderer leftArm;
+    private final ModelPart body;
+    private final ModelPart head;
+    private final ModelPart rightArm;
+    private final ModelPart leftArm;
 
-    public GhostModel() {
-        super((resourceLocation) -> ApocalypseRenderTypes.entityCutoutNoCullBlend(resourceLocation, ApocalypseRenderTypes.GHOST_ALPHA));
-        texWidth = 64;
-        texHeight = 64;
+    public GhostModel(ModelPart root) {
+        super((resourceLocation) -> ApocalypseRenderTypes.entityCutoutNoCullBlend(resourceLocation, RenderStateShard.TransparencyStateShard.ADDITIVE_TRANSPARENCY));
+        this.body = root.getChild("body");
+        this.head = body.getChild("head");
+        this.rightArm = body.getChild("rightArm");
+        this.leftArm = body.getChild("leftArm");
+    }
 
-        body = new ModelRenderer(this);
-        body.setPos(0.0F, 4.0F, 0.0F);
-        setRotationAngle(body, 0.3054F, 0.0F, 0.0F);
-        body.texOffs(20, 41).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 19.0F, 4.0F, 0.0F, false);
+    public static LayerDefinition createBodyLayer() {
+        MeshDefinition meshdefinition = new MeshDefinition();
+        PartDefinition partdefinition = meshdefinition.getRoot();
 
-        head = new ModelRenderer(this);
-        head.setPos(0.0F, 0.0F, 0.0F);
-        body.addChild(head);
+        PartDefinition body = partdefinition.addOrReplaceChild("body", CubeListBuilder.create().texOffs(20, 41).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 19.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 4.0F, 0.0F));
 
+        PartDefinition head = body.addOrReplaceChild("head", CubeListBuilder.create().texOffs(0, 0).addBox(-5.0F, -13.0F, -4.0F, 10.0F, 13.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-        skull = new ModelRenderer(this);
-        skull.setPos(0.0F, 0.0F, 0.0F);
-        head.addChild(skull);
-        setRotationAngle(skull, -0.2182F, 0.0F, 0.0F);
-        skull.texOffs(0, 0).addBox(-5.0F, -13.0F, -4.0F, 10.0F, 13.0F, 8.0F, 0.0F, false);
+        PartDefinition rightArm = body.addOrReplaceChild("rightArm", CubeListBuilder.create().texOffs(0, 32).addBox(-4.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-4.0F, 2.0F, 0.0F, -1.5708F, 0.0F, 0.0F));
 
-        rightArm = new ModelRenderer(this);
-        rightArm.setPos(-4.0F, 2.0F, 0.0F);
-        body.addChild(rightArm);
-        setRotationAngle(rightArm, -1.7453F, 0.2618F, 0.0F);
-        rightArm.texOffs(0, 32).addBox(-4.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, 0.0F, false);
+        PartDefinition leftArm = body.addOrReplaceChild("leftArm", CubeListBuilder.create().texOffs(0, 32).mirror().addBox(0.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.0F)).mirror(false), PartPose.offsetAndRotation(4.0F, 2.0F, 0.0F, -1.5708F, 0.0F, 0.0F));
 
-        leftArm = new ModelRenderer(this);
-        leftArm.setPos(4.0F, 2.0F, 0.0F);
-        body.addChild(leftArm);
-        setRotationAngle(leftArm, -1.7453F, -0.2618F, 0.0F);
-        leftArm.texOffs(0, 32).addBox(0.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, 0.0F, true);
+        return LayerDefinition.create(meshdefinition, 64, 64);
     }
 
     @Override
-    public Iterable<ModelRenderer> parts() {
-        return ImmutableList.of(this.body);
-    }
-
-    @Override
-    public void setupAnim(T ghost, float limbSwing, float limbSwingAmount, float ageInTicks, float headYaw, float headPitch){
-        this.head.yRot = headYaw * (float) Math.PI / 180.0F;
-        this.head.xRot = headPitch * (float) Math.PI / 180.0F;
+    public void setupAnim(T ghost, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        head.yRot = netHeadYaw * (float) Math.PI / 180.0F;
+        head.xRot = headPitch * (float) Math.PI / 180.0F;
 
         if (!ghost.isFrozen()) {
-            bobArmsAndHead(this.rightArm, this.leftArm, this.head, ageInTicks);
+            bobArmsAndHead(rightArm, leftArm, head, ageInTicks);
         }
     }
 
-    private static void bobArmsAndHead(ModelRenderer rightArm, ModelRenderer leftArm, ModelRenderer head, float ageInTicks) {
-        float f = MathHelper.sin(1 * (float)Math.PI);
-        float f1 = MathHelper.sin((float) Math.PI);
+    @Override
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+        body.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+    }
+
+    @Override
+    public ModelPart root() {
+        return body;
+    }
+
+    private static void bobArmsAndHead(ModelPart rightArm, ModelPart leftArm, ModelPart head, float ageInTicks) {
+        float f = Mth.sin(1 * (float)Math.PI);
+        float f1 = Mth.sin((float) Math.PI);
         leftArm.zRot = 0.0F;
         rightArm.zRot = 0.0F;
         leftArm.yRot = -(0.1F - f * 0.6F);
@@ -82,12 +75,12 @@ public class GhostModel<T extends GhostEntity> extends SegmentedModel<T> {
         rightArm.xRot = f2;
         leftArm.xRot += f * 1.2F - f1 * 0.4F;
         rightArm.xRot += f * 1.2F - f1 * 0.4F;
-        ModelHelper.bobArms(rightArm, leftArm, ageInTicks);
+        AnimationUtils.bobArms(rightArm, leftArm, ageInTicks);
     }
 
-    public void setRotationAngle(ModelRenderer modelRenderer, float x, float y, float z) {
-        modelRenderer.xRot = x;
-        modelRenderer.yRot = y;
-        modelRenderer.zRot = z;
+    public void setRotationAngle(ModelPart modelPart, float x, float y, float z) {
+        modelPart.xRot = x;
+        modelPart.yRot = y;
+        modelPart.zRot = z;
     }
 }

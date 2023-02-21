@@ -5,12 +5,12 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.toast.apocalypse.common.util.References;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.Component;
 
 public class MaxDifficultyArgument implements ArgumentType<Long> {
 
     private static final DynamicCommandExceptionType ERROR_INVALID_DIFFICULTY_VALUE = new DynamicCommandExceptionType((o) -> {
-        return new TranslationTextComponent(References.COMMAND_INVALID_MAX_DIFFICULTY_VALUE, o);
+        return Component.translatable(References.COMMAND_INVALID_MAX_DIFFICULTY_VALUE, o);
     });
 
     public static MaxDifficultyArgument maxDifficulty() {

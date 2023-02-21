@@ -1,9 +1,9 @@
 package com.toast.apocalypse.common.effect;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectType;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -12,10 +12,10 @@ import javax.annotation.Nullable;
  * This effect is inflicted on entities attacked by
  * ghosts, which makes them fall fast.
  */
-public class HeavyEffect extends Effect {
+public class HeavyEffect extends MobEffect {
 
-    public HeavyEffect(EffectType effectType, int color) {
-        super(effectType, color);
+    public HeavyEffect(MobEffectCategory category, int color) {
+        super(category, color);
     }
 
     /**

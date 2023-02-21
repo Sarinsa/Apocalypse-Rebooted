@@ -1,10 +1,13 @@
 package com.toast.apocalypse.common.capability.event_data;
 
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraftforge.common.capabilities.AutoRegisterCapability;
+import net.minecraftforge.common.util.INBTSerializable;
 
-public interface IEventDataCapability {
+@AutoRegisterCapability
+public interface IEventDataCapability extends INBTSerializable<CompoundTag> {
 
-    CompoundNBT getEventData();
+    CompoundTag getEventData();
 
-    void setEventData(CompoundNBT dataTag);
+    void setEventData(CompoundTag dataTag);
 }

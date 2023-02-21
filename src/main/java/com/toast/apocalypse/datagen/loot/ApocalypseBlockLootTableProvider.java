@@ -1,14 +1,14 @@
 package com.toast.apocalypse.datagen.loot;
 
 import com.toast.apocalypse.common.core.register.ApocalypseBlocks;
-import net.minecraft.block.Block;
-import net.minecraft.data.loot.BlockLootTables;
-import net.minecraft.loot.LootTable;
+import net.minecraft.data.loot.BlockLoot;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.loot.LootTable;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class ApocalypseBlockLootTableProvider extends BlockLootTables {
+public class ApocalypseBlockLootTableProvider extends BlockLoot {
 
     private final Set<Block> knownBlocks = new HashSet<>();
 

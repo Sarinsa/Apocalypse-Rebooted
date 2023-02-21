@@ -3,12 +3,12 @@ package com.toast.apocalypse.common.core.difficulty;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.CommonConfigReloadListener;
 import com.toast.apocalypse.common.util.CapabilityHelper;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +69,7 @@ public final class MobAttributeHandler {
      * @param fullMoon Whether or not it is night time and a full moon in the world that this entity spawns in.
      */
     public static void handleAttributes(LivingEntity livingEntity, long difficulty, boolean fullMoon) {
-        ModifiableAttributeInstance attribute;
+        AttributeInstance attribute;
         double effectiveDifficulty;
         double bonus;
         double mult;
@@ -147,7 +147,7 @@ public final class MobAttributeHandler {
     }
 
     /** Used in {@link com.toast.apocalypse.common.mixin.PlayerEntityMixin} */
-    public static float getLivingDamage(LivingEntity attacker, PlayerEntity player, float originalDamage) {
+    public static float getLivingDamage(LivingEntity attacker, Player player, float originalDamage) {
         final long difficulty = CapabilityHelper.getPlayerDifficulty(player);
         double effectiveDifficulty = (double) difficulty / DAMAGE_TIME_SPAN;
 

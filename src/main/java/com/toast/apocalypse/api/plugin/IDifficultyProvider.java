@@ -1,7 +1,6 @@
 package com.toast.apocalypse.api.plugin;
-
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 
 /**
  * A simple interface for reading various
@@ -12,32 +11,30 @@ public interface IDifficultyProvider {
     /**
      * @return The player's current difficulty rate/multiplier.
      */
-    <T extends PlayerEntity> double getDifficultyRate(T player);
+    <T extends Player> double getDifficultyRate(T player);
 
     /**
      * @return The current difficulty of the specified player.
      */
-    <T extends PlayerEntity> long getPlayerDifficulty(T player);
+    <T extends Player> long getPlayerDifficulty(T player);
 
     /**
      * @return The current max difficulty of the specified player.
      */
-    <T extends PlayerEntity> long getMaxPlayerDifficulty(T player);
+    <T extends Player> long getMaxPlayerDifficulty(T player);
 
     /**
      * @return The ID of the given player's
      *         currently running event.
      *         <strong>(Server side only)</strong><br>
      *         <br>
-     *
      * No event: -1<br>
      * <br>
-     *
      * Full Moon Siege: 0<br>
      * <br>
-     *
      * Thunderstorm: 1<br>
      * <br>
+     * Acid rain: 2
      */
-    <T extends ServerPlayerEntity> int currentEventId(T player);
+    <T extends ServerPlayer> int currentEventId(T player);
 }

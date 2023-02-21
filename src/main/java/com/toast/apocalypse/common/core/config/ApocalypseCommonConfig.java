@@ -4,21 +4,23 @@ import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.toast.apocalypse.common.core.config.util.ConfigList;
+import com.toast.apocalypse.common.core.config.util.ConfigGameObjList;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.entity.living.*;
 import com.toast.apocalypse.common.util.RLHelper;
 import com.toast.apocalypse.common.util.References;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.Dimension;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
@@ -46,35 +48,35 @@ public class ApocalypseCommonConfig {
 
         // Cool lists
         private static final List<? extends String> DEFAULT_PENALTY_DIMENSIONS = Arrays.asList(
-                Dimension.NETHER.location().toString(),
-                Dimension.END.location().toString());
+                BuiltinDimensionTypes.NETHER.location().toString(),
+                BuiltinDimensionTypes.END.location().toString());
 
         private static final List<? extends String> DEFAULT_DESTROYER_PROOF_BLOCKS = Arrays.asList(
-                Blocks.BARRIER.getRegistryName().toString(),
-                Blocks.BEDROCK.getRegistryName().toString());
+                ForgeRegistries.BLOCKS.getKey(Blocks.BARRIER).toString(),
+                ForgeRegistries.BLOCKS.getKey(Blocks.BEDROCK).toString()
+        );
 
         private static final List<? extends String> DEFAULT_CAN_HAVE_WEAPONS = Arrays.asList(
-                EntityType.ZOMBIE.getRegistryName().toString(),
-                EntityType.ZOMBIE_VILLAGER.getRegistryName().toString(),
-                EntityType.DROWNED.getRegistryName().toString(),
-                EntityType.HUSK.getRegistryName().toString(),
-                EntityType.WITHER_SKELETON.getRegistryName().toString(),
-                EntityType.PIGLIN.getRegistryName().toString(),
-                EntityType.ZOMBIFIED_PIGLIN.getRegistryName().toString(),
-                EntityType.PIGLIN_BRUTE.getRegistryName().toString(),
-                EntityType.VINDICATOR.getRegistryName().toString());
+                ForgeRegistries.ENTITY_TYPES.getKey(EntityType.ZOMBIE).toString(),
+                ForgeRegistries.ENTITY_TYPES.getKey(EntityType.ZOMBIE_VILLAGER).toString(),
+                ForgeRegistries.ENTITY_TYPES.getKey(EntityType.DROWNED).toString(),
+                ForgeRegistries.ENTITY_TYPES.getKey(EntityType.HUSK).toString(),
+                ForgeRegistries.ENTITY_TYPES.getKey(EntityType.WITHER_SKELETON).toString(),
+                ForgeRegistries.ENTITY_TYPES.getKey(EntityType.PIGLIN).toString(),
+                ForgeRegistries.ENTITY_TYPES.getKey(EntityType.ZOMBIFIED_PIGLIN).toString(),
+                ForgeRegistries.ENTITY_TYPES.getKey(EntityType.PIGLIN_BRUTE).toString(),
+                ForgeRegistries.ENTITY_TYPES.getKey(EntityType.VINDICATOR).toString()
+        );
 
         private static final List<? extends String> DEFAULT_CAN_HAVE_ARMOR = Arrays.asList(
-                EntityType.ZOMBIE.getRegistryName().toString(),
-                EntityType.ZOMBIE_VILLAGER.getRegistryName().toString(),
-                EntityType.SKELETON.getRegistryName().toString(),
-                EntityType.DROWNED.getRegistryName().toString(),
-                EntityType.HUSK.getRegistryName().toString(),
-                EntityType.STRAY.getRegistryName().toString(),
-                EntityType.WITHER_SKELETON.getRegistryName().toString(),
-                EntityType.PIGLIN.getRegistryName().toString(),
-                EntityType.ZOMBIFIED_PIGLIN.getRegistryName().toString(),
-                EntityType.PIGLIN_BRUTE.getRegistryName().toString()
+                ForgeRegistries.ENTITY_TYPES.getKey(EntityType.ZOMBIE).toString(),
+                ForgeRegistries.ENTITY_TYPES.getKey(EntityType.ZOMBIE_VILLAGER).toString(),
+                ForgeRegistries.ENTITY_TYPES.getKey(EntityType.DROWNED).toString(),
+                ForgeRegistries.ENTITY_TYPES.getKey(EntityType.HUSK).toString(),
+                ForgeRegistries.ENTITY_TYPES.getKey(EntityType.WITHER_SKELETON).toString(),
+                ForgeRegistries.ENTITY_TYPES.getKey(EntityType.PIGLIN).toString(),
+                ForgeRegistries.ENTITY_TYPES.getKey(EntityType.ZOMBIFIED_PIGLIN).toString(),
+                ForgeRegistries.ENTITY_TYPES.getKey(EntityType.PIGLIN_BRUTE).toString()
         );
 
 
@@ -108,7 +110,7 @@ public class ApocalypseCommonConfig {
 
 
         // Attributes
-        private final ForgeConfigSpec.BooleanValue mobsOnly;
+        private final ForgeConfigSpec.BooleanValue enemiesOnly;
 
         private final ForgeConfigSpec.ConfigValue<List<? extends String>> healthBlacklist;
         private final ForgeConfigSpec.DoubleValue healthLunarFlatBonus;
@@ -235,38 +237,38 @@ public class ApocalypseCommonConfig {
 
             configBuilder.comment("The difficulty at which a specific type of full moon mob can start to spawn during sieges (It might be smart to let at least one type spawn at 0).");
             configBuilder.push("spawn_start_difficulties");
-            createStartDifficulty(BreecherEntity.class, "breecher", 10, configBuilder);
-            createStartDifficulty(GhostEntity.class, "ghost", 0, configBuilder);
-            createStartDifficulty(DestroyerEntity.class, "destroyer", 80, configBuilder);
-            createStartDifficulty(SeekerEntity.class, "seeker", 50, configBuilder);
-            createStartDifficulty(GrumpEntity.class, "grump", 20, configBuilder);
+            createStartDifficulty(Breecher.class, "breecher", 10, configBuilder);
+            createStartDifficulty(Ghost.class, "ghost", 0, configBuilder);
+            createStartDifficulty(Destroyer.class, "destroyer", 80, configBuilder);
+            createStartDifficulty(Seeker.class, "seeker", 50, configBuilder);
+            createStartDifficulty(Grump.class, "grump", 20, configBuilder);
             configBuilder.pop();
 
             configBuilder.comment("The additional amount of a specific full moon mob that can spawn during a full moon siege. Increases with difficulty.");
             configBuilder.push("additional_spawn_count");
-            createMobAdditionalCount(BreecherEntity.class, "breecher", 2.0D, configBuilder);
-            createMobAdditionalCount(GhostEntity.class, "ghost", 6.0D, configBuilder);
-            createMobAdditionalCount(DestroyerEntity.class, "destroyer", 1.0D, configBuilder);
-            createMobAdditionalCount(SeekerEntity.class, "seeker", 1.0D, configBuilder);
-            createMobAdditionalCount(GrumpEntity.class, "grump", 2.5D, configBuilder);
+            createMobAdditionalCount(Breecher.class, "breecher", 2.0D, configBuilder);
+            createMobAdditionalCount(Ghost.class, "ghost", 6.0D, configBuilder);
+            createMobAdditionalCount(Destroyer.class, "destroyer", 1.0D, configBuilder);
+            createMobAdditionalCount(Seeker.class, "seeker", 1.0D, configBuilder);
+            createMobAdditionalCount(Grump.class, "grump", 2.5D, configBuilder);
             configBuilder.pop();
 
             configBuilder.comment("The minimum amount of a specific full moon mob that can spawn during a full moon siege.");
             configBuilder.push("min_spawn_count");
-            createMobMinCount(BreecherEntity.class, "breecher", 4, configBuilder);
-            createMobMinCount(GhostEntity.class, "ghost", 4, configBuilder);
-            createMobMinCount(DestroyerEntity.class, "destroyer", 1, configBuilder);
-            createMobMinCount(SeekerEntity.class, "seeker", 1, configBuilder);
-            createMobMinCount(GrumpEntity.class, "grump", 2, configBuilder);
+            createMobMinCount(Breecher.class, "breecher", 4, configBuilder);
+            createMobMinCount(Ghost.class, "ghost", 4, configBuilder);
+            createMobMinCount(Destroyer.class, "destroyer", 1, configBuilder);
+            createMobMinCount(Seeker.class, "seeker", 1, configBuilder);
+            createMobMinCount(Grump.class, "grump", 2, configBuilder);
             configBuilder.pop();
 
             configBuilder.comment("The maximum amount of a specific full moon mob that can spawn during a full moon siege. Keep in mind that since the additional moon mob count increases over time, these values should be carefully considered. Too many mobs will definitely cause problems.");
             configBuilder.push("max_spawn_count");
-            createMobMaxCap(BreecherEntity.class, "breecher", 20, configBuilder);
-            createMobMaxCap(GhostEntity.class, "ghost", 25, configBuilder);
-            createMobMaxCap(DestroyerEntity.class, "destroyer", 8, configBuilder);
-            createMobMaxCap(SeekerEntity.class, "seeker", 8, configBuilder);
-            createMobMaxCap(GrumpEntity.class, "grump", 18, configBuilder);
+            createMobMaxCap(Breecher.class, "breecher", 20, configBuilder);
+            createMobMaxCap(Ghost.class, "ghost", 25, configBuilder);
+            createMobMaxCap(Destroyer.class, "destroyer", 8, configBuilder);
+            createMobMaxCap(Seeker.class, "seeker", 8, configBuilder);
+            createMobMaxCap(Grump.class, "grump", 18, configBuilder);
             configBuilder.pop();
 
             configBuilder.pop();
@@ -274,7 +276,7 @@ public class ApocalypseCommonConfig {
             configBuilder.push("attributes");
             configBuilder.comment("This section contains everything related to mob stat bonuses.");
 
-            this.mobsOnly = configBuilder.comment("If enabled, only hostile mobs will be given attribute bonuses and potion effects.")
+            this.enemiesOnly = configBuilder.comment("If enabled, only hostile mobs will be given attribute bonuses and potion effects.")
                     .define("mobsOnly", true);
 
             configBuilder.push("health");
@@ -548,8 +550,8 @@ public class ApocalypseCommonConfig {
         //
         // ATTRIBUTES
         //
-        public boolean getMobsOnly() {
-            return this.mobsOnly.get();
+        public boolean getEnemiesOnly() {
+            return this.enemiesOnly.get();
         }
 
         public List<? extends String> getHealthBlacklist() {
@@ -816,12 +818,12 @@ public class ApocalypseCommonConfig {
         private CommentedConfig createDefaultWeaponLists() {
             CommentedConfig weaponLists = TomlFormat.newConfig();
 
-            final ConfigList<Item> firstTier = new ConfigList<>();
-            final ConfigList<Item> secondTier = new ConfigList<>();
-            final ConfigList<Item> thirdTier = new ConfigList<>();
-            final ConfigList<Item> fourthTier = new ConfigList<>();
-            final ConfigList<Item> fifthTier = new ConfigList<>();
-            final ConfigList<Item> sixthTier = new ConfigList<>();
+            final ConfigGameObjList<Item> firstTier = new ConfigGameObjList<>(ForgeRegistries.ITEMS);
+            final ConfigGameObjList<Item> secondTier = new ConfigGameObjList<>(ForgeRegistries.ITEMS);
+            final ConfigGameObjList<Item> thirdTier = new ConfigGameObjList<>(ForgeRegistries.ITEMS);
+            final ConfigGameObjList<Item> fourthTier = new ConfigGameObjList<>(ForgeRegistries.ITEMS);
+            final ConfigGameObjList<Item> fifthTier = new ConfigGameObjList<>(ForgeRegistries.ITEMS);
+            final ConfigGameObjList<Item> sixthTier = new ConfigGameObjList<>(ForgeRegistries.ITEMS);
 
             firstTier.addElements(
                     Items.WOODEN_SHOVEL,
@@ -874,10 +876,10 @@ public class ApocalypseCommonConfig {
         private CommentedConfig createDefaultPotionList() {
             CommentedConfig potionList = TomlFormat.newConfig();
 
-            potionEntry(potionList, Effects.FIRE_RESISTANCE, 5, EntityType.MAGMA_CUBE, EntityType.ZOMBIFIED_PIGLIN, EntityType.BLAZE, EntityType.GHAST, EntityType.STRIDER);
-            potionEntry(potionList, Effects.DAMAGE_BOOST.getRegistryName(), 60, ApocalypseEntities.GHOST.getId());
-            potionEntry(potionList, Effects.REGENERATION, 30, EntityType.WITHER, EntityType.ENDER_DRAGON);
-            potionEntry(potionList, Effects.DAMAGE_RESISTANCE.getRegistryName(), 100, ApocalypseEntities.GHOST.getId());
+            potionEntry(potionList, MobEffects.FIRE_RESISTANCE, 5, EntityType.MAGMA_CUBE, EntityType.ZOMBIFIED_PIGLIN, EntityType.BLAZE, EntityType.GHAST, EntityType.STRIDER);
+            potionEntry(potionList, regName(MobEffects.DAMAGE_BOOST), 60, ApocalypseEntities.GHOST.getId());
+            potionEntry(potionList, MobEffects.REGENERATION, 30, EntityType.WITHER, EntityType.ENDER_DRAGON);
+            potionEntry(potionList, regName(MobEffects.DAMAGE_RESISTANCE), 100, ApocalypseEntities.GHOST.getId());
 
             return potionList;
         }
@@ -890,7 +892,7 @@ public class ApocalypseCommonConfig {
                     Items.LEATHER_BOOTS, Items.LEATHER_LEGGINGS, Items.LEATHER_CHESTPLATE, Items.LEATHER_HELMET, Items.CARVED_PUMPKIN
             });
             armorEntry(armorList, 25, new ResourceLocation[] {
-                    Items.CHAINMAIL_BOOTS.getRegistryName(), Items.CHAINMAIL_LEGGINGS.getRegistryName(), Items.CHAINMAIL_CHESTPLATE.getRegistryName(), Items.CHAINMAIL_HELMET.getRegistryName(), ApocalypseItems.BUCKET_HELM.getId()
+                    regName(Items.CHAINMAIL_BOOTS), regName(Items.CHAINMAIL_LEGGINGS), regName(Items.CHAINMAIL_CHESTPLATE), regName(Items.CHAINMAIL_HELMET), ApocalypseItems.BUCKET_HELM.getId()
             });
             armorEntry(armorList, 40, new Item[] {
                     Items.GOLDEN_BOOTS, Items.GOLDEN_LEGGINGS, Items.GOLDEN_CHESTPLATE, Items.GOLDEN_HELMET, Items.TURTLE_HELMET
@@ -911,7 +913,7 @@ public class ApocalypseCommonConfig {
             List<String> itemIds = new ArrayList<>();
 
             for (Item item : armorItems) {
-                itemIds.add(item.getRegistryName().toString());
+                itemIds.add(regName(item).toString());
             }
             config.add(String.valueOf(roundedDifficulty), itemIds);
         }
@@ -925,14 +927,14 @@ public class ApocalypseCommonConfig {
             config.add(String.valueOf(roundedDifficulty), itemIds);
         }
 
-        private static void potionEntry(CommentedConfig config, Effect effect, int roundedDifficulty, EntityType<?>... entityTypes) {
+        private static void potionEntry(CommentedConfig config, MobEffect effect, int roundedDifficulty, EntityType<?>... entityTypes) {
             List<String> blacklistedMobs = new ArrayList<>();
 
             for (EntityType<?> entityType : entityTypes) {
-                blacklistedMobs.add(entityType.getRegistryName().toString());
+                blacklistedMobs.add(regName(entityType).toString());
             }
             // Separate effect ID and unlock-difficulty with a space.
-            config.add(effect.getRegistryName().toString() + " " + roundedDifficulty, blacklistedMobs);
+            config.add(regName(effect) + " " + roundedDifficulty, blacklistedMobs);
         }
 
         private static void potionEntry(CommentedConfig config, ResourceLocation effectId, int roundedDifficulty, ResourceLocation... entityIds) {
@@ -943,6 +945,22 @@ public class ApocalypseCommonConfig {
             }
             // Separate effect ID and unlock-difficulty with a space.
             config.add(effectId.toString() + " " + roundedDifficulty, blacklistedMobs);
+        }
+
+        private static ResourceLocation regName(Object o) {
+            if (o instanceof Item item) {
+                return ForgeRegistries.ITEMS.getKey(item);
+            }
+            else if (o instanceof EntityType<?> entityType) {
+                return ForgeRegistries.ENTITY_TYPES.getKey(entityType);
+            }
+            else if (o instanceof MobEffect mobEffect) {
+                return ForgeRegistries.MOB_EFFECTS.getKey(mobEffect);
+            }
+            else if (o instanceof Block block) {
+                return ForgeRegistries.BLOCKS.getKey(block);
+            }
+            return new ResourceLocation("");
         }
 
         private static Predicate<Object> isResourceLocation() {

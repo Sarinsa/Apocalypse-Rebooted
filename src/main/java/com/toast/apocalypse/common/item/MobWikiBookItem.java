@@ -1,23 +1,23 @@
 package com.toast.apocalypse.common.item;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Rarity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.level.Level;
 
 public class MobWikiBookItem extends Item {
 
     public MobWikiBookItem() {
-        super(new Item.Properties().stacksTo(1).fireResistant().rarity(Rarity.UNCOMMON).tab(ItemGroup.TAB_MISC));
+        super(new Item.Properties().stacksTo(1).fireResistant().rarity(Rarity.UNCOMMON).tab(CreativeModeTab.TAB_MISC));
     }
 
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
-        return super.use(world, player, hand);
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        return super.use(level, player, hand);
         /*
         ItemStack itemstack = player.getItemInHand(hand);
 

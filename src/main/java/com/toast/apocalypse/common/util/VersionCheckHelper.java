@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.util;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.ChatFormatting;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.VersionChecker;
@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public class VersionCheckHelper {
 
-    private static final String PREFIX = TextFormatting.GRAY + "[" + TextFormatting.RED + Apocalypse.MOD_NAME + TextFormatting.GRAY + "]";
+    private static final String PREFIX = ChatFormatting.GRAY + "[" + ChatFormatting.RED + Apocalypse.MOD_NAME + ChatFormatting.GRAY + "]";
 
     private static String UPDATE_MESSAGE = null;
 
@@ -24,7 +24,7 @@ public class VersionCheckHelper {
         modContainer.ifPresent((container) -> {
             IModInfo modInfo = container.getModInfo();
             VersionChecker.CheckResult result = VersionChecker.getResult(modInfo);
-            VersionChecker.Status status = result.status;
+            VersionChecker.Status status = result.status();
 
             if (status == VersionChecker.Status.PENDING) {
                 Apocalypse.LOGGER.info("Tried to fetch newest update info, but received check status PENDING.");
@@ -33,10 +33,10 @@ public class VersionCheckHelper {
 
             if (status == VersionChecker.Status.OUTDATED || status == VersionChecker.Status.BETA_OUTDATED) {
                 @Nullable
-                ComparableVersion targetVersion = result.target;
+                ComparableVersion targetVersion = result.target();
 
                 if (targetVersion != null) {
-                    UPDATE_MESSAGE = createMessage(result.target);
+                    UPDATE_MESSAGE = createMessage(result.target());
                 }
                 else {
                     Apocalypse.LOGGER.info("Tried looking for Apocalypse updates, but VersionChecker does not contain our mod info! Could the version check json be broken?");
@@ -50,23 +50,23 @@ public class VersionCheckHelper {
 
         // This shouldn't really happen; indicates malformed version name
         if (s.length == 0 || s.length > 3) {
-            return PREFIX + " " + TextFormatting.YELLOW + "New version available: " + version;
+            return PREFIX + " " + ChatFormatting.YELLOW + "New version available: " + version;
         }
         String versionState = s[1];
 
         switch (versionState) {
             default:
             case "r":
-                versionState = TextFormatting.GREEN + " RELEASE " + TextFormatting.YELLOW;
+                versionState = ChatFormatting.GREEN + " RELEASE " + ChatFormatting.YELLOW;
                 break;
             case "b":
-                versionState = TextFormatting.AQUA + " BETA " + TextFormatting.YELLOW;
+                versionState = ChatFormatting.AQUA + " BETA " + ChatFormatting.YELLOW;
                 break;
             case "a":
-                versionState = TextFormatting.RED + " ALPHA " + TextFormatting.YELLOW;
+                versionState = ChatFormatting.RED + " ALPHA " + ChatFormatting.YELLOW;
                 break;
         }
-        return PREFIX + " " + TextFormatting.YELLOW + "New" + versionState + "version available: " + version;
+        return PREFIX + " " + ChatFormatting.YELLOW + "New" + versionState + "version available: " + version;
     }
 
     public static String getUpdateMessage() {

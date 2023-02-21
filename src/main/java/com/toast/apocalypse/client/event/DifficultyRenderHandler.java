@@ -6,11 +6,12 @@ import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.client.gui.overlay.GuiOverlayManager;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 
 public class DifficultyRenderHandler {
 
@@ -33,40 +34,25 @@ public class DifficultyRenderHandler {
      * Called from {@link ClientConfigReloadListener} when the client config is loaded/reloaded */
     public static void updateRenderPos(ApocalypseClientConfig.PositionWidthAnchor widthPos, ApocalypseClientConfig.PositionHeightAnchor heightPos, int xOffset, int yOffset) {
         switch (widthPos) {
-            default:
-            case LEFT:
-                POSITION_X = 0;
-                break;
-            case RIGHT:
-                POSITION_X = 1;
-                break;
-            case MIDDLE:
-                POSITION_X = 2;
-                break;
+            case LEFT -> POSITION_X = 0;
+            case RIGHT -> POSITION_X = 1;
+            case MIDDLE -> POSITION_X = 2;
         }
-
         switch (heightPos) {
-            default:
-            case TOP:
-                POSITION_Y = 0;
-                break;
-            case BOTTOM:
-                POSITION_Y = 1;
-                break;
-            case MIDDLE:
-                POSITION_Y = 2;
-                break;
+            case TOP -> POSITION_Y = 0;
+            case BOTTOM -> POSITION_Y = 1;
+            case MIDDLE -> POSITION_Y = 2;
         }
         OFFSET_X = xOffset * (POSITION_X == 1 ? -1 : 1);
         OFFSET_Y = yOffset * (POSITION_Y == 1 ? -1 : 1);
     }
 
 
-    public static void renderDifficulty(RenderGameOverlayEvent.Post event, Minecraft minecraft) {
-        if (event.getType() != RenderGameOverlayEvent.ElementType.BOSSHEALTH || OFFSET_X < 0 || OFFSET_Y < 0)
+    public static void renderDifficulty(RenderGuiOverlayEvent.Post event, Minecraft minecraft) {
+        if (event.getOverlay() != GuiOverlayManager.findOverlay(VanillaGuiOverlay.BOSS_EVENT_PROGRESS.id()) || OFFSET_X < 0 || OFFSET_Y < 0)
             return;
 
-        ClientPlayerEntity player = minecraft.player;
+        LocalPlayer player = minecraft.player;
 
         if (player.isCreative() && !RENDER_IN_CREATIVE)
             return;
@@ -80,13 +66,13 @@ public class DifficultyRenderHandler {
         // Don't bother rendering the difficulty
         // when it will constantly be at 0 or if
         // the player is dead.
-        if (maxDifficulty == 0L || !minecraft.gui.getBossOverlay().events.isEmpty() || player.isDeadOrDying())
+        if (maxDifficulty == 0L || player.isDeadOrDying())
             return;
 
         int width = event.getWindow().getGuiScaledWidth();
         int height = event.getWindow().getGuiScaledHeight();
 
-        FontRenderer fontRenderer = minecraft.font;
+        Font fontRenderer = minecraft.font;
 
         // Calculate difficulty level in days with one decimal.
         int color = COLORS[0];
@@ -103,13 +89,13 @@ public class DifficultyRenderHandler {
         }
         difficulty /= 24000L;
         String parsedDifficulty = difficulty > 0L ? (difficulty + "." + partialDifficulty) : "0.0";
-        String difficultyInfo = new TranslationTextComponent(References.DIFFICULTY, parsedDifficulty).getString();
+        String difficultyInfo = Component.translatable(References.DIFFICULTY, parsedDifficulty).getString();
 
         // Calculate % of increase in difficulty rate
         double difficultyRate = CapabilityHelper.getPlayerDifficultyMult(player);
 
         if (difficultyRate != 1.0) {
-            difficultyInfo = difficultyInfo + " " + new TranslationTextComponent(References.DIFFICULTY_RATE, (int)(difficultyRate * 100.0) + "%").getString();
+            difficultyInfo = difficultyInfo + " " + Component.translatable(References.DIFFICULTY_RATE, (int)(difficultyRate * 100.0) + "%").getString();
         }
         int x;
         int y;
@@ -143,7 +129,7 @@ public class DifficultyRenderHandler {
         x += OFFSET_X;
         y += OFFSET_Y;
 
-        fontRenderer.drawShadow(event.getMatrixStack(), difficultyInfo, x, y, color);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+        fontRenderer.drawShadow(event.getPoseStack(), difficultyInfo, x, y, color);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 }

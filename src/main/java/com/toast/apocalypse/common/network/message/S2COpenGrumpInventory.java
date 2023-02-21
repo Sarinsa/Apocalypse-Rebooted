@@ -1,8 +1,8 @@
 package com.toast.apocalypse.common.network.message;
 
 import com.toast.apocalypse.common.network.work.ClientWork;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -28,11 +28,11 @@ public class S2COpenGrumpInventory {
         context.setPacketHandled(true);
     }
 
-    public static S2COpenGrumpInventory decode(PacketBuffer buffer) {
+    public static S2COpenGrumpInventory decode(FriendlyByteBuf buffer) {
         return new S2COpenGrumpInventory(buffer.readUUID(), buffer.readInt(), buffer.readInt());
     }
 
-    public static void encode(S2COpenGrumpInventory message, PacketBuffer buffer) {
+    public static void encode(S2COpenGrumpInventory message, FriendlyByteBuf buffer) {
         buffer.writeUUID(message.uuid);
         buffer.writeInt(message.containerId);
         buffer.writeInt(message.entityID);

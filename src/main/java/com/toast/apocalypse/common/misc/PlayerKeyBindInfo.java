@@ -1,9 +1,9 @@
 package com.toast.apocalypse.common.misc;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.EntityLeaveWorldEvent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -22,15 +22,15 @@ public class PlayerKeyBindInfo {
     private static final Map<UUID, KeyBindInfo> KEYBIND_INFO = new HashMap<>();
 
     @SubscribeEvent
-    public static void onPlayerJoinWorld(EntityJoinWorldEvent event) {
-        if (event.getEntity() instanceof PlayerEntity) {
+    public static void onPlayerJoinWorld(EntityJoinLevelEvent event) {
+        if (event.getEntity() instanceof Player) {
             createInfo(event.getEntity().getUUID());
         }
     }
 
     @SubscribeEvent
-    public static void onPlayerLogout(EntityLeaveWorldEvent event) {
-        if (event.getEntity() instanceof PlayerEntity) {
+    public static void onPlayerLogout(EntityLeaveLevelEvent event) {
+        if (event.getEntity() instanceof Player) {
             clearInfo(event.getEntity().getUUID());
         }
     }

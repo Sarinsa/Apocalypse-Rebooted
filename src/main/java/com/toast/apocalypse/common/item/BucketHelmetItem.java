@@ -3,55 +3,56 @@ package com.toast.apocalypse.common.item;
 import com.toast.apocalypse.client.ClientUtil;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.util.References;
-import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.*;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class BucketHelmetItem extends ArmorItem {
 
     public static final String TEXTURE = Apocalypse.resourceLoc("textures/models/armor/bucket_helm.png").toString();
 
     public BucketHelmetItem() {
-        super(ArmorMaterial.IRON, EquipmentSlotType.HEAD, new Item.Properties().tab(ItemGroup.TAB_COMBAT).defaultDurability(0));
+        super(ArmorMaterials.IRON, EquipmentSlot.HEAD, new Item.Properties().tab(CreativeModeTab.TAB_COMBAT).defaultDurability(0));
     }
 
     @Override
     @Nullable
-    public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlotType slot, String type) {
+    public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
         return TEXTURE;
     }
 
-    // This is the largest number of annotations I have ever seen on one method
-    @OnlyIn(Dist.CLIENT)
     @Override
-    @Nullable
-    @SuppressWarnings("unchecked")
-    public <A extends BipedModel<?>> A getArmorModel(LivingEntity entityLiving, ItemStack itemStack, EquipmentSlotType armorSlot, A defaultModel) {
-        return armorSlot == EquipmentSlotType.HEAD ? (A) ClientUtil.BUCKET_HELMET_MODEL : defaultModel;
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(new IClientItemExtensions() {
+            @Override
+            public @NotNull HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
+                return equipmentSlot == EquipmentSlot.HEAD ? ClientUtil.BUCKET_HELMET_MODEL : original;
+            }
+
+            @Override
+            public void renderHelmetOverlay(ItemStack stack, Player player, int width, int height, float partialTick) {
+                ClientUtil.renderBucketHelmOverlay(width, height);
+            }
+        });
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void renderHelmetOverlay(ItemStack stack, PlayerEntity player, int width, int height, float partialTicks) {
-        ClientUtil.renderBucketHelmOverlay(width, height);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public void appendHoverText(ItemStack itemStack, World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
-        tooltip.add(new TranslationTextComponent(References.BUCKET_HELM_DESC).withStyle(TextFormatting.GRAY));
+    public void appendHoverText(ItemStack itemStack, Level level, List<Component> tooltip, TooltipFlag flag) {
+        tooltip.add(Component.translatable(References.BUCKET_HELM_DESC).withStyle(ChatFormatting.GRAY));
     }
 }

@@ -1,8 +1,8 @@
 package com.toast.apocalypse.common.network.message;
 
 import com.toast.apocalypse.common.network.work.ClientWork;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -24,11 +24,11 @@ public class S2COpenMobWikiScreen {
         context.setPacketHandled(true);
     }
 
-    public static S2COpenMobWikiScreen decode(PacketBuffer buffer) {
+    public static S2COpenMobWikiScreen decode(FriendlyByteBuf buffer) {
         return new S2COpenMobWikiScreen(buffer.readUUID());
     }
 
-    public static void encode(S2COpenMobWikiScreen message, PacketBuffer buffer) {
+    public static void encode(S2COpenMobWikiScreen message, FriendlyByteBuf buffer) {
         buffer.writeUUID(message.uuid);
     }
 }

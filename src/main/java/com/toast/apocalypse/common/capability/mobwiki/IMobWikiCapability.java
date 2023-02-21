@@ -1,6 +1,11 @@
 package com.toast.apocalypse.common.capability.mobwiki;
 
-public interface IMobWikiCapability {
+import net.minecraft.nbt.CompoundTag;
+import net.minecraftforge.common.capabilities.AutoRegisterCapability;
+import net.minecraftforge.common.util.INBTSerializable;
+
+@AutoRegisterCapability
+public interface IMobWikiCapability extends INBTSerializable<CompoundTag> {
 
     void addEntry(int entry);
 

@@ -1,28 +1,36 @@
 package com.toast.apocalypse.common.block;
 
-import com.toast.apocalypse.common.tile.LunarPhaseSensorTileEntity;
-import net.minecraft.block.*;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.IntegerProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.LightType;
-import net.minecraft.world.World;
-import net.minecraftforge.common.ToolType;
+import com.toast.apocalypse.common.blockentity.LunarPhaseSensorTileEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class LunarPhaseSensorBlock extends ContainerBlock {
+import javax.annotation.Nullable;
+
+public class LunarPhaseSensorBlock extends Block implements EntityBlock {
 
     public static final IntegerProperty POWER = BlockStateProperties.POWER;
     public static final BooleanProperty INVERTED = BlockStateProperties.INVERTED;
@@ -30,13 +38,13 @@ public class LunarPhaseSensorBlock extends ContainerBlock {
     private static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 6.0D, 16.0D);
 
     public LunarPhaseSensorBlock() {
-        super(AbstractBlock.Properties.of(Material.METAL).strength(1.0F).sound(SoundType.METAL).harvestTool(ToolType.PICKAXE));
-        this.registerDefaultState(this.stateDefinition.any().setValue(POWER, 0).setValue(INVERTED, false));
+        super(BlockBehaviour.Properties.of(Material.METAL).strength(1.0F).sound(SoundType.METAL));
+        registerDefaultState(stateDefinition.any().setValue(POWER, 0).setValue(INVERTED, false));
     }
 
     @Override
     @SuppressWarnings("deprecation")
-    public VoxelShape getShape(BlockState state, IBlockReader world, BlockPos pos, ISelectionContext selectionContext) {
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return SHAPE;
     }
 
@@ -48,53 +56,53 @@ public class LunarPhaseSensorBlock extends ContainerBlock {
 
     @Override
     @SuppressWarnings("deprecation")
-    public int getSignal(BlockState state, IBlockReader world, BlockPos pos, Direction direction) {
+    public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
         return state.getValue(POWER);
     }
 
-    public static void updateSignalStrength(BlockState state, World world, BlockPos pos) {
-        if (world.dimension() == World.OVERWORLD) {
-            int power = MathHelper.floor(15 * world.getMoonBrightness());
+    public static void updateSignalStrength(BlockState state, Level level, BlockPos pos) {
+        if (level.dimension() == Level.OVERWORLD) {
+            int power = Mth.floor(15 * level.getMoonBrightness());
             boolean inverted = state.getValue(INVERTED);
 
             if (inverted) {
                 power = 15 - power;
             }
-            power = MathHelper.clamp(power, 0, 15);
+            power = Mth.clamp(power, 0, 15);
 
-            if (world.getBrightness(LightType.SKY, pos) < 4) {
+            if (level.getBrightness(LightLayer.SKY, pos) < 4) {
                 power = 0;
             }
-
             if (state.getValue(POWER) != power) {
-                world.setBlock(pos, state.setValue(POWER, power), 3);
+                level.setBlock(pos, state.setValue(POWER, power), 3);
             }
         }
     }
 
     @Override
     @SuppressWarnings("deprecation")
-    public ActionResultType use(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
         if (player.mayBuild()) {
 
-            if (world.isClientSide) {
-                return ActionResultType.SUCCESS;
+            if (level.isClientSide) {
+                return InteractionResult.SUCCESS;
             }
             else {
                 BlockState blockstate = state.cycle(INVERTED);
-                world.setBlock(pos, blockstate, 4);
-                updateSignalStrength(blockstate, world, pos);
-                return ActionResultType.CONSUME;
+                level.setBlock(pos, blockstate, 4);
+                updateSignalStrength(blockstate, level, pos);
+                return InteractionResult.CONSUME;
             }
         }
         else {
-            return super.use(state, world, pos, player, hand, result);
+            return super.use(state, level, pos, player, hand, result);
         }
     }
 
     @Override
-    public BlockRenderType getRenderShape(BlockState state) {
-        return BlockRenderType.MODEL;
+    @SuppressWarnings("deprecation")
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.MODEL;
     }
 
     @Override
@@ -104,12 +112,18 @@ public class LunarPhaseSensorBlock extends ContainerBlock {
     }
 
     @Override
-    public TileEntity newBlockEntity(IBlockReader world) {
-        return new LunarPhaseSensorTileEntity();
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new LunarPhaseSensorTileEntity(pos, state);
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState, BlockEntityType<T> blockEntityType) {
+        return (lvl, pos, state, blockEntity) -> LunarPhaseSensorTileEntity.tick(lvl, pos, state, (LunarPhaseSensorTileEntity) blockEntity);
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> stateBuilder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> stateBuilder) {
         stateBuilder.add(POWER, INVERTED);
     }
 }

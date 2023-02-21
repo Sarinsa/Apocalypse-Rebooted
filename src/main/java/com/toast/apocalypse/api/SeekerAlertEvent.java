@@ -1,9 +1,9 @@
 package com.toast.apocalypse.api;
 
-import com.toast.apocalypse.common.entity.living.SeekerEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.world.World;
+import com.toast.apocalypse.common.entity.living.Seeker;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
@@ -14,13 +14,13 @@ import java.util.List;
  * Fired when a Seeker attempts to alert nearby entities of its target player.<br>
  * <br>
  *
- * This event is fired from {@link SeekerEntity.AlertOtherMonstersGoal#start()}<br>
+ * This event is fired from {@link Seeker.AlertOtherMonstersGoal#start()}<br>
  * <br>
  *
  * {@link #seeker} is the Seeker entity that is trying to alert an entity.<br>
  * {@link #toAlert} is a List of mob entities the Seeker is trying to alert.<br>
  * {@link #target} is the Seeker's current target, usually a player.<br>
- * {@link #world} is the Seeker's World object.<br>
+ * {@link #level} is the Seeker's World object.<br>
  * <br>
  *
  * This event is not {@link Cancelable}<br>
@@ -30,23 +30,23 @@ import java.util.List;
  */
 public final class SeekerAlertEvent extends Event {
 
-    private final MobEntity seeker;
-    private final List<MobEntity> toAlert;
+    private final Mob seeker;
+    private final List<? extends Mob> toAlert;
     private final LivingEntity target;
-    private final World world;
+    private final Level level;
 
-    public SeekerAlertEvent(World world, @Nonnull MobEntity seeker, @Nonnull List<MobEntity> toAlert, @Nonnull LivingEntity target) {
+    public SeekerAlertEvent(Level level, @Nonnull Mob seeker, @Nonnull List<? extends Mob> toAlert, @Nonnull LivingEntity target) {
         this.seeker = seeker;
         this.toAlert = toAlert;
         this.target = target;
-        this.world = world;
+        this.level = level;
     }
 
-    public MobEntity getSeeker() {
+    public Mob getSeeker() {
         return this.seeker;
     }
 
-    public List<MobEntity> getToAlert() {
+    public List<? extends Mob> getToAlert() {
         return this.toAlert;
     }
 
@@ -54,7 +54,7 @@ public final class SeekerAlertEvent extends Event {
         return this.target;
     }
 
-    public World getLevel() {
-        return this.world;
+    public Level getLevel() {
+        return this.level;
     }
 }

@@ -1,8 +1,8 @@
 package com.toast.apocalypse.common.network.message;
 
 import com.toast.apocalypse.common.network.work.ClientWork;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -23,11 +23,11 @@ public class S2CUpdatePlayerDifficultyRate {
         context.setPacketHandled(true);
     }
 
-    public static S2CUpdatePlayerDifficultyRate decode(PacketBuffer buffer) {
+    public static S2CUpdatePlayerDifficultyRate decode(FriendlyByteBuf buffer) {
         return new S2CUpdatePlayerDifficultyRate(buffer.readDouble());
     }
 
-    public static void encode(S2CUpdatePlayerDifficultyRate message, PacketBuffer buffer) {
+    public static void encode(S2CUpdatePlayerDifficultyRate message, FriendlyByteBuf buffer) {
         buffer.writeDouble(message.multiplier);
     }
 }

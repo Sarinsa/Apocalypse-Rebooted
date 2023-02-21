@@ -6,11 +6,11 @@ import com.toast.apocalypse.common.triggers.PassedGracePeriodTrigger;
 import com.toast.apocalypse.common.triggers.TamedGrumpTrigger;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.FrameType;
-import net.minecraft.advancements.criterion.InventoryChangeTrigger;
-import net.minecraft.data.AdvancementProvider;
+import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.item.Items;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.data.advancements.AdvancementProvider;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
 import java.util.function.Consumer;
@@ -25,41 +25,41 @@ public class ApocalypseAdvancementProvider extends AdvancementProvider {
     protected void registerAdvancements(Consumer<Advancement> consumer, ExistingFileHelper fileHelper) {
         Advancement root = Advancement.Builder.advancement()
                 .display(ApocalypseItems.FRAGMENTED_SOUL.get(),
-                        new TranslationTextComponent(title("root")),
-                        new TranslationTextComponent(desc("root")),
+                        Component.translatable(title("root")),
+                        Component.translatable(desc("root")),
                         Apocalypse.resourceLoc("textures/gui/advancements/backgrounds/night_sky.png"),
                         FrameType.TASK, true, true, false)
-                .addCriterion("pass_grace_period", PassedGracePeriodTrigger.Instance.gracePeriodPassed())
+                .addCriterion("pass_grace_period", PassedGracePeriodTrigger.TriggerInstance.gracePeriodPassed())
                 .save(consumer, Apocalypse.resourceLoc("root"), fileHelper);
 
         Advancement toasty = Advancement.Builder.advancement()
                 .parent(root)
                 .display(ApocalypseItems.FATHERLY_TOAST.get(),
-                        new TranslationTextComponent(title("toasty")),
-                        new TranslationTextComponent(desc("toasty")),
+                        Component.translatable(title("toasty")),
+                        Component.translatable(desc("toasty")),
                         null,
                         FrameType.CHALLENGE, true, true, true)
-                .addCriterion("obtain_fatherly_toast", InventoryChangeTrigger.Instance.hasItems(ApocalypseItems.FATHERLY_TOAST.get()))
+                .addCriterion("obtain_fatherly_toast", InventoryChangeTrigger.TriggerInstance.hasItems(ApocalypseItems.FATHERLY_TOAST.get()))
                 .save(consumer, Apocalypse.resourceLoc("toasty"), fileHelper);
 
         Advancement lessGrumpy = Advancement.Builder.advancement()
                 .parent(toasty)
                 .display(Items.COOKIE,
-                        new TranslationTextComponent(title("less_grumpy")),
-                        new TranslationTextComponent(desc("less_grumpy")),
+                        Component.translatable(title("less_grumpy")),
+                        Component.translatable(desc("less_grumpy")),
                         null,
                         FrameType.TASK, true, true, true)
-                .addCriterion("tame_grump", TamedGrumpTrigger.Instance.tamedGrump())
+                .addCriterion("tame_grump", TamedGrumpTrigger.TriggerInstance.tamedGrump())
                 .save(consumer, Apocalypse.resourceLoc("less_grumpy"), fileHelper);
 
         Advancement lunarium = Advancement.Builder.advancement()
                 .parent(root)
                 .display(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get(),
-                        new TranslationTextComponent(title("lunarium")),
-                        new TranslationTextComponent(desc("lunarium")),
+                        Component.translatable(title("lunarium")),
+                        Component.translatable(desc("lunarium")),
                         null,
                         FrameType.TASK, true, true, true)
-                .addCriterion("obtain_lunarium", InventoryChangeTrigger.Instance.hasItems(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()))
+                .addCriterion("obtain_lunarium", InventoryChangeTrigger.TriggerInstance.hasItems(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()))
                 .save(consumer, Apocalypse.resourceLoc("lunarium"), fileHelper);
     }
 

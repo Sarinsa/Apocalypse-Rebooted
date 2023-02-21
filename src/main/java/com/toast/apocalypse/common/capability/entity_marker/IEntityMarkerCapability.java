@@ -1,6 +1,11 @@
 package com.toast.apocalypse.common.capability.entity_marker;
 
-public interface IEntityMarkerCapability {
+import net.minecraft.nbt.ByteTag;
+import net.minecraftforge.common.capabilities.AutoRegisterCapability;
+import net.minecraftforge.common.util.INBTSerializable;
+
+@AutoRegisterCapability
+public interface IEntityMarkerCapability extends INBTSerializable<ByteTag> {
 
     void setMarked(boolean marked);
 

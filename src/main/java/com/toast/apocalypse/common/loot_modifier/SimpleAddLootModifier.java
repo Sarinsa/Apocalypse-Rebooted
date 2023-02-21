@@ -1,108 +1,84 @@
 package com.toast.apocalypse.common.loot_modifier;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.mojang.serialization.JsonOps;
-import com.toast.apocalypse.common.core.Apocalypse;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.LootContext;
-import net.minecraft.loot.conditions.ILootCondition;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.ListCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.toast.apocalypse.common.core.register.ApocalypseLootMods;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.common.loot.LootModifier;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
 import java.util.function.Supplier;
 
 public class SimpleAddLootModifier extends LootModifier {
 
-    private final ResourceLocation[] targetLootTables;
-    private final Supplier<Item> itemToAdd;
-    private final double chance;
-    private final int minAmount;
-    private final int maxAmount;
+    private static final ListCodec<ResourceLocation> RL_LIST_CODEC = new ListCodec<>(ResourceLocation.CODEC);
+
+    public final Item itemToAdd;
+    public final double chance;
+    public final int maxStackCount;
+    public final int minStackCount;
+    public final List<ResourceLocation> lootTables;
+
+
+    public static final Supplier<Codec<SimpleAddLootModifier>> CODEC = () -> RecordCodecBuilder.create(inst -> LootModifier.codecStart(inst)
+            .and(inst.group(
+                            ForgeRegistries.ITEMS.getCodec()
+                                    .fieldOf("item")
+                                    .forGetter(m -> m.itemToAdd),
+                            Codec.DOUBLE.fieldOf("chance")
+                                    .forGetter(m -> m.chance),
+                            Codec.INT.fieldOf("maxCount")
+                                    .forGetter(m -> m.maxStackCount),
+                            Codec.INT.fieldOf("minCount")
+                                    .forGetter(m -> m.minStackCount),
+                            RL_LIST_CODEC
+                                    .fieldOf("lootTable")
+                                    .forGetter(m -> m.lootTables)
+                    )
+            )
+            .apply(inst, SimpleAddLootModifier::new)
+    );
 
     /**
      * Constructs a LootModifier.
      *
      * @param conditionsIn the ILootConditions that need to be matched before the loot is modified.
      */
-    public SimpleAddLootModifier(ILootCondition[] conditionsIn, ResourceLocation[] targetLootTables, Supplier<Item> itemToAdd, double chance, int minAmount, int maxAmount) {
+    public SimpleAddLootModifier(LootItemCondition[] conditionsIn, Item itemToAdd, double chance, int maxStackCount, int minStackCount, List<ResourceLocation> lootTables) {
         super(conditionsIn);
-
-        if (minAmount < 1 || minAmount > maxAmount || chance > 1 || chance < 0) {
-            throw new IllegalArgumentException("SimpleAddLootModifier does not support minAmount below 1 or minAmount being greater than maxAmount. Chance must also be between 0-1.");
-        }
-        this.targetLootTables = targetLootTables;
         this.itemToAdd = itemToAdd;
         this.chance = chance;
-        this.minAmount = minAmount;
-        this.maxAmount = maxAmount;
+        this.maxStackCount = maxStackCount;
+        this.minStackCount = minStackCount;
+        this.lootTables = lootTables;
     }
 
     @Nonnull
     @Override
-    protected List<ItemStack> doApply(List<ItemStack> generatedLoot, LootContext context) {
-        for (ResourceLocation rl : targetLootTables) {
-            if (context.getQueriedLootTableId().equals(rl)) {
-                Random random = context.getRandom();
+    protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
+        if (lootTables.contains(context.getQueriedLootTableId())) {
+            Random random = new Random();
 
-                if (random.nextDouble() <= chance) {
-                    generatedLoot.add(new ItemStack(itemToAdd.get(), minAmount + random.nextInt(maxAmount - minAmount)));
-                }
+            if (random.nextDouble() <= chance) {
+                ItemStack stack = new ItemStack(this.itemToAdd, random.nextInt(this.maxStackCount + 1));
+                generatedLoot.add(stack);
             }
         }
         return generatedLoot;
     }
 
-    public static class Serializer extends GlobalLootModifierSerializer<SimpleAddLootModifier> {
-
-        @Override
-        public SimpleAddLootModifier read(ResourceLocation location, JsonObject object, ILootCondition[] lootConditions) {
-            Item itemToAdd = ForgeRegistries.ITEMS.getValue(new ResourceLocation(JSONUtils.getAsString(object, "item")));
-            int maxStackCount = JSONUtils.getAsInt(object, "maxCount");
-            int minStackCount = JSONUtils.getAsInt(object, "minCount");
-            double chance = JSONUtils.getAsFloat(object, "chance");
-
-            List<ResourceLocation> lootTables = new ArrayList<>();
-            JsonArray jsonArray = JSONUtils.getAsJsonArray(object, "lootTables");
-
-            for (JsonElement element : jsonArray) {
-                ResourceLocation rl = ResourceLocation.tryParse(element.getAsString());
-
-                if (rl != null) {
-                    lootTables.add(rl);
-                }
-            }
-            return new SimpleAddLootModifier(lootConditions, lootTables.toArray(new ResourceLocation[0]), () -> itemToAdd, chance, minStackCount, maxStackCount);
-        }
-
-        @Override
-        public JsonObject write(SimpleAddLootModifier instance) {
-            final JsonObject json = this.makeConditions(instance.conditions);
-            json.addProperty("item", Objects.requireNonNull(instance.itemToAdd.get().getRegistryName()).toString());
-            json.addProperty("maxCount", instance.maxAmount);
-            json.addProperty("minCount", instance.minAmount);
-            json.addProperty("chance", instance.chance);
-
-            JsonArray lootTables = new JsonArray();
-
-            for (ResourceLocation rl : instance.targetLootTables) {
-                lootTables.add(ResourceLocation.CODEC.encodeStart(JsonOps.INSTANCE, rl)
-                        .getOrThrow(false, Apocalypse.LOGGER::error));
-            }
-            json.add("lootTables", lootTables);
-
-            return json;
-        }
+    @Override
+    public Codec<? extends IGlobalLootModifier> codec() {
+        return ApocalypseLootMods.SIMPLE_ADD_LOOT_MOD.get();
     }
 }

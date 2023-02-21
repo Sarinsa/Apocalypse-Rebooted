@@ -1,12 +1,12 @@
 package com.toast.apocalypse.common.network;
 
-import com.toast.apocalypse.common.entity.living.GrumpEntity;
+import com.toast.apocalypse.common.entity.living.Grump;
 import com.toast.apocalypse.common.network.message.*;
 import com.toast.apocalypse.common.util.CapabilityHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
@@ -20,11 +20,11 @@ public class NetworkHelper {
      *
      * @param multiplier The new difficulty multiplier.
      */
-    public static void sendUpdatePlayerDifficultyMult(@Nonnull ServerPlayerEntity player, double multiplier) {
+    public static void sendUpdatePlayerDifficultyMult(@Nonnull ServerPlayer player, double multiplier) {
         PacketHandler.sendToClient(new S2CUpdatePlayerDifficultyRate(multiplier), player);
     }
 
-    public static void sendUpdatePlayerDifficultyMult(@Nonnull ServerPlayerEntity player) {
+    public static void sendUpdatePlayerDifficultyMult(@Nonnull ServerPlayer player) {
         PacketHandler.sendToClient(new S2CUpdatePlayerDifficultyRate(CapabilityHelper.getPlayerDifficultyMult(player)), player);
     }
 
@@ -34,11 +34,11 @@ public class NetworkHelper {
      *
      * @param difficulty The player's new difficulty.
      */
-    public static void sendUpdatePlayerDifficulty(@Nonnull ServerPlayerEntity player, long difficulty) {
+    public static void sendUpdatePlayerDifficulty(@Nonnull ServerPlayer player, long difficulty) {
         PacketHandler.sendToClient(new S2CUpdatePlayerDifficulty(difficulty), player);
     }
 
-    public static void sendUpdatePlayerDifficulty(@Nonnull ServerPlayerEntity player) {
+    public static void sendUpdatePlayerDifficulty(@Nonnull ServerPlayer player) {
         PacketHandler.sendToClient(new S2CUpdatePlayerDifficulty(CapabilityHelper.getPlayerDifficulty(player)), player);
     }
 
@@ -48,11 +48,11 @@ public class NetworkHelper {
      *
      * @param maxDifficulty The player's new max difficulty.
      */
-    public static void sendUpdatePlayerMaxDifficulty(@Nonnull ServerPlayerEntity player, long maxDifficulty) {
+    public static void sendUpdatePlayerMaxDifficulty(@Nonnull ServerPlayer player, long maxDifficulty) {
         PacketHandler.sendToClient(new S2CUpdatePlayerMaxDifficulty(maxDifficulty), player);
     }
 
-    public static void sendUpdatePlayerMaxDifficulty(@Nonnull ServerPlayerEntity player) {
+    public static void sendUpdatePlayerMaxDifficulty(@Nonnull ServerPlayer player) {
         PacketHandler.sendToClient(new S2CUpdatePlayerMaxDifficulty(CapabilityHelper.getMaxPlayerDifficulty(player)), player);
     }
 
@@ -64,7 +64,7 @@ public class NetworkHelper {
      * @param entity The entity to update velocity for.
      * @param deltaMovement The new velocity vector.
      */
-    public static void sendEntityVelocityUpdate(@Nonnull ServerPlayerEntity player, Entity entity, Vector3d deltaMovement) {
+    public static void sendEntityVelocityUpdate(@Nonnull ServerPlayer player, Entity entity, Vec3 deltaMovement) {
         PacketHandler.sendToClient(new S2CUpdateEntityVelocity(entity, deltaMovement), player);
     }
 
@@ -73,7 +73,7 @@ public class NetworkHelper {
      * to update the overworld moon phase
      * value in {@link com.toast.apocalypse.client.ClientUtil}
      */
-    public static void sendMoonPhaseUpdate(@Nonnull ServerPlayerEntity player, ServerWorld overworld) {
+    public static void sendMoonPhaseUpdate(@Nonnull ServerPlayer player, ServerLevel overworld) {
         PacketHandler.sendToClient(new S2CUpdateMoonPhase(overworld.dimensionType().moonPhase(overworld.getDayTime())), player);
     }
 
@@ -81,14 +81,14 @@ public class NetworkHelper {
      * Sends a message from the server to client
      * to update unlocked mob wiki indexes.
      */
-    public static void sendMobWikiIndexUpdate(@Nonnull ServerPlayerEntity player, int[] unlockedIndexes) {
+    public static void sendMobWikiIndexUpdate(@Nonnull ServerPlayer player, int[] unlockedIndexes) {
         PacketHandler.sendToClient(new S2CUpdateMobWikiIndexes(unlockedIndexes), player);
     }
 
     /**
      * Used when a player joins the world.
      */
-    public static void sendMobWikiIndexUpdate(@Nonnull ServerPlayerEntity player) {
+    public static void sendMobWikiIndexUpdate(@Nonnull ServerPlayer player) {
         PacketHandler.sendToClient(new S2CUpdateMobWikiIndexes(CapabilityHelper.getMobWikiIndexes(player)), player);
     }
 
@@ -96,7 +96,7 @@ public class NetworkHelper {
      * Sends a message from the server to client
      * to open the mob wiki screen.
      */
-    public static void openMobWikiScreen(@Nonnull ServerPlayerEntity player) {
+    public static void openMobWikiScreen(@Nonnull ServerPlayer player) {
         PacketHandler.sendToClient(new S2COpenMobWikiScreen(player.getUUID()), player);
     }
 
@@ -110,11 +110,11 @@ public class NetworkHelper {
      * 0 - Replaces weather render handlers with acid rain render handlers.<br>
      * 1 - Removes acid rain weather render handlers from WorldRenderer if present.
      */
-    public static void sendSimpleClientTaskRequest(@Nonnull ServerPlayerEntity player, byte action) {
+    public static void sendSimpleClientTaskRequest(@Nonnull ServerPlayer player, byte action) {
         PacketHandler.sendToClient(new S2CSimpleClientTask(action), player);
     }
 
-    public static void openGrumpInventory(@Nonnull ServerPlayerEntity player, int containerId, @Nonnull GrumpEntity grump) {
+    public static void openGrumpInventory(@Nonnull ServerPlayer player, int containerId, @Nonnull Grump grump) {
         PacketHandler.sendToClient(new S2COpenGrumpInventory(player.getUUID(), containerId, grump.getId()), player);
     }
 

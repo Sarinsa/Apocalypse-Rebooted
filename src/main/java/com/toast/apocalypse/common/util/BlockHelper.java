@@ -1,14 +1,14 @@
 package com.toast.apocalypse.common.util;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Effects;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.ForgeMod;
 
 /**
  * Used to determine whether mobs can harvest blocks and how fast they can break them.
@@ -16,18 +16,18 @@ import net.minecraftforge.common.ForgeHooks;
 public class BlockHelper {
 
     /** Returns true if the mob should destroy the block. */
-    public static boolean shouldDamage(BlockPos pos, LivingEntity entity, boolean needsTool, World world) {
+    public static boolean shouldDamage(BlockPos pos, LivingEntity entity, boolean needsTool, Level level) {
         ItemStack heldStack = entity.getUseItem();
-        BlockState state = world.getBlockState(pos);
-        float destroySpeed = state.getDestroySpeed(world, pos);
+        BlockState state = level.getBlockState(pos);
+        float destroySpeed = state.getDestroySpeed(level, pos);
 
-        return destroySpeed >= 0.0F && (!needsTool || state.requiresCorrectToolForDrops() || heldStack.isEmpty() && ForgeHooks.canEntityDestroy(world, pos, entity));
+        return destroySpeed >= 0.0F && (!needsTool || state.requiresCorrectToolForDrops() || heldStack.isEmpty() && ForgeHooks.canEntityDestroy(level, pos, entity));
     }
 
     /** Returns the amount of damage to deal to a block. */
-    public static float getDamageAmount(LivingEntity entity, World world, BlockPos pos) {
-        BlockState state = world.getBlockState(pos);
-        float destroySpeed = state.getDestroySpeed(world, pos);
+    public static float getDamageAmount(LivingEntity entity, Level level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        float destroySpeed = state.getDestroySpeed(level, pos);
 
         if (destroySpeed < 0.0F)
             return 0.0F;
@@ -61,14 +61,14 @@ public class BlockHelper {
             }
         }
 
-        if (entity.hasEffect(Effects.DIG_SPEED)) {
-            strength *= 1.0F + (entity.getEffect(Effects.DIG_SPEED).getAmplifier() + 1) * 0.2F;
+        if (entity.hasEffect(MobEffects.DIG_SPEED)) {
+            strength *= 1.0F + (entity.getEffect(MobEffects.DIG_SPEED).getAmplifier() + 1) * 0.2F;
         }
-        if (entity.hasEffect(Effects.DIG_SLOWDOWN)) {
-            strength *= 1.0F - (entity.getEffect(Effects.DIG_SLOWDOWN).getAmplifier() + 1) * 0.2F;
+        if (entity.hasEffect(MobEffects.DIG_SLOWDOWN)) {
+            strength *= 1.0F - (entity.getEffect(MobEffects.DIG_SLOWDOWN).getAmplifier() + 1) * 0.2F;
         }
 
-        if (entity.isEyeInFluid(FluidTags.WATER) && !EnchantmentHelper.hasAquaAffinity(entity)) {
+        if (entity.isEyeInFluidType(ForgeMod.WATER_TYPE.get()) && !EnchantmentHelper.hasAquaAffinity(entity)) {
             strength /= 5.0F;
         }
         if (!entity.isOnGround()) {

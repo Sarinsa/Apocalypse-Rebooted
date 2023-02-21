@@ -6,12 +6,11 @@ import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import com.toast.apocalypse.common.util.VersionCheckHelper;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Util;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.Util;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -31,7 +30,7 @@ public class PlayerEvents {
         String updateMessage = VersionCheckHelper.getUpdateMessage();
 
         if (updateMessage != null) {
-            event.getPlayer().sendMessage(new StringTextComponent(updateMessage), Util.NIL_UUID);
+            event.getEntity().sendSystemMessage(Component.literal(updateMessage));
         }
     }
 
@@ -41,22 +40,20 @@ public class PlayerEvents {
      */
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerTrySleep(PlayerSleepInBedEvent event) {
-        PlayerEntity player = event.getPlayer();
+        Player player = event.getEntity();
 
         if (player.isSleeping() || !player.isAlive())
             return;
 
         if (!player.getCommandSenderWorld().isClientSide && Apocalypse.INSTANCE.getDifficultyManager().isFullMoon()) {
-            event.setResult(PlayerEntity.SleepResult.NOT_POSSIBLE_HERE);
-            player.displayClientMessage(new TranslationTextComponent(References.TRY_SLEEP_FULL_MOON), true);
+            event.setResult(Player.BedSleepingProblem.NOT_POSSIBLE_HERE);
+            player.displayClientMessage(Component.translatable(References.TRY_SLEEP_FULL_MOON), true);
         }
     }
 
     @SubscribeEvent
     public void onPlayerChangeDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
-        if (event.getPlayer() instanceof ServerPlayerEntity) {
-            ServerPlayerEntity serverPlayer = (ServerPlayerEntity) event.getPlayer();
-
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             NetworkHelper.sendUpdatePlayerDifficulty(serverPlayer);
             NetworkHelper.sendMobWikiIndexUpdate(serverPlayer);
         }
@@ -68,13 +65,12 @@ public class PlayerEvents {
      */
     @SubscribeEvent
     public void onPlayerCloned(PlayerEvent.Clone event) {
-        if (event.getPlayer() instanceof ServerPlayerEntity) {
-            ServerPlayerEntity newPlayer = (ServerPlayerEntity) event.getPlayer();
-            ServerPlayerEntity originalPlayer = (ServerPlayerEntity) event.getOriginal();
+        if (event.getEntity() instanceof ServerPlayer newPlayer) {
+            ServerPlayer originalPlayer = (ServerPlayer) event.getOriginal();
 
             long difficulty = CapabilityHelper.getPlayerDifficulty(originalPlayer);
             long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(originalPlayer);
-            CompoundNBT eventData = CapabilityHelper.getEventData(originalPlayer);
+            CompoundTag eventData = CapabilityHelper.getEventData(originalPlayer);
             int[] mobWikiIndexes = CapabilityHelper.getMobWikiIndexes(originalPlayer);
 
             CapabilityHelper.setPlayerDifficulty(newPlayer, difficulty);

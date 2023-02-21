@@ -1,39 +1,38 @@
 package com.toast.apocalypse.client.mobwiki;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 
 public final class MobEntry {
 
-    private final ITextComponent mobName;
-    private final ITextComponent[] mobDescription;
+    private final MutableComponent mobName;
+    private final MutableComponent[] mobDescription;
     private final ResourceLocation mobTexture;
     private final MobType mobType;
 
 
-    private MobEntry(ITextComponent mobName, ITextComponent[] mobDescription, ResourceLocation mobTexture, MobType mobType) {
-        this.mobName = mobName == null ? new StringTextComponent("") : mobName;
+    private MobEntry(MutableComponent mobName, MutableComponent[] mobDescription, ResourceLocation mobTexture, MobType mobType) {
+        this.mobName = mobName == null ? Component.empty() : mobName;
 
         this.mobDescription = mobDescription == null
-                ? new StringTextComponent[] { new StringTextComponent("") }
+                ? new MutableComponent[] { Component.empty() }
                 : mobDescription;
 
         this.mobTexture = mobTexture == null ? new ResourceLocation("") : mobTexture;
         this.mobType = mobType == null ? MobType.NORMAL : mobType;
     }
 
-    private MobEntry(ITextComponent mobName, ITextComponent mobDescription, ResourceLocation mobTexture, MobType mobType) {
-        this(mobName, new ITextComponent[] { mobDescription }, mobTexture, mobType);
+    private MobEntry(MutableComponent mobName, MutableComponent mobDescription, ResourceLocation mobTexture, MobType mobType) {
+        this(mobName, new MutableComponent[] { mobDescription }, mobTexture, mobType);
     }
 
-    public ITextComponent getMobName() {
+    public MutableComponent getMobName() {
         return this.mobName;
     }
 
-    public ITextComponent[] getMobDescription() {
+    public MutableComponent[] getMobDescription() {
         return this.mobDescription;
     }
 
@@ -48,8 +47,8 @@ public final class MobEntry {
     protected static final class Builder {
 
         private ResourceLocation mobTexture;
-        private ITextComponent mobName;
-        private ITextComponent mobDescription;
+        private MutableComponent mobName;
+        private MutableComponent mobDescription;
         private MobType mobType;
 
         public Builder() {
@@ -62,17 +61,17 @@ public final class MobEntry {
         }
 
         public Builder mobName(String mobName) {
-            this.mobName = new TranslationTextComponent(mobName);
+            this.mobName = Component.literal(mobName);
             return this;
         }
 
         public Builder mobName(ResourceLocation mobRegName) {
-            this.mobName = new TranslationTextComponent("entity." + mobRegName.getNamespace() + "." + mobRegName.getPath());
+            this.mobName = Component.translatable("entity." + mobRegName.getNamespace() + "." + mobRegName.getPath());
             return this;
         }
 
         public Builder mobDescription(String translationKey) {
-            this.mobDescription = new TranslationTextComponent(translationKey);
+            this.mobDescription = Component.translatable(translationKey);
             return this;
         }
 

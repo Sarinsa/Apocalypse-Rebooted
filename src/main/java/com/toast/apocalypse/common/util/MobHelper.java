@@ -1,10 +1,10 @@
 package com.toast.apocalypse.common.util;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -22,19 +22,17 @@ public class MobHelper {
      * @return True if the area is valid for spawning.
      */
     public static boolean canSpawn(LivingEntity entity) {
-        World world = entity.level;
-        return world.noCollision(entity.getBoundingBox()) && world.noCollision(entity, entity.getBoundingBox());
+        Level level = entity.level;
+        return level.noCollision(entity.getBoundingBox()) && level.noCollision(entity, entity.getBoundingBox());
     }
 
     /**
-     * Operates similarly to {@link IWorld#getLoadedEntitiesOfClass(Class, AxisAlignedBB, Predicate)}.<br>
-     * <br>
      * This method comes with a max cap. If the amount of entities that have been found exceeds the cap,
      * entities in the list will be removed from the top of the list until the list size matches the cap.
      *
      */
-    public static <T extends Entity> List<T> getLoadedEntitiesCapped(Class<? extends T> entityClass, IWorld world, AxisAlignedBB box, @Nullable Predicate<? super T> predicate, final int cap) {
-        List<T> list = world.getLoadedEntitiesOfClass(entityClass, box, predicate);
+    public static <T extends Entity> List<? extends T> getLoadedEntitiesCapped(Class<? extends T> entityClass, LevelAccessor level, AABB box, @Nullable Predicate<? super T> predicate, final int cap) {
+        List<? extends T> list = level.getEntitiesOfClass(entityClass, box, predicate);
 
         if (list.isEmpty()) {
             return list;

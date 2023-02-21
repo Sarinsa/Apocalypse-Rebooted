@@ -2,7 +2,7 @@ package com.toast.apocalypse.common.misc;
 
 import com.toast.apocalypse.common.entity.living.*;
 import com.toast.apocalypse.common.util.CapabilityHelper;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -23,11 +23,11 @@ public final class MobWikiIndexes {
     public static final int DESTROYER_INDEX = 4;
 
     static {
-        INDEXES.put(GhostEntity.class, GHOST_INDEX);
-        INDEXES.put(BreecherEntity.class, BREECHER_INDEX);
-        INDEXES.put(GrumpEntity.class, GRUMP_INDEX);
-        INDEXES.put(SeekerEntity.class, SEEKER_INDEX);
-        INDEXES.put(DestroyerEntity.class, DESTROYER_INDEX);
+        INDEXES.put(Ghost.class, GHOST_INDEX);
+        INDEXES.put(Breecher.class, BREECHER_INDEX);
+        INDEXES.put(Grump.class, GRUMP_INDEX);
+        INDEXES.put(Seeker.class, SEEKER_INDEX);
+        INDEXES.put(Destroyer.class, DESTROYER_INDEX);
     }
 
     public static void init() {}
@@ -52,7 +52,7 @@ public final class MobWikiIndexes {
      * @param player The player to unlock the index for.
      * @param clazz The class of the entity to get the index for.
      */
-    public static void awardIndex(@Nonnull ServerPlayerEntity player, Class<? extends IFullMoonMob> clazz) {
+    public static void awardIndex(@Nonnull ServerPlayer player, Class<? extends IFullMoonMob> clazz) {
         int[] unlockedIndexes = CapabilityHelper.getMobWikiIndexes(player);
         int awardedIndex = getFromClass(clazz);
 

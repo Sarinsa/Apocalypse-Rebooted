@@ -1,17 +1,17 @@
 package com.toast.apocalypse.client.screen;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.toast.apocalypse.client.ClientUtil;
 import com.toast.apocalypse.client.mobwiki.MobEntries;
 import com.toast.apocalypse.client.mobwiki.MobEntry;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.util.References;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.ChangePageButton;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.PageButton;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.client.event.RenderGuiEvent;
 import net.minecraftforge.common.MinecraftForge;
 
 public class MobWikiScreen extends Screen {
@@ -24,11 +24,11 @@ public class MobWikiScreen extends Screen {
 
     private MobEntry[] unlockedEntries;
 
-    private ChangePageButton forwardButton;
-    private ChangePageButton backButton;
+    private PageButton forwardButton;
+    private PageButton backButton;
 
     public MobWikiScreen() {
-        super(new TranslationTextComponent(References.FULL_MOON_MOB_BOOK));
+        super(Component.translatable(References.FULL_MOON_MOB_BOOK));
     }
 
     @Override
@@ -38,11 +38,11 @@ public class MobWikiScreen extends Screen {
         this.createPages();
 
         int i = (this.width - 192) / 2;
-        this.forwardButton = this.addButton(new ChangePageButton(i + 116, 159, true, (button) -> {
+        this.forwardButton = this.addWidget(new PageButton(i + 116, 159, true, (button) -> {
             this.nextPage();
         }, true));
 
-        this.backButton = this.addButton(new ChangePageButton(i + 43, 159, false, (button) -> {
+        this.backButton = this.addWidget(new PageButton(i + 43, 159, false, (button) -> {
             this.previousPage();
         }, true));
     }
@@ -104,41 +104,40 @@ public class MobWikiScreen extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float wut) {
-        this.renderBackground(matrixStack);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float wut) {
+        this.renderBackground(poseStack);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         if (this.currentEntry == MobEntries.EMPTY) {
-            this.minecraft.textureManager.bind(ADDITIONAL_PAGE);
+            RenderSystem.setShaderTexture(0, ADDITIONAL_PAGE);
             int i = (this.width - 280) / 2;
             // MatrixStack, x, y, uOffset, vOffset, uWidth, vHeight
-            this.blit(matrixStack, i, 25, 0, 0, 280, 280);
+            blit(poseStack, i, 25, 0, 0, 280, 280);
         }
         else {
-            this.renderPageContent(matrixStack, this.currentEntry);
+            renderPageContent(poseStack, this.currentEntry);
         }
     }
 
-    public void renderBackground(MatrixStack matrixStack) {
-        if (this.minecraft.level != null) {
+    public void renderBackground(PoseStack poseStack) {
+        if (minecraft.level != null) {
             // Gray transparent background
-            this.fillGradient(matrixStack, 0, 0, this.width, this.height, -1072689136, -804253680);
-            MinecraftForge.EVENT_BUS.post(new GuiScreenEvent.BackgroundDrawnEvent(this, matrixStack));
+            fillGradient(poseStack, 0, 0, width, height, -1072689136, -804253680);
         }
         else {
             // No idea how this could ever happen
-            this.renderDirtBackground(0);
+            renderDirtBackground(0);
         }
     }
 
-    private void renderPageContent(MatrixStack matrixStack, MobEntry mobEntry) {
-        this.minecraft.textureManager.bind(FIRST_PAGE);
+    private void renderPageContent(PoseStack poseStack, MobEntry mobEntry) {
+        RenderSystem.setShaderTexture(0, FIRST_PAGE);
         int i = (this.width - 192) / 2;
-        this.blit(matrixStack, i, 2, 0, 0, 192, 192);
+        blit(poseStack, i, 2, 0, 0, 192, 192);
 
-        this.minecraft.textureManager.bind(mobEntry.getMobTexture());
-        this.blit(matrixStack, i, 2, 0, 0, 192, 192);
+        RenderSystem.setShaderTexture(0, FIRST_PAGE);
+        blit(poseStack, i, 2, 0, 0, 192, 192);
 
-        drawCenteredString(matrixStack, this.font, mobEntry.getMobName(), this.width / 2, 25, -1);
+        drawCenteredString(poseStack, font, mobEntry.getMobName(), width / 2, 25, -1);
     }
 }

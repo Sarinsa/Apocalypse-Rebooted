@@ -1,15 +1,17 @@
 package com.toast.apocalypse.common.core.difficulty;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
+import com.mojang.blaze3d.shaders.Effect;
 import com.mojang.datafixers.util.Pair;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.util.References;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
 
@@ -20,14 +22,14 @@ public final class MobPotionHandler {
     /**
      * Updated on config load/reload
      */
-    public static Map<Integer, Pair<Effect, List<EntityType<?>>>> POTIONS = new HashMap<>();
+    public static Map<Integer, Pair<MobEffect, List<EntityType<?>>>> MOB_EFFECTS = new HashMap<>();
     public static double POTION_TIME;
     public static double POTION_CHANCE;
     public static double POTION_LUNAR_CHANCE;
     public static double POTION_CHANCE_MAX;
 
-    public static void handlePotions(LivingEntity livingEntity, long difficulty, boolean fullMoon, Random random) {
-        final List<Effect> availableEffects = new ArrayList<>();
+    public static void handlePotions(LivingEntity livingEntity, long difficulty, boolean fullMoon, RandomSource random) {
+        final List<MobEffect> availableEffects = new ArrayList<>();
         int scaledDifficulty = (int) (difficulty / References.DAY_LENGTH);
 
         double effectiveDifficulty = (double) (difficulty / References.DAY_LENGTH) / POTION_TIME;
@@ -41,7 +43,7 @@ public final class MobPotionHandler {
         }
         if (random.nextDouble() <= bonus) {
             // TODO - Temporary; reconsider
-            POTIONS.forEach((difficultyUnlock, pair) -> {
+            MOB_EFFECTS.forEach((difficultyUnlock, pair) -> {
                 if (difficultyUnlock <= scaledDifficulty) {
                     if (!pair.getSecond().contains(livingEntity.getType())) {
                         availableEffects.add(pair.getFirst());
@@ -51,12 +53,12 @@ public final class MobPotionHandler {
             if (availableEffects.isEmpty()) {
                 return;
             }
-            livingEntity.addEffect(new EffectInstance(availableEffects.get(random.nextInt(availableEffects.size())), 1000000));
+            livingEntity.addEffect(new MobEffectInstance(availableEffects.get(random.nextInt(availableEffects.size())), 1000000));
         }
     }
 
     public static void refreshPotionMap() {
-        POTIONS.clear();
+        MOB_EFFECTS.clear();
         CommentedConfig config = ApocalypseCommonConfig.COMMON.getPotionMap();
 
         for (CommentedConfig.Entry entry : config.entrySet()) {
@@ -72,12 +74,12 @@ public final class MobPotionHandler {
                 logError("Invalid potion effect entry found in potion effect map: {}. Entry name must contain a potion effect ID first.", key[0]);
                 continue;
             }
-            Effect effect;
+            MobEffect effect;
             int difficulty;
             List<EntityType<?>> blackList = new ArrayList<>();
 
-            if (ForgeRegistries.POTIONS.containsKey(effectId)) {
-                effect = ForgeRegistries.POTIONS.getValue(effectId);
+            if (ForgeRegistries.MOB_EFFECTS.containsKey(effectId)) {
+                effect = ForgeRegistries.MOB_EFFECTS.getValue(effectId);
             }
             else {
                 logError("Found potion effect entry with a potion effect that does not exist in the Forge registry: {}. This potion effect entry will not be loaded.", effectId);
@@ -111,8 +113,8 @@ public final class MobPotionHandler {
                         logError("Found potion effect entry \"{}\" with an invalid blacklisted entity type ({}); not a valid ResourceLocation.", key, s);
                     }
                     else {
-                        if (ForgeRegistries.ENTITIES.containsKey(entityId)) {
-                            blackList.add(ForgeRegistries.ENTITIES.getValue(entityId));
+                        if (ForgeRegistries.ENTITY_TYPES.containsKey(entityId)) {
+                            blackList.add(ForgeRegistries.ENTITY_TYPES.getValue(entityId));
                         }
                         else {
                             logError("Found potion effect entry \"{}\" with blacklisted entity type \"{}\" that does not exist in the Forge registry. The entity type will not be added to the blacklist.", key, entityId);
@@ -120,7 +122,7 @@ public final class MobPotionHandler {
                     }
                 }
             }
-            POTIONS.put(difficulty, new Pair<>(effect, blackList));
+            MOB_EFFECTS.put(difficulty, new Pair<>(effect, blackList));
         }
     }
 

@@ -1,14 +1,15 @@
 package com.toast.apocalypse.client.renderer.entity.living.seeker;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.entity.living.SeekerEntity;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
+import com.toast.apocalypse.common.entity.living.Seeker;
+import net.minecraft.client.model.GhastModel;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.client.renderer.entity.model.GhastModel;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
-public class SeekerRenderer<T extends SeekerEntity> extends MobRenderer<T, GhastModel<T>> {
+public class SeekerRenderer<T extends Seeker> extends MobRenderer<T, GhastModel<T>> {
 
     private static final ResourceLocation[] TEXTURES = {
             Apocalypse.resourceLoc("textures/entity/seeker/seeker.png"),
@@ -16,14 +17,14 @@ public class SeekerRenderer<T extends SeekerEntity> extends MobRenderer<T, Ghast
             Apocalypse.resourceLoc("textures/entity/seeker/seeker_alert.png")
     };
 
-    public SeekerRenderer(EntityRendererManager rendererManager) {
-        super(rendererManager, new GhastModel<>(), 3.0F);
+    public SeekerRenderer(EntityRendererProvider.Context context) {
+        super(context, new GhastModel<>(context.bakeLayer(ModelLayers.GHAST)), 3.0F);
         this.addLayer(new SeekerEyesLayer<>(this));
     }
 
     @Override
-    protected void scale(T destroyer, MatrixStack matrixStack, float scale) {
-        matrixStack.scale(5.0F, 5.0F, 5.0F);
+    protected void scale(T destroyer, PoseStack poseStack, float scale) {
+        poseStack.scale(5.0F, 5.0F, 5.0F);
     }
 
     @Override

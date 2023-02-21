@@ -1,8 +1,8 @@
 package com.toast.apocalypse.common.network.message;
 
 import com.toast.apocalypse.common.network.work.ServerWork;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -26,11 +26,11 @@ public class C2SUpdateGrumpDescent {
         context.setPacketHandled(true);
     }
 
-    public static C2SUpdateGrumpDescent decode(PacketBuffer buffer) {
+    public static C2SUpdateGrumpDescent decode(FriendlyByteBuf buffer) {
         return new C2SUpdateGrumpDescent(buffer.readUUID(), buffer.readBoolean());
     }
 
-    public static void encode(C2SUpdateGrumpDescent message, PacketBuffer buffer) {
+    public static void encode(C2SUpdateGrumpDescent message, FriendlyByteBuf buffer) {
         buffer.writeUUID(message.uuid);
         buffer.writeBoolean(message.keyReleased);
     }

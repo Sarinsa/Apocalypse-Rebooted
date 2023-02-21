@@ -4,12 +4,12 @@ import com.toast.apocalypse.client.screen.ApocalypseWorldCreateConfigScreen;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.CreateWorldScreen;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.ImageButton;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -26,15 +26,15 @@ public class ClientEvents {
     private final Minecraft minecraft;
 
 
-    public ClientEvents(Minecraft minecraft) {
-        this.minecraft = minecraft;
+    public ClientEvents() {
+        minecraft = Minecraft.getInstance();
     }
 
     /**
      * Renders the difficulty seen in-game
      */
     @SubscribeEvent(priority = EventPriority.NORMAL)
-    public void afterRenderGameOverlay(RenderGameOverlayEvent.Post event) {
+    public void afterRenderGameOverlay(RenderGuiOverlayEvent.Post event) {
         DifficultyRenderHandler.renderDifficulty(event, this.minecraft);
     }
 
@@ -44,42 +44,28 @@ public class ClientEvents {
      * and grace period.
      */
     @SubscribeEvent
-    public void onScreenOpened(GuiScreenEvent.InitGuiEvent.Post event) {
-        if (event.getGui() instanceof CreateWorldScreen) {
-            Screen screen = event.getGui();
+    public void onScreenOpened(ScreenEvent.Init.Post event) {
+        if (event.getScreen() instanceof CreateWorldScreen) {
+            Screen screen = event.getScreen();
 
             int x;
             int y;
 
-            switch (WIDTH) {
-                default:
-                case LEFT:
-                    x = 0;
-                    break;
-                case MIDDLE:
-                    x = (screen.width / 2) - 10;
-                    break;
-                case RIGHT:
-                    x = screen.width - 20;
-                    break;
-            }
+            x = switch (WIDTH) {
+                case LEFT -> 0;
+                case MIDDLE -> (screen.width / 2) - 10;
+                case RIGHT -> screen.width - 20;
+            };
 
-            switch (HEIGHT) {
-                default:
-                case TOP:
-                    y = 0;
-                    break;
-                case MIDDLE:
-                    y = (screen.height / 2) - 10;
-                    break;
-                case BOTTOM:
-                    y = screen.height - 20;
-                    break;
-            }
+            y = switch (HEIGHT) {
+                case TOP -> 0;
+                case MIDDLE -> (screen.height / 2) - 10;
+                case BOTTOM -> screen.height - 20;
+            };
             x += X_OFFSET;
             y += Y_OFFSET;
 
-            event.addWidget(new ImageButton(x, y, 20, 20, 0, 0, 20, GHOSTLY_ICON, 32, 64,
+            event.addListener(new ImageButton(x, y, 20, 20, 0, 0, 20, GHOSTLY_ICON, 32, 64,
                     (button) -> this.minecraft.setScreen(new ApocalypseWorldCreateConfigScreen(screen))));
         }
     }

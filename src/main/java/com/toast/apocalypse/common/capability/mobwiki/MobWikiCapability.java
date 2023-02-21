@@ -1,8 +1,11 @@
 package com.toast.apocalypse.common.capability.mobwiki;
 
-public class DefaultMobWikiCapability implements IMobWikiCapability {
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 
-    private int[] entries = new int[] {};
+public class MobWikiCapability implements IMobWikiCapability {
+
+    private int[] entries = new int[]{};
 
     @Override
     public void addEntry(int entry) {
@@ -26,5 +29,20 @@ public class DefaultMobWikiCapability implements IMobWikiCapability {
     @Override
     public int[] getEntries() {
         return this.entries;
+    }
+
+    @Override
+    public CompoundTag serializeNBT() {
+        CompoundTag tag = new CompoundTag();
+
+        tag.putIntArray("UnlockedEntries", entries);
+
+        return tag;
+    }
+
+    @Override
+    public void deserializeNBT(CompoundTag nbt) {
+        if (nbt.contains("UnlockedEntries", Tag.TAG_INT_ARRAY))
+            entries = nbt.getIntArray("UnlockedEntries");
     }
 }

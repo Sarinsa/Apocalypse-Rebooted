@@ -12,19 +12,20 @@ import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.monster.IMob;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent;
@@ -36,12 +37,11 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 public class EntityEvents {
 
-    /** Whether attribute bonuses should only be applied to mob entities. */
-    public static boolean MOBS_ONLY;
+    /** Whether attribute bonuses should only be applied to enemy mobs. */
+    public static boolean ENIMIES_ONLY;
 
     /**
      * A Map containing all the difficulty-limited EntityTypes and their
@@ -55,8 +55,8 @@ public class EntityEvents {
      */
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onDespawnCheck(LivingSpawnEvent.AllowDespawn event) {
-        if (!event.getWorld().isClientSide()) {
-            if (event.getEntityLiving() instanceof IFullMoonMob && Apocalypse.INSTANCE.getDifficultyManager().isFullMoonNight()) {
+        if (!event.getLevel().isClientSide()) {
+            if (event.getEntity() instanceof IFullMoonMob && Apocalypse.INSTANCE.getDifficultyManager().isFullMoonNight()) {
                 event.setResult(Event.Result.DENY);
             }
         }
@@ -68,16 +68,17 @@ public class EntityEvents {
      */
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onCheckSpawn(LivingSpawnEvent.CheckSpawn event) {
-        SpawnReason spawnReason = event.getSpawnReason();
+        MobSpawnType spawnType = event.getSpawnReason();
 
-        if (spawnReason == SpawnReason.SPAWNER || spawnReason == SpawnReason.SPAWN_EGG || spawnReason == SpawnReason.COMMAND || spawnReason == SpawnReason.MOB_SUMMONED || spawnReason == SpawnReason.STRUCTURE)
+        if (spawnType == MobSpawnType.SPAWNER || spawnType == MobSpawnType.SPAWN_EGG || spawnType == MobSpawnType.COMMAND
+                || spawnType == MobSpawnType.MOB_SUMMONED || spawnType == MobSpawnType.STRUCTURE)
             return;
 
-        EntityType<?> entityType = event.getEntityLiving().getType();
+        EntityType<?> entityType = event.getEntity().getType();
 
         if (MOB_DIFFICULTIES.containsKey(entityType)) {
             final double neededDifficulty = MOB_DIFFICULTIES.get(entityType);
-            final long nearestDifficulty = (PlayerDifficultyManager.getNearestPlayerDifficulty(event.getWorld(), event.getEntityLiving())) / References.DAY_LENGTH;
+            final long nearestDifficulty = (PlayerDifficultyManager.getNearestPlayerDifficulty(event.getLevel(), event.getEntity())) / References.DAY_LENGTH;
 
             if (nearestDifficulty < neededDifficulty)
                 event.setResult(Event.Result.DENY);
@@ -88,28 +89,26 @@ public class EntityEvents {
      * Handles equipment and potion effects for mobs.
      */
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onEntityJoinWorld(EntityJoinWorldEvent event) {
-        if (event.getWorld().isClientSide)
+    public void onEntityJoinWorld(EntityJoinLevelEvent event) {
+        if (event.getLevel().isClientSide)
             return;
 
-        if (!(event.getEntity() instanceof LivingEntity) || event.getEntity() instanceof PlayerEntity)
+        if (!(event.getEntity() instanceof LivingEntity livingEntity) || event.getEntity() instanceof Player)
             return;
-
-        LivingEntity livingEntity = (LivingEntity) event.getEntity();
 
         if (CapabilityHelper.isEntityMarked(livingEntity))
             return;
 
-        World world = livingEntity.getCommandSenderWorld();
-        Random random = world.getRandom();
-        final long difficulty = PlayerDifficultyManager.getNearestPlayerDifficulty(world, livingEntity);
+        Level level = livingEntity.getCommandSenderWorld();
+        RandomSource random = level.getRandom();
+        final long difficulty = PlayerDifficultyManager.getNearestPlayerDifficulty(level, livingEntity);
         final boolean fullMoon = Apocalypse.INSTANCE.getDifficultyManager().isFullMoonNight();
 
         // Don't do anything if the player is still on grace period
         if (difficulty <= 0L)
             return;
 
-        if (!(livingEntity instanceof IMob) && MOBS_ONLY)
+        if (!(livingEntity instanceof Enemy) && ENIMIES_ONLY)
             return;
 
         MobAttributeHandler.handleAttributes(livingEntity, difficulty, fullMoon);
@@ -149,18 +148,17 @@ public class EntityEvents {
      */
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onEntityStruckByLightning(EntityStruckByLightningEvent event) {
-        if (event.getEntity() instanceof ItemEntity) {
-            ItemEntity itemEntity = (ItemEntity) event.getEntity();
+        if (event.getEntity() instanceof ItemEntity itemEntity) {
             Item item = itemEntity.getItem().getItem();
 
             if (item == Items.BREAD) {
-                World world = event.getEntity().getCommandSenderWorld();
+                Level level = event.getEntity().getCommandSenderWorld();
                 int itemCount = itemEntity.getItem().getCount();
                 ItemStack stack = new ItemStack(ApocalypseItems.FATHERLY_TOAST.get(), itemCount);
                 // Toast level, nice
                 stack.getOrCreateTag().putInt("ToastLevel", event.getEntity().level.random.nextInt(99) + 1);
-                world.addFreshEntity(new ItemEntity(world, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), stack));
-                itemEntity.remove();
+                level.addFreshEntity(new ItemEntity(level, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), stack));
+                itemEntity.discard();
             }
             else if (item == ApocalypseItems.FATHERLY_TOAST.get())
                 event.setCanceled(true);
@@ -191,8 +189,8 @@ public class EntityEvents {
             }
             EntityType<?> entityType;
 
-            if (ForgeRegistries.ENTITIES.containsKey(entityId)) {
-                entityType = ForgeRegistries.ENTITIES.getValue(entityId);
+            if (ForgeRegistries.ENTITY_TYPES.containsKey(entityId)) {
+                entityType = ForgeRegistries.ENTITY_TYPES.getValue(entityId);
             }
             else {
                 logError("Found mob difficulty entry with a entity ID that does not exist in the Forge registry: {}. This mob difficulty entry will not be loaded.", entityId);

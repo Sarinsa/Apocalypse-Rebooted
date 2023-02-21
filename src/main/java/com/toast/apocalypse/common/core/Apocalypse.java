@@ -4,7 +4,6 @@ import com.toast.apocalypse.api.impl.ApocalypseAPI;
 import com.toast.apocalypse.api.impl.RegistryHelper;
 import com.toast.apocalypse.api.plugin.ApocalypsePlugin;
 import com.toast.apocalypse.api.plugin.IApocalypsePlugin;
-import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.command.CommandRegister;
 import com.toast.apocalypse.common.command.argument.ApocalypseArgumentTypes;
 import com.toast.apocalypse.common.compat.top.TOPEntityInfoProvider;
@@ -21,11 +20,8 @@ import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.misc.MobWikiIndexes;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import com.toast.apocalypse.common.util.VersionCheckHelper;
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.ModList;
@@ -34,7 +30,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLModIdMappingEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
@@ -84,6 +79,7 @@ public class Apocalypse {
 
         // Misc events
         eventBus.addListener(ApocalypseEntities::createEntityAttributes);
+        eventBus.addListener(ApocalypseEntities::registerEntitySpawnPlacement);
         eventBus.addListener(this::onCommonSetup);
         eventBus.addListener(this::onLoadComplete);
         eventBus.addListener(this::sendIMCMessages);
@@ -95,7 +91,6 @@ public class Apocalypse {
         MinecraftForge.EVENT_BUS.register(new CapabilityAttachEvents());
         MinecraftForge.EVENT_BUS.register(this.getDifficultyManager());
         MinecraftForge.EVENT_BUS.register(new VillagerTradeEvents());
-        MinecraftForge.EVENT_BUS.register(new BiomeEvents());
         MinecraftForge.EVENT_BUS.addListener(CommandRegister::registerCommands);
 
         // Register game objects
@@ -106,11 +101,12 @@ public class Apocalypse {
         ApocalypseEntities.ENTITIES.register(eventBus);
         ApocalypseParticles.PARTICLES.register(eventBus);
         ApocalypseLootMods.LOOT_MODIFIERS.register(eventBus);
-        ApocalypseTileEntities.TILE_ENTITIES.register(eventBus);
+        ApocalypseBlockEntities.BLOCK_ENTITIES.register(eventBus);
+        ApocalypseArgumentTypes.ARGUMENTS.register(eventBus);
 
         // Missing mapping listeners
-        MinecraftForge.EVENT_BUS.addGenericListener(Block.class, ApocalypseBlocks::onMissingMappings);
-        MinecraftForge.EVENT_BUS.addGenericListener(Item.class, ApocalypseItems::onMissingMappings);
+        MinecraftForge.EVENT_BUS.addListener(ApocalypseBlocks::onMissingMappings);
+        MinecraftForge.EVENT_BUS.addListener(ApocalypseItems::onMissingMappings);
 
         // Config stuff
         ModLoadingContext context = ModLoadingContext.get();
@@ -120,11 +116,6 @@ public class Apocalypse {
     }
 
     public void onCommonSetup(FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> {
-            ApocalypseArgumentTypes.register();
-            ApocalypseCapabilities.registerCapabilities();
-            ApocalypseEntities.registerEntitySpawnPlacement();
-        });
     }
 
     public void onLoadComplete(FMLLoadCompleteEvent event) {
@@ -140,22 +131,22 @@ public class Apocalypse {
             scanData.getAnnotations().forEach(annotationData -> {
 
                 // Look for classes annotated with @ApocalypsePlugin
-                if (annotationData.getAnnotationType().getClassName().equals(ApocalypsePlugin.class.getName())) {
-                    String modid = (String) annotationData.getAnnotationData().getOrDefault("modid", "");
+                if (annotationData.annotationType().getClassName().equals(ApocalypsePlugin.class.getName())) {
+                    String modid = (String) annotationData.annotationData().getOrDefault("modid", "");
 
                     if (ModList.get().isLoaded(modid) || modid.isEmpty()) {
                         try {
-                            Class<?> pluginClass = Class.forName(annotationData.getMemberName());
+                            Class<?> pluginClass = Class.forName(annotationData.memberName());
 
                             if (IApocalypsePlugin.class.isAssignableFrom(pluginClass)) {
-                                IApocalypsePlugin plugin = (IApocalypsePlugin) pluginClass.newInstance();
+                                IApocalypsePlugin plugin = (IApocalypsePlugin) pluginClass.getConstructor().newInstance();
                                 registryHelper.setCurrentPluginId(plugin.getPluginId());
                                 plugin.load(getApi());
-                                LOGGER.info("Found Apocalypse plugin at {} with plugin ID: {}", annotationData.getMemberName(), plugin.getPluginId());
+                                LOGGER.info("Found Apocalypse plugin at {} with plugin ID: {}", annotationData.memberName(), plugin.getPluginId());
                             }
                         }
                         catch (Exception e) {
-                            LOGGER.error("Failed to load Apocalypse plugin at {}! Damn dag nabit damnit!", annotationData.getMemberName());
+                            LOGGER.error("Failed to load Apocalypse plugin at {}! Damn dag nabit damnit!", annotationData.memberName());
                             e.printStackTrace();
                         }
                     }

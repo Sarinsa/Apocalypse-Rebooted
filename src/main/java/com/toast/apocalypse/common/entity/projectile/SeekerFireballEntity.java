@@ -1,44 +1,46 @@
 package com.toast.apocalypse.common.entity.projectile;
 
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
-import com.toast.apocalypse.common.entity.living.SeekerEntity;
-import com.toast.apocalypse.common.misc.SeekerExplosionContext;
-import net.minecraft.block.AbstractFireBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.projectile.AbstractFireballEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkHooks;
+import com.toast.apocalypse.common.entity.living.Seeker;
+import com.toast.apocalypse.common.misc.SeekerExplosionCalculator;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.projectile.Fireball;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.FireBlock;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 
-public class SeekerFireballEntity extends AbstractFireballEntity {
+public class SeekerFireballEntity extends Fireball {
 
     private boolean sawTarget = false;
     private boolean reflected = false;
     private int explosionStrength = 1;
 
-    public SeekerFireballEntity(EntityType<? extends AbstractFireballEntity> entityType, World world) {
-        super(entityType, world);
+    public SeekerFireballEntity(EntityType<? extends Fireball> entityType, Level level) {
+        super(entityType, level);
     }
 
-    public SeekerFireballEntity(World world, SeekerEntity seeker, boolean sawTarget, double x, double y, double z) {
-        super(ApocalypseEntities.SEEKER_FIREBALL.get(), seeker, x, y, z, world);
+    public SeekerFireballEntity(Level level, Seeker seeker, boolean sawTarget, double x, double y, double z) {
+        super(ApocalypseEntities.SEEKER_FIREBALL.get(), seeker, x, y, z, level);
         this.sawTarget = sawTarget;
         this.explosionStrength = seeker.getExplosionPower();
     }
@@ -48,28 +50,28 @@ public class SeekerFireballEntity extends AbstractFireballEntity {
      * explosion. A custom ExplosionContext is used in order
      * to explode blocks even if they are surrounded by a fluid.
      */
-    public static void seekerExplosion(World world, @Nullable Entity entity, DamageSource damageSource, double x, double y, double z, float explosionPower, boolean enableMobGrief) {
-        Explosion.Mode mode = enableMobGrief ? Explosion.Mode.DESTROY : Explosion.Mode.NONE;
-        world.explode(entity, damageSource, new SeekerExplosionContext(), x, y, z, explosionPower, true, mode);
+    public static void seekerExplosion(Level level, @Nullable Entity entity, DamageSource damageSource, double x, double y, double z, float explosionPower, boolean enableMobGrief) {
+        Explosion.BlockInteraction mode = enableMobGrief ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE;
+        level.explode(entity, damageSource, new SeekerExplosionCalculator(), x, y, z, explosionPower, true, mode);
     }
 
     @Override
-    protected void onHitEntity(EntityRayTraceResult result) {
+    protected void onHitEntity(EntityHitResult result) {
         Entity entity = result.getEntity();
-        World world = entity.getCommandSenderWorld();
+        Level level = entity.getCommandSenderWorld();
 
-        if (entity instanceof SeekerEntity) {
-            boolean enableMobGrief = world.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) || net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(world, this.getEntity());
-            Explosion.Mode mode = enableMobGrief ? Explosion.Mode.DESTROY : Explosion.Mode.NONE;
+        if (entity instanceof Seeker) {
+            boolean enableMobGrief = level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) || net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(level, this);
+            Explosion.BlockInteraction interaction = enableMobGrief ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE;
 
-            if (!world.isClientSide) {
-                entity.hurt(DamageSource.fireball(this, this.getOwner()), 1000.0F);
-                world.explode(null, this.getX(), this.getY(), this.getZ(), 2.0F, mode);
-                this.remove();
+            if (!level.isClientSide) {
+                entity.hurt(DamageSource.fireball(this, getOwner()), 1000.0F);
+                level.explode(null, getX(), getY(), getZ(), 2.0F, interaction);
+                discard();
             }
         }
         else if (!entity.fireImmune()) {
-            Entity owner = this.getOwner();
+            Entity owner = getOwner();
             int remainingFireTicks = entity.getRemainingFireTicks();
             entity.setSecondsOnFire(5);
             boolean flag = entity.hurt(DamageSource.fireball(this, owner), 5.0F);
@@ -77,87 +79,92 @@ public class SeekerFireballEntity extends AbstractFireballEntity {
             if (!flag) {
                 entity.setRemainingFireTicks(remainingFireTicks);
             }
-            else if (owner instanceof LivingEntity) {
-                this.doEnchantDamageEffects((LivingEntity) owner, entity);
+            else if (owner instanceof LivingEntity livingEntity) {
+                this.doEnchantDamageEffects(livingEntity, entity);
             }
         }
     }
 
     @Override
-    protected void onHitBlock(BlockRayTraceResult result) {
-        World world = this.level;
+    protected void onHitBlock(BlockHitResult result) {
         Direction direction = result.getDirection();
         LivingEntity owner = null;
 
-        if (this.getOwner() instanceof LivingEntity) {
-            owner = (LivingEntity) this.getOwner();
+        if (getOwner() instanceof LivingEntity) {
+            owner = (LivingEntity) getOwner();
         }
-        boolean enabledMobGrief = world.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) || net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(world, this.getEntity());
+        boolean enabledMobGrief = level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) || ForgeEventFactory.getMobGriefingEvent(level, this);
 
-        if (!this.level.isClientSide) {
-            if (this.sawTarget) {
-                if (!(owner instanceof MobEntity) || enabledMobGrief) {
+        if (!level.isClientSide) {
+            if (sawTarget) {
+                if (!(owner instanceof Mob) || enabledMobGrief) {
                     BlockPos firePos = result.getBlockPos().relative(direction);
 
-                    if (this.level.isEmptyBlock(firePos)) {
-                        this.level.setBlockAndUpdate(firePos, AbstractFireBlock.getState(this.level, firePos));
-                        this.level.playSound(null, this.blockPosition(), SoundEvents.BLAZE_SHOOT, SoundCategory.MASTER, 2.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F);
+                    if (level.isEmptyBlock(firePos)) {
+                        level.setBlockAndUpdate(firePos, FireBlock.getState(level, firePos));
+                        level.playSound(null, blockPosition(), SoundEvents.BLAZE_SHOOT, SoundSource.MASTER, 2.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F);
                     }
                 }
             }
             else {
-                seekerExplosion(this.level, owner, DamageSource.fireball(this, this.getOwner()), this.getX(), this.getY(), this.getZ(), (float) this.explosionStrength, enabledMobGrief);
+                seekerExplosion(level, owner, DamageSource.fireball(this, getOwner()), getX(), getY(), getZ(), (float) explosionStrength, enabledMobGrief);
             }
         }
     }
 
     @Override
-    protected void onHit(RayTraceResult result) {
+    protected void onHit(HitResult result) {
         super.onHit(result);
 
-        if (!this.level.isClientSide) {
-            this.remove();
+        if (!level.isClientSide) {
+            discard();
         }
     }
 
     @Override
     public boolean hurt(DamageSource damageSource, float damage) {
-        if (this.isInvulnerableTo(damageSource))
+        if (isInvulnerableTo(damageSource))
             return false;
 
-        this.markHurt();
+        markHurt();
 
         if (damageSource.getEntity() != null) {
             Entity entity = damageSource.getEntity();
-            Vector3d vec = entity.getLookAngle();
-            this.setDeltaMovement(vec);
-            this.xPower = vec.x * 0.1D;
-            this.yPower = vec.y * 0.1D;
-            this.zPower = vec.z * 0.1D;
-            this.setOwner(entity);
+            Vec3 vec = entity.getLookAngle();
+            setDeltaMovement(vec);
+            xPower = vec.x * 0.1D;
+            yPower = vec.y * 0.1D;
+            zPower = vec.z * 0.1D;
+            setOwner(entity);
             return true;
         }
         return false;
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundNBT compoundNBT) {
-        super.addAdditionalSaveData(compoundNBT);
-        compoundNBT.putInt("ExplosionPower", this.explosionStrength);
-        compoundNBT.putBoolean("SawTarget", this.sawTarget);
-        compoundNBT.putBoolean("Reflected", this.reflected);
+    public void addAdditionalSaveData(CompoundTag compoundTag) {
+        super.addAdditionalSaveData(compoundTag);
+        compoundTag.putInt("ExplosionPower", this.explosionStrength);
+        compoundTag.putBoolean("SawTarget", this.sawTarget);
+        compoundTag.putBoolean("Reflected", this.reflected);
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundNBT compoundNBT) {
-        super.readAdditionalSaveData(compoundNBT);
-        this.explosionStrength = compoundNBT.getInt("ExplosionPower");
-        this.sawTarget = compoundNBT.getBoolean("SawTarget");
-        this.reflected = compoundNBT.getBoolean("Reflected");
+    public void readAdditionalSaveData(CompoundTag compoundTag) {
+        super.readAdditionalSaveData(compoundTag);
+
+        if (compoundTag.contains("ExplosionPower", Tag.TAG_ANY_NUMERIC))
+            this.explosionStrength = compoundTag.getInt("ExplosionPower");
+
+        if (compoundTag.contains("SawTarget", Tag.TAG_BYTE))
+            this.sawTarget = compoundTag.getBoolean("SawTarget");
+
+        if (compoundTag.contains("Reflected", Tag.TAG_BYTE))
+            this.reflected = compoundTag.getBoolean("Reflected");
     }
 
     @Override
-    public IPacket<?> getAddEntityPacket() {
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 }

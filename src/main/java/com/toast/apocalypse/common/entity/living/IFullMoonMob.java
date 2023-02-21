@@ -4,11 +4,11 @@ import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
 import com.toast.apocalypse.common.core.register.ApocalypseParticles;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MobEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -57,7 +57,7 @@ public interface IFullMoonMob {
     void setPlayerTargetUUID(@Nullable UUID playerTargetUUID);
 
     @Nullable
-    static <E extends LivingEntity & IFullMoonMob> PlayerEntity getEventTarget(E moonMob) {
+    static <E extends LivingEntity & IFullMoonMob> Player getEventTarget(E moonMob) {
         if (moonMob.getPlayerTargetUUID() != null) {
             return moonMob.level.getPlayerByUUID(moonMob.getPlayerTargetUUID());
         }
@@ -72,14 +72,14 @@ public interface IFullMoonMob {
      * checks if the full moon mob's stored value is <strong>different</strong> from the player's current
      * event generation, in which case it should despawn.
      */
-    static boolean shouldDisappear(@Nullable UUID playerTargetUUID, ServerWorld world, IFullMoonMob moonMob) {
+    static boolean shouldDisappear(@Nullable UUID playerTargetUUID, ServerLevel level, IFullMoonMob moonMob) {
         if (!ApocalypseCommonConfig.COMMON.getDespawnMobsOnDeath())
             return false;
 
         if (playerTargetUUID == null)
             return false;
 
-        ServerPlayerEntity player = world.getServer().getPlayerList().getPlayer(playerTargetUUID);
+        ServerPlayer player = level.getServer().getPlayerList().getPlayer(playerTargetUUID);
 
         // Player might be offline, do nothing
         if (player == null)
@@ -94,9 +94,9 @@ public interface IFullMoonMob {
         return false;
     }
 
-    static void spawnSmoke(ServerWorld world, MobEntity mob) {
+    static void spawnSmoke(ServerLevel level, Mob mob) {
         for (int i = 0; i < 8; i++) {
-            world.sendParticles(ApocalypseParticles.LUNAR_DESPAWN_SMOKE.get(), mob.getX(), mob.getY(), mob.getZ(), 4, 0.1, 0.1, 0.1, 0.1);
+            level.sendParticles(ApocalypseParticles.LUNAR_DESPAWN_SMOKE.get(), mob.getX(), mob.getY(), mob.getZ(), 4, 0.1, 0.1, 0.1, 0.1);
         }
     }
 }

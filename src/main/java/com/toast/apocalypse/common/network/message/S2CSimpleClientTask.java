@@ -1,8 +1,8 @@
 package com.toast.apocalypse.common.network.message;
 
 import com.toast.apocalypse.common.network.work.ClientWork;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
@@ -27,11 +27,11 @@ public class S2CSimpleClientTask {
         context.setPacketHandled(true);
     }
 
-    public static S2CSimpleClientTask decode(PacketBuffer buffer) {
+    public static S2CSimpleClientTask decode(FriendlyByteBuf buffer) {
         return new S2CSimpleClientTask(buffer.readByte());
     }
 
-    public static void encode(S2CSimpleClientTask message, PacketBuffer buffer) {
+    public static void encode(S2CSimpleClientTask message, FriendlyByteBuf buffer) {
         buffer.writeByte(message.action);
     }
 }

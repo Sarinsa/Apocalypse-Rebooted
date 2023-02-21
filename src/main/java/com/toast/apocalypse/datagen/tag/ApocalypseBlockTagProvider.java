@@ -2,8 +2,8 @@ package com.toast.apocalypse.datagen.tag;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.register.ApocalypseBlocks;
-import net.minecraft.data.BlockTagsProvider;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.tags.BlockTags;
 import net.minecraftforge.common.data.ExistingFileHelper;
 

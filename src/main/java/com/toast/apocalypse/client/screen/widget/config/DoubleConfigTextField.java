@@ -1,14 +1,16 @@
 package com.toast.apocalypse.client.screen.widget.config;
 
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.text.TranslationTextComponent;
+
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nullable;
 
 public final class DoubleConfigTextField extends AbstractConfigTextField<Double> {
 
-    public DoubleConfigTextField(FontRenderer fontRenderer, double defaultValue, double minValue, double maxValue, int x, int y, @Nullable TranslationTextComponent descriptor, @Nullable Button.ITooltip tooltip) {
+    public DoubleConfigTextField(Font fontRenderer, double defaultValue, double minValue, double maxValue, int x, int y, @Nullable MutableComponent descriptor, @Nullable Button.OnTooltip tooltip) {
         super(fontRenderer, defaultValue, minValue, maxValue, x, y, 60, 20, descriptor, tooltip);
     }
 

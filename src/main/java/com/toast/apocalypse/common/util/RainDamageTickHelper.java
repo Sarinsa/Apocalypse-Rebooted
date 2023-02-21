@@ -5,11 +5,11 @@ import com.toast.apocalypse.common.core.config.CommonConfigReloadListener;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.event.TickEvent;
 
 public class RainDamageTickHelper {
@@ -43,29 +43,29 @@ public class RainDamageTickHelper {
      * and applies the damage to the player if so.<br>
      * <br>
      *
-     * Called from {@link com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager#onServerTick(TickEvent.ServerTickEvent)}<br>
+     * Called from {@link PlayerDifficultyManager#onServerTick(TickEvent.ServerTickEvent)}<br>
      * <br>
      */
-    public void checkAndPerformRainDamageTick(Iterable<ServerWorld> serverLevels, PlayerDifficultyManager difficultyManager) {
+    public void checkAndPerformRainDamageTick(Iterable<ServerLevel> serverLevels, PlayerDifficultyManager difficultyManager) {
         if (!ApocalypseCommonConfig.COMMON.rainDamageEnabled())
             return;
 
         if (++this.timeRainDmgCheck >= RAIN_TICK_RATE) {
-            for (ServerWorld level : serverLevels) {
-                for (ServerPlayerEntity player : level.players()) {
+            for (ServerLevel level : serverLevels) {
+                for (ServerPlayer player : level.players()) {
                     if (!difficultyManager.isRainingAcid(level))
                         continue;
 
                     if (EnchantmentHelper.hasAquaAffinity(player) || !level.isRainingAt(player.blockPosition().offset(0.0D, player.getEyeHeight(), 0.0D)))
                         continue;
 
-                    ItemStack headStack = player.getItemBySlot(EquipmentSlotType.HEAD);
+                    ItemStack headStack = player.getItemBySlot(EquipmentSlot.HEAD);
 
                     if (!headStack.isEmpty()) {
                         if (headStack.getItem() == ApocalypseItems.BUCKET_HELM.get() || headStack.getItem().getMaxDamage(headStack) <= 0) {
                             continue;
                         }
-                        headStack.hurtAndBreak(player.getRandom().nextInt(2), player, (playerEntity) -> player.broadcastBreakEvent(EquipmentSlotType.HEAD));
+                        headStack.hurtAndBreak(player.getRandom().nextInt(2), player, (playerEntity) -> player.broadcastBreakEvent(EquipmentSlot.HEAD));
                     }
                     else {
                         player.hurt(ApocalypseDamageSources.RAIN_DAMAGE, RAIN_DAMAGE);

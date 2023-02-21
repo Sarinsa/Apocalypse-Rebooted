@@ -1,14 +1,15 @@
 package com.toast.apocalypse.client.renderer.entity.living.grump;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.entity.living.GrumpEntity;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
+import com.toast.apocalypse.common.entity.living.Grump;
+import net.minecraft.client.model.GhastModel;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.client.renderer.entity.model.GhastModel;
-import net.minecraft.item.Items;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Items;
 
-public class GrumpRenderer<T extends GrumpEntity> extends MobRenderer<T, GhastModel<T>> {
+public class GrumpRenderer<T extends Grump> extends MobRenderer<T, GhastModel<T>> {
 
     private static final ResourceLocation[] GRUMP_TEXTURES = new ResourceLocation[] {
             Apocalypse.resourceLoc("textures/entity/grump/grump.png"),
@@ -26,9 +27,9 @@ public class GrumpRenderer<T extends GrumpEntity> extends MobRenderer<T, GhastMo
     };
 
 
-    public GrumpRenderer(EntityRendererManager rendererManager) {
-        super(rendererManager, new GhastModel<>(), 0.5F);
-        this.addLayer(new GrumpBucketHelmetLayer<>(this));
+    public GrumpRenderer(EntityRendererProvider.Context context) {
+        super(context, new GhastModel<>(context.bakeLayer(ModelLayers.GHAST)), 0.5F);
+        this.addLayer(new GrumpBucketHelmetLayer<>(this, context.getModelSet()));
     }
 
     @Override
