@@ -24,6 +24,11 @@ public class FearwolfRunAwayGoal extends Goal {
     }
 
     @Override
+    public boolean requiresUpdateEveryTick() {
+        return true;
+    }
+
+    @Override
     public boolean canUse() {
         if (fearwolf.runningAway() && fearwolf.isAlive() && !fearwolf.isVehicle() && !fearwolf.isPassenger()) {
             Vec3 vec3 = DefaultRandomPos.getPosAway(fearwolf, 16, 7, fearwolf.position());

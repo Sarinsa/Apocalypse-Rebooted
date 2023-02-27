@@ -6,6 +6,7 @@ import com.toast.apocalypse.client.mobwiki.MobEntries;
 import com.toast.apocalypse.client.particle.LunarDespawnSmokeParticle;
 import com.toast.apocalypse.client.renderer.entity.living.breecher.BreecherRenderer;
 import com.toast.apocalypse.client.renderer.entity.living.destroyer.DestroyerRenderer;
+import com.toast.apocalypse.client.renderer.entity.living.fearwolf.FearwolfModel;
 import com.toast.apocalypse.client.renderer.entity.living.fearwolf.FearwolfRenderer;
 import com.toast.apocalypse.client.renderer.entity.living.ghost.GhostModel;
 import com.toast.apocalypse.client.renderer.entity.living.ghost.GhostRenderer;
@@ -66,7 +67,7 @@ public class ClientRegister {
         event.registerLayerDefinition(ApocalypseModelLayers.SEEKER, GhastModel::createBodyLayer);
         event.registerLayerDefinition(ApocalypseModelLayers.GRUMP, GhastModel::createBodyLayer);
         event.registerLayerDefinition(ApocalypseModelLayers.BREECHER, () -> CreeperModel.createBodyLayer(CubeDeformation.NONE));
-        event.registerLayerDefinition(ApocalypseModelLayers.FEARWOLF, WolfModel::createBodyLayer);
+        event.registerLayerDefinition(ApocalypseModelLayers.FEARWOLF, FearwolfModel::createBodyLayer);
 
         event.registerLayerDefinition(ApocalypseModelLayers.BUCKET_HELMET, BucketHelmetModel::createBodyLayer);
         event.registerLayerDefinition(ApocalypseModelLayers.GRUMP_BUCKET_HELMET, GrumpBucketHelmetModel::createBodyLayer);

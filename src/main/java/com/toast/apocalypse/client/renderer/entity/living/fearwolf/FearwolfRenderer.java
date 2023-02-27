@@ -1,10 +1,13 @@
 package com.toast.apocalypse.client.renderer.entity.living.fearwolf;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.toast.apocalypse.client.ApocalypseModelLayers;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.living.Fearwolf;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.client.renderer.entity.WolfRenderer;
 import net.minecraft.resources.ResourceLocation;
 
 public class FearwolfRenderer<T extends Fearwolf> extends MobRenderer<T, FearwolfModel<T>> {
@@ -12,7 +15,7 @@ public class FearwolfRenderer<T extends Fearwolf> extends MobRenderer<T, Fearwol
     private static final ResourceLocation TEXTURE = Apocalypse.resourceLoc("textures/entity/fearwolf/fearwolf.png");
 
     public FearwolfRenderer(EntityRendererProvider.Context context) {
-        super(context, new FearwolfModel<>(), 1.3F);
+        super(context, new FearwolfModel<>(context.bakeLayer(ApocalypseModelLayers.FEARWOLF)), 1.3F);
         this.addLayer(new FearwolfEyesLayer<>(this));
     }
 
