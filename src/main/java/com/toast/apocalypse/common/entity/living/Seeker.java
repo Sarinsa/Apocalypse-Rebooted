@@ -1,7 +1,8 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
-import com.toast.apocalypse.common.entity.living.ai.MobEntityAttackedByTargetGoal;
+import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
@@ -37,7 +38,6 @@ import net.minecraftforge.common.ForgeMod;
 import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Random;
 import java.util.function.BiPredicate;
 
 /**
@@ -72,13 +72,13 @@ public class Seeker extends AbstractFullMoonGhast {
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(0, new Seeker.AlertOtherMonstersGoal(this));
-        this.goalSelector.addGoal(1, new Seeker.FireballAttackGoal(this));
-        this.goalSelector.addGoal(2, new LookAroundGoal(this));
-        this.goalSelector.addGoal(2, new Seeker.RandomOrRelativeToTargetFlyGoal(this));
-        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, Enemy.class));
-        this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
-        this.targetSelector.addGoal(2, new SeekerNearestAttackableTargetGoal<>(this, Player.class));
+        goalSelector.addGoal(0, new Seeker.AlertOtherMonstersGoal(this));
+        goalSelector.addGoal(1, new Seeker.FireballAttackGoal(this));
+        goalSelector.addGoal(2, new LookAroundGoal(this));
+        goalSelector.addGoal(2, new Seeker.RandomOrRelativeToTargetFlyGoal(this));
+        targetSelector.addGoal(0, new MobHurtByTargetGoal(this, Enemy.class));
+        targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
+        targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, false, false));
     }
 
     @Override
@@ -89,15 +89,21 @@ public class Seeker extends AbstractFullMoonGhast {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(ALERTING, false);
+        entityData.define(ALERTING, false);
+    }
+
+    @Override
+    public void aiStep() {
+        super.aiStep();
+        Apocalypse.LOGGER.info("Target: " + getTarget());
     }
 
     public boolean isAlerting() {
-        return this.entityData.get(ALERTING);
+        return entityData.get(ALERTING);
     }
 
     private void setAlerting(boolean alerting) {
-        this.entityData.set(ALERTING, alerting);
+        entityData.set(ALERTING, alerting);
     }
 
     private boolean canAlert() {
@@ -115,7 +121,7 @@ public class Seeker extends AbstractFullMoonGhast {
 
     @Override
     public boolean hurt(DamageSource damageSource, float damage) {
-        if (this.isInvulnerableTo(damageSource)) {
+        if (isInvulnerableTo(damageSource)) {
             return false;
         }
         else if (damageSource.getDirectEntity() instanceof SeekerFireballEntity || damageSource.getDirectEntity() instanceof DestroyerFireballEntity) {
@@ -152,18 +158,6 @@ public class Seeker extends AbstractFullMoonGhast {
         return data;
     }
 
-    private static class SeekerNearestAttackableTargetGoal<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {
-
-        public SeekerNearestAttackableTargetGoal(Mob entity, Class<T> targetClass) {
-            super(entity, targetClass, false, false);
-        }
-
-        /** Friggin' large bounding box */
-        protected AABB getTargetSearchArea(double followRange) {
-            return this.mob.getBoundingBox().inflate(followRange, followRange, followRange);
-        }
-    }
-
     /** Essentially a copy of the ghast's fireball goal */
     private static class FireballAttackGoal extends Goal {
 
@@ -175,9 +169,14 @@ public class Seeker extends AbstractFullMoonGhast {
         }
 
         @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
+        }
+
+        @Override
         public boolean canUse() {
-            if (this.seeker.getTarget() != null) {
-                return !this.seeker.isAlerting();
+            if (seeker.getTarget() != null) {
+                return !seeker.isAlerting();
             }
             return false;
         }

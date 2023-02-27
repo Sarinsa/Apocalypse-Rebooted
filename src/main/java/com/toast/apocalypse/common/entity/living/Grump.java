@@ -1,18 +1,15 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.mojang.math.Vector3d;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.core.register.ApocalypseEffects;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
-import com.toast.apocalypse.common.entity.living.ai.MobEntityAttackedByTargetGoal;
+import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
 import com.toast.apocalypse.common.inventory.container.GrumpInventoryContainer;
 import com.toast.apocalypse.common.misc.PlayerKeyBindInfo;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
-import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -38,8 +35,6 @@ import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
-import net.minecraft.world.entity.animal.Wolf;
-import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Ghast;
@@ -52,7 +47,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -66,7 +60,6 @@ import net.minecraftforge.fluids.FluidType;
 import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.Optional;
-import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -109,23 +102,23 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(OWNER_UUID, Optional.empty());
-        this.entityData.define(STAND_BY, false);
-        this.entityData.define(HEAD_ITEM, ItemStack.EMPTY);
+        entityData.define(OWNER_UUID, Optional.empty());
+        entityData.define(STAND_BY, false);
+        entityData.define(HEAD_ITEM, ItemStack.EMPTY);
     }
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(0, new Grump.MeleeAttackGoal(this));
-        this.goalSelector.addGoal(1, new Grump.FollowOwnerGoal(this));
-        this.goalSelector.addGoal(2, new Grump.LookAtOwnerGoal(this, Player.class, 10.0F));
-        this.goalSelector.addGoal(3, new RandomLookAroundGoal(this));
-        this.goalSelector.addGoal(4, new LaunchMonsterHookGoal(this));
-        this.goalSelector.addGoal(5, new Grump.RandomFlyGoal(this));
-        this.targetSelector.addGoal(0, new Grump.OwnerAttackerTargetGoal(this));
-        this.targetSelector.addGoal(1, new GrumpMobEntityAttackedByTargetGoal(this, Enemy.class));
-        this.targetSelector.addGoal(2, new MoonMobPlayerTargetGoal<>(this, true));
-        this.targetSelector.addGoal(3, new GrumpNearestAttackableTargetGoal<>(this, Player.class));
+        goalSelector.addGoal(0, new Grump.MeleeAttackGoal(this));
+        goalSelector.addGoal(1, new LaunchMonsterHookGoal(this));
+        goalSelector.addGoal(2, new Grump.FollowOwnerGoal(this));
+        goalSelector.addGoal(3, new Grump.LookAtOwnerGoal(this, Player.class, 10.0F));
+        goalSelector.addGoal(4, new RandomLookAroundGoal(this));
+        goalSelector.addGoal(5, new Grump.RandomFlyGoal(this));
+        targetSelector.addGoal(0, new Grump.OwnerAttackerTargetGoal(this));
+        targetSelector.addGoal(1, new GrumpHurtByTargetGoal(this, Enemy.class));
+        targetSelector.addGoal(2, new MoonMobPlayerTargetGoal<>(this, true));
+        targetSelector.addGoal(3, new GrumpNearestAttackableTargetGoal<>(this, Player.class));
     }
 
     @Override
@@ -566,6 +559,11 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
         }
 
         @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
+        }
+
+        @Override
         public void stop() {
             grump.moveHelperController.setAction(MoveControl.Operation.WAIT);
         }
@@ -593,8 +591,12 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
         private int timeNextHookLaunch;
 
         public LaunchMonsterHookGoal(Grump grump) {
-            setFlags(EnumSet.of(Flag.TARGET));
             this.grump = grump;
+        }
+
+        @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
         }
 
         @Override
@@ -681,6 +683,7 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
 
         public OwnerAttackerTargetGoal(Grump grump) {
             super(grump, true, true);
+            setFlags(EnumSet.of(Flag.TARGET));
             this.grump = grump;
         }
 
@@ -721,12 +724,13 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
         }
     }
 
-    private static class GrumpMobEntityAttackedByTargetGoal extends MobEntityAttackedByTargetGoal {
+    private static class GrumpHurtByTargetGoal extends MobHurtByTargetGoal {
 
         private final Grump grump;
 
-        public GrumpMobEntityAttackedByTargetGoal(Grump grump, Class<?>... toIgnoreDamage) {
+        public GrumpHurtByTargetGoal(Grump grump, Class<?>... toIgnoreDamage) {
             super(grump, toIgnoreDamage);
+            setFlags(EnumSet.of(Flag.TARGET));
             this.grump = grump;
         }
 
@@ -751,13 +755,14 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
 
         public GrumpNearestAttackableTargetGoal(Grump grump, Class<T> targetClass) {
             super(grump, targetClass, true);
+            setFlags(EnumSet.of(Flag.TARGET));
             this.grump = grump;
         }
 
         /** Friggin' large bounding box */
         @Override
         protected AABB getTargetSearchArea(double followRange) {
-            return mob.getBoundingBox().inflate(followRange, followRange, followRange);
+            return mob.getBoundingBox().inflate(40.0D, 20.0D, 40.0D);
         }
 
         @Override
@@ -838,6 +843,7 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
 
         public FollowOwnerGoal(Grump grump) {
             this.grump = grump;
+            setFlags(EnumSet.of(Flag.MOVE));
         }
 
         private void setWantedToOwner() {
@@ -897,10 +903,10 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
         }
 
         private boolean maybeTeleportTo(int x, int y, int z) {
-            if (Math.abs((double)x - this.owner.getX()) < 2.0D && Math.abs((double)z - this.owner.getZ()) < 2.0D) {
+            if (Math.abs((double)x - owner.getX()) < 2.0D && Math.abs((double)z - owner.getZ()) < 2.0D) {
                 return false;
             }
-            else if (!this.canTeleportTo(new BlockPos(x, y, z))) {
+            else if (!canTeleportTo(new BlockPos(x, y, z))) {
                 return false;
             }
             else {
@@ -932,7 +938,13 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
 
         public LookAtOwnerGoal(Grump grump, Class<? extends LivingEntity> livingEntity, float lookDist) {
             super(grump, livingEntity, lookDist);
+            setFlags(EnumSet.of(Flag.LOOK));
             this.grump = grump;
+        }
+
+        @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
         }
 
         public boolean canUse() {

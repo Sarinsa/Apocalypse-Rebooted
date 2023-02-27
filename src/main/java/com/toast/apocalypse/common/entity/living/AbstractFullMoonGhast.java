@@ -218,7 +218,6 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
             if (ghast.getTarget() == null) {
                 Vec3 vec3 = ghast.getDeltaMovement();
                 ghast.setYRot(-((float) Mth.atan2(vec3.x, vec3.z)) * (180F / (float)Math.PI));
-                ghast.yBodyRot = this.ghast.getYRot();
             }
             else {
                 LivingEntity target = ghast.getTarget();
@@ -226,8 +225,8 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
                 double x = target.getX() - ghast.getX();
                 double z = target.getZ() - ghast.getZ();
                 ghast.setYRot(-((float)Mth.atan2(x, z)) * (180F / (float)Math.PI));
-                ghast.yBodyRot = ghast.getYRot();
             }
+            ghast.yBodyRot = ghast.getYRot();
         }
     }
 }

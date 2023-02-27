@@ -1,6 +1,5 @@
 package com.toast.apocalypse.common.entity.living.ai;
 
-import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
@@ -9,41 +8,41 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.phys.AABB;
 
+import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 
-/** A copy of HurtByTargetGoal except it is not restricted to creature entities */
-public class MobEntityAttackedByTargetGoal extends TargetGoal {
-
+/** A copy of HurtByTargetGoal except it is not restricted to pathfinder mobs entities */
+public class MobHurtByTargetGoal extends TargetGoal {
     private static final TargetingConditions HURT_BY_TARGETING = TargetingConditions.forCombat().ignoreLineOfSight().ignoreInvisibilityTesting();
     private boolean alertSameType;
     private int timestamp;
     private final Class<?>[] toIgnoreDamage;
+    @Nullable
     private Class<?>[] toIgnoreAlert;
 
-    public MobEntityAttackedByTargetGoal(Mob mob, Class<?>... toIgnoreDamage) {
+    public MobHurtByTargetGoal(Mob mob, Class<?>... clazz) {
         super(mob, true);
-        this.toIgnoreDamage = toIgnoreDamage;
-        this.setFlags(EnumSet.of(Goal.Flag.TARGET));
+        toIgnoreDamage = clazz;
+        setFlags(EnumSet.of(Goal.Flag.TARGET));
     }
 
-    @Override
     public boolean canUse() {
-        int i = mob.getLastHurtByMobTimestamp();
-        LivingEntity livingentity = mob.getLastHurtByMob();
+        int timeLastHurt = mob.getLastHurtByMobTimestamp();
+        LivingEntity lastHurtByMob = mob.getLastHurtByMob();
 
-        if (i != timestamp && livingentity != null) {
-            if (livingentity.getType() == EntityType.PLAYER && mob.level.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
+        if (timeLastHurt != timestamp && lastHurtByMob != null) {
+            if (lastHurtByMob.getType() == EntityType.PLAYER && mob.level.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
                 return false;
             }
             else {
                 for(Class<?> clazz : toIgnoreDamage) {
-                    if (clazz.isAssignableFrom(livingentity.getClass())) {
+                    if (clazz.isAssignableFrom(lastHurtByMob.getClass())) {
                         return false;
                     }
                 }
-                return canAttack(livingentity, HURT_BY_TARGETING);
+                return canAttack(lastHurtByMob, HURT_BY_TARGETING);
             }
         }
         else {
@@ -51,13 +50,12 @@ public class MobEntityAttackedByTargetGoal extends TargetGoal {
         }
     }
 
-    public MobEntityAttackedByTargetGoal setAlertOthers(Class<?>... toIgnoreAlert) {
+    public MobHurtByTargetGoal setAlertOthers(Class<?>... entityClasses) {
         alertSameType = true;
-        this.toIgnoreAlert = toIgnoreAlert;
+        toIgnoreAlert = entityClasses;
         return this;
     }
 
-    @Override
     public void start() {
         mob.setTarget(mob.getLastHurtByMob());
         targetMob = mob.getTarget();
@@ -73,24 +71,26 @@ public class MobEntityAttackedByTargetGoal extends TargetGoal {
     protected void alertOthers() {
         double followDistance = getFollowDistance();
         AABB aabb = AABB.unitCubeFromLowerCorner(mob.position()).inflate(followDistance, 10.0D, followDistance);
-        Iterator<? extends Mob> iterator = mob.level.getEntitiesOfClass(mob.getClass(), aabb).iterator();
+        List<? extends Mob> list = mob.level.getEntitiesOfClass(this.mob.getClass(), aabb, EntitySelector.NO_SPECTATORS);
+        Iterator<? extends Mob> iterator = list.iterator();
 
-        while(true) {
-            Mob mobEntity;
-            while(true) {
+        while (true) {
+            Mob mob;
+            while (true) {
                 if (!iterator.hasNext()) {
                     return;
                 }
-                mobEntity = iterator.next();
-                if (mob != mobEntity && mobEntity.getTarget() == null && (!(mob instanceof TamableAnimal) || ((TamableAnimal) mobEntity).getOwner() == ((TamableAnimal) mobEntity).getOwner()) && !mobEntity.isAlliedTo(mob.getLastHurtByMob())) {
-                    if (toIgnoreAlert == null) {
+
+                mob = iterator.next();
+                if (this.mob != mob && mob.getTarget() == null && (!(this.mob instanceof TamableAnimal) || ((TamableAnimal)this.mob).getOwner() == ((TamableAnimal)mob).getOwner()) && !mob.isAlliedTo(this.mob.getLastHurtByMob())) {
+                    if (this.toIgnoreAlert == null) {
                         break;
                     }
 
                     boolean flag = false;
 
                     for(Class<?> clazz : toIgnoreAlert) {
-                        if (mobEntity.getClass() == clazz) {
+                        if (mob.getClass() == clazz) {
                             flag = true;
                             break;
                         }
@@ -101,7 +101,8 @@ public class MobEntityAttackedByTargetGoal extends TargetGoal {
                     }
                 }
             }
-            alertOther(mobEntity, mob.getLastHurtByMob());
+
+            this.alertOther(mob, this.mob.getLastHurtByMob());
         }
     }
 

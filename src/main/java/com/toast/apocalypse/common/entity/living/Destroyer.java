@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
-import com.toast.apocalypse.common.entity.living.ai.MobEntityAttackedByTargetGoal;
+import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import net.minecraft.core.BlockPos;
@@ -31,7 +31,6 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RespawnAnchorBlock;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeMod;
 
@@ -76,13 +75,13 @@ public class Destroyer extends AbstractFullMoonGhast {
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(0, new DestroySpawnPointGoal<>(this));
-        this.goalSelector.addGoal(1, new Destroyer.FireballAttackGoal(this));
-        this.goalSelector.addGoal(1, new DestroyerLookAroundGoal(this));
-        this.goalSelector.addGoal(2, new Destroyer.RandomOrRelativeToTargetFlyGoal(this));
-        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, Enemy.class));
-        this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
-        this.targetSelector.addGoal(2, new DestroyerNearestAttackableTargetGoal<>(this, Player.class));
+        goalSelector.addGoal(0, new DestroySpawnPointGoal<>(this));
+        goalSelector.addGoal(1, new Destroyer.FireballAttackGoal(this));
+        goalSelector.addGoal(1, new DestroyerLookAroundGoal(this));
+        goalSelector.addGoal(2, new Destroyer.RandomOrRelativeToTargetFlyGoal(this));
+        targetSelector.addGoal(0, new MobHurtByTargetGoal(this, Enemy.class));
+        targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
+        targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, false, false));
     }
 
     /**
@@ -163,19 +162,6 @@ public class Destroyer extends AbstractFullMoonGhast {
         return horizontalDistanceToSqr(vec3) < 4096.0D;
     }
 
-    private static class DestroyerNearestAttackableTargetGoal<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {
-
-        public DestroyerNearestAttackableTargetGoal(Mob entity, Class<T> targetClass) {
-            super(entity, targetClass, false, false);
-        }
-
-        /** Friggin' large bounding box */
-        @Override
-        protected AABB getTargetSearchArea(double followRange) {
-            return this.mob.getBoundingBox().inflate(followRange, followRange, followRange);
-        }
-    }
-
     /** Essentially a copy of the ghast's fireball goal */
     private static class FireballAttackGoal extends Goal {
 
@@ -184,6 +170,11 @@ public class Destroyer extends AbstractFullMoonGhast {
 
         public FireballAttackGoal(Destroyer destroyer) {
             this.destroyer = destroyer;
+        }
+
+        @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
         }
 
         @Override
@@ -327,6 +318,7 @@ public class Destroyer extends AbstractFullMoonGhast {
 
         private DestroySpawnPointGoal(T destroyer) {
             this.destroyer = destroyer;
+
         }
 
         @Override
@@ -407,6 +399,11 @@ public class Destroyer extends AbstractFullMoonGhast {
         public DestroyerLookAroundGoal(Destroyer destroyer) {
             this.destroyer = destroyer;
             this.setFlags(EnumSet.of(Goal.Flag.LOOK));
+        }
+
+        @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
         }
 
         @Override

@@ -2,7 +2,7 @@ package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.common.core.register.ApocalypseEffects;
 import com.toast.apocalypse.common.core.register.ApocalypseSounds;
-import com.toast.apocalypse.common.entity.living.ai.MobEntityAttackedByTargetGoal;
+import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -15,7 +15,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.*;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
@@ -27,7 +28,6 @@ import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
@@ -36,7 +36,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -44,7 +43,6 @@ import net.minecraftforge.fluids.FluidType;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
-import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -94,16 +92,15 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
         return level.getDifficulty() != Difficulty.PEACEFUL && Monster.isDarkEnoughToSpawn(level, pos, random);
     }
 
-
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new Ghost.ManeuverAttackerGoal<>(this));
         this.goalSelector.addGoal(1, new Ghost.MeleeAttackGoal<>(this));
         this.goalSelector.addGoal(2, new RandomFlyGoal(this));
         this.goalSelector.addGoal(3, new GhostLookAtGoal(this, Player.class,8.0F));
-        this.targetSelector.addGoal(0, new MobEntityAttackedByTargetGoal(this, Enemy.class));
+        this.targetSelector.addGoal(0, new MobHurtByTargetGoal(this, Enemy.class));
         this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
-        this.targetSelector.addGoal(2, new Ghost.NearestAttackablePlayerTargetGoal<>(this, Player.class));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, false, false));
     }
 
     @Override
@@ -456,21 +453,6 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
         }
     }
 
-    private static class NearestAttackablePlayerTargetGoal<T extends LivingEntity> extends NearestAttackableTargetGoal<T> {
-
-        public NearestAttackablePlayerTargetGoal(Mob mob, Class<T> targetClass) {
-            super(mob, targetClass, false, false);
-        }
-
-        /**
-         * Friggin' large bounding box.
-         */
-        @Override
-        protected AABB getTargetSearchArea(double radius) {
-            return mob.getBoundingBox().inflate(getFollowDistance());
-        }
-    }
-
     private static class MeleeAttackGoal<T extends Ghost> extends Goal {
 
         private final T ghost;
@@ -485,6 +467,11 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
             Vec3 vec3 = target.getEyePosition(1.0F).add(0.0D, -(ghost.getBbHeight() / 1.8), 0.0D);
             final double speed = ghost.getAttributeValue(Attributes.FLYING_SPEED);
             ghost.moveControl.setWantedPosition(vec3.x, vec3.y, vec3.z, speed);
+        }
+
+        @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
         }
 
         @Override
@@ -504,8 +491,11 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
 
         @Override
         public void stop() {
+            LivingEntity target = ghost.getTarget();
+            if (!EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target)) {
+                ghost.setTarget(null);
+            }
             ghost.setAggressive(false);
-            ghost.setTarget(null);
         }
 
         @Override
@@ -539,23 +529,23 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
 
         public RandomFlyGoal(Ghost ghost) {
             this.ghost = ghost;
-            this.setFlags(EnumSet.of(Goal.Flag.MOVE));
+            setFlags(EnumSet.of(Goal.Flag.MOVE));
         }
 
         @Override
         public boolean canUse() {
-            MoveControl moveControl = this.ghost.getMoveControl();
+            MoveControl moveControl = ghost.getMoveControl();
 
-            if (this.ghost.getTarget() != null || this.ghost.isManeuvering())
+            if (ghost.getTarget() != null || ghost.isManeuvering())
                 return false;
 
             if (!moveControl.hasWanted()) {
                 return true;
             }
             else {
-                double x = moveControl.getWantedX() - this.ghost.getX();
-                double y = moveControl.getWantedY() - this.ghost.getY();
-                double z = moveControl.getWantedZ() - this.ghost.getZ();
+                double x = moveControl.getWantedX() - ghost.getX();
+                double y = moveControl.getWantedY() - ghost.getY();
+                double z = moveControl.getWantedZ() - ghost.getZ();
                 double d3 = x * x + y * y + z * z;
                 return d3 < 1.0D || d3 > 3600.0D;
             }
@@ -587,7 +577,13 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
 
         public GhostLookAtGoal(Ghost ghost, Class<? extends LivingEntity> lookAt, float range) {
             super(ghost, lookAt, range);
+            setFlags(EnumSet.of(Flag.LOOK));
             this.ghost = ghost;
+        }
+
+        @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
         }
 
         @Override

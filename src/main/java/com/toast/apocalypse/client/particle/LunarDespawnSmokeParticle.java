@@ -12,22 +12,22 @@ public class LunarDespawnSmokeParticle extends TextureSheetParticle {
 
     public LunarDespawnSmokeParticle(ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, SpriteSet animatedSprite) {
         super(level, x, y, z, 0.0D, 0.0D, 0.0D);
-        this.sprites = animatedSprite;
-        this.xd *= 0.1F;
-        this.yd *= 0.1F;
-        this.zd *= 0.1F;
-        this.xd += xSpeed;
-        this.yd += ySpeed;
-        this.zd += zSpeed;
+        sprites = animatedSprite;
+        xd *= 0.1F;
+        yd *= 0.1F;
+        zd *= 0.1F;
+        xd += xSpeed;
+        yd += ySpeed;
+        zd += zSpeed;
         float f1 = 1.0F - (float)(Math.random() * (double)0.3F);
-        this.rCol = f1;
-        this.gCol = f1;
-        this.bCol = f1;
-        this.quadSize *= 2.0F;
+        rCol = f1;
+        gCol = f1;
+        bCol = f1;
+        quadSize *= 2.0F;
         int i = (int)(8.0D / (Math.random() * 0.8D + 0.3D));
-        this.lifetime = (int)Math.max((float)i * 2.5F, 1.0F);
-        this.hasPhysics = false;
-        this.setSpriteFromAge(animatedSprite);
+        lifetime = (int)Math.max((float)i * 2.5F, 1.0F);
+        hasPhysics = false;
+        setSpriteFromAge(animatedSprite);
     }
 
     @Override
@@ -37,7 +37,7 @@ public class LunarDespawnSmokeParticle extends TextureSheetParticle {
 
     @Override
     public float getQuadSize(float partialTick) {
-        return this.quadSize * Mth.clamp(((float)this.age + partialTick) / (float)this.lifetime * 32.0F, 0.0F, 1.0F);
+        return quadSize * Mth.clamp(((float) age + partialTick) / (float) lifetime * 32.0F, 0.0F, 1.0F);
     }
 
     @Override
@@ -55,20 +55,20 @@ public class LunarDespawnSmokeParticle extends TextureSheetParticle {
             xd *= 0.96F;
             yd *= 0.96F;
             zd *= 0.96F;
-            Player player = this.level.getNearestPlayer(this.x, this.y, this.z, 2.0D, false);
+            Player player = this.level.getNearestPlayer(x, y, z, 2.0D, false);
 
             if (player != null) {
                 double playerY = player.getY();
-                if (this.y > playerY) {
-                    this.y += (playerY - this.y) * 0.2D;
-                    this.yd += (player.getDeltaMovement().y - this.yd) * 0.2D;
-                    this.setPos(this.x, this.y, this.z);
+                if (y > playerY) {
+                    y += (playerY - y) * 0.2D;
+                    yd += (player.getDeltaMovement().y - yd) * 0.2D;
+                    setPos(x, y, z);
                 }
             }
 
-            if (this.onGround) {
-                this.xd *= 0.7F;
-                this.zd *= 0.7F;
+            if (onGround) {
+                xd *= 0.7F;
+                zd *= 0.7F;
             }
         }
     }

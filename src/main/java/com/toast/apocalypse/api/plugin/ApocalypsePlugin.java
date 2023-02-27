@@ -20,9 +20,8 @@ public @interface ApocalypsePlugin {
      *         if this plugin does not depend on
      *         a mod being loaded.
      *         <br><br>
-     *         This is used to make sure plugins doesn't
-     *         get loaded if the mod that adds them failed to load
-     *         itself.
+     *         This is used to make sure the plugin is not
+     *         loaded if the mod that adds it fails to load.
      */
     String modid() default "";
 }

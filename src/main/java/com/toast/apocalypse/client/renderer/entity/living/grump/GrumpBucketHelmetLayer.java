@@ -25,8 +25,6 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class GrumpBucketHelmetLayer<T extends Grump, M extends GhastModel<T>> extends RenderLayer<T, M> {
 
     private static final ResourceLocation TEXTURE = new ResourceLocation(BucketHelmetItem.TEXTURE);

@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.entity.living.ai;
 import com.toast.apocalypse.common.entity.living.AbstractFullMoonGhast;
 import com.toast.apocalypse.common.entity.living.Grump;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.player.Player;
@@ -48,7 +49,10 @@ public class MoonMobPlayerTargetGoal<T extends Mob & IFullMoonMob> extends Targe
 
     @SuppressWarnings("ConstantConditions")
     public void start() {
-        moonMob.setTarget(moonMob.level.getPlayerByUUID(moonMob.getPlayerTargetUUID()));
+        LivingEntity target = moonMob.getTarget();
+        Player playerTarget = moonMob.level.getPlayerByUUID(moonMob.getPlayerTargetUUID());
+
+        moonMob.setTarget(playerTarget != null ? playerTarget : target);
         super.start();
     }
 }
