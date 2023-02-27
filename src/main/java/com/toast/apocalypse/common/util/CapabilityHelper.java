@@ -1,9 +1,7 @@
 package com.toast.apocalypse.common.util;
 
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
-import com.toast.apocalypse.common.capability.difficulty.DifficultyCapability;
 import com.toast.apocalypse.common.capability.difficulty.DifficultyProvider;
-import com.toast.apocalypse.common.capability.entity_marker.EntityMarkerProvider;
 import com.toast.apocalypse.common.capability.event_data.EventDataProvider;
 import com.toast.apocalypse.common.capability.mobwiki.IMobWikiCapability;
 import com.toast.apocalypse.common.capability.mobwiki.MobWikiProvider;
@@ -11,7 +9,6 @@ import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
@@ -66,17 +63,6 @@ public class CapabilityHelper {
 
     public static int getEventId(@Nonnull ServerPlayer player) {
         return Apocalypse.INSTANCE.getDifficultyManager().getEventId(player);
-    }
-
-    //
-    // ENTITY INIT MARK
-    //
-    public static void markEntity(@Nonnull LivingEntity livingEntity) {
-        livingEntity.getCapability(ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY).orElse(EntityMarkerProvider.INSTANCE).setMarked(true);
-    }
-
-    public static boolean isEntityMarked(@Nonnull LivingEntity livingEntity) {
-        return livingEntity.getCapability(ApocalypseCapabilities.ENTITY_MARKER_CAPABILITY).orElse(EntityMarkerProvider.INSTANCE).getMarked();
     }
 
     //

@@ -1,7 +1,6 @@
 package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.common.capability.difficulty.DifficultyProvider;
-import com.toast.apocalypse.common.capability.entity_marker.EntityMarkerProvider;
 import com.toast.apocalypse.common.capability.event_data.EventDataProvider;
 import com.toast.apocalypse.common.capability.mobwiki.MobWikiProvider;
 import com.toast.apocalypse.common.core.Apocalypse;
@@ -19,9 +18,6 @@ public class CapabilityAttachEvents {
             event.addCapability(Apocalypse.resourceLoc("difficulty"), new DifficultyProvider());
             event.addCapability(Apocalypse.resourceLoc("event_data"), new EventDataProvider());
             event.addCapability(Apocalypse.resourceLoc("mob_wiki"), new MobWikiProvider());
-        }
-        else if (event.getObject() instanceof LivingEntity) {
-            event.addCapability(Apocalypse.resourceLoc("entity_marker"), new EntityMarkerProvider());
         }
     }
 }

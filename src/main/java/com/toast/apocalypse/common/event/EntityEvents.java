@@ -11,6 +11,7 @@ import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import com.toast.apocalypse.common.util.CapabilityHelper;
+import com.toast.apocalypse.common.util.NBTUtil;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
@@ -96,7 +97,7 @@ public class EntityEvents {
         if (!(event.getEntity() instanceof LivingEntity livingEntity) || event.getEntity() instanceof Player)
             return;
 
-        if (CapabilityHelper.isEntityMarked(livingEntity))
+        if (NBTUtil.isEntityProcessed(livingEntity))
             return;
 
         Level level = livingEntity.getCommandSenderWorld();
@@ -119,7 +120,7 @@ public class EntityEvents {
         // the entity as "processed" so that we don't do
         // all of this again for the same entity the next
         // time it is loaded into the world.
-        CapabilityHelper.markEntity(livingEntity);
+        NBTUtil.markEntityProcessed(livingEntity);
     }
 
     /**
