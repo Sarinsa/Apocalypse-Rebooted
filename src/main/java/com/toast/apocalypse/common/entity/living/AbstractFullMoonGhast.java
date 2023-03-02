@@ -168,6 +168,7 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
             this.operation = operation;
         }
 
+
         @Override
         public void tick() {
             if (operation == Operation.MOVE_TO) {
@@ -179,8 +180,7 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
                     canReachCurrent = canReach(vec3);
 
                     if (canReachCurrent) {
-                        boolean isAngyGrump = ghast instanceof Grump grump && grump.isEnraged();
-                        ghast.setDeltaMovement(ghast.getDeltaMovement().add(vec3.scale(isAngyGrump ? 0.2 : 0.1D)));
+                        ghast.setDeltaMovement(ghast.getDeltaMovement().add(vec3.scale(speedModifier / 10.0D)));
                     }
                     else {
                         operation = Operation.WAIT;

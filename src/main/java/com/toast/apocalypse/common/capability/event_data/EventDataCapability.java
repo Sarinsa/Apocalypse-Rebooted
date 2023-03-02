@@ -5,7 +5,7 @@ import net.minecraftforge.common.util.INBTSerializable;
 
 public class EventDataCapability implements IEventDataCapability {
 
-    private CompoundTag dataTag;
+    private CompoundTag dataTag = new CompoundTag();
 
     @Override
     public CompoundTag getEventData() {

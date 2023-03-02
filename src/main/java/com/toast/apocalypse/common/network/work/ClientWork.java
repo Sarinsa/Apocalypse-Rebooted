@@ -31,7 +31,7 @@ public class ClientWork {
         LocalPlayer player = Minecraft.getInstance().player;
 
         if (player != null) {
-            player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyProvider.INSTANCE).setDifficulty(message.difficulty);
+            player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyProvider.SUPPLIER.get()).setDifficulty(message.difficulty);
         }
     }
 
@@ -40,7 +40,7 @@ public class ClientWork {
         LocalPlayer player = Minecraft.getInstance().player;
 
         if (player != null) {
-            player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyProvider.INSTANCE).setDifficultyMult(message.multiplier);
+            player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyProvider.SUPPLIER.get()).setDifficultyMult(message.multiplier);
         }
     }
 
@@ -50,7 +50,7 @@ public class ClientWork {
 
         if (player != null) {
             long maxDifficulty = message.maxDifficulty;
-            player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyProvider.INSTANCE).setMaxDifficulty(maxDifficulty);
+            player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyProvider.SUPPLIER.get()).setMaxDifficulty(maxDifficulty);
             DifficultyRenderHandler.COLOR_CHANGE = maxDifficulty > -1 ? maxDifficulty : References.DEFAULT_COLOR_CHANGE;
         }
     }
@@ -79,7 +79,7 @@ public class ClientWork {
 
         if (player != null) {
             int[] unlockedIndexes = message.indexes;
-            player.getCapability(ApocalypseCapabilities.MOB_WIKI_CAPABILITY).orElse(MobWikiProvider.INSTANCE).setEntries(unlockedIndexes);
+            player.getCapability(ApocalypseCapabilities.MOB_WIKI_CAPABILITY).orElse(MobWikiProvider.SUPPLIER.get()).setEntries(unlockedIndexes);
         }
     }
 

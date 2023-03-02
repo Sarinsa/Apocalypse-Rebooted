@@ -29,6 +29,7 @@ import net.minecraft.world.*;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.MoveControl;
@@ -69,7 +70,8 @@ import java.util.UUID;
 /**
  * This is a full moon mob that is meant to be a high threat to players that are not in a safe area from them.
  * Grumps fly, have a pulling attack, and have a melee attack that can't be reduced below 2 damage and applies a
- * short gravity effect. The pull attack/hook attack can also disable the player's shield temporarily.<br><br>
+ * short gravity effect. The pull attack/hook attack can be blocked with a shield, but blocking the hook twice or more
+ * will enrage the grump, granting it a powerful speed and attack knockback bonus.<br><br>
  * Unlike most full moon mobs, this one has no means of breaking through defenses and therefore relies on the
  * player being vulnerable to attack - whether by will or by other mobs breaking through to the player.
  *
@@ -82,6 +84,10 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
     protected static final EntityDataAccessor<Boolean> ENRAGED = SynchedEntityData.defineId(Grump.class, EntityDataSerializers.BOOLEAN);
     protected static final EntityDataAccessor<Boolean> STAND_BY = SynchedEntityData.defineId(Grump.class, EntityDataSerializers.BOOLEAN);
     protected static final EntityDataAccessor<ItemStack> HEAD_ITEM = SynchedEntityData.defineId(Grump.class, EntityDataSerializers.ITEM_STACK);
+
+    private static final AttributeModifier RAGE_SPEED = new AttributeModifier("ApocalypseGrumpRAGE_SPEED", 2.0D, AttributeModifier.Operation.ADDITION);
+    private static final AttributeModifier RAGE_KNOCKBACK = new AttributeModifier("ApocalypseGrumpRAGE_KNOCKBACK", 3.0D, AttributeModifier.Operation.ADDITION);
+
 
     /**The current fishhook entity launched by the grump. */
     private MonsterFishHook fishHook;
@@ -105,7 +111,7 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 10.0D)
                 .add(Attributes.ATTACK_DAMAGE, 4.0D)
-                .add(Attributes.FLYING_SPEED, 0.8D)
+                .add(Attributes.FLYING_SPEED, 1.0D)
                 .add(ForgeMod.SWIM_SPEED.get(), 1.1D)
                 .add(Attributes.FOLLOW_RANGE, 4096.0D);
     }
@@ -417,6 +423,17 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
     public void setEnraged(boolean enraged, boolean playEffects) {
         entityData.set(ENRAGED, enraged);
 
+        if (enraged) {
+            if (!getAttribute(Attributes.FLYING_SPEED).hasModifier(RAGE_SPEED))
+                getAttribute(Attributes.FLYING_SPEED).addTransientModifier(RAGE_SPEED);
+            if (!getAttribute(Attributes.ATTACK_KNOCKBACK).hasModifier(RAGE_KNOCKBACK))
+                getAttribute(Attributes.ATTACK_KNOCKBACK).addTransientModifier(RAGE_KNOCKBACK);
+        }
+        else {
+            getAttribute(Attributes.FLYING_SPEED).removeModifier(RAGE_SPEED);
+            getAttribute(Attributes.ATTACK_KNOCKBACK).removeModifier(RAGE_KNOCKBACK);
+        }
+
         if (playEffects) {
             playSound(ApocalypseSounds.GRUMP_RAGE.get());
         }
@@ -547,7 +564,8 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
 
         private void setWantedPosition(LivingEntity target) {
             Vec3 vec3 = target.getEyePosition(1.0F).add(0.0D, -(grump.getBbHeight() / 2), 0.0D);
-            grump.moveControl.setWantedPosition(vec3.x, vec3.y, vec3.z, 1.0D);
+            double speed = grump.getAttributeValue(Attributes.FLYING_SPEED);
+            grump.moveControl.setWantedPosition(vec3.x, vec3.y, vec3.z, speed);
         }
 
         @Override
@@ -851,7 +869,8 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
             double x = grump.getX() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
             double y = grump.getY() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
             double z = grump.getZ() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
-            grump.getMoveControl().setWantedPosition(x, y, z, 1.0D);
+            double speed = grump.getAttributeValue(Attributes.FLYING_SPEED);
+            grump.getMoveControl().setWantedPosition(x, y, z, speed);
         }
     }
 
