@@ -37,8 +37,8 @@ public class Breecher extends Creeper implements IFullMoonMob {
 
     public static AttributeSupplier.Builder createBreecherAttributes() {
         return Creeper.createAttributes()
-                .add(Attributes.MOVEMENT_SPEED, 0.32)
-                .add(Attributes.FOLLOW_RANGE, 40);
+                .add(Attributes.MOVEMENT_SPEED, 0.32D)
+                .add(Attributes.FOLLOW_RANGE, 40.0D);
     }
 
     protected void registerGoals() {

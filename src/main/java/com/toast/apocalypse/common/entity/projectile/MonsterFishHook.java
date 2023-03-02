@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.entity.projectile;
 
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
+import com.toast.apocalypse.common.entity.living.Grump;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -221,7 +222,10 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
 
             if (entity instanceof Player player) {
                 if (player.isBlocking()) {
-                    player.disableShield(true);
+
+                    if (getLivingOwner() instanceof Grump grump)
+                        grump.hookBlocked();
+
                     discard();
                     return;
                 }

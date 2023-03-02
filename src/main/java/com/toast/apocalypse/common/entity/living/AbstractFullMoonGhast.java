@@ -179,7 +179,8 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
                     canReachCurrent = canReach(vec3);
 
                     if (canReachCurrent) {
-                        ghast.setDeltaMovement(ghast.getDeltaMovement().add(vec3.scale(0.1D)));
+                        boolean isAngyGrump = ghast instanceof Grump grump && grump.isEnraged();
+                        ghast.setDeltaMovement(ghast.getDeltaMovement().add(vec3.scale(isAngyGrump ? 0.2 : 0.1D)));
                     }
                     else {
                         operation = Operation.WAIT;
@@ -206,7 +207,7 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
 
         public LookAroundGoal(AbstractFullMoonGhast ghast) {
             this.ghast = ghast;
-            this.setFlags(EnumSet.of(Goal.Flag.LOOK));
+            setFlags(EnumSet.of(Goal.Flag.LOOK));
         }
 
         @Override

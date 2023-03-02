@@ -71,7 +71,7 @@ public class MobHurtByTargetGoal extends TargetGoal {
     protected void alertOthers() {
         double followDistance = getFollowDistance();
         AABB aabb = AABB.unitCubeFromLowerCorner(mob.position()).inflate(followDistance, 10.0D, followDistance);
-        List<? extends Mob> list = mob.level.getEntitiesOfClass(this.mob.getClass(), aabb, EntitySelector.NO_SPECTATORS);
+        List<? extends Mob> list = mob.level.getEntitiesOfClass(mob.getClass(), aabb, EntitySelector.NO_SPECTATORS);
         Iterator<? extends Mob> iterator = list.iterator();
 
         while (true) {
@@ -83,7 +83,7 @@ public class MobHurtByTargetGoal extends TargetGoal {
 
                 mob = iterator.next();
                 if (this.mob != mob && mob.getTarget() == null && (!(this.mob instanceof TamableAnimal) || ((TamableAnimal)this.mob).getOwner() == ((TamableAnimal)mob).getOwner()) && !mob.isAlliedTo(this.mob.getLastHurtByMob())) {
-                    if (this.toIgnoreAlert == null) {
+                    if (toIgnoreAlert == null) {
                         break;
                     }
 
@@ -102,7 +102,7 @@ public class MobHurtByTargetGoal extends TargetGoal {
                 }
             }
 
-            this.alertOther(mob, this.mob.getLastHurtByMob());
+            this.alertOther(mob, mob.getLastHurtByMob());
         }
     }
 

@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.FishingHookRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -19,11 +20,12 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
-/** Copied from FishRenderer */
+/** Copied from {@link FishingHookRenderer} */
 public class MonsterHookRenderer extends EntityRenderer<MonsterFishHook> {
 
     private static final ResourceLocation TEXTURE = Apocalypse.resourceLoc("textures/entity/projectile/monster_hook.png");
     private static final RenderType RENDER_TYPE = RenderType.entityCutout(TEXTURE);
+
 
     public MonsterHookRenderer(EntityRendererProvider.Context context) {
         super(context);
@@ -83,28 +85,38 @@ public class MonsterHookRenderer extends EntityRenderer<MonsterFishHook> {
             float f5 = (float)(d5 - d10) + f3;
             float f6 = (float)(d6 - d8);
             VertexConsumer vertexConsumer1 = buffer.getBuffer(RenderType.lines());
-            Matrix4f matrix4f1 = poseStack.last().pose();
+            PoseStack.Pose pose1 = poseStack.last();
             int j = 16;
 
             for(int k = 0; k < 16; ++k) {
-                stringVertex(f4, f5, f6, vertexConsumer1, matrix4f1, fraction(k, 16));
-                stringVertex(f4, f5, f6, vertexConsumer1, matrix4f1, fraction(k + 1, 16));
+                stringVertex(f4, f5, f6, vertexConsumer1, pose1, fraction(k, 16), fraction(k + 1, 16));
+
             }
             poseStack.popPose();
             super.render(fishHook, p_225623_2_, p_225623_3_, poseStack, buffer, p_225623_6_);
         }
     }
 
-    private static float fraction(int p_229105_0_, int p_229105_1_) {
-        return (float)p_229105_0_ / (float)p_229105_1_;
+    private static float fraction(int p_114691_, int p_114692_) {
+        return (float)p_114691_ / (float)p_114692_;
     }
 
-    private static void vertex(VertexConsumer vertexConsumer, Matrix4f matrix4f, Matrix3f matrix3f, int p_229106_3_, float p_229106_4_, int p_229106_5_, int p_229106_6_, int p_229106_7_) {
-        vertexConsumer.vertex(matrix4f, p_229106_4_ - 0.5F, (float)p_229106_5_ - 0.5F, 0.0F).color(255, 255, 255, 255).uv((float)p_229106_6_, (float)p_229106_7_).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(p_229106_3_).normal(matrix3f, 0.0F, 1.0F, 0.0F).endVertex();
+    private static void vertex(VertexConsumer p_114712_, Matrix4f p_114713_, Matrix3f p_114714_, int p_114715_, float p_114716_, int p_114717_, int p_114718_, int p_114719_) {
+        p_114712_.vertex(p_114713_, p_114716_ - 0.5F, (float)p_114717_ - 0.5F, 0.0F).color(255, 255, 255, 255).uv((float)p_114718_, (float)p_114719_).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(p_114715_).normal(p_114714_, 0.0F, 1.0F, 0.0F).endVertex();
     }
 
-    private static void stringVertex(float p_229104_0_, float p_229104_1_, float p_229104_2_, VertexConsumer vertexConsumer, Matrix4f matrix4f, float p_229104_5_) {
-        vertexConsumer.vertex(matrix4f, p_229104_0_ * p_229104_5_, p_229104_1_ * (p_229104_5_ * p_229104_5_ + p_229104_5_) * 0.5F + 0.25F, p_229104_2_ * p_229104_5_).color(0, 0, 0, 255).endVertex();
+    private static void stringVertex(float p_174119_, float p_174120_, float p_174121_, VertexConsumer p_174122_, PoseStack.Pose p_174123_, float p_174124_, float p_174125_) {
+        float f = p_174119_ * p_174124_;
+        float f1 = p_174120_ * (p_174124_ * p_174124_ + p_174124_) * 0.5F + 0.25F;
+        float f2 = p_174121_ * p_174124_;
+        float f3 = p_174119_ * p_174125_ - f;
+        float f4 = p_174120_ * (p_174125_ * p_174125_ + p_174125_) * 0.5F + 0.25F - f1;
+        float f5 = p_174121_ * p_174125_ - f2;
+        float f6 = Mth.sqrt(f3 * f3 + f4 * f4 + f5 * f5);
+        f3 /= f6;
+        f4 /= f6;
+        f5 /= f6;
+        p_174122_.vertex(p_174123_.pose(), f, f1, f2).color(0, 0, 0, 255).normal(p_174123_.normal(), f3, f4, f5).endVertex();
     }
 
     @Override

@@ -12,6 +12,7 @@ public class ApocalypseSounds {
 
 
     public static final RegistryObject<SoundEvent> GHOST_FREEZE = register("entity.ghost.ghost_freeze");
+    public static final RegistryObject<SoundEvent> GRUMP_RAGE = register("entity.grump.rage");
 
 
     private static RegistryObject<SoundEvent> register(String name) {

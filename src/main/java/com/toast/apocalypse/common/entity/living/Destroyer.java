@@ -33,6 +33,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RespawnAnchorBlock;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.common.ForgeSpawnEggItem;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -59,7 +60,7 @@ public class Destroyer extends AbstractFullMoonGhast {
     public static AttributeSupplier.Builder createDestroyerAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 12.0D)
-                .add(Attributes.FOLLOW_RANGE, Double.POSITIVE_INFINITY)
+                .add(Attributes.FOLLOW_RANGE, 4096.0D)
                 .add(ForgeMod.SWIM_SPEED.get(), 1.1D);
     }
 

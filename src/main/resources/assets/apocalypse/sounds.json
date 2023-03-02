@@ -4,5 +4,11 @@
     "sounds": [
       "apocalypse:entity/ghost/ghost_freeze"
     ]
+  },
+  "entity.grump.rage": {
+    "subtitle": "sound_event.apocalypse.subtitle.grump_rage",
+    "sounds": [
+      "apocalypse:entity/grump/rage"
+    ]
   }
 }

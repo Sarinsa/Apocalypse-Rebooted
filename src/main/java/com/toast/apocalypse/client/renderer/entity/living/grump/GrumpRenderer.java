@@ -6,6 +6,7 @@ import net.minecraft.client.model.GhastModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.client.renderer.entity.ZombieVillagerRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 
@@ -26,14 +27,24 @@ public class GrumpRenderer<T extends Grump> extends MobRenderer<T, GhastModel<T>
             Apocalypse.resourceLoc("textures/entity/grump/saddled_pouting_grump.png")
     };
 
+    private static final ResourceLocation ENRAGED = Apocalypse.resourceLoc("textures/entity/grump/uh_oh_angry.png");
+
 
     public GrumpRenderer(EntityRendererProvider.Context context) {
         super(context, new GhastModel<>(context.bakeLayer(ModelLayers.GHAST)), 0.5F);
-        this.addLayer(new GrumpBucketHelmetLayer<>(this, context.getModelSet()));
+        addLayer(new GrumpBucketHelmetLayer<>(this, context.getModelSet()));
+    }
+
+    @Override
+    protected boolean isShaking(T grump) {
+        return grump.isEnraged();
     }
 
     @Override
     public ResourceLocation getTextureLocation(T grump) {
+        if (grump.isEnraged())
+            return ENRAGED;
+
         boolean saddled = grump.getHeadItem().getItem() == Items.SADDLE;
 
         if (grump.getTarget() != null || grump.getOwnerUUID() == null) {
