@@ -29,7 +29,13 @@ public class ApocalypseRecipeProvider extends RecipeProvider {
     protected void buildCraftingRecipes(Consumer<FinishedRecipe> consumer) {
 
         //----------------------- SHAPELESS ----------------------
-        simpleShapelessRecipe(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get(), 1, consumer, ApocalypseItems.FRAGMENTED_SOUL.get());
+        ShapelessRecipeBuilder.shapeless(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get(), 1)
+                .requires(ApocalypseItems.FRAGMENTED_SOUL.get())
+                .requires(Tags.Items.INGOTS_IRON)
+                .unlockedBy("has_" + itemName(ApocalypseItems.FRAGMENTED_SOUL.get()), has(ApocalypseItems.FRAGMENTED_SOUL.get()))
+                .unlockedBy("has_iron_ingot", has(Tags.Items.INGOTS_IRON))
+                .save(consumer);
+
         simpleShapelessRecipe(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get(), 9, consumer, "midnight_steel_ingots_from_midnight_steel_block", ApocalypseBlocks.MIDNIGHT_STEEL_BLOCK.get());
         simpleShapelessRecipe(ApocalypseItems.BUCKET_HELM.get(), 1, consumer, Items.BUCKET);
 
