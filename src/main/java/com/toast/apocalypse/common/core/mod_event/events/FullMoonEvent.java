@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
@@ -138,8 +139,10 @@ public final class FullMoonEvent extends AbstractEvent {
 
             int currentCount = mobsToSpawn.get(mobIndex);
             mobsToSpawn.put(mobIndex, --currentCount);
-            spawnMobFromIndex(mobIndex, level, player);
 
+            if (level.getDifficulty() != Difficulty.PEACEFUL) {
+                spawnMobFromIndex(mobIndex, level, player);
+            }
             timeUntilNextSpawn = spawnTime;
         }
     }
@@ -246,8 +249,6 @@ public final class FullMoonEvent extends AbstractEvent {
         ((IFullMoonMob) mob).setEventGeneration(getEventGeneration());
     }
 
-
-    @SuppressWarnings("deprecation")
     @Nullable
     private <T extends Mob & IFullMoonMob> T spawnMob(EntityType<T> entityType, ServerPlayer player, ServerLevel level) {
         RandomSource random = level.getRandom();

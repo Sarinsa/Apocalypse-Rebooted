@@ -196,29 +196,6 @@ public final class PlayerDifficultyManager {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onSleepFinished(SleepFinishedTimeEvent event) {
-        if (event.getLevel() instanceof ServerLevel serverLevel) {
-            long newTime = event.getNewTime();
-            long currentTime = serverLevel.getDayTime();
-            long timeSkipped = newTime - currentTime;
-
-            if (timeSkipped > 20L) {
-                for (ServerPlayer player : serverLevel.players()) {
-                    long playerDifficulty = CapabilityHelper.getPlayerDifficulty(player);
-                    long playerMaxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
-                    double difficultyMult = CapabilityHelper.getPlayerDifficultyMult(player);
-
-                    playerDifficulty += ((timeSkipped * SLEEP_PENALTY) * difficultyMult);
-                    CapabilityHelper.setPlayerDifficulty(player, Math.min(playerDifficulty, playerMaxDifficulty));
-
-                    player.displayClientMessage(Component.translatable(References.SLEEP_PENALTY), true);
-                    player.playSound(SoundEvents.AMBIENT_CAVE, 1.0F, 0.8F);
-                }
-            }
-        }
-    }
-
-    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             playerEvents.get(serverPlayer.getUUID()).onPlayerDeath(serverPlayer, (ServerLevel) serverPlayer.level);
