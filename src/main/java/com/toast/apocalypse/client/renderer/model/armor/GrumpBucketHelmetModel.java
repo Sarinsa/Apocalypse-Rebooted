@@ -11,11 +11,11 @@ import net.minecraft.world.entity.monster.Ghast;
 
 public class GrumpBucketHelmetModel<T extends Ghast> extends EntityModel<T> {
 
-    private final ModelPart head;
+    private final ModelPart bone;
 
     public GrumpBucketHelmetModel(ModelPart root) {
         super(RenderType::entityCutoutNoCull);
-        head = root.getChild("rope");
+        bone = root.getChild("bone");
     }
 
     public static LayerDefinition createBodyLayer() {
@@ -32,7 +32,7 @@ public class GrumpBucketHelmetModel<T extends Ghast> extends EntityModel<T> {
 
         PartDefinition bone = partdefinition.addOrReplaceChild("bone", CubeListBuilder.create()
                 .texOffs(0, 14)
-                .addBox(-4.0F, -15.0F, -4.0F, 8.0F, 10.0F, 8.0F, new CubeDeformation(0.0F)),
+                .addBox(-4.0F, -20.0F, -4.0F, 8.0F, 10.0F, 8.0F, new CubeDeformation(4.5F)),
                 PartPose.offset(0.0F, 24.0F, 0.0F));
 
         return LayerDefinition.create(meshdefinition, 32, 32);
@@ -45,7 +45,7 @@ public class GrumpBucketHelmetModel<T extends Ghast> extends EntityModel<T> {
 
     @Override
     public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float p_225598_5_, float p_225598_6_, float p_225598_7_, float p_225598_8_) {
-        head.render(poseStack, vertexConsumer, packedLight, packedOverlay);
+        bone.render(poseStack, vertexConsumer, packedLight, packedOverlay);
     }
 
     public void setRotationAngle(ModelPart modelPart, float x, float y, float z) {

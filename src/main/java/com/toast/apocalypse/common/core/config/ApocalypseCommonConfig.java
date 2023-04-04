@@ -237,10 +237,10 @@ public class ApocalypseCommonConfig {
 
             configBuilder.comment("The difficulty at which a specific type of full moon mob can start to spawn during sieges (It might be smart to let at least one type spawn at 0).");
             configBuilder.push("spawn_start_difficulties");
-            createStartDifficulty(Breecher.class, "breecher", 10, configBuilder);
-            createStartDifficulty(Ghost.class, "ghost", 0, configBuilder);
-            createStartDifficulty(Destroyer.class, "destroyer", 80, configBuilder);
-            createStartDifficulty(Seeker.class, "seeker", 50, configBuilder);
+            createStartDifficulty(Breecher.class, "breecher", 5, configBuilder);
+            createStartDifficulty(Ghost.class, "ghost", 45, configBuilder);
+            createStartDifficulty(Destroyer.class, "destroyer", 100, configBuilder);
+            createStartDifficulty(Seeker.class, "seeker", 70, configBuilder);
             createStartDifficulty(Grump.class, "grump", 20, configBuilder);
             configBuilder.pop();
 

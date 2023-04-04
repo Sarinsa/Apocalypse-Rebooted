@@ -10,6 +10,7 @@ import com.toast.apocalypse.client.renderer.weather.AcidRainRenderHelper;
 import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 

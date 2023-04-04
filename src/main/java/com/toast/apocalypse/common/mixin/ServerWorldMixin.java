@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-@Mixin(ServerLevel.class)
+//@Mixin(ServerLevel.class)
 public abstract class ServerWorldMixin extends Level implements WorldGenLevel {
 
     protected ServerWorldMixin(MinecraftServer server, Executor executor, LevelStorageSource.LevelStorageAccess storageAccess, ServerLevelData levelData, ResourceKey<Level> dimensionType, LevelStem levelStem, ChunkProgressListener progressListener, boolean debug, long seed, List<CustomSpawner> spawners, boolean something) {
@@ -28,9 +28,12 @@ public abstract class ServerWorldMixin extends Level implements WorldGenLevel {
     }
 
 
+    /*
     @Final
     @Inject(method = "setDayTime", at = @At("HEAD"), cancellable = true)
     public void onSetDayTime(long time, CallbackInfo ci) {
         ServerMixinHooks.onServerWorldSetDayTime((ServerLevel) (Object) this, ci);
     }
+
+     */
 }

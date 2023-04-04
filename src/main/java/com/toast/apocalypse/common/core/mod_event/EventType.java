@@ -41,7 +41,7 @@ public class EventType<T extends AbstractEvent> {
     }
 
     /**
-     * Whether or not this event can be
+     * Whether this event can be
      * interrupted by another event.
      *
      * @return True if this event can be interrupted.

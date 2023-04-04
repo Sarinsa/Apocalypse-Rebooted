@@ -40,7 +40,7 @@ public class BucketHelmetItem extends ArmorItem {
         consumer.accept(new IClientItemExtensions() {
             @Override
             public @NotNull HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
-                return equipmentSlot == EquipmentSlot.HEAD ? ClientUtil.BUCKET_HELMET_MODEL : original;
+                return equipmentSlot == EquipmentSlot.HEAD ? ClientUtil.BUCKET_HELMET_MODEL.copyProps(original) : original;
             }
 
             @Override

@@ -326,7 +326,7 @@ public final class FullMoonEvent extends AbstractEvent {
         if (spawnPos == null)
             return null;
 
-        return entityType.spawn(level, null, null, null, spawnPos, MobSpawnType.EVENT, true, true);
+        return entityType.create(level, null, null, null, spawnPos, MobSpawnType.EVENT, true, true);
     }
 
     private static boolean isFlyingType(EntityType<?> entityType) {

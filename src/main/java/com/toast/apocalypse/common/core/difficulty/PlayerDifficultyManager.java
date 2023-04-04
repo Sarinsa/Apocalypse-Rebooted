@@ -172,9 +172,7 @@ public final class PlayerDifficultyManager {
             // TODO - Dunno when this will become reality
             //NetworkHelper.sendMobWikiIndexUpdate(player);
             NetworkHelper.sendMoonPhaseUpdate(player, overworld);
-
-            if (isRainingAcid(playerLevel))
-                NetworkHelper.sendSimpleClientTaskRequest(player, S2CSimpleClientTask.SET_ACID_RAIN);
+            NetworkHelper.sendSimpleClientTaskRequest(player, isRainingAcid(playerLevel) ? S2CSimpleClientTask.SET_ACID_RAIN : S2CSimpleClientTask.REMOVE_ACID_RAIN);
 
             loadEventData(player);
         }
@@ -455,6 +453,8 @@ public final class PlayerDifficultyManager {
 
         protected void setRainingAcid(boolean value) {
             isRainingAcid = value;
+
+            savedData.setDirty();
 
             for (ServerPlayer player : level.players()) {
                 NetworkHelper.sendSimpleClientTaskRequest(player, value ? S2CSimpleClientTask.SET_ACID_RAIN : S2CSimpleClientTask.REMOVE_ACID_RAIN);
