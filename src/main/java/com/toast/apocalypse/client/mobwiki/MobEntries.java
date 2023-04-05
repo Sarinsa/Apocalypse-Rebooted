@@ -8,6 +8,7 @@ import com.toast.apocalypse.common.util.References;
 import java.util.Map;
 import java.util.TreeMap;
 
+// TODO - Revisit this some time in the future (maybe)
 public final class MobEntries {
 
     public static Map<Integer, MobEntry> ENTRIES = new TreeMap<>();

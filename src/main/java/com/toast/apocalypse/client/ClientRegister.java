@@ -46,10 +46,10 @@ public class ClientRegister {
 
         modBus.addListener(ClientUtil::onAddLayer);
 
-        registerScreenMenus();
-        ItemModelProps.register();
-
+        //registerScreenMenus();
         MobEntries.init();
+
+        event.enqueueWork(ItemModelProps::register);
     }
 
     private static void registerScreenMenus() {
