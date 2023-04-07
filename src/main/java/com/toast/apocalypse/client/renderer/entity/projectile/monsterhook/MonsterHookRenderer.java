@@ -101,11 +101,11 @@ public class MonsterHookRenderer extends EntityRenderer<MonsterFishHook> {
         return (float)p_114691_ / (float)p_114692_;
     }
 
-    private static void vertex(VertexConsumer p_114712_, Matrix4f p_114713_, Matrix3f p_114714_, int p_114715_, float p_114716_, int p_114717_, int p_114718_, int p_114719_) {
-        p_114712_.vertex(p_114713_, p_114716_ - 0.5F, (float)p_114717_ - 0.5F, 0.0F).color(255, 255, 255, 255).uv((float)p_114718_, (float)p_114719_).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(p_114715_).normal(p_114714_, 0.0F, 1.0F, 0.0F).endVertex();
+    private static void vertex(VertexConsumer vertexConsumer, Matrix4f matrix4f, Matrix3f matrix3f, int p_114715_, float p_114716_, int p_114717_, int p_114718_, int p_114719_) {
+        vertexConsumer.vertex(matrix4f, p_114716_ - 0.5F, (float)p_114717_ - 0.5F, 0.0F).color(255, 255, 255, 255).uv((float)p_114718_, (float)p_114719_).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(p_114715_).normal(matrix3f, 0.0F, 1.0F, 0.0F).endVertex();
     }
 
-    private static void stringVertex(float p_174119_, float p_174120_, float p_174121_, VertexConsumer p_174122_, PoseStack.Pose p_174123_, float p_174124_, float p_174125_) {
+    private static void stringVertex(float p_174119_, float p_174120_, float p_174121_, VertexConsumer vertexConsumer, PoseStack.Pose pose, float p_174124_, float p_174125_) {
         float f = p_174119_ * p_174124_;
         float f1 = p_174120_ * (p_174124_ * p_174124_ + p_174124_) * 0.5F + 0.25F;
         float f2 = p_174121_ * p_174124_;
@@ -116,7 +116,7 @@ public class MonsterHookRenderer extends EntityRenderer<MonsterFishHook> {
         f3 /= f6;
         f4 /= f6;
         f5 /= f6;
-        p_174122_.vertex(p_174123_.pose(), f, f1, f2).color(0, 0, 0, 255).normal(p_174123_.normal(), f3, f4, f5).endVertex();
+        vertexConsumer.vertex(pose.pose(), f, f1, f2).color(0, 0, 0, 255).normal(pose.normal(), f3, f4, f5).endVertex();
     }
 
     @Override

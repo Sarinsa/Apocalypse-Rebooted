@@ -15,6 +15,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -221,11 +222,11 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
             Entity entity = hitResult.getEntity();
 
             if (entity instanceof Player player) {
-                if (player.isBlocking()) {
-
-                    if (getLivingOwner() instanceof Grump grump)
+                if (isBlocked(player)) {
+                    if (getLivingOwner() instanceof Grump grump) {
                         grump.hookBlocked();
-
+                        level.broadcastEntityEvent(player, (byte) 29);
+                    }
                     discard();
                     return;
                 }
@@ -233,6 +234,18 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
             hookedIn = hitResult.getEntity();
             setHookedEntity();
         }
+    }
+
+    private boolean isBlocked(Player player) {
+        if (player.isBlocking()) {
+            Vec3 hookPos = position();
+
+            Vec3 playerView = player.getViewVector(1.0F);
+            Vec3 vec3 = hookPos.vectorTo(player.position()).normalize();
+            vec3 = new Vec3(vec3.x, 0.0D, vec3.z);
+            return vec3.dot(playerView) < 0.0D;
+        }
+        return false;
     }
 
     @Override
