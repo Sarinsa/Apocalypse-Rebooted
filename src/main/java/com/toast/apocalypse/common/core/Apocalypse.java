@@ -15,6 +15,7 @@ import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.core.register.*;
 import com.toast.apocalypse.common.event.*;
 import com.toast.apocalypse.common.network.PacketHandler;
+import com.toast.apocalypse.common.tag.ApocalypseBlockTags;
 import com.toast.apocalypse.common.tag.ApocalypseEntityTags;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.misc.MobWikiIndexes;
@@ -71,6 +72,7 @@ public class Apocalypse {
         ApocalypseTriggers.init();
         MobWikiIndexes.init();
         ApocalypseEntityTags.init();
+        ApocalypseBlockTags.init();
 
         // Wahoo
         packetHandler.registerMessages();

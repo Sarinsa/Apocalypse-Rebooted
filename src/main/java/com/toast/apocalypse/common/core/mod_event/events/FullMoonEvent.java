@@ -101,19 +101,19 @@ public final class FullMoonEvent extends AbstractEvent {
     @Override
     public void onStart(MinecraftServer server, ServerPlayer player) {
         long difficulty = CapabilityHelper.getPlayerDifficulty(player);
-        this.calculateMobs(difficulty);
-        this.calculateSpawnTime();
-        this.gracePeriod = MAX_GRACE_PERIOD;
+        calculateMobs(difficulty);
+        calculateSpawnTime();
+        gracePeriod = MAX_GRACE_PERIOD;
     }
 
     @Override
     public void update(ServerLevel level, ServerPlayer player, PlayerDifficultyManager difficultyManager) {
         // Tick grace period
-        if (this.gracePeriod > 0) {
-            this.gracePeriod -= PlayerDifficultyManager.TICKS_PER_UPDATE;
+        if (gracePeriod > 0) {
+            gracePeriod -= PlayerDifficultyManager.TICKS_PER_UPDATE;
         }
         // Tick time until next mob spawn
-        if (this.timeUntilNextSpawn > 0) {
+        if (timeUntilNextSpawn > 0) {
             timeUntilNextSpawn -= PlayerDifficultyManager.TICKS_PER_UPDATE;
         }
 
@@ -182,27 +182,27 @@ public final class FullMoonEvent extends AbstractEvent {
         if (GHOST_START >= 0L && GHOST_START <= scaledDifficulty) {
             effectiveDifficulty = (scaledDifficulty - GHOST_START) / MOB_COUNT_TIME_SPAN;
             count = GHOST_MIN_COUNT + (int) (GHOST_ADDITIONAL_COUNT * effectiveDifficulty);
-            this.mobsToSpawn.put(GHOST_ID, Math.min(count, GHOST_MAX_COUNT));
+            mobsToSpawn.put(GHOST_ID, Math.min(count, GHOST_MAX_COUNT));
         }
         if (BREECHER_START >= 0L && BREECHER_START <= scaledDifficulty) {
             effectiveDifficulty = (scaledDifficulty - BREECHER_START) / MOB_COUNT_TIME_SPAN;
             count = BREECHER_MIN_COUNT + (int) (BREECHER_ADDITIONAL_COUNT * effectiveDifficulty);
-            this.mobsToSpawn.put(BREECHER_ID, Math.min(count, BREECHER_MAX_COUNT));
+            mobsToSpawn.put(BREECHER_ID, Math.min(count, BREECHER_MAX_COUNT));
         }
         if (GRUMP_START >= 0L && GRUMP_START <= scaledDifficulty) {
             effectiveDifficulty = (scaledDifficulty - GRUMP_START) / MOB_COUNT_TIME_SPAN;
             count = GRUMP_MIN_COUNT + (int) (GRUMP_ADDITIONAL_COUNT * effectiveDifficulty);
-            this.mobsToSpawn.put(GRUMP_ID, Math.min(count, GRUMP_MAX_COUNT));
+            mobsToSpawn.put(GRUMP_ID, Math.min(count, GRUMP_MAX_COUNT));
         }
         if (SEEKER_START >= 0L && SEEKER_START <= scaledDifficulty) {
             effectiveDifficulty = (scaledDifficulty - SEEKER_START) / MOB_COUNT_TIME_SPAN;
             count = SEEKER_MIN_COUNT + (int) (SEEKER_ADDITIONAL_COUNT * effectiveDifficulty);
-            this.mobsToSpawn.put(SEEKER_ID, Math.min(count, SEEKER_MAX_COUNT));
+            mobsToSpawn.put(SEEKER_ID, Math.min(count, SEEKER_MAX_COUNT));
         }
         if (DESTROYER_START >= 0L && DESTROYER_START <= scaledDifficulty) {
             effectiveDifficulty = (scaledDifficulty - DESTROYER_START) / MOB_COUNT_TIME_SPAN;
             count = DESTROYER_MIN_COUNT + (int) (DESTROYER_ADDITIONAL_COUNT * effectiveDifficulty);
-            this.mobsToSpawn.put(DESTROYER_ID, Math.min(count, DESTROYER_MAX_COUNT));
+            mobsToSpawn.put(DESTROYER_ID, Math.min(count, DESTROYER_MAX_COUNT));
         }
     }
 
@@ -247,6 +247,7 @@ public final class FullMoonEvent extends AbstractEvent {
 
         ((IFullMoonMob) mob).setPlayerTargetUUID(player.getUUID());
         ((IFullMoonMob) mob).setEventGeneration(getEventGeneration());
+        level.addFreshEntity(mob);
     }
 
     @Nullable
