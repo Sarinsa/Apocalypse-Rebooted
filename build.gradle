@@ -80,7 +80,7 @@ minecraft {
             property 'forge.enabledGameTestNamespaces', 'apocalypse'
 
             mods {
-                dampsoil {
+                apocalypse {
                     source sourceSets.main
                 }
             }

@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.level.SleepFinishedTimeEvent;
@@ -93,23 +94,25 @@ public class PlayerEvents {
     public void onPlayerChangeDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             NetworkHelper.sendUpdatePlayerDifficulty(serverPlayer);
-            NetworkHelper.sendMobWikiIndexUpdate(serverPlayer);
+            //NetworkHelper.sendMobWikiIndexUpdate(serverPlayer);
         }
     }
 
     /**
-     * Makes sure necessary capability data from Apocalypse persists on player cloning.<br>
-     * (on death or leaving The End).
+     * Makes sure necessary capability data from Apocalypse persists when the player respawns after dying.
      */
     @SubscribeEvent
     public void onPlayerCloned(PlayerEvent.Clone event) {
-        if (event.getEntity() instanceof ServerPlayer newPlayer) {
+        if (event.getEntity() instanceof ServerPlayer newPlayer && event.isWasDeath()) {
             ServerPlayer originalPlayer = (ServerPlayer) event.getOriginal();
+            originalPlayer.reviveCaps();
 
             long difficulty = CapabilityHelper.getPlayerDifficulty(originalPlayer);
             long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(originalPlayer);
             CompoundTag eventData = CapabilityHelper.getEventData(originalPlayer);
             int[] mobWikiIndexes = CapabilityHelper.getMobWikiIndexes(originalPlayer);
+
+            originalPlayer.invalidateCaps();
 
             CapabilityHelper.setPlayerDifficulty(newPlayer, difficulty);
             CapabilityHelper.setMaxPlayerDifficulty(newPlayer, maxDifficulty);

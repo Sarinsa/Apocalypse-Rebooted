@@ -24,8 +24,11 @@ public class CapabilityHelper {
     // DIFFICULTY
     //
     public static void setPlayerDifficulty(@Nonnull ServerPlayer player, long difficulty) {
-        player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyProvider.SUPPLIER.get()).setDifficulty(difficulty);
-        NetworkHelper.sendUpdatePlayerDifficulty(player, difficulty);
+        player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).ifPresent((capability) ->
+        {
+            capability.setDifficulty(difficulty);
+            NetworkHelper.sendUpdatePlayerDifficulty(player, difficulty);
+        });
     }
 
     public static long getPlayerDifficulty(@Nonnull Player player) {
@@ -33,8 +36,11 @@ public class CapabilityHelper {
     }
 
     public static void setMaxPlayerDifficulty(@Nonnull ServerPlayer player, long maxDifficulty) {
-        player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyProvider.SUPPLIER.get()).setMaxDifficulty(maxDifficulty);
-        NetworkHelper.sendUpdatePlayerMaxDifficulty(player, maxDifficulty);
+        player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).ifPresent((capability) ->
+        {
+            capability.setMaxDifficulty(maxDifficulty);
+            NetworkHelper.sendUpdatePlayerMaxDifficulty(player, maxDifficulty);
+        });
     }
 
     public static long getMaxPlayerDifficulty(@Nonnull Player player) {
@@ -42,8 +48,11 @@ public class CapabilityHelper {
     }
 
     public static void setPlayerDifficultyMult(@Nonnull ServerPlayer player, double multiplier) {
-        player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyProvider.SUPPLIER.get()).setDifficultyMult(multiplier);
-        NetworkHelper.sendUpdatePlayerDifficultyMult(player, multiplier);
+        player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).ifPresent((capability) ->
+        {
+            capability.setDifficultyMult(multiplier);
+            NetworkHelper.sendUpdatePlayerDifficultyMult(player, multiplier);
+        });
     }
 
     public static double getPlayerDifficultyMult(@Nonnull Player player) {
@@ -54,7 +63,10 @@ public class CapabilityHelper {
     // EVENT DATA
     //
     public static void setEventData(@Nonnull ServerPlayer player, CompoundTag data) {
-        player.getCapability(ApocalypseCapabilities.EVENT_DATA_CAPABILITY).orElse(EventDataProvider.SUPPLIER.get()).setEventData(data);
+        player.getCapability(ApocalypseCapabilities.EVENT_DATA_CAPABILITY).ifPresent((capability) ->
+        {
+            capability.setEventData(data);
+        });
     }
 
     public static CompoundTag getEventData(@Nonnull ServerPlayer player) {
@@ -69,14 +81,18 @@ public class CapabilityHelper {
     // MOB WIKI
     //
     public static void addMobWikiIndex(@Nonnull ServerPlayer player, int mobIndex) {
-        IMobWikiCapability mobWikiCapability = player.getCapability(ApocalypseCapabilities.MOB_WIKI_CAPABILITY).orElse(MobWikiProvider.SUPPLIER.get());
-        mobWikiCapability.addEntry(mobIndex);
-        NetworkHelper.sendMobWikiIndexUpdate(player, mobWikiCapability.getEntries());
+        player.getCapability(ApocalypseCapabilities.MOB_WIKI_CAPABILITY).ifPresent((capability) ->
+        {
+            capability.addEntry(mobIndex);
+            NetworkHelper.sendMobWikiIndexUpdate(player, capability.getEntries());
+        });
     }
 
     public static void setMobWikiIndexes(@Nonnull ServerPlayer player, int[] entries) {
-        player.getCapability(ApocalypseCapabilities.MOB_WIKI_CAPABILITY).orElse(MobWikiProvider.SUPPLIER.get()).setEntries(entries);
-        NetworkHelper.sendMobWikiIndexUpdate(player);
+        player.getCapability(ApocalypseCapabilities.MOB_WIKI_CAPABILITY).ifPresent((capability) -> {
+            capability.setEntries(entries);
+            NetworkHelper.sendMobWikiIndexUpdate(player);
+        });
     }
 
     public static int[] getMobWikiIndexes(@Nonnull ServerPlayer player) {
