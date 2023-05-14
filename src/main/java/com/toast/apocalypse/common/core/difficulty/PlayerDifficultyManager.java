@@ -275,11 +275,10 @@ public final class PlayerDifficultyManager {
 
         // Apply multiplayer difficulty multiplier, if enabled.
         if (MULTIPLAYER_DIFFICULTY_SCALING) {
+            difficultyMultiplier = 1.0D;
+
             if (playerCount > 1) {
-                difficultyMultiplier = 1.0D + ((playerCount - 1.0D) * MULTIPLAYER_DIFFICULTY_MULT);
-            }
-            else {
-                difficultyMultiplier = 1.0D;
+                difficultyMultiplier += ((playerCount - 1.0D) * MULTIPLAYER_DIFFICULTY_MULT);
             }
         }
 
@@ -291,9 +290,11 @@ public final class PlayerDifficultyManager {
         }
         boolean maxDifficultyReached = maxDifficulty >= 0 && currentDifficulty >= maxDifficulty;
 
-        if (!maxDifficultyReached && !player.isCreative() || !player.isSpectator()) {
-            currentDifficulty += TICKS_PER_UPDATE * difficultyMultiplier;
+        if (maxDifficultyReached || player.isCreative() || player.isSpectator()) {
+            return;
         }
+        currentDifficulty += TICKS_PER_UPDATE * difficultyMultiplier;
+
         // Update player difficulty stuff
         CapabilityHelper.setPlayerDifficulty(player, currentDifficulty);
         CapabilityHelper.setPlayerDifficultyMult(player, difficultyMultiplier);
