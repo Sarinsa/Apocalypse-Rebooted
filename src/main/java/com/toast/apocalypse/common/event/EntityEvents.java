@@ -14,6 +14,7 @@ import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.NBTUtil;
 import com.toast.apocalypse.common.util.References;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Graph;
 import net.minecraft.util.RandomSource;
@@ -95,6 +96,9 @@ public class EntityEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onEntityJoinWorld(EntityJoinLevelEvent event) {
         if (event.getLevel().isClientSide)
+            return;
+
+        if (!event.getLevel().isLoaded(BlockPos.containing(event.getEntity().position())))
             return;
 
         if (!(event.getEntity() instanceof LivingEntity livingEntity) || event.getEntity() instanceof Player)
