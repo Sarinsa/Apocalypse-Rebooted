@@ -2,7 +2,7 @@ package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
-import com.toast.apocalypse.common.core.register.ApocalypseEffects;
+import com.toast.apocalypse.common.core.register.ApocalypseMobEffects;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
@@ -41,7 +41,6 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Ghast;
-import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -54,7 +53,6 @@ import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.scores.Team;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.ForgeMod;
@@ -181,7 +179,7 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
         if (super.doHurtTarget(entity)) {
             if (entity instanceof Player player) {
                 int duration = level().getDifficulty() == Difficulty.HARD ? 100 : 60;
-                player.addEffect(new MobEffectInstance(ApocalypseEffects.HEAVY.get(), duration));
+                player.addEffect(new MobEffectInstance(ApocalypseMobEffects.HEAVY.get(), duration));
             }
             return true;
         }
