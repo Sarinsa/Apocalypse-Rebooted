@@ -32,7 +32,6 @@ public class VersionCheckHelper {
             }
 
             if (status == VersionChecker.Status.OUTDATED || status == VersionChecker.Status.BETA_OUTDATED) {
-                @Nullable
                 ComparableVersion targetVersion = result.target();
 
                 if (targetVersion != null) {
@@ -54,18 +53,11 @@ public class VersionCheckHelper {
         }
         String versionState = s[1];
 
-        switch (versionState) {
-            default:
-            case "r":
-                versionState = ChatFormatting.GREEN + " RELEASE " + ChatFormatting.YELLOW;
-                break;
-            case "b":
-                versionState = ChatFormatting.AQUA + " BETA " + ChatFormatting.YELLOW;
-                break;
-            case "a":
-                versionState = ChatFormatting.RED + " ALPHA " + ChatFormatting.YELLOW;
-                break;
-        }
+        versionState = switch (versionState) {
+            case "b" -> ChatFormatting.AQUA + " BETA " + ChatFormatting.YELLOW;
+            case "a" -> ChatFormatting.RED + " ALPHA " + ChatFormatting.YELLOW;
+            default -> ChatFormatting.GREEN + " RELEASE " + ChatFormatting.YELLOW;
+        };
         return PREFIX + " " + ChatFormatting.YELLOW + "New" + versionState + "version available: " + version;
     }
 

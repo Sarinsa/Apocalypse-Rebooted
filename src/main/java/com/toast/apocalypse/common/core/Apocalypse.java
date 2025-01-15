@@ -24,11 +24,9 @@ import com.toast.apocalypse.common.tag.ApocalypseEntityTags;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import com.toast.apocalypse.common.util.VersionCheckHelper;
-import io.netty.handler.codec.DecoderException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -72,9 +70,6 @@ public class Apocalypse {
     // TODO LIST
     //
     // - Enable our mixins again before build!!!!
-    //
-    //
-    //
 
 
 
@@ -112,7 +107,7 @@ public class Apocalypse {
         ApocalypseBlocks.BLOCKS.register(eventBus);
         ApocalypseItems.ITEMS.register(eventBus);
         ApocalypseSounds.SOUNDS.register(eventBus);
-        ApocalypseEffects.EFFECTS.register(eventBus);
+        ApocalypseMobEffects.EFFECTS.register(eventBus);
         ApocalypseMenus.MENU_TYPES.register(eventBus);
         ApocalypseEntities.ENTITIES.register(eventBus);
         ApocalypseParticles.PARTICLES.register(eventBus);
