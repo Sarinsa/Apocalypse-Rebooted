@@ -149,7 +149,7 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
         if (super.doHurtTarget(entity)) {
             if (entity instanceof Player player) {
                 int duration = level().getDifficulty() == Difficulty.HARD ? 140 : 80;
-                player.addEffect(new MobEffectInstance(CrustObjects.weight(), duration));
+                player.addEffect(new MobEffectInstance(CrustObjects.weight(), duration, 1));
             }
             return true;
         }
