@@ -1,6 +1,7 @@
 package com.toast.apocalypse.client;
 
 import com.toast.apocalypse.client.event.ClientEvents;
+import com.toast.apocalypse.client.event.DifficultyRenderHandler;
 import com.toast.apocalypse.client.event.KeyInputListener;
 import com.toast.apocalypse.client.mobwiki.MobEntries;
 import com.toast.apocalypse.client.particle.LunarDespawnSmokeParticle;
@@ -28,7 +29,10 @@ import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
+import net.minecraftforge.client.gui.overlay.IGuiOverlay;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -38,6 +42,13 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Apocalypse.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientRegister {
+
+    public static final IGuiOverlay DIFFICULTY_OVERLAY = (forgeGui, guiGraphics, partialTick, screenWidth, screenHeight) -> {
+        if (!forgeGui.getMinecraft().options.hideGui) {
+            DifficultyRenderHandler.renderDifficulty(forgeGui, guiGraphics, partialTick, screenWidth, screenHeight);
+        }
+    };
+
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
@@ -53,6 +64,11 @@ public class ClientRegister {
         MobEntries.init();
 
         event.enqueueWork(ItemModelProps::register);
+    }
+
+    @SubscribeEvent
+    public static void onGuiOverlayRegister(RegisterGuiOverlaysEvent event) {
+        event.registerAbove(VanillaGuiOverlay.BOSS_EVENT_PROGRESS.id(), "difficulty_overlay", DIFFICULTY_OVERLAY);
     }
 
     private static void registerMenuScreens() {

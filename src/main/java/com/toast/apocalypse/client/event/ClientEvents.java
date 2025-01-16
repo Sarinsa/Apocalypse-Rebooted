@@ -31,7 +31,7 @@ public class ClientEvents {
      */
     @SubscribeEvent(priority = EventPriority.NORMAL)
     public void afterRenderGameOverlay(RenderGuiOverlayEvent.Post event) {
-        DifficultyRenderHandler.renderDifficulty(event, this.minecraft);
+        //DifficultyRenderHandler.renderDifficulty(event, this.minecraft);
     }
 
     @SubscribeEvent

@@ -7,10 +7,12 @@ import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.FurnaceScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.GuiOverlayManager;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 
@@ -49,11 +51,8 @@ public class DifficultyRenderHandler {
     }
 
 
-    public static void renderDifficulty(RenderGuiOverlayEvent.Post event, Minecraft minecraft) {
-        if (event.getOverlay() != GuiOverlayManager.findOverlay(VanillaGuiOverlay.BOSS_EVENT_PROGRESS.id()) || OFFSET_X < 0 || OFFSET_Y < 0)
-            return;
-
-        LocalPlayer player = minecraft.player;
+    public static void renderDifficulty(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int width, int height) {
+        LocalPlayer player = gui.getMinecraft().player;
 
         if (player.isCreative() && !RENDER_IN_CREATIVE)
             return;
@@ -70,10 +69,7 @@ public class DifficultyRenderHandler {
         if (maxDifficulty == 0L || player.isDeadOrDying())
             return;
 
-        int width = event.getWindow().getGuiScaledWidth();
-        int height = event.getWindow().getGuiScaledHeight();
-
-        Font font = minecraft.font;
+        Font font = gui.getFont();
 
         // Calculate difficulty level in days with one decimal.
         int color = COLORS[0];
@@ -130,7 +126,7 @@ public class DifficultyRenderHandler {
         x += OFFSET_X;
         y += OFFSET_Y;
 
-        event.getGuiGraphics().drawString(font, difficultyInfo, x, y, color);
+        guiGraphics.drawString(font, difficultyInfo, x, y, color);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 }
