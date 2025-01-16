@@ -26,16 +26,10 @@ public class ClientEvents {
         minecraft = Minecraft.getInstance();
     }
 
-    /**
-     * Renders the difficulty seen in-game
-     */
+
     @SubscribeEvent(priority = EventPriority.NORMAL)
-    public void afterRenderGameOverlay(RenderGuiOverlayEvent.Post event) {
-        //DifficultyRenderHandler.renderDifficulty(event, this.minecraft);
-    }
+    public void afterRenderGameOverlay(RenderGuiOverlayEvent.Post event) { }
 
     @SubscribeEvent
-    public void onScreenOpened(ScreenEvent.Init.Post event) {
-
-    }
+    public void onScreenOpened(ScreenEvent.Init.Post event) { }
 }
