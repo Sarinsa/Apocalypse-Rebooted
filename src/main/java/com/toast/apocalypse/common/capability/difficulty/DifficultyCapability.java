@@ -12,7 +12,7 @@ public class DifficultyCapability implements IDifficultyCapability {
     private long difficulty =- (long) ApocalypseServerConfig.SERVER.getPlayerGracePeriod() * References.DAY_LENGTH;
     private long maxDifficulty = (long) ApocalypseServerConfig.SERVER.getDefaultPlayerMaxDifficulty() * References.DAY_LENGTH;
 
-    private double difficultyMult = 0.0D;
+    private double difficultyMult = 1.0D;
 
     @Override
     public void setDifficulty(long difficulty) {
