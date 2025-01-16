@@ -101,8 +101,13 @@ dependencies {
     // compile against the JEI API but do not include it at runtime
     compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}"))
     compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}"))
+
     // at runtime, use the full JEI jar for Forge
     runtimeOnly(fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}"))
+
+    // Crust; only implement the api, but include the entire mod at runtime
+    implementation "curse.maven:crust-873570:${crust_api_version}"
+    runtimeOnly "curse.maven:crust-873570:${crust_src_version}"
 
     implementation fg.deobf("curse.maven:jade-324717:${jade_version}")
 

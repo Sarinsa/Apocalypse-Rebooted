@@ -27,6 +27,13 @@ issueTrackerURL="https://github.com/Sarinsa/Apocalypse-Rebooted/issues"
     ordering="NONE"
     side="BOTH"
 
+[[dependencies.apocalypse]]
+modId = "crust"
+mandatory = true
+versionRange = "[2.4.8,)"
+ordering = "BEFORE"
+side = "BOTH"
+
 [modproperties.apocalypse]
     catalogueImageIcon="logo.png"
     configuredBackground="apocalypse:textures/gui/advancements/backgrounds/night_sky_bright.png"
