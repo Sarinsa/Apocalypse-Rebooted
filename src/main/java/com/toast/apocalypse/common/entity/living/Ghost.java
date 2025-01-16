@@ -4,6 +4,7 @@ import com.toast.apocalypse.common.core.register.ApocalypseMobEffects;
 import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
+import fathertoast.crust.api.lib.CrustObjects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -148,7 +149,7 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
         if (super.doHurtTarget(entity)) {
             if (entity instanceof Player player) {
                 int duration = level().getDifficulty() == Difficulty.HARD ? 140 : 80;
-                player.addEffect(new MobEffectInstance(ApocalypseMobEffects.HEAVY.get(), duration));
+                player.addEffect(new MobEffectInstance(CrustObjects.weight(), duration));
             }
             return true;
         }

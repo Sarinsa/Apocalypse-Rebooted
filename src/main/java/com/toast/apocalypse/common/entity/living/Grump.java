@@ -12,6 +12,7 @@ import com.toast.apocalypse.common.inventory.container.GrumpInventoryContainer;
 import com.toast.apocalypse.common.misc.PlayerKeyBindInfo;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
+import fathertoast.crust.api.lib.CrustObjects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -179,7 +180,7 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
         if (super.doHurtTarget(entity)) {
             if (entity instanceof Player player) {
                 int duration = level().getDifficulty() == Difficulty.HARD ? 100 : 60;
-                player.addEffect(new MobEffectInstance(ApocalypseMobEffects.HEAVY.get(), duration));
+                player.addEffect(new MobEffectInstance(CrustObjects.weight(), duration));
             }
             return true;
         }

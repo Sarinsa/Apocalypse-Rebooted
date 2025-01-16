@@ -1,14 +1,11 @@
 package com.toast.apocalypse.common.misc.mixin_work;
 
 import com.toast.apocalypse.common.core.difficulty.MobAttributeHandler;
-import com.toast.apocalypse.common.core.register.ApocalypseMobEffects;
-import com.toast.apocalypse.common.misc.EntityAttributeModifiers;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.alchemy.Potion;
 
@@ -17,17 +14,6 @@ import java.util.List;
 
 public class CommonMixinHooks {
 
-    public static AttributeInstance livingEntityOnTravelModifyVariable(AttributeInstance attributeInstance, LivingEntity entity, long airborneTime) {
-        if (entity.hasEffect(ApocalypseMobEffects.HEAVY.get()) && airborneTime >= 10) {
-            if (!attributeInstance.hasModifier(EntityAttributeModifiers.HEAVY)) {
-                attributeInstance.addTransientModifier(EntityAttributeModifiers.HEAVY);
-            }
-        }
-        else if (attributeInstance.hasModifier(EntityAttributeModifiers.HEAVY)) {
-            attributeInstance.removeModifier(EntityAttributeModifiers.HEAVY);
-        }
-        return attributeInstance;
-    }
 
     public static float livingEntityHurtModifyArg(DamageSource damageSource, Player player, float originalDamage) {
         Entity entity = damageSource.getEntity();

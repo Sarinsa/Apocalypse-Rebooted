@@ -6,8 +6,7 @@
   "refmap": "apocalypse.mixins.refmap.json",
   "mixins": [
     "CreeperEntityMixin",
-    "PlayerEntityMixin",
-    "LivingEntityMixin"
+    "PlayerEntityMixin"
   ],
   "server": [
     "ServerWorldMixin"
