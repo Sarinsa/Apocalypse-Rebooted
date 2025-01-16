@@ -42,6 +42,7 @@ public class References {
 
     public static final String DYNAMIC_TRAP_CONTAINER = "container.apocalypse.dynamic_trap";
 
+
     //
     // JEI
     //

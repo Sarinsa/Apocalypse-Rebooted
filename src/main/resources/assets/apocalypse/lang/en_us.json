@@ -80,5 +80,7 @@
   "apocalypse.hud.difficulty": "Difficulty: %1$s",
   "apocalypse.hud.rate": "Rate: %1$s",
 
-  "jei.recipe_category.apocalypse.title": "Trap Assembling"
+  "jei.recipe_category.apocalypse.title": "Trap Assembling",
+
+  "apocalypse.createWorld.tab.more.title": "Apocalypse"
 }

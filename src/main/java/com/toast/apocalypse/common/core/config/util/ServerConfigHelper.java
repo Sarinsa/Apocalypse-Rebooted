@@ -63,7 +63,7 @@ public class ServerConfigHelper {
     }
 
     /**
-     * Called from {@link com.toast.apocalypse.client.screen.ApocalypseWorldCreateConfigScreen}
+     * Called from {@link com.toast.apocalypse.client.screen.misc.ApocalypseWCTab}
      */
     public static void updateModServerConfigValues(double maxDifficulty, double gracePeriod) {
         DESIRED_DEFAULT_MAX_DIFFICULTY = maxDifficulty;
