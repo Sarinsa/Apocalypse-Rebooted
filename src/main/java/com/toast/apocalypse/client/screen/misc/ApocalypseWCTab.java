@@ -17,10 +17,10 @@ public class ApocalypseWCTab extends GridLayoutTab {
 
     private static final String TITLE = "apocalypse.createWorld.tab.more.title";
 
-    private DoubleConfigTextField maxDifficultyField;
-    private DoubleConfigTextField gracePeriodField;
-    private InfoPoint maxDifficultyInfoPoint;
-    private InfoPoint gracePeriodInfoPoint;
+    private final DoubleConfigTextField maxDifficultyField;
+    private final DoubleConfigTextField gracePeriodField;
+    private final InfoPoint maxDifficultyInfoPoint;
+    private final InfoPoint gracePeriodInfoPoint;
 
 
     public ApocalypseWCTab() {
@@ -40,16 +40,11 @@ public class ApocalypseWCTab extends GridLayoutTab {
                 Component.translatable(References.MAX_DIFFICULTY_CONFIG_FIELD),
                 null)
         );
-        maxDifficultyField.setResponder((parent) -> {
-            ServerConfigHelper.updateModServerConfigValues(maxDifficultyField.getDoubleValue(), gracePeriodField.getDoubleValue());
-        });
-
         maxDifficultyInfoPoint = rowHelper.addChild(new InfoPoint(
                 0,
                 0,
                 Tooltip.create(Component.translatable(References.MAX_DIFFICULTY_CONFIG_FIELD_DESC)))
         );
-
         gracePeriodField = rowHelper.addChild(new DoubleConfigTextField(
                 Minecraft.getInstance().font,
                 ServerConfigHelper.DESIRED_DEFAULT_GRACE_PERIOD,
@@ -60,15 +55,16 @@ public class ApocalypseWCTab extends GridLayoutTab {
                 Component.translatable(References.GRACE_PERIOD_CONFIG_FIELD),
                 null)
         );
-        gracePeriodField.setResponder((parent) -> {
-            ServerConfigHelper.updateModServerConfigValues(maxDifficultyField.getDoubleValue(), gracePeriodField.getDoubleValue());
-        });
-
         gracePeriodInfoPoint = rowHelper.addChild(new InfoPoint(
                 0,
                 0,
                 Tooltip.create(Component.translatable(References.GRACE_PERIOD_CONFIG_FIELD_DESC)))
         );
+
+        maxDifficultyField.setResponder((parent)
+                -> ServerConfigHelper.updateModServerConfigValues(maxDifficultyField.getDoubleValue(), gracePeriodField.getDoubleValue()));
+        gracePeriodField.setResponder((parent)
+                -> ServerConfigHelper.updateModServerConfigValues(maxDifficultyField.getDoubleValue(), gracePeriodField.getDoubleValue()));
     }
 
     @Override

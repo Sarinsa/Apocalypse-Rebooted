@@ -2,14 +2,13 @@ package com.toast.apocalypse.common.network.work;
 
 import com.toast.apocalypse.api.register.ModRegistries;
 import com.toast.apocalypse.client.ClientUtil;
-import com.toast.apocalypse.client.event.DifficultyRenderHandler;
+import com.toast.apocalypse.client.renderer.DifficultyOverlayRenderHandler;
 import com.toast.apocalypse.client.screen.GrumpInventoryScreen;
 import com.toast.apocalypse.client.screen.MobWikiScreen;
 import com.toast.apocalypse.common.blockentity.DynamicTrapBlockEntity;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.capability.difficulty.DifficultyProvider;
 import com.toast.apocalypse.common.capability.mobwiki.MobWikiProvider;
-import com.toast.apocalypse.common.core.register.ApocalypseTrapActions;
 import com.toast.apocalypse.common.entity.living.Grump;
 import com.toast.apocalypse.common.inventory.container.GrumpInventoryContainer;
 import com.toast.apocalypse.common.network.message.*;
@@ -55,7 +54,7 @@ public class ClientWork {
         if (player != null) {
             long maxDifficulty = message.maxDifficulty;
             player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyProvider.SUPPLIER.get()).setMaxDifficulty(maxDifficulty);
-            DifficultyRenderHandler.COLOR_CHANGE = maxDifficulty > -1 ? maxDifficulty : References.DEFAULT_COLOR_CHANGE;
+            DifficultyOverlayRenderHandler.COLOR_CHANGE = maxDifficulty > -1 ? maxDifficulty : References.DEFAULT_COLOR_CHANGE;
         }
     }
 

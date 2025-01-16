@@ -1,7 +1,7 @@
 package com.toast.apocalypse.client;
 
 import com.toast.apocalypse.client.event.ClientEvents;
-import com.toast.apocalypse.client.event.DifficultyRenderHandler;
+import com.toast.apocalypse.client.renderer.DifficultyOverlayRenderHandler;
 import com.toast.apocalypse.client.event.KeyInputListener;
 import com.toast.apocalypse.client.mobwiki.MobEntries;
 import com.toast.apocalypse.client.particle.LunarDespawnSmokeParticle;
@@ -24,7 +24,6 @@ import com.toast.apocalypse.common.core.register.ApocalypseParticles;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.model.CreeperModel;
 import net.minecraft.client.model.GhastModel;
-import net.minecraft.client.model.WolfModel;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraftforge.api.distmarker.Dist;
@@ -45,7 +44,7 @@ public class ClientRegister {
 
     public static final IGuiOverlay DIFFICULTY_OVERLAY = (forgeGui, guiGraphics, partialTick, screenWidth, screenHeight) -> {
         if (!forgeGui.getMinecraft().options.hideGui) {
-            DifficultyRenderHandler.renderDifficulty(forgeGui, guiGraphics, partialTick, screenWidth, screenHeight);
+            DifficultyOverlayRenderHandler.renderDifficulty(forgeGui, guiGraphics, partialTick, screenWidth, screenHeight);
         }
     };
 

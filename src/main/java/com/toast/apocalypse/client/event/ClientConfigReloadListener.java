@@ -1,5 +1,6 @@
 package com.toast.apocalypse.client.event;
 
+import com.toast.apocalypse.client.renderer.DifficultyOverlayRenderHandler;
 import com.toast.apocalypse.client.renderer.weather.AcidRainRenderHelper;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
@@ -38,14 +39,15 @@ public final class ClientConfigReloadListener {
     }
 
     private static void updateClientConfigInfo() {
-        DifficultyRenderHandler.RENDER_IN_CREATIVE = ApocalypseClientConfig.CLIENT.getRenderDifficultyInCreative();
-        DifficultyRenderHandler.KEYBIND_ONLY = ApocalypseClientConfig.CLIENT.getKeybindOnly();
+        DifficultyOverlayRenderHandler.RENDER_IN_CREATIVE = ApocalypseClientConfig.CLIENT.getRenderDifficultyInCreative();
+        DifficultyOverlayRenderHandler.KEYBIND_ONLY = ApocalypseClientConfig.CLIENT.getKeybindOnly();
+
         PositionWidthAnchor renderPosWidth = ApocalypseClientConfig.CLIENT.getDifficultyRenderPosWidth();
         PositionHeightAnchor renderPosHeight = ApocalypseClientConfig.CLIENT.getDifficultyRenderPosHeight();
         int xOffset = ApocalypseClientConfig.CLIENT.getDifficultyRenderXOffset();
         int yOffset = ApocalypseClientConfig.CLIENT.getDifficultyRenderYOffset();
 
-        DifficultyRenderHandler.updateRenderPos(renderPosWidth, renderPosHeight, xOffset, yOffset);
+        DifficultyOverlayRenderHandler.updateRenderPos(renderPosWidth, renderPosHeight, xOffset, yOffset);
 
         ClientEvents.WIDTH = ApocalypseClientConfig.CLIENT.getWorldConfigButtonPosWidth();
         ClientEvents.HEIGHT = ApocalypseClientConfig.CLIENT.getWorldConfigButtonPosHeight();
