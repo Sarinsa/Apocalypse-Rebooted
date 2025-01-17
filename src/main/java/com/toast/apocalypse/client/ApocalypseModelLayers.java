@@ -24,7 +24,5 @@ public class ApocalypseModelLayers {
         return new ModelLayerLocation(Apocalypse.resourceLoc(path), layerName);
     }
 
-    public static void init() {}
-
     private ApocalypseModelLayers() {}
 }

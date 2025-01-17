@@ -12,6 +12,7 @@ import com.toast.apocalypse.common.capability.mobwiki.MobWikiProvider;
 import com.toast.apocalypse.common.entity.living.Grump;
 import com.toast.apocalypse.common.inventory.container.GrumpInventoryContainer;
 import com.toast.apocalypse.common.network.message.*;
+import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;

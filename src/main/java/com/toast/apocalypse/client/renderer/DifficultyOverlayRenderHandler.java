@@ -2,10 +2,11 @@ package com.toast.apocalypse.client.renderer;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.toast.apocalypse.client.ApocalypseKeyBindings;
-import com.toast.apocalypse.client.event.ClientConfigReloadListener;
-import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
+import com.toast.apocalypse.client.ClientRegister;
+import com.toast.apocalypse.client.config.ClientConfig;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
+import fathertoast.crust.api.config.common.value.CrustAnchor;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
@@ -14,46 +15,28 @@ import net.minecraftforge.client.gui.overlay.ForgeGui;
 
 public class DifficultyOverlayRenderHandler {
 
-    /** The color sequence. */
+    /** Color sequence for the difficulty counter. */
     public static final int[] COLORS = {
             0xFFFFFF, 0x88FFFF, 0x88FF88, 0xFFFF88, 0xFFBB88, 0xFF8888
     };
 
     // Rendering properties for quick access.
     public static long COLOR_CHANGE;
-    public static int POSITION_X;
-    public static int POSITION_Y;
-    public static int OFFSET_X;
-    public static int OFFSET_Y;
-    public static boolean RENDER_IN_CREATIVE;
-    public static boolean KEYBIND_ONLY;
 
-    /**
-     * Updates the render info when rendering the world difficulty in-game.
-     * Called from {@link ClientConfigReloadListener} when the client config is loaded/reloaded */
-    public static void updateRenderPos(ApocalypseClientConfig.PositionWidthAnchor widthPos, ApocalypseClientConfig.PositionHeightAnchor heightPos, int xOffset, int yOffset) {
-        switch (widthPos) {
-            case LEFT -> POSITION_X = 0;
-            case RIGHT -> POSITION_X = 1;
-            case MIDDLE -> POSITION_X = 2;
-        }
-        switch (heightPos) {
-            case TOP -> POSITION_Y = 0;
-            case BOTTOM -> POSITION_Y = 1;
-            case MIDDLE -> POSITION_Y = 2;
-        }
-        OFFSET_X = xOffset * (POSITION_X == 1 ? -1 : 1);
-        OFFSET_Y = yOffset * (POSITION_Y == 1 ? -1 : 1);
-    }
+    public static CrustAnchor ANCHOR_X;
+    public static CrustAnchor ANCHOR_Y;
 
 
+    /** Renders the in-game difficulty counter for Apocalypse. */
     public static void renderDifficulty(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int width, int height) {
         LocalPlayer player = gui.getMinecraft().player;
 
-        if (player.isCreative() && !RENDER_IN_CREATIVE)
+        // Check if we should render in creative mode
+        if (player.isCreative() && !ClientRegister.CLIENT_CONFIG.DIFFICULTY.renderDifficultyInCreative.get())
             return;
 
-        if (KEYBIND_ONLY && !ApocalypseKeyBindings.TOGGLE_DIFFICULTY.isDown()) {
+        // Check if keybind only is enabled
+        if (ClientRegister.CLIENT_CONFIG.DIFFICULTY.keybindOnly.get() && !ApocalypseKeyBindings.TOGGLE_DIFFICULTY.isDown()) {
             return;
         }
 
@@ -72,6 +55,7 @@ public class DifficultyOverlayRenderHandler {
         long difficulty = CapabilityHelper.getPlayerDifficulty(player);
         int partialDifficulty = difficulty <= 0 ? 0 : (int) (difficulty % 24000L / 2400);
 
+        // Determine what color to use for the text (scales with difficulty)
         if (COLOR_CHANGE >= 0L && difficulty >= 0L) {
             if (difficulty >= COLOR_CHANGE) {
                 color = COLORS[COLORS.length - 1];
@@ -90,39 +74,46 @@ public class DifficultyOverlayRenderHandler {
         if (difficultyRate != 1.0) {
             difficultyInfo = difficultyInfo + " " + Component.translatable(References.DIFFICULTY_RATE, (int)(difficultyRate * 100.0) + "%").getString();
         }
-        int x;
-        int y;
+        int x = getXRenderPos(gui, ANCHOR_X, width, font.width(difficultyInfo), ClientRegister.CLIENT_CONFIG.DIFFICULTY.difficultyRenderXOffset.get());
+        int y = getYRenderPos(gui, ANCHOR_Y, height, font.lineHeight, ClientRegister.CLIENT_CONFIG.DIFFICULTY.difficultyRenderYOffset.get());
 
-        switch (POSITION_X) {
-            case 0:
-                x = 2;
-                break;
-            case 1:
-                x = width - font.width(difficultyInfo) - 2;
-                break;
-            case 2:
-                x = (width >> 1) - (font.width(difficultyInfo) >> 1);
-                break;
-            default:
-                return;
-        }
-        switch (POSITION_Y) {
-            case 0:
-                y = 2;
-                break;
-            case 1:
-                y = height - 10;
-                break;
-            case 2:
-                y = (height >> 1) - 4;
-                break;
-            default:
-                return;
-        }
-        x += OFFSET_X;
-        y += OFFSET_Y;
 
         guiGraphics.drawString(font, difficultyInfo, x, y, color);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+    }
+
+    private static int getXRenderPos(ForgeGui gui, CrustAnchor anchor, int guiWidth, int stringWidth, int xOffset) {
+        if (anchor == null) return 0;
+
+        switch (anchor) {
+            case CENTER -> {
+                return (guiWidth / 2) - (stringWidth / 2) + xOffset;
+            }
+            case RIGHT -> {
+                return guiWidth - stringWidth + xOffset;
+            }
+            default -> {
+                return xOffset;
+            }
+        }
+    }
+
+    private static int getYRenderPos(ForgeGui gui, CrustAnchor anchor, int guiHeight, int stringHeight, int yOffset) {
+        if (anchor == null) return 0;
+
+        switch (anchor) {
+            case CENTER -> {
+                return (guiHeight / 2) - (stringHeight / 2) + yOffset;
+            }
+            case BOTTOM -> {
+                return guiHeight - stringHeight + yOffset;
+            }
+            default -> {
+                if (!gui.getBossOverlay().events.isEmpty() && ClientRegister.CLIENT_CONFIG.DIFFICULTY.offsetForBossBar.get()) {
+                    return yOffset + 20;
+                }
+                return yOffset;
+            }
+        }
     }
 }

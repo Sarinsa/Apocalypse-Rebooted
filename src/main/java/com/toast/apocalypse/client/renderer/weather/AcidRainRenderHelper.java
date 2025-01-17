@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.toast.apocalypse.client.ClientRegister;
 import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -63,10 +64,11 @@ public class AcidRainRenderHelper {
     }
 
     public boolean renderRain(Level level, int ticks, LightTexture lightTexture, float partialTick, double x, double y, double z) {
-        if (!rainingAcid)
+        if (!rainingAcid || !ClientRegister.CLIENT_CONFIG.MISC.renderAcidRain.get())
             return false;
 
         float rainLevel = level.getRainLevel(partialTick);
+
         if (!(rainLevel <= 0.0F)) {
             lightTexture.turnOnLightLayer();
             int i = Mth.floor(x);
@@ -85,39 +87,34 @@ public class AcidRainRenderHelper {
             }
             RenderSystem.depthMask(Minecraft.useShaderTransparency());
             int i1 = -1;
-            float f1 = (float)ticks + partialTick;
             RenderSystem.setShader(GameRenderer::getParticleShader);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 
-            for(int j1 = k - l; j1 <= k + l; ++j1) {
-                for(int k1 = i - l; k1 <= i + l; ++k1) {
-                    int l1 = (j1 - k + 16) * 32 + k1 - i + 16;
-                    double d0 = (double)this.rainSizeX[l1] * 0.5D;
-                    double d1 = (double)this.rainSizeZ[l1] * 0.5D;
-                    pos.set(k1, y, j1);
+            for(int blockZ = k - l; blockZ <= k + l; ++blockZ) {
+                for(int blockX = i - l; blockX <= i + l; ++blockX) {
+                    int l1 = (blockZ - k + 16) * 32 + blockX - i + 16;
+                    double d0 = (double) rainSizeX[l1] * 0.5D;
+                    double d1 = (double) rainSizeZ[l1] * 0.5D;
+                    pos.set(blockX, y, blockZ);
                     Biome biome = level.getBiome(pos).value();
 
                     if (biome.getPrecipitationAt(pos) != Biome.Precipitation.NONE) {
-                        int i2 = level.getHeight(Heightmap.Types.MOTION_BLOCKING, k1, j1);
-                        int j2 = j - l;
+                        int i2 = level.getHeight(Heightmap.Types.MOTION_BLOCKING, blockX, blockZ);
+                        int blockY = j - l;
                         int k2 = j + l;
-                        if (j2 < i2) {
-                            j2 = i2;
-                        }
 
+                        if (blockY < i2) {
+                            blockY = i2;
+                        }
                         if (k2 < i2) {
                             k2 = i2;
                         }
+                        int l2 = Math.max(i2, j);
 
-                        int l2 = i2;
-                        if (i2 < j) {
-                            l2 = j;
-                        }
-
-                        if (j2 != k2) {
-                            RandomSource randomsource = RandomSource.create((long) k1 * k1 * 3121 + k1 * 45238971L ^ (long) j1 * j1 * 418711 + j1 * 13761L);
-                            pos.set(k1, j2, j1);
+                        if (blockY != k2) {
+                            RandomSource randomsource = RandomSource.create((long) blockX * blockX * 3121 + blockX * 45238971L ^ (long) blockZ * blockZ * 418711 + blockZ * 13761L);
+                            pos.set(blockX, blockY, blockZ);
 
                             if (biome.warmEnoughToRain(pos)) {
                                 if (i1 != 0) {
@@ -130,18 +127,18 @@ public class AcidRainRenderHelper {
                                     bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
                                 }
 
-                                int i3 = ticks + k1 * k1 * 3121 + k1 * 45238971 + j1 * j1 * 418711 + j1 * 13761 & 31;
+                                int i3 = ticks + blockX * blockX * 3121 + blockX * 45238971 + blockZ * blockZ * 418711 + blockZ * 13761 & 31;
                                 float f2 = -((float)i3 + partialTick) / 32.0F * (3.0F + randomsource.nextFloat());
-                                double d2 = (double)k1 + 0.5D - x;
-                                double d4 = (double)j1 + 0.5D - z;
+                                double d2 = (double)blockX + 0.5D - x;
+                                double d4 = (double)blockZ + 0.5D - z;
                                 float f3 = (float)Math.sqrt(d2 * d2 + d4 * d4) / (float)l;
-                                float f4 = ((1.0F - f3 * f3) * 0.5F + 0.5F) * rainLevel;
-                                pos.set(k1, l2, j1);
+                                float alpha = ((1.0F - f3 * f3) * 0.5F + 0.5F) * rainLevel;
+                                pos.set(blockX, l2, blockZ);
                                 int j3 = getLightColor(level, pos);
-                                bufferbuilder.vertex((double)k1 - x - d0 + 0.5D, (double)k2 - y, (double)j1 - z - d1 + 0.5D).uv(0.0F, (float)j2 * 0.25F + f2).color(RAIN_COLOR.x, RAIN_COLOR.y, RAIN_COLOR.z, f4).uv2(j3).endVertex();
-                                bufferbuilder.vertex((double)k1 - x + d0 + 0.5D, (double)k2 - y, (double)j1 - z + d1 + 0.5D).uv(1.0F, (float)j2 * 0.25F + f2).color(RAIN_COLOR.x, RAIN_COLOR.y, RAIN_COLOR.z, f4).uv2(j3).endVertex();
-                                bufferbuilder.vertex((double)k1 - x + d0 + 0.5D, (double)j2 - y, (double)j1 - z + d1 + 0.5D).uv(1.0F, (float)k2 * 0.25F + f2).color(RAIN_COLOR.x, RAIN_COLOR.y, RAIN_COLOR.z, f4).uv2(j3).endVertex();
-                                bufferbuilder.vertex((double)k1 - x - d0 + 0.5D, (double)j2 - y, (double)j1 - z - d1 + 0.5D).uv(0.0F, (float)k2 * 0.25F + f2).color(RAIN_COLOR.x, RAIN_COLOR.y, RAIN_COLOR.z, f4).uv2(j3).endVertex();
+                                bufferbuilder.vertex((double)blockX - x - d0 + 0.5D, (double)k2 - y, (double)blockZ - z - d1 + 0.5D).uv(0.0F, (float)blockY * 0.25F + f2).color(RAIN_COLOR.x, RAIN_COLOR.y, RAIN_COLOR.z, alpha).uv2(j3).endVertex();
+                                bufferbuilder.vertex((double)blockX - x + d0 + 0.5D, (double)k2 - y, (double)blockZ - z + d1 + 0.5D).uv(1.0F, (float)blockY * 0.25F + f2).color(RAIN_COLOR.x, RAIN_COLOR.y, RAIN_COLOR.z, alpha).uv2(j3).endVertex();
+                                bufferbuilder.vertex((double)blockX - x + d0 + 0.5D, (double)blockY - y, (double)blockZ - z + d1 + 0.5D).uv(1.0F, (float)k2 * 0.25F + f2).color(RAIN_COLOR.x, RAIN_COLOR.y, RAIN_COLOR.z, alpha).uv2(j3).endVertex();
+                                bufferbuilder.vertex((double)blockX - x - d0 + 0.5D, (double)blockY - y, (double)blockZ - z - d1 + 0.5D).uv(0.0F, (float)k2 * 0.25F + f2).color(RAIN_COLOR.x, RAIN_COLOR.y, RAIN_COLOR.z, alpha).uv2(j3).endVertex();
                             }
                         }
                     }
@@ -151,7 +148,6 @@ public class AcidRainRenderHelper {
             if (i1 >= 0) {
                 tesselator.end();
             }
-
             RenderSystem.enableCull();
             RenderSystem.disableBlend();
             lightTexture.turnOffLightLayer();

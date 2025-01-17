@@ -7,9 +7,9 @@ import com.toast.apocalypse.api.plugin.IApocalypsePlugin;
 import com.toast.apocalypse.api.plugin.RegistryHelper;
 import com.toast.apocalypse.common.command.CommandRegister;
 import com.toast.apocalypse.common.command.argument.ApocalypseArgumentTypes;
-import com.toast.apocalypse.common.core.config.ApocalypseClientConfig;
 import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.core.config.ApocalypseServerConfig;
+import com.toast.apocalypse.common.core.config.Config;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.core.register.*;
@@ -24,6 +24,7 @@ import com.toast.apocalypse.common.tag.ApocalypseEntityTags;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.util.RainDamageTickHelper;
 import com.toast.apocalypse.common.util.VersionCheckHelper;
+import fathertoast.crust.api.config.common.ConfigManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -83,6 +84,8 @@ public class Apocalypse {
         ApocalypseEntityTags.init();
         ApocalypseBlockTags.init();
 
+        ConfigManager.create("Apocalypse Rebooted", Apocalypse.MODID);
+
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         // Misc events
@@ -125,12 +128,15 @@ public class Apocalypse {
         // Config stuff
         ModLoadingContext context = ModLoadingContext.get();
         context.registerConfig(ModConfig.Type.COMMON, ApocalypseCommonConfig.COMMON_SPEC);
-        context.registerConfig(ModConfig.Type.CLIENT, ApocalypseClientConfig.CLIENT_SPEC);
         context.registerConfig(ModConfig.Type.SERVER, ApocalypseServerConfig.SERVER_SPEC);
     }
 
     public void onCommonSetup(FMLCommonSetupEvent event) {
         packetHandler.registerMessages();
+
+        event.enqueueWork(() -> {
+            Config.initialize();
+        });
     }
 
     public void onLoadComplete(FMLLoadCompleteEvent event) {

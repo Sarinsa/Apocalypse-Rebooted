@@ -8,8 +8,6 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.List;
-
 public class ClientMixinHooks {
 
     public static void onRenderSnowAndRain(Level level, int ticks, LightTexture lightTexture, float partialTick, double x, double y, double z, CallbackInfo ci) {

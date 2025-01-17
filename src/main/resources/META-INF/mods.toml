@@ -31,7 +31,7 @@ issueTrackerURL="https://github.com/Sarinsa/Apocalypse-Rebooted/issues"
 modId = "crust"
 mandatory = true
 versionRange = "[2.4.8,)"
-ordering = "BEFORE"
+ordering = "AFTER"
 side = "BOTH"
 
 [modproperties.apocalypse]
