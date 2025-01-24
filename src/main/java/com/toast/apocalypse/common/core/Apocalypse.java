@@ -7,9 +7,8 @@ import com.toast.apocalypse.api.plugin.IApocalypsePlugin;
 import com.toast.apocalypse.api.plugin.RegistryHelper;
 import com.toast.apocalypse.common.command.CommandRegister;
 import com.toast.apocalypse.common.command.argument.ApocalypseArgumentTypes;
-import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.core.config.ApocalypseServerConfig;
-import com.toast.apocalypse.common.core.config.Config;
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.core.register.*;
@@ -22,7 +21,7 @@ import com.toast.apocalypse.common.network.PacketHandler;
 import com.toast.apocalypse.common.tag.ApocalypseBlockTags;
 import com.toast.apocalypse.common.tag.ApocalypseEntityTags;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
-import com.toast.apocalypse.common.util.RainDamageTickHelper;
+import com.toast.apocalypse.common.util.RainDamageTickHandler;
 import com.toast.apocalypse.common.util.VersionCheckHelper;
 import fathertoast.crust.api.config.common.ConfigManager;
 import net.minecraft.resources.ResourceLocation;
@@ -98,7 +97,7 @@ public class Apocalypse {
         eventBus.addListener(this::sendIMCMessages);
 
         // Register event listeners
-        MinecraftForge.EVENT_BUS.register(new RainDamageTickHelper());
+        MinecraftForge.EVENT_BUS.register(new RainDamageTickHandler());
         MinecraftForge.EVENT_BUS.register(new EntityEvents());
         MinecraftForge.EVENT_BUS.register(new PlayerEvents());
         MinecraftForge.EVENT_BUS.register(new CapabilityAttachEvents());
@@ -127,7 +126,6 @@ public class Apocalypse {
 
         // Config stuff
         ModLoadingContext context = ModLoadingContext.get();
-        context.registerConfig(ModConfig.Type.COMMON, ApocalypseCommonConfig.COMMON_SPEC);
         context.registerConfig(ModConfig.Type.SERVER, ApocalypseServerConfig.SERVER_SPEC);
     }
 
@@ -135,7 +133,7 @@ public class Apocalypse {
         packetHandler.registerMessages();
 
         event.enqueueWork(() -> {
-            Config.initialize();
+            ApocalypseConfig.initialize();
         });
     }
 

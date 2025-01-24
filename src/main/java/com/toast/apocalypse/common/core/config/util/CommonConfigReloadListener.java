@@ -1,32 +1,17 @@
-package com.toast.apocalypse.common.core.config;
+package com.toast.apocalypse.common.core.config.util;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.difficulty.*;
-import com.toast.apocalypse.common.core.mod_event.events.FullMoonEvent;
-import com.toast.apocalypse.common.entity.living.*;
-import com.toast.apocalypse.common.event.EntityEvents;
-import com.toast.apocalypse.common.misc.DestroyerExplosionCalculator;
-import com.toast.apocalypse.common.util.RainDamageTickHelper;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static com.toast.apocalypse.common.core.config.ApocalypseCommonConfig.COMMON;
 
 @Mod.EventBusSubscriber(modid = Apocalypse.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CommonConfigReloadListener {
 
+    /*
     @SubscribeEvent
     public static void onLoad(ModConfigEvent.Loading event) {
         if (event.getConfig().getType() == ModConfig.Type.COMMON) {
@@ -41,10 +26,13 @@ public class CommonConfigReloadListener {
         }
     }
 
+     */
+
     /**
      * Updates static references for config values
      * and repopulates various collections and whatnot.
      */
+    /*
     public static void updateInfo() {
         PlayerDifficultyManager.MULTIPLAYER_DIFFICULTY_SCALING = COMMON.multiplayerDifficultyScaling();
         PlayerDifficultyManager.MULTIPLAYER_DIFFICULTY_MULT = COMMON.getMultiplayerDifficultyRateMult();
@@ -108,7 +96,6 @@ public class CommonConfigReloadListener {
         MobEquipmentHandler.ARMOR_LUNAR_CHANCE = COMMON.getArmorLunarChance();
         MobEquipmentHandler.ARMOR_CHANCE_MAX = COMMON.getArmorMaxChance();
         MobEquipmentHandler.CURRENT_ARMOR_TIER_ONLY = COMMON.getUseCurrentArmorTierOnly();
-        MobEquipmentHandler.refreshArmorMaps();
         refreshList(COMMON.getCanHaveArmor(), MobEquipmentHandler.CAN_HAVE_ARMOR, ForgeRegistries.ENTITY_TYPES);
 
         MobPotionHandler.POTION_TIME = COMMON.getPotionEffectTimeSpan();
@@ -143,6 +130,8 @@ public class CommonConfigReloadListener {
         FullMoonEvent.SEEKER_START = COMMON.getMoonMobStartDifficulty(Seeker.class);
         FullMoonEvent.DESTROYER_START = COMMON.getMoonMobStartDifficulty(Destroyer.class);
     }
+
+     */
 
     /** Tiny helper method for refreshing config lists */
     private static <T> void refreshList(List<? extends String> configList, List<T> list, IForgeRegistry<T> registry) {

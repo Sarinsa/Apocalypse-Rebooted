@@ -1,10 +1,9 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
-import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -36,7 +35,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RespawnAnchorBlock;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeMod;
-import net.minecraftforge.common.ForgeSpawnEggItem;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -163,7 +161,7 @@ public class Destroyer extends AbstractFullMoonGhast {
 
     @Override
     public int getExplosionPower() {
-        return explosionPower == 0 ? ApocalypseCommonConfig.COMMON.getDestroyerExplosionPower() : explosionPower;
+        return explosionPower == 0 ? ApocalypseConfig.MISC.OTHER.destroyerExplosionPower.get() : explosionPower;
     }
 
     @Override
@@ -293,7 +291,7 @@ public class Destroyer extends AbstractFullMoonGhast {
             if (destroyer.getTarget() != null) {
                 Optional<Vec3> respawnPos = Optional.empty();
 
-                if (ApocalypseCommonConfig.COMMON.getDestroyerTargetRespawnPos() && destroyer.getTarget() instanceof ServerPlayer serverPlayer && !destroyer.attackedBySiegeTarget()) {
+                if (ApocalypseConfig.MISC.OTHER.destroyerTargetRespawnPos.get() && destroyer.getTarget() instanceof ServerPlayer serverPlayer && !destroyer.attackedBySiegeTarget()) {
                     if (destroyer.getPlayerTargetUUID() != null && destroyer.getPlayerTargetUUID() == serverPlayer.getUUID()) {
                         BlockPos pos = serverPlayer.getRespawnPosition();
 
@@ -345,7 +343,7 @@ public class Destroyer extends AbstractFullMoonGhast {
 
         @Override
         public boolean canUse() {
-            if (!ApocalypseCommonConfig.COMMON.getDestroyerTargetRespawnPos())
+            if (!ApocalypseConfig.MISC.OTHER.destroyerTargetRespawnPos.get())
                 return false;
 
             if (IFullMoonMob.getEventTarget(destroyer) instanceof ServerPlayer targetPlayer && !destroyer.attackedBySiegeTarget()) {
@@ -359,7 +357,7 @@ public class Destroyer extends AbstractFullMoonGhast {
 
         @Override
         public boolean canContinueToUse() {
-            if (!ApocalypseCommonConfig.COMMON.getDestroyerTargetRespawnPos())
+            if (!ApocalypseConfig.MISC.OTHER.destroyerTargetRespawnPos.get())
                 return false;
 
             if (IFullMoonMob.getEventTarget(destroyer) instanceof ServerPlayer targetPlayer && !destroyer.attackedBySiegeTarget()) {

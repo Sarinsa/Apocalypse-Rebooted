@@ -1,24 +1,24 @@
 package com.toast.apocalypse.common.core.difficulty;
 
-import com.electronwill.nightconfig.core.CommentedConfig;
-import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.common.core.config.MobBuffingConfig;
+import com.toast.apocalypse.common.core.config.field.DifficultyRegistryEntryListField;
+import com.toast.apocalypse.common.core.config.value.DifficultyRegListEntry;
 import com.toast.apocalypse.common.util.DataStructureUtils;
 import com.toast.apocalypse.common.util.References;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.Nullable;
 import java.util.*;
+
+import static com.toast.apocalypse.common.core.config.ApocalypseConfig.MOB_BUFFING;
 
 public final class MobEquipmentHandler {
 
@@ -29,55 +29,51 @@ public final class MobEquipmentHandler {
             EquipmentSlot.HEAD
     };
 
-    /**
-     * Updated on config load/reload
-     */
-    public static double WEAPONS_TIME;
-    public static double WEAPONS_CHANCE;
-    public static double WEAPONS_LUNAR_CHANCE;
-    public static double WEAPONS_CHANCE_MAX;
-    public static boolean CURRENT_WEAPON_TIER_ONLY;
-
-    public static final List<EntityType<?>> CAN_HAVE_WEAPONS = new ArrayList<>();
-    public static final Map<Integer, List<Item>> WEAPON_LISTS = new HashMap<>();
-
-
-    public static double ARMOR_TIME;
-    public static double ARMOR_CHANCE;
-    public static double ARMOR_LUNAR_CHANCE;
-    public static double ARMOR_CHANCE_MAX;
-    public static boolean CURRENT_ARMOR_TIER_ONLY;
-
-    public static final List<EntityType<?>> CAN_HAVE_ARMOR = new ArrayList<>();
     public static final Map<Integer, Map<EquipmentSlot, List<Item>>> ARMOR_MAPS = new HashMap<>();
 
 
+    /**
+     * Handles Apocalypse equipment for mobs when they spawn, such as weapon and armor.<br>
+     * Called from {@link com.toast.apocalypse.common.event.EntityEvents#onEntityJoinWorld(EntityJoinLevelEvent)}
+     *
+     * @param entity The entity to handle equipment for.
+     * @param difficulty The raw difficulty of the nearest player.
+     * @param fullMoon True if it is both nighttime and a full moon in the level the entity is in.
+     * @param random The RNG of the level the entity is in.
+     */
     public static void handleMobEquipment(LivingEntity entity, long difficulty, boolean fullMoon, RandomSource random) {
         EntityType<?> entityType = entity.getType();
 
-        if (CAN_HAVE_WEAPONS.contains(entityType)) {
-            double effectiveDifficulty = (double) (difficulty / References.DAY_LENGTH) / WEAPONS_TIME;
-            double bonus = WEAPONS_CHANCE * effectiveDifficulty;
+        // Try to equip a weapon
+        if (MOB_BUFFING.EQUIPMENT.canReceiveWeapons.contains(entityType)) {
+            double effectiveDifficulty = (double) (difficulty / References.DAY_LENGTH) / MOB_BUFFING.EQUIPMENT.weaponsDifficultySpan.get();
+            double bonus = MOB_BUFFING.EQUIPMENT.weaponsChance.get() * effectiveDifficulty;
 
-            if (WEAPONS_CHANCE_MAX >= 0.0 && bonus > WEAPONS_CHANCE_MAX) {
-                bonus = WEAPONS_CHANCE_MAX;
+            final double maxWeaponChance = MOB_BUFFING.EQUIPMENT.weaponsMaxChance.get();
+
+            if (maxWeaponChance >= 0.0 && bonus > maxWeaponChance) {
+                bonus = maxWeaponChance;
             }
             if (fullMoon) {
-                bonus += WEAPONS_LUNAR_CHANCE;
+                bonus += MOB_BUFFING.EQUIPMENT.weaponsLunarChance.get();
             }
             if (random.nextDouble() <= bonus) {
                 equipWeapon(entity, difficulty, random);
             }
         }
-        if (CAN_HAVE_ARMOR.contains(entityType)) {
-            double effectiveDifficulty = (double) (difficulty / References.DAY_LENGTH) / ARMOR_TIME;
-            double bonus = ARMOR_CHANCE * effectiveDifficulty;
 
-            if (ARMOR_CHANCE_MAX >= 0.0 && bonus > ARMOR_CHANCE_MAX) {
-                bonus = ARMOR_CHANCE_MAX;
+        // Try to equip a suitable set of armor
+        if (MOB_BUFFING.EQUIPMENT.canReceiveArmor.contains(entityType)) {
+            double effectiveDifficulty = (double) (difficulty / References.DAY_LENGTH) / MOB_BUFFING.EQUIPMENT.armorDifficultySpan.get();
+            double bonus = MOB_BUFFING.EQUIPMENT.armorChance.get() * effectiveDifficulty;
+
+            final double maxArmorChance = MOB_BUFFING.EQUIPMENT.armorMaxChance.get();
+
+            if (maxArmorChance >= 0.0 && bonus > maxArmorChance) {
+                bonus = maxArmorChance;
             }
             if (fullMoon) {
-                bonus += ARMOR_LUNAR_CHANCE;
+                bonus += MOB_BUFFING.EQUIPMENT.armorLunarChance.get();
             }
             if (random.nextDouble() <= bonus) {
                 equipArmor(entity, difficulty, random);
@@ -86,42 +82,27 @@ public final class MobEquipmentHandler {
     }
 
     /**
-     * Returns a new ItemStack of a weapon in the weapons lists.
-     * What weapon is chosen depends on the parsed difficulty.
+     * Attempts to pick a suitable weapon from the equipment config
+     * and equip it on the given entity.
+     *
+     * @param entity The entity to try and equip with a weapon.
+     * @param difficulty The raw difficulty of the nearest player.
+     * @param random The RNG of the level object the entity is in.
      */
     private static void equipWeapon(LivingEntity entity, long difficulty, RandomSource random) {
-        int scaledDifficulty = (int) (difficulty / References.DAY_LENGTH);
         ItemStack weapon = null;
 
-        if (!WEAPON_LISTS.keySet().isEmpty()) {
-            if (CURRENT_WEAPON_TIER_ONLY) {
-                int tier = 0;
-
-                for (int i : WEAPON_LISTS.keySet()) {
-                    if (i <= scaledDifficulty) {
-                        tier = i;
-                    }
-                }
-                List<Item> weaponList = WEAPON_LISTS.get(tier);
-                Item item = DataStructureUtils.getRandomListElement(random, weaponList);
+        if (!MOB_BUFFING.EQUIPMENT.weaponTierList.isEmpty()) {
+            if (MOB_BUFFING.EQUIPMENT.currentWeaponTierOnly.get()) {
+                Item item = DataStructureUtils.getRandomListElement(random, MOB_BUFFING.EQUIPMENT.weaponTierList.getClosestValues(difficulty));
 
                 if (item != null) {
                     weapon = new ItemStack(item);
                 }
             }
             else {
-                List<Integer> availableTiers = new ArrayList<>();
-
-                for (int tier : WEAPON_LISTS.keySet()) {
-                    if (tier <= scaledDifficulty) {
-                        availableTiers.add(tier);
-                    }
-                }
-                if (availableTiers.isEmpty())
-                    return;
-
-                List<Item> weaponList = WEAPON_LISTS.get(DataStructureUtils.getRandomListElement(random, availableTiers));
-                Item item = DataStructureUtils.getRandomListElement(random, weaponList);
+                List<Item> items = MOB_BUFFING.EQUIPMENT.weaponTierList.getAllUntil(difficulty);
+                Item item = DataStructureUtils.getRandomListElement(random, items);
 
                 if (item != null) {
                     weapon = new ItemStack(item);
@@ -133,6 +114,14 @@ public final class MobEquipmentHandler {
         }
     }
 
+    /**
+     * Attempts to pick a suitable set of armor from the equipment config to equip the given entity with.
+     *
+     * @param entity The entity to try and equip with a weapon.
+     * @param difficulty The raw difficulty of the nearest player.
+     * @param random The RNG of the level the entity is in.
+     */
+    @SuppressWarnings("ConstantConditions")
     private static void equipArmor(LivingEntity entity, long difficulty, RandomSource random) {
         int scaledDifficulty = (int) (difficulty / References.DAY_LENGTH);
         ItemStack[] toEquip = new ItemStack[] {
@@ -143,7 +132,7 @@ public final class MobEquipmentHandler {
         };
 
         if (!ARMOR_MAPS.keySet().isEmpty()) {
-            if (CURRENT_ARMOR_TIER_ONLY) {
+            if (MOB_BUFFING.EQUIPMENT.currentArmorTierOnly.get()) {
                 int tier = 0;
 
                 for (int i : ARMOR_MAPS.keySet()) {
@@ -182,127 +171,32 @@ public final class MobEquipmentHandler {
         }
     }
 
-    /** Fetches an equipment config section and parses it into actual lists with items. */
-    public static void refreshWeaponLists() {
-        WEAPON_LISTS.clear();
-        CommentedConfig weaponConfig = ApocalypseCommonConfig.COMMON.getWeaponList();
-
-        for (CommentedConfig.Entry entry : weaponConfig.entrySet()) {
-            String key = entry.getKey();
-
-            if (StringUtils.isNumeric(key)) {
-                int difficulty = Integer.parseInt(key);
-
-                if (difficulty < 0) {
-                    Apocalypse.LOGGER.warn("Weapon list tier found with negative difficulty: {}. This weapon tier will not be loaded.", difficulty);
-                    continue;
-                }
-                long difficultyLimit = (References.MAX_DIFFICULTY_HARD_LIMIT / References.DAY_LENGTH);
-
-                if (difficulty > difficultyLimit) {
-                    Apocalypse.LOGGER.warn("Equipment list tier found with difficulty that exceeds the maximum difficulty limit of {}. This weapon tier will not be loaded.", difficultyLimit);
-                    continue;
-                }
-
-                if (entry.getValue() instanceof List) {
-                    List<? extends String> configList = entry.getValue();
-                    List<Item> weapons = new ArrayList<>();
-
-                    for (String s : configList) {
-                        ResourceLocation itemId = ResourceLocation.tryParse(s);
-
-                        if (itemId == null) {
-                            Apocalypse.LOGGER.error("Weapon tier list for difficulty {} contains a malformed item id: \"{}\"", key, s);
-                        }
-                        else {
-                            if (ForgeRegistries.ITEMS.containsKey(itemId)) {
-                                weapons.add(ForgeRegistries.ITEMS.getValue(itemId));
-                            }
-                            else {
-                                Apocalypse.LOGGER.error("Weapon tier list for difficulty {} contains an item id for an item that does not exist in the game: \"{}\"", key, itemId);
-                            }
-                        }
-                    }
-                    WEAPON_LISTS.put(difficulty, weapons);
-                }
-                else {
-                    Apocalypse.LOGGER.error("Weapon tier list for difficulty {} is malformed and will not be loaded.", key);
-                }
-            }
-            else {
-                Apocalypse.LOGGER.error("Weapon lists config entry {} is invalid; should be a number representing a difficulty level.", key);
-            }
-        }
-    }
-
-    // Map<Integer, Map<EquipmentSlotType, List<Item>>>
-    public static void refreshArmorMaps() {
+    /**
+     * Called in the 'armor_tier_list' config field's callback ({@link com.toast.apocalypse.common.core.config.MobBuffingConfig.Equipment}).
+     */
+    public static void refreshArmorMaps(DifficultyRegistryEntryListField<Item> field) {
         ARMOR_MAPS.clear();
-        CommentedConfig armorConfig = ApocalypseCommonConfig.COMMON.getArmorList();
 
-        for (CommentedConfig.Entry entry : armorConfig.entrySet()) {
-            String key = entry.getKey();
+        for (DifficultyRegListEntry<Item> entry : field.getEntries()) {
+            List<Item> items = entry.getRegistryEntries(ForgeRegistries.ITEMS, null);
 
-            if (StringUtils.isNumeric(key)) {
-                int difficulty = Integer.parseInt(key);
+            if (items == null || items.isEmpty())
+                continue;
 
-                if (difficulty < 0) {
-                    logError("Armor list tier found with negative difficulty: {}. This armor tier will not be loaded.", difficulty);
-                    continue;
-                }
-                long difficultyLimit = (References.MAX_DIFFICULTY_HARD_LIMIT / References.DAY_LENGTH);
+            Map<EquipmentSlot, List<Item>> armorTier = new HashMap<>();
+            armorTier.put(EquipmentSlot.FEET, new ArrayList<>());
+            armorTier.put(EquipmentSlot.LEGS, new ArrayList<>());
+            armorTier.put(EquipmentSlot.CHEST, new ArrayList<>());
+            armorTier.put(EquipmentSlot.HEAD, new ArrayList<>());
 
-                if (difficulty > difficultyLimit) {
-                    logError("Equipment list tier found with difficulty that exceeds the maximum difficulty limit of {}. This weapon tier will not be loaded.", difficultyLimit);
-                    continue;
-                }
+            for (Item item : items) {
+                EquipmentSlot equipmentSlot = item instanceof Equipable equipable
+                        ? equipable.getEquipmentSlot()
+                        : EquipmentSlot.HEAD;
 
-                if (entry.getValue() instanceof List) {
-                    List<? extends String> configList = entry.getValue();
-                    Map<EquipmentSlot, List<Item>> armor = new HashMap<>();
-                    armor.put(EquipmentSlot.FEET, new ArrayList<>());
-                    armor.put(EquipmentSlot.LEGS, new ArrayList<>());
-                    armor.put(EquipmentSlot.CHEST, new ArrayList<>());
-                    armor.put(EquipmentSlot.HEAD, new ArrayList<>());
-
-                    // WOWOWOWOWOWO
-                    for (String s : configList) {
-                        ResourceLocation itemId = ResourceLocation.tryParse(s);
-
-                        if (itemId == null) {
-                            logError("Armor tier list for difficulty {} contains a malformed item id: \"{}\"", key, s);
-                        }
-                        else {
-                            if (ForgeRegistries.ITEMS.containsKey(itemId)) {
-                                Item item = ForgeRegistries.ITEMS.getValue(itemId); assert item != null;
-                                @Nullable EquipmentSlot slotType = item instanceof ArmorItem armorItem
-                                        ? armorItem.getEquipmentSlot()
-                                        : item.getEquipmentSlot(new ItemStack(item));
-
-                                // Default to head slot
-                                if (slotType == null || slotType.getType() != EquipmentSlot.Type.ARMOR) {
-                                    slotType = EquipmentSlot.HEAD;
-                                }
-                                armor.get(slotType).add(item);
-                            }
-                            else {
-                                logError("Armor tier list for difficulty {} contains an item id for an item that does not exist in the game: \"{}\"", key, itemId);
-                            }
-                        }
-                    }
-                    ARMOR_MAPS.put(difficulty, armor);
-                }
-                else {
-                    logError("Armor tier list for difficulty {} is malformed and will not be loaded.", key);
-                }
+                armorTier.get(equipmentSlot).add(item);
             }
-            else {
-                logError("Armor lists config entry {} is invalid; should be a number representing a difficulty level.", key);
-            }
+            ARMOR_MAPS.put(entry.DIFFICULTY_LEVEL, armorTier);
         }
-    }
-
-    private static void logError(String message, Object... args) {
-        Apocalypse.LOGGER.error("[Apocalypse Config] " + message, args);
     }
 }

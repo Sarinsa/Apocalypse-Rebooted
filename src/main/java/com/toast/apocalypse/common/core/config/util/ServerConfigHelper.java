@@ -11,6 +11,10 @@ import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import java.lang.reflect.Field;
 import java.util.EnumMap;
 
+/**
+ * Weird and hacky helper for modifying server/world config
+ * before world creation on clients.
+ */
 public class ServerConfigHelper {
 
     /**
@@ -36,8 +40,8 @@ public class ServerConfigHelper {
      */
     @SuppressWarnings("unchecked")
     public static void updateModServerConfig() {
-        String modid = Apocalypse.MODID;
-        String configName = ConfigTracker.INSTANCE.getConfigFileName(modid, ModConfig.Type.SERVER);
+        final String modid = Apocalypse.MODID;
+        final String configName = ConfigTracker.INSTANCE.getConfigFileName(modid, ModConfig.Type.SERVER);
 
         if (configName != null && !configName.isEmpty()) {
             ModContainer modContainer = ModList.get().getModContainerById(modid).orElseThrow(() -> new IllegalStateException("Failed to fetch ModContainer instance for " + modid + ". The server config will not be updated."));

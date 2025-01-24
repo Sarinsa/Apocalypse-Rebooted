@@ -1,13 +1,11 @@
 package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
-import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import com.toast.apocalypse.common.util.VersionCheckHelper;
-import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
@@ -16,14 +14,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.level.SleepFinishedTimeEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-
-import static com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager.SLEEP_PENALTY;
 
 public class PlayerEvents {
 
@@ -33,7 +28,7 @@ public class PlayerEvents {
      */
     @SubscribeEvent
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        if (!ApocalypseCommonConfig.COMMON.getSendUpdateMessage())
+        if (!ApocalypseConfig.MISC.VERSION_CHECK.sendUpdateMessage.get())
             return;
 
         String updateMessage = VersionCheckHelper.getUpdateMessage();
@@ -73,7 +68,7 @@ public class PlayerEvents {
                     long playerMaxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
                     double difficultyMult = CapabilityHelper.getPlayerDifficultyMult(player);
 
-                    playerDifficulty += ((timeSkipped * PlayerDifficultyManager.SLEEP_PENALTY) * difficultyMult);
+                    playerDifficulty += (long) ((timeSkipped * ApocalypseConfig.DIFFICULTY.GENERAL.sleepPenaltyMultiplier.get()) * difficultyMult);
                     CapabilityHelper.setPlayerDifficulty(player, Math.min(playerDifficulty, playerMaxDifficulty));
 
                     player.displayClientMessage(Component.translatable(References.SLEEP_PENALTY), true);
@@ -94,7 +89,6 @@ public class PlayerEvents {
     public void onPlayerChangeDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             NetworkHelper.sendUpdatePlayerDifficulty(serverPlayer);
-            //NetworkHelper.sendMobWikiIndexUpdate(serverPlayer);
         }
     }
 

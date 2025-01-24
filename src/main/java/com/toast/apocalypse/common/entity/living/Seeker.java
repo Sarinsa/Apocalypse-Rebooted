@@ -1,7 +1,6 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
@@ -16,12 +15,10 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -32,7 +29,6 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Ghast;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.LargeFireball;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.AABB;
@@ -156,7 +152,7 @@ public class Seeker extends AbstractFullMoonGhast {
 
     @Override
     public int getExplosionPower() {
-        return this.explosionPower == 0 ? ApocalypseCommonConfig.COMMON.getSeekerExplosionPower() : this.explosionPower;
+        return explosionPower == 0 ? ApocalypseConfig.MISC.OTHER.seekerExplosionPower.get() : explosionPower;
     }
 
     @Override
@@ -165,10 +161,10 @@ public class Seeker extends AbstractFullMoonGhast {
         data = super.finalizeSpawn(serverLevel, difficultyInstance, spawnType, data, compoundTag);
 
         if (compoundTag != null && compoundTag.contains("ExplosionPower", Tag.TAG_ANY_NUMERIC)) {
-            this.explosionPower = compoundTag.getInt("ExplosionPower");
+            explosionPower = compoundTag.getInt("ExplosionPower");
         }
         else {
-            this.explosionPower = 0;
+            explosionPower = 0;
         }
         return data;
     }

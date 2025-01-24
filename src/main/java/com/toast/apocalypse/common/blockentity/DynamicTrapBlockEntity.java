@@ -10,6 +10,7 @@ import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.recipe.TrapRecipe;
 import com.toast.apocalypse.api.BaseTrapAction;
 import com.toast.apocalypse.common.util.References;
+import fathertoast.crust.api.util.IBlockEntityBBProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -33,11 +34,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class DynamicTrapBlockEntity extends BaseContainerBlockEntity {
+public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements IBlockEntityBBProvider {
 
     private NonNullList<ItemStack> items = NonNullList.withSize(9, ItemStack.EMPTY);
     private BaseTrapAction currentTrap = null;
@@ -296,5 +298,10 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity {
                 currentTrap = ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue(id);
             }
         }
+    }
+
+    @Override
+    public @Nullable List<AABB> getBoundingBoxes() {
+        return List.of();
     }
 }

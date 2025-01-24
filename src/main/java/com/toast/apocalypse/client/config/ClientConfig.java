@@ -26,8 +26,8 @@ public class ClientConfig extends AbstractConfigFile {
 
     public static class DifficultyRenderer extends AbstractConfigCategory<ClientConfig> {
 
-        public final InjectionWrapperField<EnumField<CrustAnchor>> difficultyRenderXAnchor;
-        public final InjectionWrapperField<EnumField<CrustAnchor>> difficultyRenderYAnchor;
+        public final EnumField<CrustAnchor> difficultyRenderXAnchor;
+        public final EnumField<CrustAnchor> difficultyRenderYAnchor;
         public final IntField difficultyRenderXOffset;
         public final IntField difficultyRenderYOffset;
         public final BooleanField offsetForBossBar;
@@ -45,13 +45,13 @@ public class ClientConfig extends AbstractConfigFile {
                     (enumField) -> {
                         DifficultyOverlayRenderHandler.ANCHOR_X = enumField.get();
                     })
-            );
+                    .field());
             difficultyRenderYAnchor = SPEC.define(new InjectionWrapperField<>(new EnumField<>("y_anchor", CrustAnchor.TOP, CrustAnchor.VERTICAL,
                     "Determines the base Y position on the screen where the difficulty counter should render."),
                     (enumField) -> {
                         DifficultyOverlayRenderHandler.ANCHOR_Y = enumField.get();
                     })
-            );
+                    .field());
             difficultyRenderXOffset = SPEC.define(new IntField("x_offset", 0, IntField.Range.ANY,
                     "Additional X offset for where to render the difficulty counter."));
             difficultyRenderYOffset = SPEC.define(new IntField("y_offset", 2, IntField.Range.ANY,
@@ -76,6 +76,7 @@ public class ClientConfig extends AbstractConfigFile {
 
         public final InjectionWrapperField<ColorIntField> rainColor;
         public final BooleanField renderAcidRain;
+
 
         Misc(ClientConfig parent) {
             super(parent, "misc",

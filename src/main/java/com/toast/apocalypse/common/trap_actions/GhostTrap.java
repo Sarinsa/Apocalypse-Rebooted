@@ -2,12 +2,10 @@ package com.toast.apocalypse.common.trap_actions;
 
 import com.toast.apocalypse.api.BaseTrapAction;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.Ghost;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -41,7 +39,9 @@ public class GhostTrap extends BaseTrapAction {
                     0.1D
             );
         }
-        List<Ghost> nearbyGhosts = level.getEntitiesOfClass(Ghost.class, new AABB(pos).inflate(ApocalypseCommonConfig.COMMON.getGhostFreezeTrapRange()));
+        List<Ghost> nearbyGhosts = level.getEntitiesOfClass(Ghost.class, new AABB(pos).inflate(
+                ApocalypseConfig.MISC.TRAP_PROPERTIES.ghostFreezeRange.get()
+        ));
 
         if (!nearbyGhosts.isEmpty()) {
             for (Ghost ghost : nearbyGhosts) {

@@ -82,7 +82,7 @@ public class MobHurtByTargetGoal extends TargetGoal {
                 }
 
                 mob = iterator.next();
-                if (this.mob != mob && mob.getTarget() == null && (!(this.mob instanceof TamableAnimal) || ((TamableAnimal)this.mob).getOwner() == ((TamableAnimal)mob).getOwner()) && !mob.isAlliedTo(this.mob.getLastHurtByMob())) {
+                if (this.mob != mob && mob.getTarget() == null && (!( this.mob instanceof TamableAnimal) || ((TamableAnimal) this.mob).getOwner() == ((TamableAnimal)mob).getOwner()) && !mob.isAlliedTo(this.mob.getLastHurtByMob())) {
                     if (toIgnoreAlert == null) {
                         break;
                     }
@@ -101,8 +101,7 @@ public class MobHurtByTargetGoal extends TargetGoal {
                     }
                 }
             }
-
-            this.alertOther(mob, mob.getLastHurtByMob());
+            alertOther(mob, mob.getLastHurtByMob());
         }
     }
 

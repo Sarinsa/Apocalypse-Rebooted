@@ -1,22 +1,17 @@
 package com.toast.apocalypse.common.event;
 
-import com.electronwill.nightconfig.core.CommentedConfig;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.difficulty.MobAttributeHandler;
 import com.toast.apocalypse.common.core.difficulty.MobEquipmentHandler;
 import com.toast.apocalypse.common.core.difficulty.MobPotionHandler;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
-import com.toast.apocalypse.common.entity.living.Grump;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
-import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.NBTUtil;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Graph;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -31,29 +26,15 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
-import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.registries.ForgeRegistries;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.HashMap;
-import java.util.Map;
+import static com.toast.apocalypse.common.core.config.ApocalypseConfig.DIFFICULTY;
 
 public class EntityEvents {
-
-    /** Whether attribute bonuses should only be applied to enemy mobs. */
-    public static boolean ENIMIES_ONLY;
-
-    /**
-     * A Map containing all the difficulty-limited EntityTypes and their
-     * difficulty level needed to start spawning.
-     */
-    public static Map<EntityType<?>, Double> MOB_DIFFICULTIES = new HashMap<>();
-
 
     /**
      * Cancel full moon monsters despawning during full moons.
@@ -80,14 +61,18 @@ public class EntityEvents {
             return;
 
         EntityType<?> entityType = event.getEntityType();
+        final Entity entity = entityType.create(event.getLevel().getLevel());
 
-        if (MOB_DIFFICULTIES.containsKey(entityType)) {
-            final double neededDifficulty = MOB_DIFFICULTIES.get(entityType);
+        if (entity == null) return;
+
+        if (DIFFICULTY.GENERAL.mobSpawnDifficulties.contains(entity)) {
+            final double neededDifficulty = DIFFICULTY.GENERAL.mobSpawnDifficulties.get().getValue(entity);
             final long nearestDifficulty = (PlayerDifficultyManager.getNearestPlayerDifficulty(event.getLevel(), event.getPos())) / References.DAY_LENGTH;
 
             if (nearestDifficulty < neededDifficulty)
                 event.setResult(Event.Result.DENY);
         }
+        entity.discard();
     }
 
     /**
@@ -116,7 +101,7 @@ public class EntityEvents {
         if (difficulty <= 0L)
             return;
 
-        if (!(livingEntity instanceof Enemy) && ENIMIES_ONLY)
+        if (!(livingEntity instanceof Enemy) && ApocalypseConfig.MOB_BUFFING.GENERAL.enemiesOnly.get())
             return;
 
         MobAttributeHandler.handleAttributes(livingEntity, difficulty, fullMoon);
@@ -171,55 +156,5 @@ public class EntityEvents {
             else if (item == ApocalypseItems.FATHERLY_TOAST.get())
                 event.setCanceled(true);
         }
-    }
-
-    public static void refreshMobDifficulties() {
-        MOB_DIFFICULTIES.clear();
-        CommentedConfig config = ApocalypseCommonConfig.COMMON.getMobDifficulties();
-
-        for (CommentedConfig.Entry entry : config.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-
-            if (!StringUtils.isNumeric(value)) {
-                logError("Invalid mob difficulty entry \"{}\" found. A mob difficulty entry value must be a number representing the target difficulty level");
-                continue;
-            }
-            ResourceLocation entityId = ResourceLocation.tryParse(key);
-            double difficulty = Double.parseDouble(value);
-
-            if (difficulty <= 0) {
-                logError("Invalid mob difficulty entry \"{}\" found. The mob difficulty entry value must be a number greater than or equal to 0.");
-                continue;
-            }
-            if (entityId == null) {
-                logError("Invalid mob difficulty for entry \"{}\" found. Entry key must be the registry ID of the desired entity type.", key);
-                continue;
-            }
-            EntityType<?> entityType;
-
-            if (ForgeRegistries.ENTITY_TYPES.containsKey(entityId)) {
-                entityType = ForgeRegistries.ENTITY_TYPES.getValue(entityId);
-            }
-            else {
-                logError("Found mob difficulty entry with a entity ID that does not exist in the registry: {}. This mob difficulty entry will not be loaded.", entityId);
-                continue;
-            }
-
-            if (MOB_DIFFICULTIES.containsKey(entityType)) {
-                logWarning("Duplicate mob difficulty entry found for entity ID {}, skipping");
-            }
-            else {
-                MOB_DIFFICULTIES.put(entityType, difficulty);
-            }
-        }
-    }
-
-    private static void logError(String message, Object... args) {
-        Apocalypse.LOGGER.error("[Apocalypse Config] " + message, args);
-    }
-
-    private static void logWarning(String message, Object... args) {
-        Apocalypse.LOGGER.warn("[Apocalypse Config] " + message, args);
     }
 }

@@ -38,7 +38,8 @@ public class VersionCheckHelper {
                     UPDATE_MESSAGE = createMessage(result.target());
                 }
                 else {
-                    Apocalypse.LOGGER.info("Tried looking for Apocalypse updates, but VersionChecker does not contain our mod info! Could the version check json be broken?");
+                    Apocalypse.LOGGER.info("Tried looking for Apocalypse updates, but VersionChecker does not contain our mod info! " +
+                            "Could the version check json be broken?");
                 }
             }
         });
@@ -61,6 +62,7 @@ public class VersionCheckHelper {
         return PREFIX + " " + ChatFormatting.YELLOW + "New" + versionState + "version available: " + version;
     }
 
+    @Nullable
     public static String getUpdateMessage() {
         return UPDATE_MESSAGE;
     }

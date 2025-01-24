@@ -1,8 +1,7 @@
 package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
-import com.toast.apocalypse.common.core.register.ApocalypseMobEffects;
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
@@ -529,7 +528,7 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
 
     @Override
     protected void populateDefaultEquipmentSlots(RandomSource random, DifficultyInstance difficultyInstance) {
-        double chance = ApocalypseCommonConfig.COMMON.getGrumpBucketHelmetChance();
+        double chance = ApocalypseConfig.MISC.OTHER.grumpBucketHelmetChance.get();
 
         if (chance <= 0)
             return;

@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.entity.projectile;
 
-import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.entity.living.Destroyer;
 import com.toast.apocalypse.common.misc.DestroyerExplosionCalculator;
@@ -15,12 +15,8 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.monster.Ghast;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Fireball;
-import net.minecraft.world.entity.projectile.LargeFireball;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -36,7 +32,7 @@ public class DestroyerFireballEntity extends Fireball {
     /** The explosion power for this fireball */
     private int explosionPower = 1;
     /** The time until this fireball explodes. Set when reflected.
-     *  This makes it harder to damage the destroyer with it's own fireball. */
+     *  This makes it harder to damage the destroyer with its own fireball. */
     private int fuseTime = -1;
 
     public DestroyerFireballEntity(EntityType<? extends Fireball> entityType, Level level) {
@@ -67,22 +63,22 @@ public class DestroyerFireballEntity extends Fireball {
 
             if (entity instanceof LivingEntity livingEntity) {
                 boolean damageBlocked = livingEntity.isDamageSourceBlocked(directImpact);
-                final int armorDamage = ApocalypseCommonConfig.COMMON.getDestroyerEquipmentDamage();
+                final int equipmentDamage = ApocalypseConfig.MISC.OTHER.destroyerEquipmentDamage.get();
 
-                if (armorDamage > 0) {
+                if (equipmentDamage > 0) {
                     // Deal heavy damage to shield, if blocking
                     if (damageBlocked) {
-                        livingEntity.hurtCurrentlyUsedShield(armorDamage);
+                        livingEntity.hurtCurrentlyUsedShield(equipmentDamage);
                     }
                     // Deal heavy damage to armor, if not blocking
                     else {
                         if (livingEntity instanceof ServerPlayer player) {
                             for (ItemStack armorStack : livingEntity.getArmorSlots()) {
-                                armorStack.hurt(armorDamage, player.getRandom(), player);
+                                armorStack.hurt(equipmentDamage, player.getRandom(), player);
                             }
                         } else {
                             for (ItemStack armorStack : livingEntity.getArmorSlots()) {
-                                armorStack.hurtAndBreak(armorDamage, livingEntity, (e) -> {
+                                armorStack.hurtAndBreak(equipmentDamage, livingEntity, (e) -> {
                                     if (armorStack.getEquipmentSlot() != null)
                                         e.broadcastBreakEvent(armorStack.getEquipmentSlot());
                                 });

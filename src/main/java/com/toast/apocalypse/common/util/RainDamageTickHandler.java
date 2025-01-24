@@ -1,7 +1,5 @@
 package com.toast.apocalypse.common.util;
 
-import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
-import com.toast.apocalypse.common.core.config.CommonConfigReloadListener;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
@@ -12,45 +10,30 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.event.TickEvent;
 
-public class RainDamageTickHelper {
+import static com.toast.apocalypse.common.core.config.ApocalypseConfig.ACID_RAIN;
 
-    /**
-     * Variables for quick access.<br>
-     * <br>
-     *
-     * These are updated when the mod's
-     * common config loads/reloads.<br
-     * <br>
-     *
-     * {@link CommonConfigReloadListener#updateInfo()}
-     */
-    public static int RAIN_TICK_RATE;
-    public static float RAIN_DAMAGE;
+public class RainDamageTickHandler {
 
     private int timeRainDmgCheck;
 
 
-    public RainDamageTickHelper() {
-        this.resetTimer();
+    public RainDamageTickHandler() {
+        resetTimer();
     }
 
-    public void resetTimer() {
-        this.timeRainDmgCheck = 0;
-    }
 
     /**
-     * Checks if it is time to apply rain tick damage,
-     * and applies the damage to the player if so.<br>
+     * Checks if it is time to apply acid rain tick damage,
+     * and applies damage to all exposed players.<br>
      * <br>
      *
      * Called from {@link PlayerDifficultyManager#onServerTick(TickEvent.ServerTickEvent)}<br>
      * <br>
      */
     public void checkAndPerformRainDamageTick(Iterable<ServerLevel> serverLevels, PlayerDifficultyManager difficultyManager) {
-        if (!ApocalypseCommonConfig.COMMON.rainDamageEnabled())
-            return;
+        if (ACID_RAIN.ACID_RAIN.rainDamage.get() <= 0) return;
 
-        if (++this.timeRainDmgCheck >= RAIN_TICK_RATE) {
+        if (++timeRainDmgCheck >= ACID_RAIN.ACID_RAIN.damageRate.get()) {
             for (ServerLevel level : serverLevels) {
                 for (ServerPlayer player : level.players()) {
                     if (!difficultyManager.isRainingAcid(level))
@@ -68,11 +51,15 @@ public class RainDamageTickHelper {
                         headStack.hurtAndBreak(player.getRandom().nextInt(2), player, (playerEntity) -> player.broadcastBreakEvent(EquipmentSlot.HEAD));
                     }
                     else {
-                        player.hurt(ApocalypseDamageSources.of(level, ApocalypseDamageSources.ACID_RAIN), RAIN_DAMAGE);
+                        player.hurt(ApocalypseDamageSources.of(level, ApocalypseDamageSources.ACID_RAIN), ACID_RAIN.ACID_RAIN.rainDamage.get());
                     }
                 }
             }
-            this.resetTimer();
+            resetTimer();
         }
+    }
+
+    public void resetTimer() {
+        timeRainDmgCheck = 0;
     }
 }

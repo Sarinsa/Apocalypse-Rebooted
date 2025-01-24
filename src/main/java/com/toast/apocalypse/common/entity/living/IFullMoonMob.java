@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
 import com.toast.apocalypse.common.core.register.ApocalypseParticles;
 import net.minecraft.server.level.ServerLevel;
@@ -73,7 +73,7 @@ public interface IFullMoonMob {
      * event generation, in which case it should despawn.
      */
     static boolean shouldDisappear(@Nullable UUID playerTargetUUID, ServerLevel level, IFullMoonMob moonMob) {
-        if (!ApocalypseCommonConfig.COMMON.getDespawnMobsOnDeath())
+        if (!ApocalypseConfig.LUNAR_SIEGE.GENERAL.despawnMobsOnDeath.get())
             return false;
 
         if (playerTargetUUID == null)

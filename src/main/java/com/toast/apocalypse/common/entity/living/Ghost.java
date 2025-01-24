@@ -52,11 +52,8 @@ import java.util.UUID;
  * These are the bread and butter of invasions. Ghosts deal light damage that can't be reduced below 1 and apply
  * a short increased gravity effect to help deal with flying players.
  *
- * The ghost will also occasionally maneuver away if damaged, potentially phasing
+ * The ghost will also occasionally maneuver away if damaged, phasing
  * through walls and disorienting the target.
- *
- * //TODO - "Freezing Counter": Provide the player with a gadget for temporarily
- *          immobilizing/freezing ghosts in place.
  */
 public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
 

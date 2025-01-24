@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.core.difficulty;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.config.CommonConfigReloadListener;
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.config.util.ServerConfigHelper;
 import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.core.mod_event.EventType;
@@ -10,29 +10,26 @@ import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.network.message.S2CSimpleClientTask;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.util.CapabilityHelper;
-import com.toast.apocalypse.common.util.RainDamageTickHelper;
+import com.toast.apocalypse.common.util.RainDamageTickHandler;
 import com.toast.apocalypse.common.util.References;
+import fathertoast.crust.api.config.common.value.environment.dimension.DimensionTypeEnvironment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.level.storage.WorldData;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.level.SleepFinishedTimeEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
@@ -49,17 +46,6 @@ import java.util.*;
  */
 public final class PlayerDifficultyManager {
 
-    /** These are updated when the mod config is loaded/reloaded<br>
-     * <br>
-     *
-     *  @see CommonConfigReloadListener#updateInfo()
-     */
-    public static double ACID_RAIN_CHANCE;
-    public static boolean MULTIPLAYER_DIFFICULTY_SCALING;
-    public static double MULTIPLAYER_DIFFICULTY_MULT;
-    public static double SLEEP_PENALTY;
-    public static double DIMENSION_PENALTY;
-    public static List<ResourceKey<Level>> DIMENSION_PENALTY_LIST;
 
     /** Number of ticks per update. */
     public static final int TICKS_PER_UPDATE = 5;
@@ -82,7 +68,7 @@ public final class PlayerDifficultyManager {
     private final Map<UUID, AbstractEvent> playerEvents = new HashMap<>();
 
     /** Manages rain damage. */
-    private final RainDamageTickHelper rainDamageHelper;
+    private final RainDamageTickHandler rainDamageHelper;
 
     /** Server instance. */
     private MinecraftServer server;
@@ -92,7 +78,7 @@ public final class PlayerDifficultyManager {
 
 
     public PlayerDifficultyManager() {
-        rainDamageHelper = new RainDamageTickHelper();
+        rainDamageHelper = new RainDamageTickHandler();
     }
 
     public static long queryDayTime(long dayTime) {
@@ -221,7 +207,10 @@ public final class PlayerDifficultyManager {
         if (event.phase == TickEvent.Phase.END) {
             MinecraftServer server = this.server;
 
-            rainDamageHelper.checkAndPerformRainDamageTick(server.getAllLevels(), this);
+            // Tick acid rain damage
+            if (ApocalypseConfig.ACID_RAIN.ACID_RAIN.rainDamage.get() > 0) {
+                rainDamageHelper.checkAndPerformRainDamageTick(server.getAllLevels(), this);
+            }
 
             // Update player difficulty and event
             if (++timeUpdate >= TICKS_PER_UPDATE) {
@@ -229,8 +218,10 @@ public final class PlayerDifficultyManager {
 
                 // Update player difficulty and event
                 for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-                    updatePlayerDifficulty(player);
-                    updatePlayerEvent(player);
+                    if (player.level().isLoaded(BlockPos.containing(player.position()))) {
+                        updatePlayerDifficulty(player);
+                        updatePlayerEvent(player);
+                    }
                 }
 
                 // Update world info
@@ -288,18 +279,16 @@ public final class PlayerDifficultyManager {
         long currentDifficulty = CapabilityHelper.getPlayerDifficulty(player);
 
         // Apply multiplayer difficulty multiplier, if enabled.
-        if (MULTIPLAYER_DIFFICULTY_SCALING) {
-            difficultyMultiplier = 1.0D;
-
-            if (playerCount > 1) {
-                difficultyMultiplier += ((playerCount - 1.0D) * MULTIPLAYER_DIFFICULTY_MULT);
-            }
+        if (playerCount > 1 && ApocalypseConfig.DIFFICULTY.GENERAL.multiplayerMultiplier.get() > 1.0) {
+            difficultyMultiplier = ApocalypseConfig.DIFFICULTY.GENERAL.multiplayerMultiplier.get();
         }
 
-        // Apply dimension difficulty rate penalty if any player is in a dimension marked for penalty
-        if (DIMENSION_PENALTY > 0.0D) {
-            if (!player.isSpectator() && DIMENSION_PENALTY_LIST.contains(player.getCommandSenderWorld().dimension())) {
-                difficultyMultiplier *= 1.0 + DIMENSION_PENALTY;
+        // Apply dimension difficulty rate penalty if any player is in a dimension with a penalty multiplier
+        Double dimensionPenalty = ApocalypseConfig.DIFFICULTY.GENERAL.dimensionPenaltyList.get(player.level());
+
+        if (dimensionPenalty != null && dimensionPenalty > 1.0D) {
+            if (!player.isSpectator()) {
+                difficultyMultiplier *= dimensionPenalty;
             }
         }
         boolean maxDifficultyReached = maxDifficulty >= 0 && currentDifficulty >= maxDifficulty;
@@ -307,7 +296,7 @@ public final class PlayerDifficultyManager {
         if (maxDifficultyReached || player.isCreative() || player.isSpectator()) {
             return;
         }
-        currentDifficulty += TICKS_PER_UPDATE * difficultyMultiplier;
+        currentDifficulty += (long) (TICKS_PER_UPDATE * difficultyMultiplier);
 
         // Update player difficulty stuff
         CapabilityHelper.setPlayerDifficulty(player, currentDifficulty);
@@ -487,11 +476,11 @@ public final class PlayerDifficultyManager {
         public void setJustStartedRaining(boolean value, RandomSource random) {
             justStartedRaining = value;
 
-            if (value && random.nextDouble() <= ACID_RAIN_CHANCE)
+            if (value && random.nextDouble() <= ApocalypseConfig.ACID_RAIN.ACID_RAIN.acidRainChance.get())
                 setRainingAcid(true);
         }
 
-        public WorldInfoSavedData load(CompoundTag compoundNBT) {
+        protected WorldInfoSavedData load(CompoundTag compoundNBT) {
             WorldInfoSavedData savedData = new WorldInfoSavedData(this);
 
             if (compoundNBT.contains("RainingAcid", Tag.TAG_BYTE)) {
@@ -500,7 +489,7 @@ public final class PlayerDifficultyManager {
             return savedData;
         }
 
-        public WorldInfoSavedData create() {
+        protected WorldInfoSavedData create() {
             return new WorldInfoSavedData(this);
         }
 
