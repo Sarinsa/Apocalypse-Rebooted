@@ -36,12 +36,18 @@ public class LunarSiegeConfig extends AbstractConfigFile {
 
     public static class General extends AbstractConfigCategory<LunarSiegeConfig> {
 
+        public final BooleanField enableLunarSieges;
+
         public final BooleanField despawnMobsOnDeath;
 
 
         General(LunarSiegeConfig parent) {
             super(parent, "general",
                     "General settings.");
+
+            enableLunarSieges = SPEC.define(new BooleanField("enable_lunar_sieges", true,
+                    "If enabled, every full moon night a 'lunar siege' will start, spawning stronger monsters and full moon monsters.",
+                    "More settings related to this can be found further down in this config."));
 
             despawnMobsOnDeath = SPEC.define(new BooleanField("despawn_mobs_on_death", true,
                     "If enabled, any mobs that are still alive that were summoned by X player's Lunar Siege event will despawn if their target player dies.",
