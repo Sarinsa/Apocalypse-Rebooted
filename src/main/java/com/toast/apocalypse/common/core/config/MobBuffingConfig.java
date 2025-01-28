@@ -11,8 +11,8 @@ import fathertoast.crust.api.config.common.ConfigManager;
 import fathertoast.crust.api.config.common.field.*;
 import fathertoast.crust.api.config.common.value.EntityEntry;
 import fathertoast.crust.api.config.common.value.EntityList;
+import fathertoast.crust.api.config.common.value.EntityTagEntry;
 import fathertoast.crust.api.config.common.value.RegistryEntryList;
-import fathertoast.crust.api.config.common.value.TagEntityEntry;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
@@ -397,7 +397,7 @@ public class MobBuffingConfig extends AbstractConfigFile {
 
             entityBlacklist = SPEC.define(new EntityListField("entity_blacklist", new EntityList(
                     new EntityEntry(EntityType.WARDEN)
-            ).addTagEntries(List.of(new TagEntityEntry(Tags.EntityTypes.BOSSES)))
+            ).addTagEntries(List.of(new EntityTagEntry(Tags.EntityTypes.BOSSES)))
                     .setNoValues(),
                     "A list of entities that should not be given potion effects upon spawning."));
 
