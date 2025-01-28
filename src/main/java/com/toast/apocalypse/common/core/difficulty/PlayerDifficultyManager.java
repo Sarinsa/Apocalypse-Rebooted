@@ -14,6 +14,7 @@ import com.toast.apocalypse.common.util.RainDamageTickHandler;
 import com.toast.apocalypse.common.util.References;
 import fathertoast.crust.api.config.common.value.environment.dimension.DimensionTypeEnvironment;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -35,6 +36,7 @@ import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -165,8 +167,6 @@ public final class PlayerDifficultyManager {
             NetworkHelper.sendUpdatePlayerDifficulty(player);
             NetworkHelper.sendUpdatePlayerDifficultyMult(player);
             NetworkHelper.sendUpdatePlayerMaxDifficulty(player);
-            // TODO - Dunno when this will become reality
-            //NetworkHelper.sendMobWikiIndexUpdate(player);
             NetworkHelper.sendMoonPhaseUpdate(player, overworld);
             NetworkHelper.sendSimpleClientTaskRequest(player, isRainingAcid(playerLevel) ? S2CSimpleClientTask.SET_ACID_RAIN : S2CSimpleClientTask.REMOVE_ACID_RAIN);
 
@@ -232,11 +232,10 @@ public final class PlayerDifficultyManager {
                         if (info == null)
                             continue;
 
-                        if (level.isRaining()) {
-                            if (!info.justStartedRaining()) {
-                                info.setJustStartedRaining(true, level.random);
-                            }
-                        } else {
+                        if (!info.justStartedRaining() && level.isRaining()) {
+                            info.setJustStartedRaining(true, level.random);
+                        }
+                        else {
                             info.setJustStartedRaining(false, level.random);
                             info.setRainingAcid(false);
                         }
@@ -275,11 +274,11 @@ public final class PlayerDifficultyManager {
     private void updatePlayerDifficulty(ServerPlayer player) {
         final int playerCount = server.getPlayerCount();
         final long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
-        double difficultyMultiplier = CapabilityHelper.getPlayerDifficultyMult(player);
         long currentDifficulty = CapabilityHelper.getPlayerDifficulty(player);
+        double difficultyMultiplier = 1.0D;
 
         // Apply multiplayer difficulty multiplier, if enabled.
-        if (playerCount > 1 && ApocalypseConfig.DIFFICULTY.GENERAL.multiplayerMultiplier.get() > 1.0) {
+        if (playerCount > 1 && ApocalypseConfig.DIFFICULTY.GENERAL.multiplayerMultiplier.get() > 1.0D) {
             difficultyMultiplier = ApocalypseConfig.DIFFICULTY.GENERAL.multiplayerMultiplier.get();
         }
 
@@ -288,7 +287,7 @@ public final class PlayerDifficultyManager {
 
         if (dimensionPenalty != null && dimensionPenalty > 1.0D) {
             if (!player.isSpectator()) {
-                difficultyMultiplier *= dimensionPenalty;
+                difficultyMultiplier += (dimensionPenalty - 1.0D);
             }
         }
         boolean maxDifficultyReached = maxDifficulty >= 0 && currentDifficulty >= maxDifficulty;
@@ -298,7 +297,7 @@ public final class PlayerDifficultyManager {
         }
         currentDifficulty += (long) (TICKS_PER_UPDATE * difficultyMultiplier);
 
-        // Update player difficulty stuff
+        // Update difficulty stuff on clients
         CapabilityHelper.setPlayerDifficulty(player, currentDifficulty);
         CapabilityHelper.setPlayerDifficultyMult(player, difficultyMultiplier);
     }
@@ -429,12 +428,12 @@ public final class PlayerDifficultyManager {
 
     /** Helper method for logging. */
     private static void logInfo(String message) {
-        Apocalypse.LOGGER.log(org.apache.logging.log4j.Level.INFO, "[{}] " + message, PlayerDifficultyManager.class.getSimpleName());
+        Apocalypse.LOGGER.info("[{}] {}", PlayerDifficultyManager.class.getSimpleName(), message);
     }
 
     /** Helper method for logging. */
     private static void logError(String message) {
-        Apocalypse.LOGGER.log(org.apache.logging.log4j.Level.ERROR, "[{}] " + message, PlayerDifficultyManager.class.getSimpleName());
+        Apocalypse.LOGGER.error("[{}] {}", PlayerDifficultyManager.class.getSimpleName(), message);
     }
 
 
