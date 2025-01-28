@@ -7,8 +7,13 @@ import fathertoast.crust.api.config.common.ConfigManager;
 import fathertoast.crust.api.config.common.field.BooleanField;
 import fathertoast.crust.api.config.common.field.DoubleField;
 import fathertoast.crust.api.config.common.field.EntityListField;
+import fathertoast.crust.api.config.common.field.RegistryEntryValueListField;
 import fathertoast.crust.api.config.common.value.EntityEntry;
 import fathertoast.crust.api.config.common.value.EntityList;
+import fathertoast.crust.api.config.common.value.RegistryEntryValueList;
+import fathertoast.crust.api.config.common.value.RegistryValueEntry;
+import net.minecraft.world.entity.EntityType;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class LunarSiegeConfig extends AbstractConfigFile {
 
@@ -22,7 +27,7 @@ public class LunarSiegeConfig extends AbstractConfigFile {
                 "This config contains settings related to Lunar Sieges / Full moon events."
         );
         SPEC.fileOnlyNewLine();
-        SPEC.describeEntityList();
+        SPEC.describeRegistryEntryList();
         SPEC.fileOnlyNewLine();
 
         GENERAL = new General(this);
@@ -51,7 +56,7 @@ public class LunarSiegeConfig extends AbstractConfigFile {
 
         public final DoubleField difficultyPerIncrease;
 
-        public final EntityListField mobSpawnSettings;
+        public final RegistryEntryValueListField<EntityType<?>> mobSpawnSettings;
 
 
         SiegeMobProperties(LunarSiegeConfig parent) {
@@ -66,19 +71,41 @@ public class LunarSiegeConfig extends AbstractConfigFile {
 
             SPEC.newLine();
 
-            mobSpawnSettings = SPEC.define(new EntityListField("mob_spawn_settings", new EntityList(
-                    new EntityEntry(ApocalypseEntities.BREECHER.get(), 5.0, 4, 20, 2.0),
-                    new EntityEntry(ApocalypseEntities.GHOST.get(), 45.0, 4, 25, 6.0),
-                    new EntityEntry(ApocalypseEntities.GRUMP.get(), 20.0, 2, 18, 2.5),
-                    new EntityEntry(ApocalypseEntities.SEEKER.get(), 70.0, 1, 8, 1.0),
-                    new EntityEntry(ApocalypseEntities.DESTROYER.get(), 100.0, 1, 6, 1.0)
+            mobSpawnSettings = SPEC.define( new RegistryEntryValueListField<>( "mob_spawn_settings", new RegistryEntryValueList<>( () -> ForgeRegistries.ENTITY_TYPES,
+                    new RegistryValueEntry<>(
+                            SiegeMobProperties.this.mobSpawnSettings,
+                            ForgeRegistries.ENTITY_TYPES.getKey(ApocalypseEntities.BREECHER.get()),
+                            5.0, 4, 20, 2.0
+                    ),
+                    new RegistryValueEntry<>(
+                            SiegeMobProperties.this.mobSpawnSettings,
+                            ForgeRegistries.ENTITY_TYPES.getKey(ApocalypseEntities.GHOST.get()),
+                            45.0, 4, 25, 6.0
+                    ),
+                    new RegistryValueEntry<>(
+                            SiegeMobProperties.this.mobSpawnSettings,
+                            ForgeRegistries.ENTITY_TYPES.getKey(ApocalypseEntities.GRUMP.get()),
+                            20.0, 2, 18, 2.5
+                    ),
+                    new RegistryValueEntry<>(
+                            SiegeMobProperties.this.mobSpawnSettings,
+                            ForgeRegistries.ENTITY_TYPES.getKey(ApocalypseEntities.SEEKER.get()),
+                            70.0, 1, 8, 1.0
+                    ),
+                    new RegistryValueEntry<>(
+                            SiegeMobProperties.this.mobSpawnSettings,
+                            ForgeRegistries.ENTITY_TYPES.getKey(ApocalypseEntities.DESTROYER.get()),
+                            100.0, 1, 6, 1.0
+                    )
             )
-                    .setMultiValue(4),
+            .setMultiValue(4)
+            .setRangePos(),
                     "Contains various spawn settings for Full Moon siege mobs.",
-                    "1st value: The difficulty level required for this full moon mob to start spawning in sieges.",
-                    "2nd value: The minimum amount of this mob type that will spawn in a full moon siege.",
-                    "3rd value: The maximum amount of this mob type that can spawn in a full moon siege.",
-                    "4th value: Additional spawn count (works in conjunction with 'difficulty_per_additional_increase')."));
+                    "This list should only contain entity type specific entries. Any tags, namespace wildcards or default values will not be used.",
+                    "1st value: The difficulty level required for the given full moon mob to start spawning in sieges.",
+                    "2nd value: The minimum amount of the given mob type that will spawn in a full moon siege.",
+                    "3rd value: The maximum amount of the given mob type that can spawn in a full moon siege.",
+                    "4th value: Additional spawn count for the given mob type (works in conjunction with 'difficulty_per_additional_increase')."));
 
             SPEC.newLine();
 
