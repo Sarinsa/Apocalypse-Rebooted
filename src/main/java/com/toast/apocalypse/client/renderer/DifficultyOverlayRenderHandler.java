@@ -13,6 +13,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 
+import static com.toast.apocalypse.client.ClientRegister.CLIENT_CONFIG;
+
 public class DifficultyOverlayRenderHandler {
 
     /** Color sequence for the difficulty counter. */
@@ -23,8 +25,6 @@ public class DifficultyOverlayRenderHandler {
     // Rendering properties for quick access.
     public static long COLOR_CHANGE;
 
-    public static CrustAnchor ANCHOR_X;
-    public static CrustAnchor ANCHOR_Y;
 
 
     /** Renders the in-game difficulty counter for Apocalypse. */
@@ -32,11 +32,11 @@ public class DifficultyOverlayRenderHandler {
         LocalPlayer player = gui.getMinecraft().player;
 
         // Check if we should render in creative mode
-        if (player.isCreative() && !ClientRegister.CLIENT_CONFIG.DIFFICULTY.renderDifficultyInCreative.get())
+        if (player.isCreative() && !CLIENT_CONFIG.DIFFICULTY.renderDifficultyInCreative.get())
             return;
 
         // Check if keybind only is enabled
-        if (ClientRegister.CLIENT_CONFIG.DIFFICULTY.keybindOnly.get() && !ApocalypseKeyBindings.TOGGLE_DIFFICULTY.isDown()) {
+        if (CLIENT_CONFIG.DIFFICULTY.keybindOnly.get() && !ApocalypseKeyBindings.TOGGLE_DIFFICULTY.isDown()) {
             return;
         }
 
@@ -72,11 +72,20 @@ public class DifficultyOverlayRenderHandler {
         double difficultyRate = CapabilityHelper.getPlayerDifficultyMult(player);
 
         if (difficultyRate != 1.0) {
-            difficultyInfo = difficultyInfo + " " + Component.translatable(References.DIFFICULTY_RATE, (int)(difficultyRate * 100.0) + "%").getString();
+            difficultyInfo = difficultyInfo + " " + Component.translatable(References.DIFFICULTY_RATE, (int) Math.ceil(difficultyRate * 100) + "%").getString();
         }
-        int x = getXRenderPos(gui, ANCHOR_X, width, font.width(difficultyInfo), ClientRegister.CLIENT_CONFIG.DIFFICULTY.difficultyRenderXOffset.get());
-        int y = getYRenderPos(gui, ANCHOR_Y, height, font.lineHeight, ClientRegister.CLIENT_CONFIG.DIFFICULTY.difficultyRenderYOffset.get());
-
+        int x = getXRenderPos(
+                gui,
+                CLIENT_CONFIG.DIFFICULTY.difficultyRenderXAnchor.get(),
+                width,
+                font.width(difficultyInfo),
+                CLIENT_CONFIG.DIFFICULTY.difficultyRenderXOffset.get());
+        int y = getYRenderPos(
+                gui,
+                CLIENT_CONFIG.DIFFICULTY.difficultyRenderYAnchor.get(),
+                height,
+                font.lineHeight,
+                CLIENT_CONFIG.DIFFICULTY.difficultyRenderYOffset.get());
 
         guiGraphics.drawString(font, difficultyInfo, x, y, color);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);

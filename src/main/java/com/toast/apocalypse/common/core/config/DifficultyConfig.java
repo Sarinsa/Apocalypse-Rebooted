@@ -12,7 +12,9 @@ import fathertoast.crust.api.config.common.value.EntityList;
 import fathertoast.crust.api.config.common.value.EnvironmentEntry;
 import fathertoast.crust.api.config.common.value.EnvironmentList;
 import fathertoast.crust.api.config.common.value.environment.dimension.DimensionTypeEnvironment;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.LevelStem;
 
 public class DifficultyConfig extends AbstractConfigFile {
 
@@ -63,10 +65,8 @@ public class DifficultyConfig extends AbstractConfigFile {
             SPEC.newLine();
 
             dimensionPenaltyList = SPEC.define(new EnvironmentListField("dimension_penalty_list", new EnvironmentList(
-                    new EnvironmentEntry(1.5,
-                            new DimensionTypeEnvironment(cfgManager, Level.NETHER, false)),
-                    new EnvironmentEntry(1.5,
-                            new DimensionTypeEnvironment(cfgManager, Level.END, false))
+                    EnvironmentEntry.builder(cfgManager, 1.5).inNether().build(),
+                    EnvironmentEntry.builder(cfgManager, 1.5).inTheEnd().build()
             ).setRange(1.0D, 100.0D), "A list of difficulty multipliers linked to dimension types.",
                     "Used for dimensions that should make the player's difficulty rise 'quicker' than normal.",
                     "Additional conditions other than dimension type can be appended here, but intended use is dimension type check only."));

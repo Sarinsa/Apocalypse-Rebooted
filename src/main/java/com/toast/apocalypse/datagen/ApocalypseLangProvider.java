@@ -1,6 +1,7 @@
 package com.toast.apocalypse.datagen;
 
 import com.toast.apocalypse.common.core.Apocalypse;
+import fathertoast.crust.api.config.common.value.environment.dimension.DimensionTypeEnvironment;
 import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.data.LanguageProvider;
 
