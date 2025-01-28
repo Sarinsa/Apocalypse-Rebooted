@@ -9,7 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 // TODO - Currently does nothing other than displaying an event message.
 //        Perhaps other mechanics or mobs can be introduced in the future.
-public class AcidRainEvent extends AbstractEvent {
+public final class AcidRainEvent extends AbstractEvent {
 
     public AcidRainEvent(EventType<?> type) {
         super(type);

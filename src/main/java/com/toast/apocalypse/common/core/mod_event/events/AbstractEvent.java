@@ -36,7 +36,7 @@ public abstract class AbstractEvent {
      */
     public abstract void onStart(MinecraftServer server, ServerPlayer player);
 
-    /** Called every 5 ticks for each player to update the event.
+    /** Called every 5 ticks on the server for each player to update the event.
      *
      * @param player The player to update this event for.
      */
