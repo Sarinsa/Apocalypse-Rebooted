@@ -10,7 +10,6 @@ import com.toast.apocalypse.client.renderer.weather.AcidRainRenderHelper;
 import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 
@@ -21,7 +20,7 @@ public class ClientUtil {
 
     /** Gets updated via packet */
     public static int OVERWORLD_MOON_PHASE = 0;
-    // TODO - One day... one day..
+    // Unused (will probably remain unused, very sad)
     public static int[] UNLOCKED_INDEXES = new int[]{};
 
     public static final AcidRainRenderHelper ACID_RAIN_TICKER = new AcidRainRenderHelper();
@@ -40,12 +39,12 @@ public class ClientUtil {
         RenderSystem.setShaderTexture(0, BUCKET_HELM_OVERLAY_TEXTURE);
 
         Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder bufferbuilder = tesselator.getBuilder();
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        bufferbuilder.vertex(0.0D, screenHeight, -90.0D).uv(0.0F, 1.0F).endVertex();
-        bufferbuilder.vertex(screenWidth, screenHeight, -90.0D).uv(1.0F, 1.0F).endVertex();
-        bufferbuilder.vertex(screenWidth, 0.0D, -90.0D).uv(1.0F, 0.0F).endVertex();
-        bufferbuilder.vertex(0.0D, 0.0D, -90.0D).uv(0.0F, 0.0F).endVertex();
+        BufferBuilder bufferBuilder = tesselator.getBuilder();
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        bufferBuilder.vertex(0.0D, screenHeight, -90.0D).uv(0.0F, 1.0F).endVertex();
+        bufferBuilder.vertex(screenWidth, screenHeight, -90.0D).uv(1.0F, 1.0F).endVertex();
+        bufferBuilder.vertex(screenWidth, 0.0D, -90.0D).uv(1.0F, 0.0F).endVertex();
+        bufferBuilder.vertex(0.0D, 0.0D, -90.0D).uv(0.0F, 0.0F).endVertex();
         tesselator.end();
 
         RenderSystem.depthMask(true);
