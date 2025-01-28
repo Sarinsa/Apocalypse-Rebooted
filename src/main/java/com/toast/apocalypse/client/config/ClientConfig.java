@@ -40,18 +40,10 @@ public class ClientConfig extends AbstractConfigFile {
             super(parent, "difficulty_renderer",
                     "Contains display settings for the difficulty counter shown in-game.");
 
-            difficultyRenderXAnchor = SPEC.define(new InjectionWrapperField<>(new EnumField<>("x_anchor", CrustAnchor.CENTER, CrustAnchor.HORIZONTAL,
-                    "Determines the base X position on the screen where the difficulty counter should render."),
-                    (enumField) -> {
-                        DifficultyOverlayRenderHandler.ANCHOR_X = enumField.get();
-                    })
-                    .field());
-            difficultyRenderYAnchor = SPEC.define(new InjectionWrapperField<>(new EnumField<>("y_anchor", CrustAnchor.TOP, CrustAnchor.VERTICAL,
-                    "Determines the base Y position on the screen where the difficulty counter should render."),
-                    (enumField) -> {
-                        DifficultyOverlayRenderHandler.ANCHOR_Y = enumField.get();
-                    })
-                    .field());
+            difficultyRenderXAnchor = SPEC.define(new EnumField<>("x_anchor", CrustAnchor.CENTER, CrustAnchor.HORIZONTAL,
+                    "Determines the base X position on the screen where the difficulty counter should render."));
+            difficultyRenderYAnchor = SPEC.define(new EnumField<>("y_anchor", CrustAnchor.TOP, CrustAnchor.VERTICAL,
+                    "Determines the base Y position on the screen where the difficulty counter should render."));
             difficultyRenderXOffset = SPEC.define(new IntField("x_offset", 0, IntField.Range.ANY,
                     "Additional X offset for where to render the difficulty counter."));
             difficultyRenderYOffset = SPEC.define(new IntField("y_offset", 2, IntField.Range.ANY,
