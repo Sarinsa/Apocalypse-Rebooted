@@ -2,6 +2,7 @@ package com.toast.apocalypse.common.core.difficulty;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.util.CapabilityHelper;
+import com.toast.apocalypse.common.util.References;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -43,7 +44,7 @@ public final class MobAttributeHandler {
 
         if (attribute != null && !MOB_BUFFING.ATTRIBUTES.maxHealthBlacklist.contains(livingEntity.getType())) {
             float prevMax = livingEntity.getMaxHealth();
-            effectiveDifficulty = (double) difficulty / MOB_BUFFING.ATTRIBUTES.healthDifficultySpan.get();
+            effectiveDifficulty = (double) (difficulty / References.DAY_LENGTH) / MOB_BUFFING.ATTRIBUTES.healthDifficultySpan.get();
 
             bonus = MOB_BUFFING.ATTRIBUTES.healthFlatBonus.get() * effectiveDifficulty;
             mult = MOB_BUFFING.ATTRIBUTES.healthMultBonus.get() * effectiveDifficulty;
