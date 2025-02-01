@@ -113,7 +113,7 @@ public class MobBuffingConfig extends AbstractConfigFile {
             maxHealthBlacklist = SPEC.define(new LazyRegistryEntryListField<>("max_health_blacklist", new RegistryEntryList<>(
                     ForgeRegistries.ENTITY_TYPES
             ), "A list of entities that should not receive max health boost."));
-            healthLunarFlatBonus = SPEC.define(new DoubleField("health_lunar_flat_bonus", 10.0, DoubleField.Range.NON_NEGATIVE,
+            healthLunarFlatBonus = SPEC.define(new DoubleField("health_lunar_flat_bonus", 5.0, DoubleField.Range.NON_NEGATIVE,
                     "The flat bonus gained from a full moon. Default is 10.0 (+10 hearts on full moons)."));
             healthLunarMultBonus = SPEC.define(new DoubleField("health_lunar_mult_bonus", 0.5, DoubleField.Range.NON_NEGATIVE,
                     "The multiplier bonus gained from a full moon in percentage. Default is 0.5 (+50% on full moons)"));
@@ -123,7 +123,7 @@ public class MobBuffingConfig extends AbstractConfigFile {
                     "The flat bonus given each levels of difficulty specified in 'health_difficulty_span'."));
             healthFlatBonusMax = SPEC.define(new DoubleField("health_max_flat_bonus", -1.0, -1.0, Double.POSITIVE_INFINITY,
                     "The maximum flat bonus that can be given over time. Negative value equals no limit."));
-            healthMultBonus = SPEC.define(new DoubleField("health_mult_bonus", 0.2D, DoubleField.Range.NON_NEGATIVE,
+            healthMultBonus = SPEC.define(new DoubleField("health_mult_bonus", 0.1D, DoubleField.Range.NON_NEGATIVE,
                     "The multiplier bonus given each levels of difficulty specified in 'health_difficulty_span'. Default is 0.2 (+20%)."));
             healthMultBonusMax = SPEC.define(new DoubleField("health_max_mult_bonus", -1.0, -1.0, Double.POSITIVE_INFINITY,
                     "The maximum multiplier bonus that can be given over time. Negative value equals no limit."));
