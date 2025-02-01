@@ -232,8 +232,10 @@ public final class PlayerDifficultyManager {
                         if (info == null)
                             continue;
 
-                        if (!info.justStartedRaining() && level.isRaining()) {
-                            info.setJustStartedRaining(true, level.random);
+                        if (level.isRaining()) {
+                            if (!info.justStartedRaining()) {
+                                info.setJustStartedRaining(true, level.random);
+                            }
                         }
                         else {
                             info.setJustStartedRaining(false, level.random);
