@@ -74,19 +74,28 @@ public class DifficultyOverlayRenderHandler {
         if (difficultyRate != 1.0) {
             difficultyInfo = difficultyInfo + " " + Component.translatable(References.DIFFICULTY_RATE, (int) Math.ceil(difficultyRate * 100) + "%").getString();
         }
+        final CrustAnchor xAnchor = CLIENT_CONFIG.DIFFICULTY.difficultyRenderXAnchor.get();
+        final CrustAnchor yAnchor = CLIENT_CONFIG.DIFFICULTY.difficultyRenderYAnchor.get();
+
         int x = getXRenderPos(
                 gui,
-                CLIENT_CONFIG.DIFFICULTY.difficultyRenderXAnchor.get(),
+                xAnchor,
                 width,
                 font.width(difficultyInfo),
                 CLIENT_CONFIG.DIFFICULTY.difficultyRenderXOffset.get());
         int y = getYRenderPos(
                 gui,
-                CLIENT_CONFIG.DIFFICULTY.difficultyRenderYAnchor.get(),
+                yAnchor,
                 height,
                 font.lineHeight,
                 CLIENT_CONFIG.DIFFICULTY.difficultyRenderYOffset.get());
 
+        // Additional Y offset when boss bar is rendered, if enabled.
+        if (!gui.getBossOverlay().events.isEmpty() && ClientRegister.CLIENT_CONFIG.DIFFICULTY.offsetForBossBar.get()) {
+            if (xAnchor == CrustAnchor.CENTER && yAnchor == CrustAnchor.TOP) {
+                y += 20;
+            }
+        }
         guiGraphics.drawString(font, difficultyInfo, x, y, color);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
@@ -118,9 +127,6 @@ public class DifficultyOverlayRenderHandler {
                 return guiHeight - stringHeight + yOffset;
             }
             default -> {
-                if (!gui.getBossOverlay().events.isEmpty() && ClientRegister.CLIENT_CONFIG.DIFFICULTY.offsetForBossBar.get()) {
-                    return yOffset + 20;
-                }
                 return yOffset;
             }
         }
