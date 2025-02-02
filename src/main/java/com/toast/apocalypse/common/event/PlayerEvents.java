@@ -97,21 +97,21 @@ public class PlayerEvents {
      */
     @SubscribeEvent
     public void onPlayerCloned(PlayerEvent.Clone event) {
-        if (event.getEntity() instanceof ServerPlayer newPlayer && event.isWasDeath()) {
+        if (event.getEntity() instanceof ServerPlayer newPlayer) {
             ServerPlayer originalPlayer = (ServerPlayer) event.getOriginal();
             originalPlayer.reviveCaps();
 
             long difficulty = CapabilityHelper.getPlayerDifficulty(originalPlayer);
             long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(originalPlayer);
             CompoundTag eventData = CapabilityHelper.getEventData(originalPlayer);
-            int[] mobWikiIndexes = CapabilityHelper.getMobWikiIndexes(originalPlayer);
+            //int[] mobWikiIndexes = CapabilityHelper.getMobWikiIndexes(originalPlayer);
 
             originalPlayer.invalidateCaps();
 
             CapabilityHelper.setPlayerDifficulty(newPlayer, difficulty);
             CapabilityHelper.setMaxPlayerDifficulty(newPlayer, maxDifficulty);
             CapabilityHelper.setEventData(newPlayer, eventData);
-            CapabilityHelper.setMobWikiIndexes(newPlayer, mobWikiIndexes);
+            //CapabilityHelper.setMobWikiIndexes(newPlayer, mobWikiIndexes);
         }
     }
 }
