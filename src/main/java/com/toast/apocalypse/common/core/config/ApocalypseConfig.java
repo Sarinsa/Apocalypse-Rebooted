@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.core.config;
 
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.difficulty.MobEquipmentHandler;
 import fathertoast.crust.api.config.common.ConfigManager;
 
 public class ApocalypseConfig {
@@ -26,5 +27,7 @@ public class ApocalypseConfig {
         LUNAR_SIEGE.SPEC.initialize();
         MISC.SPEC.initialize();
         ACID_RAIN.SPEC.initialize();
+
+        MobEquipmentHandler.refreshArmorMaps(MOB_BUFFING.EQUIPMENT.armorTierList);
     }
 }

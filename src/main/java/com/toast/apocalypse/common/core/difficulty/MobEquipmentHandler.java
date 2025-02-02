@@ -47,17 +47,17 @@ public final class MobEquipmentHandler {
         // Try to equip a weapon
         if (MOB_BUFFING.EQUIPMENT.canReceiveWeapons.contains(entityType)) {
             double effectiveDifficulty = (double) (difficulty / References.DAY_LENGTH) / MOB_BUFFING.EQUIPMENT.weaponsDifficultySpan.get();
-            double bonus = MOB_BUFFING.EQUIPMENT.weaponsChance.get() * effectiveDifficulty;
+            double chance = MOB_BUFFING.EQUIPMENT.weaponsChance.get() * effectiveDifficulty;
 
             final double maxWeaponChance = MOB_BUFFING.EQUIPMENT.weaponsMaxChance.get();
 
-            if (maxWeaponChance >= 0.0 && bonus > maxWeaponChance) {
-                bonus = maxWeaponChance;
-            }
             if (fullMoon) {
-                bonus += MOB_BUFFING.EQUIPMENT.weaponsLunarChance.get();
+                chance += MOB_BUFFING.EQUIPMENT.weaponsLunarChance.get();
             }
-            if (random.nextDouble() <= bonus) {
+            if (maxWeaponChance >= 0.0 && chance > maxWeaponChance) {
+                chance = maxWeaponChance;
+            }
+            if (random.nextDouble() <= chance) {
                 equipWeapon(entity, difficulty, random);
             }
         }
@@ -65,17 +65,17 @@ public final class MobEquipmentHandler {
         // Try to equip a suitable set of armor
         if (MOB_BUFFING.EQUIPMENT.canReceiveArmor.contains(entityType)) {
             double effectiveDifficulty = (double) (difficulty / References.DAY_LENGTH) / MOB_BUFFING.EQUIPMENT.armorDifficultySpan.get();
-            double bonus = MOB_BUFFING.EQUIPMENT.armorChance.get() * effectiveDifficulty;
+            double chance = MOB_BUFFING.EQUIPMENT.armorChance.get() * effectiveDifficulty;
 
             final double maxArmorChance = MOB_BUFFING.EQUIPMENT.armorMaxChance.get();
 
-            if (maxArmorChance >= 0.0 && bonus > maxArmorChance) {
-                bonus = maxArmorChance;
-            }
             if (fullMoon) {
-                bonus += MOB_BUFFING.EQUIPMENT.armorLunarChance.get();
+                chance += MOB_BUFFING.EQUIPMENT.armorLunarChance.get();
             }
-            if (random.nextDouble() <= bonus) {
+            if (maxArmorChance >= 0.0 && chance > maxArmorChance) {
+                chance = maxArmorChance;
+            }
+            if (random.nextDouble() <= chance) {
                 equipArmor(entity, difficulty, random);
             }
         }
@@ -123,15 +123,15 @@ public final class MobEquipmentHandler {
      */
     @SuppressWarnings("ConstantConditions")
     private static void equipArmor(LivingEntity entity, long difficulty, RandomSource random) {
-        int scaledDifficulty = (int) (difficulty / References.DAY_LENGTH);
-        ItemStack[] toEquip = new ItemStack[] {
-                ItemStack.EMPTY,
-                ItemStack.EMPTY,
-                ItemStack.EMPTY,
-                ItemStack.EMPTY
-        };
-
         if (!ARMOR_MAPS.keySet().isEmpty()) {
+            int scaledDifficulty = (int) (difficulty / References.DAY_LENGTH);
+            ItemStack[] toEquip = new ItemStack[] {
+                    ItemStack.EMPTY,
+                    ItemStack.EMPTY,
+                    ItemStack.EMPTY,
+                    ItemStack.EMPTY
+            };
+
             if (MOB_BUFFING.EQUIPMENT.currentArmorTierOnly.get()) {
                 int tier = 0;
 
@@ -163,10 +163,10 @@ public final class MobEquipmentHandler {
                 toEquip[2] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.CHEST)));
                 toEquip[3] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.HEAD)));
             }
-        }
-        for (int i = 0; i < toEquip.length; i++) {
-            if (entity.getItemBySlot(ARMOR_SLOTS[i]).isEmpty() && !toEquip[i].isEmpty()) {
-                entity.setItemSlot(ARMOR_SLOTS[i], toEquip[i]);
+            for (int i = 0; i < toEquip.length; i++) {
+                if (entity.getItemBySlot(ARMOR_SLOTS[i]).isEmpty() && !toEquip[i].isEmpty()) {
+                    entity.setItemSlot(ARMOR_SLOTS[i], toEquip[i]);
+                }
             }
         }
     }
