@@ -35,6 +35,7 @@ public final class MobAttributeHandler {
      */
     public static void handleAttributes(LivingEntity livingEntity, long difficulty, boolean fullMoon) {
         AttributeInstance attribute;
+        final double scaledDifficulty = (double) (difficulty / References.DAY_LENGTH);
         double effectiveDifficulty;
         double bonus;
         double mult;
@@ -44,7 +45,7 @@ public final class MobAttributeHandler {
 
         if (attribute != null && !MOB_BUFFING.ATTRIBUTES.maxHealthBlacklist.contains(livingEntity.getType())) {
             float prevMax = livingEntity.getMaxHealth();
-            effectiveDifficulty = (double) (difficulty / References.DAY_LENGTH) / MOB_BUFFING.ATTRIBUTES.healthDifficultySpan.get();
+            effectiveDifficulty = scaledDifficulty / MOB_BUFFING.ATTRIBUTES.healthDifficultySpan.get();
 
             bonus = MOB_BUFFING.ATTRIBUTES.healthFlatBonus.get() * effectiveDifficulty;
             mult = MOB_BUFFING.ATTRIBUTES.healthMultBonus.get() * effectiveDifficulty;
@@ -76,7 +77,7 @@ public final class MobAttributeHandler {
         attribute = livingEntity.getAttribute(Attributes.MOVEMENT_SPEED);
 
         if (attribute != null && !MOB_BUFFING.ATTRIBUTES.moveSpeedBlacklist.contains(livingEntity.getType())) {
-            effectiveDifficulty = (double) difficulty / MOB_BUFFING.ATTRIBUTES.speedDifficultySpan.get();
+            effectiveDifficulty = scaledDifficulty / MOB_BUFFING.ATTRIBUTES.speedDifficultySpan.get();
 
             mult = MOB_BUFFING.ATTRIBUTES.speedMultBonus.get() * effectiveDifficulty;
 
@@ -98,7 +99,7 @@ public final class MobAttributeHandler {
         attribute = livingEntity.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
 
         if (attribute != null && !MOB_BUFFING.ATTRIBUTES.knockbackResBlacklist.contains(livingEntity.getType())) {
-            effectiveDifficulty = (double) difficulty / MOB_BUFFING.ATTRIBUTES.knockbackResDifficultySpan.get();
+            effectiveDifficulty = scaledDifficulty / MOB_BUFFING.ATTRIBUTES.knockbackResDifficultySpan.get();
 
             bonus = MOB_BUFFING.ATTRIBUTES.knockbackResFlatBonus.get() * effectiveDifficulty;
 
@@ -119,8 +120,8 @@ public final class MobAttributeHandler {
 
     /** Used in {@link com.toast.apocalypse.common.mixin.PlayerEntityMixin} */
     public static float getLivingDamage(LivingEntity attacker, Player player, float originalDamage) {
-        final long difficulty = CapabilityHelper.getPlayerDifficulty(player);
-        double effectiveDifficulty = (double) difficulty / MOB_BUFFING.ATTRIBUTES.damageDifficultySpan.get();
+        final double scaledDifficulty = (double) (CapabilityHelper.getPlayerDifficulty(player) / References.DAY_LENGTH);
+        double effectiveDifficulty = scaledDifficulty / MOB_BUFFING.ATTRIBUTES.damageDifficultySpan.get();
 
         if (!MOB_BUFFING.ATTRIBUTES.attackDamageBlacklist.contains(attacker.getType()) && effectiveDifficulty > 1) {
             boolean fullMoon = Apocalypse.INSTANCE.getDifficultyManager().isFullMoonNight();
