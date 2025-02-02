@@ -26,7 +26,7 @@ import java.util.UUID;
 public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMob {
 
     protected UUID playerTargetUUID;
-    protected int eventGeneration = 0;
+    protected int playerDeathCount = 0;
 
     public AbstractFullMoonGhast(EntityType<? extends Ghast> entityType, Level level) {
         super(entityType, level);
@@ -89,13 +89,13 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
     }
 
     @Override
-    public int getEventGeneration() {
-        return eventGeneration;
+    public int getPlayerDeathCount() {
+        return playerDeathCount;
     }
 
     @Override
-    public void setEventGeneration(int generation) {
-        eventGeneration = generation;
+    public void setPlayerDeathCount(int deathCount) {
+        playerDeathCount = deathCount;
     }
 
     @Override
@@ -118,7 +118,7 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
 
         if (this.getPlayerTargetUUID() != null) {
             compoundTag.putUUID(PLAYER_UUID_KEY, getPlayerTargetUUID());
-            compoundTag.putInt(EVENT_GEN_KEY, getEventGeneration());
+            compoundTag.putInt(EVENT_DTH_COUNT_KEY, getPlayerDeathCount());
         }
     }
 

@@ -18,8 +18,8 @@ public interface IFullMoonMob {
 
     /** Key used for storing the full moon mob's player target UUID to NBT. */
     String PLAYER_UUID_KEY = "PlayerTargetUUID";
-    /** Key used for storing the full moon mob's event generation to NBT. */
-    String EVENT_GEN_KEY = "EventGeneration";
+    /** Key used for storing the full moon mob's player death count to NBT. */
+    String EVENT_DTH_COUNT_KEY = "PlayerDeathCount";
 
     /**
      * @return The UUID of this full moon mob's set
@@ -31,19 +31,19 @@ public interface IFullMoonMob {
     UUID getPlayerTargetUUID();
 
     /**
-     * @return The "generation" this full moon mob belongs to.<br>
+     * @return The supposed amount of times this mob's target player has died.<br>
      * <br>
-     * When the event starts, we are at generation 0.
-     * When the player dies, we move onto the next generation,
-     * and the full moon mobs that have already spawned that belong to the older
-     * generation, should be removed.
+     * When the event starts, we are at 0.
+     * When the player dies, the event's internal death count increments by 1,
+     * and the full moon mobs that have already spawned will be despawned if it's
+     * death count value is less than the current death count.
      */
-    int getEventGeneration();
+    int getPlayerDeathCount();
 
     /**
-     * Sets the event generation value for this full moon mob.
+     * Sets the death count of the player this mob is tracking.
      */
-    void setEventGeneration(int generation);
+    void setPlayerDeathCount(int deathCount);
 
     /**
      * Sets this full moon mob's target UUID.<br>
@@ -88,8 +88,8 @@ public interface IFullMoonMob {
         AbstractEvent event = Apocalypse.INSTANCE.getDifficultyManager().getCurrentEvent(player);
 
         if (event != null) {
-            final int generation = event.getEventGeneration();
-            return moonMob.getEventGeneration() != generation;
+            final int deathCount = event.getPlayerDeathCount();
+            return moonMob.getPlayerDeathCount() != deathCount;
         }
         return false;
     }

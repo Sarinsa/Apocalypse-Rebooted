@@ -41,7 +41,7 @@ public class Breecher extends Creeper implements IFullMoonMob {
 
     /** The constant player target, if this mob was spawned by the full moon event */
     private UUID playerTargetUUID;
-    protected int eventGeneration = 0;
+    protected int playerDeathCount = 0;
 
 
     public Breecher(EntityType<? extends Creeper> entityType, Level level) {
@@ -132,13 +132,13 @@ public class Breecher extends Creeper implements IFullMoonMob {
     }
 
     @Override
-    public int getEventGeneration() {
-        return eventGeneration;
+    public int getPlayerDeathCount() {
+        return playerDeathCount;
     }
 
     @Override
-    public void setEventGeneration(int generation) {
-        eventGeneration = generation;
+    public void setPlayerDeathCount(int deathCount) {
+        playerDeathCount = deathCount;
     }
 
     @Override

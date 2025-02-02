@@ -325,13 +325,13 @@ public final class PlayerDifficultyManager {
         // Update current event
         currentEvent.update(level, player, this);
 
-        if (CapabilityHelper.getPlayerDifficulty(player) > 0 && overworld.getGameTime() > 0L) {
+        if (CapabilityHelper.getPlayerDifficulty(player) > 0 && overworld.getGameTime() > 0) {
             for (EventType<?> type : EventRegistry.EVENTS.values()) {
                 if (eventType != type && type.getStartPredicate().test(level, eventType, player, this) && type.getPriority() > currentEvent.getType().getPriority()) {
-                    // Copy over event generation
-                    int generation = currentEvent.getEventGeneration();
+                    // Copy over player death count
+                    int deathCount = currentEvent.getPlayerDeathCount();
                     eventType = startEvent(player, currentEvent, type);
-                    getCurrentEvent(player).setEventGeneration(generation);
+                    getCurrentEvent(player).setDeathCount(deathCount);
                     break;
                 }
             }

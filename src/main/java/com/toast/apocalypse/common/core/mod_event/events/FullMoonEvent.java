@@ -46,21 +46,19 @@ public final class FullMoonEvent extends AbstractEvent {
      */
     private static final int MAX_GRACE_PERIOD = 800;
 
-
     /** Time until mobs can start spawning. */
     private int gracePeriod;
-
     /** The time between each mob spawn */
     private int spawnTime = 600;
-
     /** The time until the next mob should be spawned for the player */
     private int timeUntilNextSpawn = 0;
-
     /** Whether there are any mobs left to spawn */
     private boolean hasMobsLeft = true;
 
     /** A map containing all the full moon mobs that will be spawned for the player */
     private final Map<ResourceLocation, Integer> mobsToSpawn = new HashMap<>();
+
+
 
     public FullMoonEvent(EventType<?> type) {
         super(type);
@@ -198,7 +196,7 @@ public final class FullMoonEvent extends AbstractEvent {
 
         if (entity instanceof IFullMoonMob fullMoonMob) {
             fullMoonMob.setPlayerTargetUUID(player.getUUID());
-            fullMoonMob.setEventGeneration(getEventGeneration());
+            fullMoonMob.setPlayerDeathCount(getPlayerDeathCount());
         }
         level.addFreshEntity(entity);
     }
@@ -292,7 +290,7 @@ public final class FullMoonEvent extends AbstractEvent {
         data.putInt("GracePeriod", gracePeriod);
         data.putInt("TimeNextSpawn", timeUntilNextSpawn);
         data.putInt("SpawnTime", spawnTime);
-        data.putInt("EventGeneration", eventGeneration);
+        data.putInt("PlayerDeathCount", deathCount);
 
         CompoundTag spawnsTag = new CompoundTag();
 
@@ -308,7 +306,7 @@ public final class FullMoonEvent extends AbstractEvent {
         gracePeriod = data.getInt("GracePeriod");
         timeUntilNextSpawn = data.getInt("TimeNextSpawn");
         spawnTime = data.getInt("SpawnTime");
-        eventGeneration = data.getInt("EventGeneration");
+        deathCount = data.getInt("PlayerDeathCount");
 
         CompoundTag spawnsTag = data.getCompound("MobsToSpawn");
         Set<String> keys = spawnsTag.getAllKeys();

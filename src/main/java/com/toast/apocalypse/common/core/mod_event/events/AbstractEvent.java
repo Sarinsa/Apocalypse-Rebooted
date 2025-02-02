@@ -13,7 +13,7 @@ public abstract class AbstractEvent {
 
     protected final EventType<?> type;
     /** Increments by 1 every time the player dies. */
-    protected int eventGeneration = 0;
+    protected int deathCount = 0;
 
     public AbstractEvent(EventType<?> type) {
         this.type = type;
@@ -23,12 +23,12 @@ public abstract class AbstractEvent {
         return this.type;
     }
 
-    public int getEventGeneration() {
-        return eventGeneration;
+    public int getPlayerDeathCount() {
+        return deathCount;
     }
 
-    public void setEventGeneration(int generation) {
-        eventGeneration = generation;
+    public void setDeathCount(int deathCount) {
+        this.deathCount = deathCount;
     }
 
     /** Called when the event starts.
@@ -55,19 +55,18 @@ public abstract class AbstractEvent {
      * Called from {@link PlayerDifficultyManager#onPlayerDeath(LivingDeathEvent)}
      */
     public void onPlayerDeath(ServerPlayer player, ServerLevel world) {
-        // Just recount from 0 if the player dies 20 times, no need to go on forever.
-        if (++eventGeneration >= 100)
-            eventGeneration = 0;
+        if (++deathCount >= 100)
+            deathCount = 0;
     }
 
     /**
-     * Saves this event.
+     * Saves the data of this event.
      *
      * @param data The tag to write to.
      */
     public final void write(CompoundTag data) {
         data.putInt("EventId", this.getType().getId());
-        data.putInt("EventGeneration", getEventGeneration());
+        data.putInt("PlayerDeathCount", getPlayerDeathCount());
 
         this.writeAdditional(data);
     }
@@ -80,8 +79,8 @@ public abstract class AbstractEvent {
      * @param data the tag to read from.
      */
     public void read(CompoundTag data, ServerPlayer player, ServerLevel level) {
-        if (data.contains("EventGeneration", Tag.TAG_ANY_NUMERIC)) {
-            eventGeneration = data.getInt("EventGeneration");
+        if (data.contains("PlayerDeathCount", Tag.TAG_ANY_NUMERIC)) {
+            deathCount = data.getInt("PlayerDeathCount");
         }
     }
 }

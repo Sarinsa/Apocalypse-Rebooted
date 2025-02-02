@@ -65,7 +65,7 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
 
     /** The constant player target, if this mob was spawned by the full moon event */
     private UUID playerTargetUUID;
-    protected int eventGeneration = 0;
+    protected int playerDeathCount = 0;
     /** If the ghost should move away from its target in a random direction */
     private boolean isManeuvering;
     /** How long the ghost should be frozen in ticks */
@@ -345,13 +345,13 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
     }
 
     @Override
-    public int getEventGeneration() {
-        return eventGeneration;
+    public int getPlayerDeathCount() {
+        return playerDeathCount;
     }
 
     @Override
-    public void setEventGeneration(int generation) {
-        eventGeneration = generation;
+    public void setPlayerDeathCount(int deathCount) {
+        playerDeathCount = deathCount;
     }
 
     @Override
