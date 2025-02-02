@@ -33,7 +33,7 @@ public class RainDamageTickHandler {
     public void checkAndPerformRainDamageTick(Iterable<ServerLevel> serverLevels, PlayerDifficultyManager difficultyManager) {
         if (ACID_RAIN.ACID_RAIN.rainDamage.get() <= 0) return;
 
-        if (++timeRainDmgCheck >= ACID_RAIN.ACID_RAIN.damageRate.get()) {
+        if (++timeRainDmgCheck >= (ACID_RAIN.ACID_RAIN.damageRate.get() * 20)) {
             for (ServerLevel level : serverLevels) {
                 for (ServerPlayer player : level.players()) {
                     if (!difficultyManager.isRainingAcid(level))
