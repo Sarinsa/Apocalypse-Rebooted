@@ -3,9 +3,11 @@ package com.toast.apocalypse.api;
 import com.toast.apocalypse.api.register.ModRegistries;
 import com.toast.apocalypse.common.core.register.ApocalypseTrapActions;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.registries.NewRegistryEvent;
@@ -26,15 +28,22 @@ public abstract class BaseTrapAction {
     }
 
     /**
-     * The actual logic this trap runs when activated.<p></p>
+     * The logic this trap runs when activated.<p></p>
      * @param pos The block position of the Dynamic Trap.
-     * @param facingUp True if the Dynamic Trap is facing upwards. False if not.
+     * @param direction The facing of the Dynamic Trap block.
+     * @param areaOfEffect An AABB representing the area of effect.
      */
-    public abstract void execute(Level level, BlockPos pos, boolean facingUp);
+    public abstract void execute(Level level, BlockPos pos, Direction direction, AABB areaOfEffect);
+
+    /**
+     * Used in {@link com.toast.apocalypse.common.blockentity.DynamicTrapBlockEntity} to
+     *         calculate the AAB / AoE to be used in {@link #execute(Level, BlockPos, Direction, AABB)}
+     */
+    public abstract int getEffectRadius();
 
     /**
      * @return A ResourceLocation pointing to this trap type's icon.
-     * icon must be 16x16 currently.
+     *         Icon must be 16x16 currently.
      */
     @Nonnull
     public abstract ResourceLocation iconLocation();

@@ -4,6 +4,7 @@ import com.toast.apocalypse.api.BaseTrapAction;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,10 +23,8 @@ public class EquipmentBreakTrap extends BaseTrapAction {
     }
 
     @Override
-    public void execute(Level level, BlockPos pos, boolean facingUp) {
-        List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, new AABB(pos).inflate(
-                ApocalypseConfig.MISC.TRAP_PROPERTIES.armorShatterRange.get()
-        ));
+    public void execute(Level level, BlockPos pos, Direction facing, AABB areaOfEffect) {
+        List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, areaOfEffect);
 
         if (!entities.isEmpty()) {
             for (LivingEntity livingEntity : entities) {
@@ -39,6 +38,11 @@ public class EquipmentBreakTrap extends BaseTrapAction {
                 }
             }
         }
+    }
+
+    @Override
+    public int getEffectRadius() {
+        return ApocalypseConfig.MISC.TRAP_PROPERTIES.armorShatterRange.get();
     }
 
     @NotNull

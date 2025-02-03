@@ -5,6 +5,7 @@ import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.Ghost;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -25,13 +26,13 @@ public class GhostTrap extends BaseTrapAction {
     }
 
     @Override
-    public void execute(Level level, BlockPos pos, boolean facingUp) {
+    public void execute(Level level, BlockPos pos, Direction facing, AABB areaOfEffect) {
         if (!level.isClientSide) {
             ((ServerLevel) level).sendParticles(
                     ParticleTypes.SNOWFLAKE,
-                    pos.getX() + 0.5D,
-                    pos.getY() + (facingUp ? 1.1D : -0.1D),
-                    pos.getZ() + 0.5D,
+                    (pos.getX() + 0.5D) + ((facing.getStepX() / 2.0) * 1.1),
+                    (pos.getY() + 0.5D) + ((facing.getStepY() / 2.0) * 1.1),
+                    (pos.getZ() + 0.5D) + ((facing.getStepZ() / 2.0) * 1.1),
                     15,
                     Mth.randomBetween(level.random, -1.0F, 1.0F) * 0.08F,
                     Mth.randomBetween(level.random, -1.0F, 1.0F) * 0.08F,
@@ -39,9 +40,7 @@ public class GhostTrap extends BaseTrapAction {
                     0.1D
             );
         }
-        List<Ghost> nearbyGhosts = level.getEntitiesOfClass(Ghost.class, new AABB(pos).inflate(
-                ApocalypseConfig.MISC.TRAP_PROPERTIES.ghostFreezeRange.get()
-        ));
+        List<Ghost> nearbyGhosts = level.getEntitiesOfClass(Ghost.class, areaOfEffect);
 
         if (!nearbyGhosts.isEmpty()) {
             for (Ghost ghost : nearbyGhosts) {
@@ -49,6 +48,11 @@ public class GhostTrap extends BaseTrapAction {
                     ghost.freeze(200);
             }
         }
+    }
+
+    @Override
+    public int getEffectRadius() {
+        return ApocalypseConfig.MISC.TRAP_PROPERTIES.ghostFreezeRange.get();
     }
 
     @Override

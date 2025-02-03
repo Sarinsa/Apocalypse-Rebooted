@@ -1,32 +1,108 @@
 {
   "variants": {
-    "vertical_direction=up,trap_state=idle": {
+    "facing=up,trap_state=idle": {
       "model": "apocalypse:block/dynamic_trap_idle"
     },
-    "vertical_direction=up,trap_state=processing": {
+    "facing=up,trap_state=processing": {
       "model": "apocalypse:block/dynamic_trap_processing"
     },
-    "vertical_direction=up,trap_state=ready": {
+    "facing=up,trap_state=ready": {
       "model": "apocalypse:block/dynamic_trap_ready"
     },
-    "vertical_direction=up,trap_state=not_operational": {
+    "facing=up,trap_state=not_operational": {
       "model": "apocalypse:block/dynamic_trap_not_operational"
     },
-    "vertical_direction=down,trap_state=idle": {
+    "facing=down,trap_state=idle": {
       "model": "apocalypse:block/dynamic_trap_idle",
       "x": 180
     },
-    "vertical_direction=down,trap_state=processing": {
+    "facing=down,trap_state=processing": {
       "model": "apocalypse:block/dynamic_trap_processing",
       "x": 180
     },
-    "vertical_direction=down,trap_state=ready": {
+    "facing=down,trap_state=ready": {
       "model": "apocalypse:block/dynamic_trap_ready",
       "x": 180
     },
-    "vertical_direction=down,trap_state=not_operational": {
+    "facing=down,trap_state=not_operational": {
       "model": "apocalypse:block/dynamic_trap_not_operational",
       "x": 180
+    },
+    "facing=east,trap_state=idle": {
+      "model": "apocalypse:block/dynamic_trap_idle",
+      "x": 90,
+      "y": 90
+    },
+    "facing=east,trap_state=processing": {
+      "model": "apocalypse:block/dynamic_trap_processing",
+      "x": 90,
+      "y": 90
+    },
+    "facing=east,trap_state=ready": {
+      "model": "apocalypse:block/dynamic_trap_ready",
+      "x": 90,
+      "y": 90
+    },
+    "facing=east,trap_state=not_operational": {
+      "model": "apocalypse:block/dynamic_trap_not_operational",
+      "x": 90,
+      "y": 90
+    },
+    "facing=west,trap_state=idle": {
+      "model": "apocalypse:block/dynamic_trap_idle",
+      "x": 90,
+      "y": 270
+    },
+    "facing=west,trap_state=processing": {
+      "model": "apocalypse:block/dynamic_trap_processing",
+      "x": 90,
+      "y": 270
+    },
+    "facing=west,trap_state=ready": {
+      "model": "apocalypse:block/dynamic_trap_ready",
+      "x": 90,
+      "y": 270
+    },
+    "facing=west,trap_state=not_operational": {
+      "model": "apocalypse:block/dynamic_trap_not_operational",
+      "x": 90,
+      "y": 270
+    },
+    "facing=north,trap_state=idle": {
+      "model": "apocalypse:block/dynamic_trap_idle",
+      "x": 90
+    },
+    "facing=north,trap_state=processing": {
+      "model": "apocalypse:block/dynamic_trap_processing",
+      "x": 90
+    },
+    "facing=north,trap_state=ready": {
+      "model": "apocalypse:block/dynamic_trap_ready",
+      "x": 90
+    },
+    "facing=north,trap_state=not_operational": {
+      "model": "apocalypse:block/dynamic_trap_not_operational",
+      "x": 90
+    },
+    "facing=south,trap_state=idle": {
+      "model": "apocalypse:block/dynamic_trap_idle",
+      "x": 90,
+      "y": 180
+    },
+    "facing=south,trap_state=processing": {
+      "model": "apocalypse:block/dynamic_trap_processing",
+      "x": 90,
+      "y": 180
+    },
+    "facing=south,trap_state=ready": {
+      "model": "apocalypse:block/dynamic_trap_ready",
+      "x": 90,
+      "y": 180
+    },
+    "facing=south,trap_state=not_operational": {
+      "model": "apocalypse:block/dynamic_trap_not_operational",
+      "x": 90,
+      "y": 180
     }
   }
 }

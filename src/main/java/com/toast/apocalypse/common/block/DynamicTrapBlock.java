@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 public class DynamicTrapBlock extends Block implements EntityBlock {
 
     public static final EnumProperty<TrapState> TRAP_STATE = EnumProperty.create("trap_state", TrapState.class);
-    public static final DirectionProperty VERTICAL_DIRECTION = BlockStateProperties.VERTICAL_DIRECTION;
+    public static final DirectionProperty FACING = BlockStateProperties.FACING;
 
 
     public DynamicTrapBlock() {
@@ -44,7 +44,7 @@ public class DynamicTrapBlock extends Block implements EntityBlock {
                 .sound(SoundType.STONE)
                 .mapColor(MapColor.WOOD)
         );
-        registerDefaultState(stateDefinition.any().setValue(TRAP_STATE, TrapState.IDLE).setValue(VERTICAL_DIRECTION, Direction.UP));
+        registerDefaultState(stateDefinition.any().setValue(TRAP_STATE, TrapState.IDLE).setValue(FACING, Direction.UP));
     }
 
     @Override
@@ -84,8 +84,8 @@ public class DynamicTrapBlock extends Block implements EntityBlock {
     public void neighborChanged(BlockState state, Level level, BlockPos pos, Block newBlock, BlockPos neighborPos, boolean p_52705_) {
         boolean hasSignal = level.hasNeighborSignal(pos);
 
-        if (hasSignal) {
-            if (level.getBlockEntity(pos) instanceof DynamicTrapBlockEntity dynamicTrap) {
+        if (hasSignal && level.getBlockEntity(pos) instanceof DynamicTrapBlockEntity dynamicTrap) {
+            if (state.getValue(TRAP_STATE) != TrapState.NOT_OPERATIONAL) {
                 dynamicTrap.activateTrap();
             }
         }
@@ -94,8 +94,8 @@ public class DynamicTrapBlock extends Block implements EntityBlock {
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext placeContext) {
-        Direction direction = placeContext.getNearestLookingVerticalDirection().getOpposite();
-        return defaultBlockState().setValue(VERTICAL_DIRECTION, direction);
+        Direction direction = placeContext.getNearestLookingDirection().getOpposite();
+        return defaultBlockState().setValue(FACING, direction);
     }
 
     @Nullable
@@ -112,7 +112,7 @@ public class DynamicTrapBlock extends Block implements EntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> stateBuilder) {
-        stateBuilder.add(TRAP_STATE, VERTICAL_DIRECTION);
+        stateBuilder.add(TRAP_STATE, FACING);
     }
 
 

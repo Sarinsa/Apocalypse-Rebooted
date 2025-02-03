@@ -14,6 +14,7 @@ import fathertoast.crust.api.util.IBlockEntityBBProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -35,11 +36,14 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements IBlockEntityBBProvider {
+
+    private static final List<AABB> EMPTY = List.of();
 
     private NonNullList<ItemStack> items = NonNullList.withSize(9, ItemStack.EMPTY);
     private BaseTrapAction currentTrap = null;
@@ -86,9 +90,10 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
                 trap.updateTrapBlock(DynamicTrapBlock.TrapState.PROCESSING);
 
                 if (level.getGameTime() % 2 == 0) {
-                    double x = pos.getX() + 0.5D;
-                    double y = pos.getY() + 1.0D;
-                    double z = pos.getZ() + 0.5D;
+                    Direction dir = state.getValue(DynamicTrapBlock.FACING);
+                    double x = (pos.getX() + 0.5D) + ((dir.getStepX() / 2.0) * 1.1);
+                    double y = (pos.getY() + 0.5D) + ((dir.getStepY() / 2.0) * 1.1);
+                    double z = (pos.getZ() + 0.5D) + ((dir.getStepZ() / 2.0) * 1.1);
 
                     ((ServerLevel) level).sendParticles(ParticleTypes.SMOKE, x, y, z, 1,0.0D, 0.0D, 0.0D, 0.0D);
                 }
@@ -115,6 +120,14 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
                 trap.updateTrapBlock(DynamicTrapBlock.TrapState.IDLE);
             }
         }
+        else {
+            BlockPos facingPos = trap.getBlockPos().relative(trap.getBlockState().getValue(DynamicTrapBlock.FACING));
+
+            trap.updateTrapBlock(level.getBlockState(facingPos).blocksMotion()
+                    ? DynamicTrapBlock.TrapState.NOT_OPERATIONAL
+                    : DynamicTrapBlock.TrapState.READY);
+
+        }
     }
 
     private boolean findValidRecipe() {
@@ -130,7 +143,7 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
     @SuppressWarnings("ConstantConditions")
     public void activateTrap() {
         if (getCurrentTrap() != null) {
-            getCurrentTrap().execute(level, getBlockPos(), getBlockState().getValue(DynamicTrapBlock.VERTICAL_DIRECTION) == Direction.UP);
+            getCurrentTrap().execute(level, getBlockPos(), getBlockState().getValue(DynamicTrapBlock.FACING), getBoundingBoxes().get(0));
             setCurrentTrap(null);
 
             if (!getLevel().isClientSide) {
@@ -302,6 +315,38 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
 
     @Override
     public @Nullable List<AABB> getBoundingBoxes() {
-        return List.of();
+        if (currentTrap == null) return EMPTY;
+
+        final int effectRadius = currentTrap.getEffectRadius();
+        final Direction dir = getBlockState().getValue(DynamicTrapBlock.FACING);
+        AABB box = new AABB(getBlockPos()).inflate(effectRadius);
+
+        switch (dir) {
+            case UP: {
+                box = box.move(0.0D, effectRadius, 0.0D);
+                break;
+            }
+            case DOWN: {
+                box = box.move(0.0D, -effectRadius, 0.0D);
+                break;
+            }
+            case NORTH: {
+                box = box.move(0.0D, 0.0D, -effectRadius);
+                break;
+            }
+            case EAST: {
+                box = box.move(effectRadius, 0.0D, 0.0D);
+                break;
+            }
+            case SOUTH: {
+                box = box.move(0.0D, 0.0D, effectRadius);
+                break;
+            }
+            case WEST: {
+                box = box.move(-effectRadius, 0.0D, 0.0D);
+                break;
+            }
+        }
+        return List.of(box);
     }
 }
