@@ -323,27 +323,27 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
 
         switch (dir) {
             case UP: {
-                box = box.move(0.0D, effectRadius, 0.0D);
+                box = box.move(0.0D, (effectRadius + 1), 0.0D);
                 break;
             }
             case DOWN: {
-                box = box.move(0.0D, -effectRadius, 0.0D);
+                box = box.move(0.0D, -(effectRadius + 1), 0.0D);
                 break;
             }
             case NORTH: {
-                box = box.move(0.0D, 0.0D, -effectRadius);
+                box = box.move(0.0D, 0.0D, -(effectRadius + 1));
                 break;
             }
             case EAST: {
-                box = box.move(effectRadius, 0.0D, 0.0D);
+                box = box.move((effectRadius + 1), 0.0D, 0.0D);
                 break;
             }
             case SOUTH: {
-                box = box.move(0.0D, 0.0D, effectRadius);
+                box = box.move(0.0D, 0.0D, (effectRadius + 1));
                 break;
             }
             case WEST: {
-                box = box.move(-effectRadius, 0.0D, 0.0D);
+                box = box.move(-(effectRadius + 1), 0.0D, 0.0D);
                 break;
             }
         }
