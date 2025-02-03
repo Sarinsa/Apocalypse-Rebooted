@@ -59,12 +59,13 @@ public class MiscConfig extends AbstractConfigFile {
 
         TrapProperties(MiscConfig parent) {
             super(parent, "trap_properties",
-                    "Contains settings related to trap types used in the Dynamic Trap.");
+                    "Contains settings related to trap types used in the Dynamic Trap.",
+                    "NOTE: AoE for traps depends on the facing of the Dynamic Trap! The bounding box is not centered on the Dynamic Trap block.");
 
             ghostFreezeRange = SPEC.define(new IntField("ghost_freeze_range", 20, 1, 60,
-                    "The range in blocks around the Dynamic Trap in which the Ghost Freeze trap will affect ghosts."));
+                    "The range for the Dynamic Trap's AoE in which the Ghost Freeze trap will affect ghosts."));
             armorShatterRange = SPEC.define(new IntField("armor_shatter_range", 20, 1, 60,
-                    "The range in blocks around the Dynamic Trap in which the Armor Shatter trap will affect mobs."));
+                    "The range for the Dynamic Trap's AoE in which the Armor Shatter trap will affect mobs."));
 
             SPEC.newLine();
         }
