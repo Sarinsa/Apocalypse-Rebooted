@@ -67,6 +67,12 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
         return SoundSource.HOSTILE;
     }
 
+    @Override
+    protected float getSoundVolume() {
+        // Louder than ghast; help players realize they might be getting fireballed from afar.
+        return 12.0F;
+    }
+
     /**
      * Checks if this ghast type has direct
      * line of sight to the target entity.

@@ -225,7 +225,14 @@ public class Seeker extends AbstractFullMoonGhast {
                     double z = target.getZ() - (seeker.getZ() + vec3.z * 4.0D);
 
                     if (!this.seeker.isSilent()) {
-                        level.levelEvent(null, 1016, seeker.blockPosition(), 0);
+                        level.playSound(
+                                null,
+                                seeker.blockPosition(),
+                                SoundEvents.GHAST_WARN,
+                                seeker.getSoundSource(),
+                                seeker.getSoundVolume(),
+                                (level.random.nextFloat() - level.random.nextFloat()) * 0.2F + 1.0F
+                        );
                     }
                     boolean canSeeTarget = seeker.canSeeDirectly(target);
                     SeekerFireballEntity fireball = new SeekerFireballEntity(level, seeker, canSeeTarget, x, y, z);

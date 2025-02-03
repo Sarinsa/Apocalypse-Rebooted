@@ -4,13 +4,17 @@ import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -220,7 +224,14 @@ public class Destroyer extends AbstractFullMoonGhast {
                 Level level = destroyer.level();
                 ++chargeTime;
                 if (chargeTime == 10 && !destroyer.isSilent()) {
-                    level.levelEvent(null, 1015, destroyer.blockPosition(), 0);
+                    level.playSound(
+                            null,
+                            destroyer.blockPosition(),
+                            SoundEvents.GHAST_WARN,
+                            destroyer.getSoundSource(),
+                            destroyer.getSoundVolume(),
+                            (level.random.nextFloat() - level.random.nextFloat()) * 0.2F + 1.0F
+                    );
                 }
 
                 if (chargeTime == 20) {
