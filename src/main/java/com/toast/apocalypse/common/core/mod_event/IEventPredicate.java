@@ -10,5 +10,5 @@ import net.minecraft.server.level.ServerPlayer;
 @FunctionalInterface
 public interface IEventPredicate {
 
-    boolean test(ServerLevel serverWorld, EventType<?> currentEventType, ServerPlayer player, PlayerDifficultyManager difficultyManager);
+    boolean test(ServerLevel serverWorld, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager);
 }

@@ -2,6 +2,8 @@ package com.toast.apocalypse.common.core.mod_event;
 
 import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
 
+import javax.annotation.Nullable;
+
 public class EventType<T extends AbstractEvent> {
 
     private final IEventFactory<T> factory;
@@ -10,16 +12,18 @@ public class EventType<T extends AbstractEvent> {
     private final String startMessage;
     private final int priority;
     private final IEventPredicate startPredicate;
-    private final IEventPredicate continuePredicate;
+    @Nullable
+    private final IEventPredicate persistPredicate;
 
-    public EventType(int id, String name, IEventFactory<T> factory, String startMessage, int priority, IEventPredicate startPredicate, IEventPredicate continuePredicate) {
+    public EventType(int id, String name, IEventFactory<T> factory, String startMessage, int priority,
+                     IEventPredicate startPredicate, @Nullable IEventPredicate persistPredicate) {
         this.factory = factory;
         this.name = name;
         this.id = id;
         this.startMessage = startMessage;
         this.priority = priority;
         this.startPredicate = startPredicate;
-        this.continuePredicate = continuePredicate;
+        this.persistPredicate = persistPredicate;
     }
 
     public final T createEvent() {
@@ -40,24 +44,32 @@ public class EventType<T extends AbstractEvent> {
         return startMessage;
     }
 
-    /**
-     * Whether this event can be
-     * interrupted by another event.
-     *
-     * @return True if this event can be interrupted.
-     */
+    @Deprecated
     public final int getPriority() {
         return priority;
     }
 
-    public IEventPredicate getStartPredicate() {
+    /**
+     * @return This event type's start predicate with the conditions that must be met
+     *         for the event type to start the event.
+     */
+    public final IEventPredicate getStartPredicate() {
         return startPredicate;
     }
 
-    public IEventPredicate getPersistPredicate() {
-        return continuePredicate;
+    /**
+     * @return This event type's persist predicate with the conditions that must be met
+     *         for the event to keep running after it has started.<br>
+     *         If persistPredicate is null, the start predicate is returned instead.
+     */
+    public final IEventPredicate getPersistPredicate() {
+        return persistPredicate == null ? startPredicate : persistPredicate;
     }
 
+    /**
+     * @return The name of this event. Should follow a format like this:<br>
+     *         "the_event_name"
+     */
     public String getName() {
         return name;
     }

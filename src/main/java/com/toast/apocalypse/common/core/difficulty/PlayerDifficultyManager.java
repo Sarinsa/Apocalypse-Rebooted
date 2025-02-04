@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.core.difficulty;
 
+import com.google.common.collect.ImmutableSet;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.config.util.ServerConfigHelper;
@@ -12,10 +13,9 @@ import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.RainDamageTickHandler;
 import com.toast.apocalypse.common.util.References;
-import fathertoast.crust.api.config.common.value.environment.dimension.DimensionTypeEnvironment;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -26,7 +26,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -36,7 +35,6 @@ import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -48,6 +46,8 @@ import java.util.*;
  */
 public final class PlayerDifficultyManager {
 
+    /** The tag key for Apocalypse event data. */
+    private static final String EVENT_DATA_LIST_KEY = "ApocalypseRBOOTDEventData";
 
     /** Number of ticks per update. */
     public static final int TICKS_PER_UPDATE = 5;
@@ -67,7 +67,7 @@ public final class PlayerDifficultyManager {
     private final Map<Level, WorldInfo> worldInfo = new HashMap<>();
 
     /** A Map containing each online player's current event. */
-    private final Map<UUID, AbstractEvent> playerEvents = new HashMap<>();
+    private final Map<UUID, Map<EventType<?>, AbstractEvent>> playerEvents = new HashMap<>();
 
     /** Manages rain damage. */
     private final RainDamageTickHandler rainDamageHelper;
@@ -170,6 +170,7 @@ public final class PlayerDifficultyManager {
             NetworkHelper.sendMoonPhaseUpdate(player, overworld);
             NetworkHelper.sendSimpleClientTaskRequest(player, isRainingAcid(playerLevel) ? S2CSimpleClientTask.SET_ACID_RAIN : S2CSimpleClientTask.REMOVE_ACID_RAIN);
 
+            playerEvents.put(player.getUUID(), new HashMap<>());
             loadEventData(player);
         }
     }
@@ -181,10 +182,13 @@ public final class PlayerDifficultyManager {
         // as it will have been taken care of already.
         if (serverStopped) return;
 
-        if (!event.getEntity().getCommandSenderWorld().isClientSide) {
+        if (!event.getEntity().level().isClientSide) {
             ServerPlayer player = (ServerPlayer) event.getEntity();
             saveEventData(player);
-            playerEvents.get(player.getUUID()).stop(player.serverLevel());
+
+            for (AbstractEvent abstractEvent : playerEvents.get(player.getUUID()).values()) {
+                abstractEvent.stop(player.serverLevel());
+            }
             playerEvents.remove(player.getUUID());
         }
     }
@@ -192,7 +196,9 @@ public final class PlayerDifficultyManager {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            playerEvents.get(serverPlayer.getUUID()).onPlayerDeath(serverPlayer, serverPlayer.serverLevel());
+            for (AbstractEvent abstractEvent : playerEvents.get(serverPlayer.getUUID()).values()) {
+                abstractEvent.onPlayerDeath(serverPlayer, serverPlayer.serverLevel());
+            }
         }
     }
 
@@ -212,34 +218,37 @@ public final class PlayerDifficultyManager {
                 rainDamageHelper.checkAndPerformRainDamageTick(server.getAllLevels(), this);
             }
 
-            // Update player difficulty and event
             if (++timeUpdate >= TICKS_PER_UPDATE) {
                 timeUpdate = 0;
 
-                // Update player difficulty and event
-                for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-                    if (player.level().isLoaded(BlockPos.containing(player.position()))) {
-                        updatePlayerDifficulty(player);
-                        updatePlayerEvent(player);
-                    }
-                }
+                if (server.overworld().getGameTime() > 0L) {
+                    // Update player difficulty and event
+                    for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+                        if (player.level().isLoaded(BlockPos.containing(player.position()))) {
+                            updatePlayerDifficulty(player);
 
-                // Update world info
-                if (!worldInfo.isEmpty()) {
-                    for (ServerLevel level : server.getAllLevels()) {
-                        WorldInfo info = worldInfo.get(level);
-
-                        if (info == null)
-                            continue;
-
-                        if (level.isRaining()) {
-                            if (!info.justStartedRaining()) {
-                                info.setJustStartedRaining(true, level.random);
+                            if (playerEvents.containsKey(player.getUUID())) {
+                                updatePlayerEvent(player);
                             }
                         }
-                        else {
-                            info.setJustStartedRaining(false, level.random);
-                            info.setRainingAcid(false);
+                    }
+
+                    // Update world info
+                    if (!worldInfo.isEmpty()) {
+                        for (ServerLevel level : server.getAllLevels()) {
+                            WorldInfo info = worldInfo.get(level);
+
+                            if (info == null)
+                                continue;
+
+                            if (level.isRaining()) {
+                                if (!info.justStartedRaining()) {
+                                    info.setJustStartedRaining(true, level.random);
+                                }
+                            } else {
+                                info.setJustStartedRaining(false, level.random);
+                                info.setRainingAcid(false);
+                            }
                         }
                     }
                 }
@@ -313,32 +322,32 @@ public final class PlayerDifficultyManager {
     @SuppressWarnings("ConstantConditions")
     public void updatePlayerEvent(ServerPlayer player) {
         ServerLevel level = player.serverLevel();
-        ServerLevel overworld = server.overworld();
-        AbstractEvent currentEvent = getCurrentEvent(player);
 
-        // This should never happen, and it would be super weird if it did
-        if (currentEvent == null)
-            return;
+        Map<EventType<?>, AbstractEvent> events = playerEvents.get(player.getUUID());
 
-        EventType<?> eventType = currentEvent.getType();
+        // Tick current events
+        for (AbstractEvent abstractEvent : events.values()) {
+            abstractEvent.update(level, player, this);
+        }
+        final double scaledDifficulty = (double) (CapabilityHelper.getPlayerDifficulty(player) / References.DAY_LENGTH);
 
-        // Update current event
-        currentEvent.update(level, player, this);
-
-        if (CapabilityHelper.getPlayerDifficulty(player) > 0 && overworld.getGameTime() > 0) {
-            for (EventType<?> type : EventRegistry.EVENTS.values()) {
-                if (eventType != type && type.getStartPredicate().test(level, eventType, player, this) && type.getPriority() > currentEvent.getType().getPriority()) {
-                    // Copy over player death count
-                    int deathCount = currentEvent.getPlayerDeathCount();
-                    eventType = startEvent(player, currentEvent, type);
-                    getCurrentEvent(player).setDeathCount(deathCount);
-                    break;
+        // Check for events to start
+        for (EventType<?> type : EventRegistry.EVENTS.values()) {
+            if (!events.keySet().contains(type)) {
+                if (type.getStartPredicate().test(level, player, scaledDifficulty, this)) {
+                    startEvent(player, type);
                 }
             }
-            if (!eventType.getPersistPredicate().test(level, eventType, player, this)) {
-                endEvent(player);
-            }
         }
+        // Loop through running events and
+        // stop any events that should no longer run.
+        events.values().removeIf((abstractEvent) -> {
+            if (!abstractEvent.getType().getPersistPredicate().test(level, player, scaledDifficulty, this)) {
+                abstractEvent.onEnd(server, player);
+                return true;
+            }
+            return false;
+        });
     }
 
     /** Starts an event for the given player, if possible.
@@ -346,37 +355,30 @@ public final class PlayerDifficultyManager {
      * @param player The player to start the event for.
      * @param eventType The event type for the event to start.
      */
-    public EventType<?> startEvent(ServerPlayer player, AbstractEvent currentEvent, @Nonnull EventType<?> eventType) {
-        currentEvent.onEnd(server, player);
+    public void startEvent(ServerPlayer player, @Nonnull EventType<?> eventType) {
         AbstractEvent newEvent = eventType.createEvent();
         newEvent.onStart(server, player);
-        playerEvents.put(player.getUUID(), newEvent);
-        saveEventData(player);
+        playerEvents.get(player.getUUID()).put(eventType, newEvent);
 
         if (eventType.getEventStartMessage() != null) {
             player.displayClientMessage(Component.translatable(eventType.getEventStartMessage()), true);
         }
-        return eventType;
     }
 
-    public int getEventId(ServerPlayer player) {
+    @Nullable
+    public Set<EventType<?>> getEventTypes(ServerPlayer player) {
         UUID uuid = player.getUUID();
-        return playerEvents.containsKey(uuid) ? playerEvents.get(uuid).getType().getId() : -1;
+        return playerEvents.containsKey(uuid) ? ImmutableSet.copyOf(playerEvents.get(uuid).keySet()) : null;
     }
 
     // SHOULD not return null, but who knows
     @Nullable
-    public AbstractEvent getCurrentEvent(ServerPlayer player) {
+    public AbstractEvent getEvent(ServerPlayer player, EventType<?> eventType) {
         UUID uuid = player.getUUID();
-        return playerEvents.getOrDefault(uuid, null);
-    }
 
-    /** Ends the current active event, if any. */
-    public void endEvent(ServerPlayer player) {
-        UUID uuid = player.getUUID();
-        playerEvents.get(uuid).onEnd(server, player);
-        playerEvents.put(uuid, EventRegistry.NONE.createEvent());
-        saveEventData(player);
+        if (!playerEvents.containsKey(uuid)) return null;
+
+        return playerEvents.get(uuid).getOrDefault(eventType, null);
     }
 
     /** Cleans up the references to things in a server when the server stops. */
@@ -392,51 +394,53 @@ public final class PlayerDifficultyManager {
 
     /** Loads the given player's event data. */
     public void loadEventData(ServerPlayer player) {
-        try {
-            AbstractEvent currentEvent = EventRegistry.NONE.createEvent();
-            CompoundTag eventData = CapabilityHelper.getEventData(player);
+        CompoundTag persistentData = player.getPersistentData();
 
-            if (eventData != null && eventData.contains("EventId", Tag.TAG_INT)) {
-                currentEvent = EventRegistry.getFromId(eventData.getInt("EventId")).createEvent();
-                currentEvent.read(eventData, player, player.serverLevel());
+        if (persistentData.contains(EVENT_DATA_LIST_KEY, Tag.TAG_LIST)) {
+            ListTag listTag = persistentData.getList(EVENT_DATA_LIST_KEY, Tag.TAG_COMPOUND);
+
+            for (Tag tag : listTag) {
+                try {
+                    CompoundTag compoundTag = (CompoundTag) tag;
+
+                    if (compoundTag.contains("EventId", Tag.TAG_INT)) {
+                        EventType<?> eventType = EventRegistry.getFromId(compoundTag.getInt("EventId"));
+
+                        if (eventType != null) {
+                            AbstractEvent event = eventType.createEvent();
+                            event.read(compoundTag, player, player.serverLevel());
+                            playerEvents.get(player.getUUID()).put(eventType, event);
+                        }
+                    }
+                } catch (Exception e) {
+                    Apocalypse.LOGGER.error("Failed to load mod event data for player with UUID {}.", player.getUUID());
+                    e.printStackTrace();
+                }
             }
-            playerEvents.put(player.getUUID(), currentEvent);
-        }
-        catch (Exception e) {
-            logError("Failed to read world save data for player " + player.getName().getString() + ". That shouldn't happen.");
-            e.printStackTrace();
         }
     }
 
     /** Saves the data of the player's current event. */
     public void saveEventData(ServerPlayer player) {
-        try {
-            if (playerEvents.containsKey(player.getUUID())) {
-                AbstractEvent currentEvent = playerEvents.get(player.getUUID());
-                CompoundTag eventData = new CompoundTag();
+        if (!playerEvents.containsKey(player.getUUID())) return;
 
-                currentEvent.write(eventData);
-                CapabilityHelper.setEventData(player, eventData);
+        try {
+            CompoundTag persistentData = player.getPersistentData();
+            ListTag listTag = new ListTag();
+
+            for (AbstractEvent abstractEvent : playerEvents.get(player.getUUID()).values()) {
+                CompoundTag tag = new CompoundTag();
+                abstractEvent.write(tag);
+                listTag.add(tag);
             }
-            else {
-                logError("No event object found for player " + player.getName().getString() + ". Not good!");
-            }
+            persistentData.put(EVENT_DATA_LIST_KEY, listTag);
         }
         catch (Exception e) {
-            logError("Failed to write player event data for player " + player.getName().getString() + "! Not cool beans.");
+            Apocalypse.LOGGER.info("Failed to save player event data for player with UUID {}", player.getUUID());
             e.printStackTrace();
         }
     }
 
-    /** Helper method for logging. */
-    private static void logInfo(String message) {
-        Apocalypse.LOGGER.info("[{}] {}", PlayerDifficultyManager.class.getSimpleName(), message);
-    }
-
-    /** Helper method for logging. */
-    private static void logError(String message) {
-        Apocalypse.LOGGER.error("[{}] {}", PlayerDifficultyManager.class.getSimpleName(), message);
-    }
 
 
     /** Contains miscellaneous info about a world. */

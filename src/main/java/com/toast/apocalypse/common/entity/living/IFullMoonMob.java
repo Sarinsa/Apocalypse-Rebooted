@@ -2,6 +2,7 @@ package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
+import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
 import com.toast.apocalypse.common.core.register.ApocalypseParticles;
 import net.minecraft.server.level.ServerLevel;
@@ -85,7 +86,7 @@ public interface IFullMoonMob {
         if (player == null)
             return false;
 
-        AbstractEvent event = Apocalypse.INSTANCE.getDifficultyManager().getCurrentEvent(player);
+        AbstractEvent event = Apocalypse.INSTANCE.getDifficultyManager().getEvent(player, EventRegistry.FULL_MOON);
 
         if (event != null) {
             final int deathCount = event.getPlayerDeathCount();

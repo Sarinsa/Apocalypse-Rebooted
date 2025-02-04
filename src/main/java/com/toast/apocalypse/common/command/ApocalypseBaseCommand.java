@@ -5,7 +5,9 @@ import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.toast.apocalypse.common.command.argument.DifficultyArgument;
 import com.toast.apocalypse.common.command.argument.MaxDifficultyArgument;
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.mod_event.EventRegistry;
+import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.ChatFormatting;
@@ -17,6 +19,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 public class ApocalypseBaseCommand {
 
@@ -55,12 +59,23 @@ public class ApocalypseBaseCommand {
             int partialDifficulty = difficulty <= 0 ? 0 : (int) (difficulty % References.DAY_LENGTH / (References.DAY_LENGTH / 10));
             long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(playerEntity);
             double scaledMaxDifficulty = (double) maxDifficulty / References.DAY_LENGTH;
-            int eventId = CapabilityHelper.getEventId(playerEntity);
+            Set<EventType<?>> eventTypes = Apocalypse.INSTANCE.getDifficultyManager().getEventTypes(playerEntity);
 
-            String eventName = EventRegistry.EVENTS.get(eventId).getName();
             source.sendSystemMessage(Component.literal("Player difficulty: " + (difficulty < 0 ? ChatFormatting.YELLOW : ChatFormatting.GREEN) + scaledDifficulty + "." + partialDifficulty + ChatFormatting.WHITE + " (" +  ChatFormatting.GRAY + difficulty + " ticks" + ChatFormatting.WHITE + ")"));
             source.sendSystemMessage(Component.literal("Player max difficulty: " + ChatFormatting.GREEN + scaledMaxDifficulty + ChatFormatting.WHITE + " (" + ChatFormatting.GRAY + maxDifficulty + " ticks" + ChatFormatting.WHITE + ")"));
-            source.sendSystemMessage(Component.literal("Current event: " + ChatFormatting.GREEN + eventId  + ChatFormatting.WHITE + " (" + ChatFormatting.GRAY + eventName + ChatFormatting.WHITE + ")"));
+
+            if (eventTypes == null || eventTypes.isEmpty()) {
+                source.sendSystemMessage(Component.literal("Current events: " + ChatFormatting.GRAY + "none"));
+            }
+            else {
+                StringBuilder builder = new StringBuilder("Current events: ");
+
+                for (EventType<?> eventType : eventTypes) {
+                    builder.append(ChatFormatting.GREEN).append(eventType.getId()).append(ChatFormatting.WHITE).append(" (")
+                    .append(ChatFormatting.GRAY).append(eventType.getName()).append(ChatFormatting.WHITE).append(") ");
+                }
+                source.sendSystemMessage(Component.literal(builder.toString()));
+            }
             return 1;
         }
     }

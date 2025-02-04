@@ -2,6 +2,8 @@ package com.toast.apocalypse.api.plugin;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.List;
+
 /**
  * A simple interface for reading various
  * difficulty related data from players.
@@ -24,17 +26,17 @@ public interface DifficultyProvider {
     <T extends Player> long getMaxPlayerDifficulty(T player);
 
     /**
-     * @return The ID of the given player's
-     *         currently running event.
-     *         <strong>(Server side only)</strong><br>
-     *         <br>
-     * No event: -1<br>
-     * <br>
-     * Full Moon Siege: 0<br>
-     * <br>
-     * Thunderstorm: 1<br>
-     * <br>
-     * Acid rain: 2
+     * @return A list containing the numerical IDs of the given player's
+     *         currently running apocalypse events.
+     *         <strong>(Server side only)</strong><br><br>
+     *
+     * -1: No/empty event
+     * <br><br>
+     * 0: Lunar Siege
+     * <br><br>
+     * 1: Thunderstorm
+     * <br><br>
+     * 2: Acid rain
      */
-    <T extends ServerPlayer> int currentEventId(T player);
+    <T extends ServerPlayer> List<Integer> getEventIds(T player);
 }

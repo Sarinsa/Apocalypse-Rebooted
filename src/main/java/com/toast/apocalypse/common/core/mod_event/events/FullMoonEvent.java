@@ -82,21 +82,16 @@ public final class FullMoonEvent extends AbstractEvent {
         if (timeUntilNextSpawn > 0) {
             timeUntilNextSpawn -= PlayerDifficultyManager.TICKS_PER_UPDATE;
         }
+        hasMobsLeft = false;
+
+        for (ResourceLocation id : mobsToSpawn.keySet()) {
+            if (mobsToSpawn.get(id) > 0) {
+                hasMobsLeft = true;
+                break;
+            }
+        }
 
         if (canSpawn()) {
-            boolean hasMobsLeft = false;
-
-            for (ResourceLocation id : mobsToSpawn.keySet()) {
-                if (mobsToSpawn.get(id) > 0) {
-                    hasMobsLeft = true;
-                    break;
-                }
-            }
-            this.hasMobsLeft = hasMobsLeft;
-
-            if (!hasMobsLeft)
-                return;
-
             RandomSource random = level.getRandom();
             ResourceLocation mobId = getRandomMobID(random);
 
@@ -313,9 +308,7 @@ public final class FullMoonEvent extends AbstractEvent {
 
         for (String key : keys) {
             ResourceLocation id = ResourceLocation.tryParse(key);
-
             if (id == null) continue;
-
             mobsToSpawn.put(id, Math.max(0, spawnsTag.getInt(key)));
         }
     }

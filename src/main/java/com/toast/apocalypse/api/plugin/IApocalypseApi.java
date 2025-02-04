@@ -13,7 +13,7 @@ public interface IApocalypseApi {
     RegistryHelper getRegistryHelper();
 
     /**
-     * @return The DifficultyProviderImpl instance
+     * @return The DifficultyDataProvider instance
      *         parsed by Apocalypse.
      */
     DifficultyProvider getDifficultyProvider();

@@ -103,14 +103,12 @@ public class PlayerEvents {
 
             long difficulty = CapabilityHelper.getPlayerDifficulty(originalPlayer);
             long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(originalPlayer);
-            CompoundTag eventData = CapabilityHelper.getEventData(originalPlayer);
             //int[] mobWikiIndexes = CapabilityHelper.getMobWikiIndexes(originalPlayer);
 
             originalPlayer.invalidateCaps();
 
             CapabilityHelper.setPlayerDifficulty(newPlayer, difficulty);
             CapabilityHelper.setMaxPlayerDifficulty(newPlayer, maxDifficulty);
-            CapabilityHelper.setEventData(newPlayer, eventData);
             //CapabilityHelper.setMobWikiIndexes(newPlayer, mobWikiIndexes);
         }
     }

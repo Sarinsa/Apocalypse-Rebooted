@@ -1,8 +1,6 @@
 package com.toast.apocalypse.common.capability.mobwiki;
 
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
-import com.toast.apocalypse.common.capability.event_data.EventDataCapability;
-import com.toast.apocalypse.common.capability.event_data.IEventDataCapability;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.capabilities.Capability;
@@ -14,7 +12,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 
-public class MobWikiProvider implements ICapabilitySerializable<CompoundTag> {
+public class MobWikiCapProvider implements ICapabilitySerializable<CompoundTag> {
 
     public static final NonNullSupplier<IMobWikiCapability> SUPPLIER = MobWikiCapability::new;
     private final LazyOptional<IMobWikiCapability> optional = LazyOptional.of(SUPPLIER);

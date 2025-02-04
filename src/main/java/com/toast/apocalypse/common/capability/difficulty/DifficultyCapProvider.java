@@ -10,9 +10,7 @@ import net.minecraftforge.common.util.NonNullSupplier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Supplier;
-
-public class DifficultyProvider implements ICapabilitySerializable<CompoundTag> {
+public class DifficultyCapProvider implements ICapabilitySerializable<CompoundTag> {
 
     public static final NonNullSupplier<IDifficultyCapability> SUPPLIER = DifficultyCapability::new;
     private final LazyOptional<IDifficultyCapability> optional = LazyOptional.of(SUPPLIER);

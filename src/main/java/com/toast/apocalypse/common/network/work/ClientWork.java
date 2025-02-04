@@ -7,12 +7,11 @@ import com.toast.apocalypse.client.screen.GrumpInventoryScreen;
 import com.toast.apocalypse.client.screen.MobWikiScreen;
 import com.toast.apocalypse.common.blockentity.DynamicTrapBlockEntity;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
-import com.toast.apocalypse.common.capability.difficulty.DifficultyProvider;
-import com.toast.apocalypse.common.capability.mobwiki.MobWikiProvider;
+import com.toast.apocalypse.common.capability.difficulty.DifficultyCapProvider;
+import com.toast.apocalypse.common.capability.mobwiki.MobWikiCapProvider;
 import com.toast.apocalypse.common.entity.living.Grump;
 import com.toast.apocalypse.common.inventory.container.GrumpInventoryContainer;
 import com.toast.apocalypse.common.network.message.*;
-import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -35,7 +34,7 @@ public class ClientWork {
         LocalPlayer player = Minecraft.getInstance().player;
 
         if (player != null) {
-            player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyProvider.SUPPLIER.get()).setDifficulty(message.difficulty);
+            player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyCapProvider.SUPPLIER.get()).setDifficulty(message.difficulty);
         }
     }
 
@@ -44,7 +43,7 @@ public class ClientWork {
         LocalPlayer player = Minecraft.getInstance().player;
 
         if (player != null) {
-            player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyProvider.SUPPLIER.get()).setDifficultyMult(message.multiplier);
+            player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyCapProvider.SUPPLIER.get()).setDifficultyMult(message.multiplier);
         }
     }
 
@@ -54,7 +53,7 @@ public class ClientWork {
 
         if (player != null) {
             long maxDifficulty = message.maxDifficulty;
-            player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyProvider.SUPPLIER.get()).setMaxDifficulty(maxDifficulty);
+            player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyCapProvider.SUPPLIER.get()).setMaxDifficulty(maxDifficulty);
             DifficultyOverlayRenderHandler.COLOR_CHANGE = maxDifficulty > -1 ? maxDifficulty : References.DEFAULT_COLOR_CHANGE;
         }
     }
@@ -83,7 +82,7 @@ public class ClientWork {
 
         if (player != null) {
             int[] unlockedIndexes = message.indexes;
-            player.getCapability(ApocalypseCapabilities.MOB_WIKI_CAPABILITY).orElse(MobWikiProvider.SUPPLIER.get()).setEntries(unlockedIndexes);
+            player.getCapability(ApocalypseCapabilities.MOB_WIKI_CAPABILITY).orElse(MobWikiCapProvider.SUPPLIER.get()).setEntries(unlockedIndexes);
         }
     }
 
