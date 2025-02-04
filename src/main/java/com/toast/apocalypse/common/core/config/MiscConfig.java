@@ -9,7 +9,9 @@ import fathertoast.crust.api.config.common.field.DoubleField;
 import fathertoast.crust.api.config.common.field.IntField;
 import fathertoast.crust.api.config.common.value.BlockEntry;
 import fathertoast.crust.api.config.common.value.BlockList;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraftforge.common.Tags;
 
 import java.util.List;
 
@@ -76,6 +78,8 @@ public class MiscConfig extends AbstractConfigFile {
 
         public final DoubleField grumpBucketHelmetChance;
 
+        public final BlockListField breecherExplosionTargets;
+
         public final IntField seekerExplosionPower;
 
         public final BlockListField destroyerProofBlocks;
@@ -96,6 +100,13 @@ public class MiscConfig extends AbstractConfigFile {
 
             SPEC.newLine();
 
+            breecherExplosionTargets = SPEC.define(new BlockListField("breecher_explosion_targets", new BlockList(List.of(), List.of(
+                    BlockTags.BEDS, BlockTags.DOORS, BlockTags.TRAPDOORS, Tags.Blocks.CHESTS, Tags.Blocks.BARRELS, Tags.Blocks.FENCE_GATES
+            )),
+                    "A list of blocks that the Breecher will target and try to explode if it can't currently reach its target player."));
+
+            SPEC.newLine();
+
             seekerExplosionPower = SPEC.define(new IntField("seeker_explosion_power", 4, 1, 10,
                     "The explosion power of Seeker fireballs."));
 
@@ -104,8 +115,8 @@ public class MiscConfig extends AbstractConfigFile {
             destroyerProofBlocks = SPEC.define(new BlockListField("destroyer_proof_blocks", new BlockList(List.of(), List.of(),
                     new BlockEntry(Blocks.BEDROCK)
             ),
-                    "A list of blocks that the destroyer cannot explode.",
-                    "Generally speaking Destroyers are supposed to be able to blow up anything, but some exceptions may be desired (bedrock and whatnot)."));
+                    "A list of blocks that the Destroyer cannot explode.",
+                    "Generally speaking destroyers are supposed to be able to blow up anything, but some exceptions may be desired (bedrock and whatnot)."));
             destroyerExplosionPower = SPEC.define(new IntField("destroyer_explosion_power", 2, 1, 10,
                     "The explosion power of Destroyer fireballs."));
             destroyerEquipmentDamage = SPEC.define(new IntField("destroyer_equipment_damage", 0, IntField.Range.NON_NEGATIVE,

@@ -10,9 +10,6 @@ import net.minecraft.world.level.block.Block;
 
 public class ApocalypseBlockTags {
 
-    public static final TagKey<Block> BREECHER_TARGETS = modTag("breecher_targets");
-
-
     private static TagKey<Block> modTag(String name) {
         return create(Apocalypse.resourceLoc(name));
     }

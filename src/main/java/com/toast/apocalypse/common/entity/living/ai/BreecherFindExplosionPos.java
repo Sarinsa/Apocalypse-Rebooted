@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.entity.living.ai;
 
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.Breecher;
 import com.toast.apocalypse.common.tag.ApocalypseBlockTags;
 import net.minecraft.core.BlockPos;
@@ -34,7 +35,7 @@ public class BreecherFindExplosionPos extends MoveToBlockGoal {
     @Override
     protected boolean isValidTarget(LevelReader level, BlockPos pos) {
         if (breecher.getPlayerTargetUUID() != null && (breecher.getTarget() instanceof Player player && player.getUUID() == breecher.getPlayerTargetUUID())) {
-            if (level.getBlockState(pos).is(ApocalypseBlockTags.BREECHER_TARGETS)) {
+            if (ApocalypseConfig.MISC.OTHER.breecherExplosionTargets.matches(level.getBlockState(pos))) {
                 double dist = breecher.distanceToSqr(player.getX(), player.getY(), player.getZ());
                 return dist < 700.0D;
             }
