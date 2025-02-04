@@ -7,8 +7,11 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraftforge.fluids.IFluidBlock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +30,8 @@ public class DestroyerExplosionCalculator extends ExplosionDamageCalculator {
 
     @Override
     public boolean shouldBlockExplode(Explosion explosion, BlockGetter level, BlockPos pos, BlockState state, float radius) {
-        return !ApocalypseConfig.MISC.OTHER.destroyerProofBlocks.matches(state);
+        return !ApocalypseConfig.MISC.OTHER.destroyerProofBlocks.matches(state)
+                && !(state.getBlock() instanceof LiquidBlock)
+                && !(state.getBlock() instanceof IFluidBlock);
     }
 }
