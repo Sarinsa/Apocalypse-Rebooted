@@ -4,15 +4,13 @@ import com.toast.apocalypse.common.core.config.field.DifficultyRegistryEntryList
 import com.toast.apocalypse.common.core.config.value.DifficultyRegListEntry;
 import com.toast.apocalypse.common.core.config.value.DifficultyRegistryEntryList;
 import com.toast.apocalypse.common.core.difficulty.MobEquipmentHandler;
+import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import fathertoast.crust.api.config.common.AbstractConfigCategory;
 import fathertoast.crust.api.config.common.AbstractConfigFile;
 import fathertoast.crust.api.config.common.ConfigManager;
 import fathertoast.crust.api.config.common.field.*;
-import fathertoast.crust.api.config.common.value.EntityEntry;
-import fathertoast.crust.api.config.common.value.EntityList;
-import fathertoast.crust.api.config.common.value.EntityTagEntry;
-import fathertoast.crust.api.config.common.value.RegistryEntryList;
+import fathertoast.crust.api.config.common.value.*;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
@@ -110,8 +108,8 @@ public class MobBuffingConfig extends AbstractConfigFile {
                     "Settings related to attribute boosts.");
 
             SPEC.titledComment("Max Health", "Settings for max health boost.");
-            maxHealthBlacklist = SPEC.define(new LazyRegistryEntryListField<>("max_health_blacklist", new RegistryEntryList<>(
-                    ForgeRegistries.ENTITY_TYPES
+            maxHealthBlacklist = SPEC.define(new LazyRegistryEntryListField<>("max_health_blacklist", new LazyRegistryEntryList<>(
+                    ForgeRegistries.ENTITY_TYPES, List.of()
             ), "A list of entities that should not receive max health boost."));
             healthLunarFlatBonus = SPEC.define(new DoubleField("health_lunar_flat_bonus", 5.0, DoubleField.Range.NON_NEGATIVE,
                     "The flat bonus gained from a full moon. Default is 10.0 (+10 hearts on full moons)."));
@@ -131,8 +129,8 @@ public class MobBuffingConfig extends AbstractConfigFile {
             SPEC.newLine();
 
             SPEC.titledComment("Attack Damage", "Settings for attack damage boost.");
-            attackDamageBlacklist = SPEC.define(new LazyRegistryEntryListField<>("attack_damage_blacklist", new RegistryEntryList<>(
-                    ForgeRegistries.ENTITY_TYPES
+            attackDamageBlacklist = SPEC.define(new LazyRegistryEntryListField<>("attack_damage_blacklist", new LazyRegistryEntryList<>(
+                    ForgeRegistries.ENTITY_TYPES, List.of()
             ), "A list of entities that should not receive attack damage boost."));
             damageLunarFlatBonus = SPEC.define(new DoubleField("damage_lunar_flat_bonus", 1.0, DoubleField.Range.NON_NEGATIVE,
                     "The flat bonus gained from a full moon. Default is 1.0 (+half a heart of damage on full moons)."));
@@ -152,8 +150,12 @@ public class MobBuffingConfig extends AbstractConfigFile {
             SPEC.newLine();
 
             SPEC.titledComment("Movement Speed", "Settings for movement speed boost.");
-            moveSpeedBlacklist = SPEC.define(new LazyRegistryEntryListField<>("movement_speed_blacklist", new RegistryEntryList<>(
-                    ForgeRegistries.ENTITY_TYPES
+            moveSpeedBlacklist = SPEC.define(new LazyRegistryEntryListField<>("movement_speed_blacklist", new LazyRegistryEntryList<>(
+                    ForgeRegistries.ENTITY_TYPES, false,
+                    ApocalypseEntities.GRUMP,
+                    ApocalypseEntities.GHOST,
+                    ApocalypseEntities.SEEKER,
+                    ApocalypseEntities.DESTROYER
             ), "A list of entities that should not receive movement speed boost."));
             speedLunarMultBonus = SPEC.define(new DoubleField("speed_lunar_mult_bonus", 0.1, DoubleField.Range.NON_NEGATIVE,
                     "The multiplier bonus gained from a full moon in percentage. Default is 0.1 (+10% on full moons)"));
@@ -167,8 +169,8 @@ public class MobBuffingConfig extends AbstractConfigFile {
             SPEC.newLine();
 
             SPEC.titledComment("Knockback Resistance", "Settings for knockback resistance boost.");
-            knockbackResBlacklist = SPEC.define(new LazyRegistryEntryListField<>("knockback_resistance_blacklist", new RegistryEntryList<>(
-                    ForgeRegistries.ENTITY_TYPES
+            knockbackResBlacklist = SPEC.define(new LazyRegistryEntryListField<>("knockback_resistance_blacklist", new LazyRegistryEntryList<>(
+                    ForgeRegistries.ENTITY_TYPES, List.of()
             ), "A list of entities that should not receive knockback resistance boost."));
             knockbackResLunarFlatBonus = SPEC.define(new DoubleField("knockback_res_lunar_flat_bonus", 0.2, DoubleField.Range.NON_NEGATIVE,
                     "The flat bonus gained from a full moon in percentage. Default is 0.2 (+20% on full moons)"));
