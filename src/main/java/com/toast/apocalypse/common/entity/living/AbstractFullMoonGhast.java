@@ -9,6 +9,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.monster.Ghast;
@@ -156,13 +157,10 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
     /** Slightly modified version of the ghast's movement controller */
     protected static class MoveHelperController extends MoveControl {
 
-        private final AbstractFullMoonGhast ghast;
         private int floatDuration;
-        private boolean canReachCurrent;
 
         public MoveHelperController(AbstractFullMoonGhast ghast) {
             super(ghast);
-            this.ghast = ghast;
         }
 
         @Override
@@ -179,14 +177,16 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
         public void tick() {
             if (operation == Operation.MOVE_TO) {
                 if (floatDuration-- <= 0) {
-                    floatDuration += ghast.getRandom().nextInt(5) + 2;
-                    Vec3 vec3 = new Vec3(wantedX - ghast.getX(), wantedY - ghast.getY(), wantedZ - ghast.getZ());
-                    vec3 = vec3.normalize();
+                    floatDuration += mob.getRandom().nextInt(5) + 2;
+                    Vec3 moveVec = new Vec3(
+                            wantedX - mob.getX(),
+                            wantedY - mob.getY(),
+                            wantedZ - mob.getZ() );
+                    final int distance = Mth.ceil( moveVec.length() );
+                    moveVec = moveVec.normalize();
 
-                    canReachCurrent = canReach(vec3);
-
-                    if (canReachCurrent) {
-                        ghast.setDeltaMovement(ghast.getDeltaMovement().add(vec3.scale(speedModifier / 10.0D)));
+                    if (mob.getRandom().nextBoolean() || canReach(moveVec, distance)) {
+                        mob.setDeltaMovement(mob.getDeltaMovement().add(moveVec.scale(getScaledMoveSpeed())));
                     }
                     else {
                         operation = Operation.WAIT;
@@ -195,15 +195,29 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
             }
         }
 
-        private boolean canReach(Vec3 vec) {
-            AABB aabb = ghast.getBoundingBox().inflate(0.5F);
-
-            aabb = aabb.move(vec);
-            return ghast.level().noCollision(ghast, aabb);
+        public double getScaledMoveSpeed() {
+            return 0.1 * speedModifier * mob.getAttributeValue(Attributes.MOVEMENT_SPEED) / Attributes.MOVEMENT_SPEED.getDefaultValue();
         }
 
         public boolean canReachCurrentWanted() {
-            return canReachCurrent;
+            return hasWanted() && canReachPosition(getWantedX(), getWantedY(), getWantedZ());
+        }
+
+        public boolean canReachPosition(double x, double y, double z) {
+            final Vec3 targetVec = new Vec3(x - mob.getX(), y - mob.getY(), z - mob.getZ());
+            final int distance = Mth.ceil(targetVec.length());
+            return canReach(targetVec.normalize(), distance);
+        }
+
+        private boolean canReach(Vec3 direction, int distance) {
+            AABB boundingBox = mob.getBoundingBox();
+
+            for( int i = 1; i < distance; i++ ) {
+                boundingBox = boundingBox.move(direction);
+
+                if(!mob.level().noCollision(mob, boundingBox)) return false;
+            }
+            return true;
         }
     }
 

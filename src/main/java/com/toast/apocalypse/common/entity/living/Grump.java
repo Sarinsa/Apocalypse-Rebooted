@@ -562,22 +562,21 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
 
         private void setWantedPosition(LivingEntity target) {
             Vec3 vec3 = target.getEyePosition(1.0F).add(0.0D, -(grump.getBbHeight() / 2), 0.0D);
-            double speed = grump.getAttributeValue(Attributes.FLYING_SPEED);
-            grump.moveControl.setWantedPosition(vec3.x, vec3.y, vec3.z, speed);
+            grump.moveControl.setWantedPosition(vec3.x, vec3.y, vec3.z, 1.0D);
         }
 
         @Override
         public boolean canUse() {
             LivingEntity target = grump.getTarget();
-            return target != null && grump.canSeeDirectly(target);
+            return grump.isAlive() && target != null && grump.canSeeDirectly(target);
         }
 
         @Override
         public boolean canContinueToUse() {
             LivingEntity target = grump.getTarget();
 
-            if (!grump.isVehicle() && target != null && target.isAlive()) {
-                return grump.moveControl.hasWanted() && grump.moveHelperController.canReachCurrentWanted();
+            if (grump.isAlive() && !grump.isVehicle() && target != null && target.isAlive()) {
+                return grump.moveHelperController.canReachCurrentWanted();
             }
             return false;
         }
@@ -605,6 +604,9 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
         @SuppressWarnings("ConstantConditions")
         public void tick() {
             LivingEntity target = grump.getTarget();
+
+            // Just in case
+            if (target == null) return;
 
             if (grump.getBoundingBox().inflate(0.3F).intersects(target.getBoundingBox())) {
                 grump.doHurtTarget(target);
@@ -634,11 +636,13 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
 
         @Override
         public boolean canUse() {
+            if (!grump.isAlive()) return false;
+
             if (!grump.getEyeInFluidType().isAir()) {
                 return false;
             }
 
-            if (!grump.isVehicle() && grump.getTarget() != null) {
+            if (!grump.isVehicle() && grump.getTarget() != null && grump.getTarget().isAlive()) {
                 LivingEntity target = grump.getTarget();
                 return grump.hasLineOfSight(target) && grump.distanceToSqr(target) < 180.0D;
             }
@@ -867,8 +871,7 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
             double x = grump.getX() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
             double y = grump.getY() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
             double z = grump.getZ() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
-            double speed = grump.getAttributeValue(Attributes.FLYING_SPEED);
-            grump.getMoveControl().setWantedPosition(x, y, z, speed);
+            grump.getMoveControl().setWantedPosition(x, y, z, 1.0D);
         }
     }
 
@@ -901,7 +904,7 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
         @Override
         public boolean canContinueToUse() {
             if (owner != null && owner.isAlive() && !grump.shouldStandBy() && !grump.isVehicle() && grump.distanceToSqr(owner) > 40.0D) {
-                return grump.moveControl.hasWanted() && grump.moveHelperController.canReachCurrentWanted();
+                return grump.moveHelperController.canReachCurrentWanted();
             }
             return false;
         }
