@@ -137,7 +137,7 @@ public class NetworkHelper {
         PacketHandler.CHANNEL.sendToServer(new C2SOpenGrumpInventory(playerUUID));
     }
 
-    public static void requestGrumpDescentUpdate(@Nonnull UUID playerUUID, boolean keyReleased) {
-        PacketHandler.CHANNEL.sendToServer(new C2SUpdateGrumpDescent(playerUUID, keyReleased));
+    public static void requestGrumpDescentUpdate(@Nonnull UUID playerUUID, boolean keyPressed) {
+        PacketHandler.CHANNEL.sendToServer(new C2SUpdateGrumpDescent(playerUUID, keyPressed));
     }
 }

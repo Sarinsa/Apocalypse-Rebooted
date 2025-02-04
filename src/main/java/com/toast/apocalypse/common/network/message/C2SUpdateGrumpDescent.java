@@ -10,11 +10,11 @@ import java.util.function.Supplier;
 public class C2SUpdateGrumpDescent {
 
     public final UUID uuid;
-    public final boolean keyReleased;
+    public final boolean keyPressed;
 
-    public C2SUpdateGrumpDescent(UUID uuid, boolean keyReleased) {
+    public C2SUpdateGrumpDescent(UUID uuid, boolean keyPressed) {
         this.uuid = uuid;
-        this.keyReleased = keyReleased;
+        this.keyPressed = keyPressed;
     }
 
     public static void handle(C2SUpdateGrumpDescent message, Supplier<NetworkEvent.Context> contextSupplier) {
@@ -32,6 +32,6 @@ public class C2SUpdateGrumpDescent {
 
     public static void encode(C2SUpdateGrumpDescent message, FriendlyByteBuf buffer) {
         buffer.writeUUID(message.uuid);
-        buffer.writeBoolean(message.keyReleased);
+        buffer.writeBoolean(message.keyPressed);
     }
 }

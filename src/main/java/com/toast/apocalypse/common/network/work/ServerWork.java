@@ -40,8 +40,8 @@ public class ServerWork {
 
         ServerPlayer player = server.getPlayerList().getPlayer(message.uuid);
 
-        if (player != null && player.getVehicle() instanceof Grump) {
-            PlayerKeyBindInfo.getInfo(player.getUUID()).grumpDescent.setValue(!message.keyReleased);
+        if (player != null) {
+            PlayerKeyBindInfo.getInfo(player.getUUID()).grumpDescent.setValue(message.keyPressed);
         }
     }
 }

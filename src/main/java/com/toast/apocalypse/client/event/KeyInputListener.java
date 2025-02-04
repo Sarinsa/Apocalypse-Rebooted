@@ -29,10 +29,10 @@ public class KeyInputListener {
                 handleInventoryPress();
             }
             else if (keyPressed(event, ApocalypseKeyBindings.GRUMP_DESCENT)) {
-                handleGrumpDescent(false);
+                handleGrumpDescent(true);
             }
             else if (keyReleased(event, ApocalypseKeyBindings.GRUMP_DESCENT)) {
-                handleGrumpDescent(true);
+                handleGrumpDescent(false);
             }
             else if (keyPressed(event, ApocalypseKeyBindings.GRUMP_INTERACTION)) {
                 handleGrumpInteract();
@@ -50,15 +50,12 @@ public class KeyInputListener {
         }
     }
 
-    private void handleGrumpDescent(boolean keyReleased) {
+    private void handleGrumpDescent(boolean keyPressed) {
         if (mc.player != null) {
             LocalPlayer player = mc.player;
 
-            PlayerKeyBindInfo.getInfo(player.getUUID()).grumpDescent.setValue(keyReleased);
-
-            if (player.getVehicle() instanceof Grump) {
-                NetworkHelper.requestGrumpDescentUpdate(player.getUUID(), keyReleased);
-            }
+            PlayerKeyBindInfo.getInfo(player.getUUID()).grumpDescent.setValue(keyPressed);
+            NetworkHelper.requestGrumpDescentUpdate(player.getUUID(), keyPressed);
         }
     }
 
