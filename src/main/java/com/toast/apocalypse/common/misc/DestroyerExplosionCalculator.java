@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.misc;
 
 
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
@@ -16,8 +17,6 @@ import java.util.Optional;
 /** Used for explosions caused by the destroyer */
 public class DestroyerExplosionCalculator extends ExplosionDamageCalculator {
 
-    /** A list of blocks that the destroyer is unable to explode */
-    public static List<Block> DESTROYER_PROOF_BLOCKS = new ArrayList<>();
 
     @Override
     public Optional<Float> getBlockExplosionResistance(Explosion explosion, BlockGetter level, BlockPos pos, BlockState state, FluidState fluidState) {
@@ -28,6 +27,6 @@ public class DestroyerExplosionCalculator extends ExplosionDamageCalculator {
 
     @Override
     public boolean shouldBlockExplode(Explosion explosion, BlockGetter level, BlockPos pos, BlockState state, float radius) {
-        return !DESTROYER_PROOF_BLOCKS.contains(state.getBlock()) && state.getFluidState().isEmpty();
+        return !ApocalypseConfig.MISC.OTHER.destroyerProofBlocks.matches(state);
     }
 }

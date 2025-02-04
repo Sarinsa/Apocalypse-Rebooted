@@ -14,7 +14,9 @@ public class SeekerExplosionCalculator extends ExplosionDamageCalculator {
     // Explode blocks even if surrounded by a fluid
     @Override
     public Optional<Float> getBlockExplosionResistance(Explosion explosion, BlockGetter level, BlockPos pos, BlockState state, FluidState fluidState) {
-        return state.isAir() ? Optional.empty() : Optional.of(state.getExplosionResistance(level, pos, explosion));
+        return state.isAir()
+                ? Optional.empty()
+                : Optional.of(state.getExplosionResistance(level, pos, explosion));
     }
 
     @Override
