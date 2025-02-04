@@ -107,8 +107,9 @@ public class LunarSiegeConfig extends AbstractConfigFile {
             .setMultiValue(4)
             .setRangePos(),
                     "Contains various spawn settings for Full Moon siege mobs.",
+                    "Entity types from other mods or vanilla can be added here too, if wanted.",
                     "This list should only contain entity type specific entries. Any tags, namespace wildcards or default values will not be used.",
-                    "1st value: The difficulty level required for the given full moon mob to start spawning in sieges.",
+                    "1st value: The difficulty level required for the given mob to start spawning in sieges.",
                     "2nd value: The minimum amount of the given mob type that will spawn in a full moon siege.",
                     "3rd value: The maximum amount of the given mob type that can spawn in a full moon siege.",
                     "4th value: Additional spawn count for the given mob type (works in conjunction with 'difficulty_per_additional_increase')."));
