@@ -80,6 +80,36 @@ public class ApocalypseRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_" + itemName(Items.DISPENSER), has(Items.DISPENSER))
                 .save(consumer);
 
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ApocalypseItems.MIDNIGHT_STEEL_HELMET.get(), 1)
+                .pattern("MMM")
+                .pattern("M M")
+                .define('M', ApocalypseItems.MIDNIGHT_STEEL_INGOT.get())
+                .unlockedBy("has_" + itemName(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()), has(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()))
+                .save(consumer);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ApocalypseItems.MIDNIGHT_STEEL_CHESTPLTAE.get(), 1)
+                .pattern("M M")
+                .pattern("MMM")
+                .pattern("MMM")
+                .define('M', ApocalypseItems.MIDNIGHT_STEEL_INGOT.get())
+                .unlockedBy("has_" + itemName(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()), has(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()))
+                .save(consumer);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ApocalypseItems.MIDNIGHT_STEEL_LEGGINGS.get(), 1)
+                .pattern("MMM")
+                .pattern("M M")
+                .pattern("M M")
+                .define('M', ApocalypseItems.MIDNIGHT_STEEL_INGOT.get())
+                .unlockedBy("has_" + itemName(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()), has(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()))
+                .save(consumer);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ApocalypseItems.MIDNIGHT_STEEL_BOOTS.get(), 1)
+                .pattern("M M")
+                .pattern("M M")
+                .define('M', ApocalypseItems.MIDNIGHT_STEEL_INGOT.get())
+                .unlockedBy("has_" + itemName(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()), has(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()))
+                .save(consumer);
+
 
         //------------------------ TRAP ASSEMBLING ------------------------
 
