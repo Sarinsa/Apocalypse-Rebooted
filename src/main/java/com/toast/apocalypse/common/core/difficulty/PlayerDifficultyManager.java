@@ -527,14 +527,6 @@ public final class PlayerDifficultyManager {
         return currentLunarArmorIndex;
     }
 
-    /**
-     * Used for updating the client via packet.
-     * Value is calculated on the server in {@link #calculateLunarArmorIndex(MinecraftServer)}
-     */
-    public void setLunarArmorModIndex(int index) {
-        currentLunarArmorIndex = index;
-    }
-
     /** Contains miscellaneous info about a world. */
     public static class WorldInfo {
 
