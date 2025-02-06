@@ -1,12 +1,14 @@
 package com.toast.apocalypse.common.core.difficulty;
 
 import com.google.common.collect.ImmutableSet;
+import com.mojang.datafixers.util.Pair;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.config.util.ServerConfigHelper;
 import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
+import com.toast.apocalypse.common.item.LunarArmorItem;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.network.message.S2CSimpleClientTask;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
@@ -18,15 +20,21 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -56,12 +64,23 @@ public final class PlayerDifficultyManager {
     /** Number of ticks per advancement trigger check. */
     public static final int TICKS_PER_ADV_CHECK = 200;
 
+    /**
+     * Used by {@link com.toast.apocalypse.common.item.LunarArmorItem} to determine
+     * which attribute modifiers to use.
+     */
+    private int currentLunarArmorIndex = 0;
+    /** Periodically changes during full moon nights. */
+    private int sporadicLunarArmorIndex = 0;
+    private int sporadicLunarIndexTime = 0;
+
+
     /** Time until next server tick update. */
     private int timeUpdate = 0;
     /** Time until next save. */
     private int timeSave = 0;
     /** Time until next advancement trigger check. */
     private int timeAdvCheck = 0;
+
 
     /** Contains miscellaneous info about each world. */
     private final Map<Level, WorldInfo> worldInfo = new HashMap<>();
@@ -116,6 +135,11 @@ public final class PlayerDifficultyManager {
         return 0;
     }
 
+    public boolean isNewMoon() {
+        ServerLevel world = server.overworld();
+        return world.dimensionType().moonPhase(world.getDayTime()) == 4;
+    }
+
     public boolean isFullMoon() {
         ServerLevel world = server.overworld();
         return world.dimensionType().moonPhase(world.getDayTime()) == 0;
@@ -164,14 +188,25 @@ public final class PlayerDifficultyManager {
             ServerLevel overworld = server.overworld();
             ServerLevel playerLevel = player.serverLevel();
 
+            // Send some neato packets
             NetworkHelper.sendUpdatePlayerDifficulty(player);
             NetworkHelper.sendUpdatePlayerDifficultyMult(player);
             NetworkHelper.sendUpdatePlayerMaxDifficulty(player);
             NetworkHelper.sendMoonPhaseUpdate(player, overworld);
             NetworkHelper.sendSimpleClientTaskRequest(player, isRainingAcid(playerLevel) ? S2CSimpleClientTask.SET_ACID_RAIN : S2CSimpleClientTask.REMOVE_ACID_RAIN);
 
+            // Load event data
             playerEvents.put(player.getUUID(), new HashMap<>());
             loadEventData(player);
+
+            // Update equipped lunar armor
+            for (EquipmentSlot slot : MobEquipmentHandler.ARMOR_SLOTS) {
+                ItemStack armorStack = player.getItemBySlot(slot);
+
+                if (armorStack.getItem() instanceof LunarArmorItem) {
+                    LunarArmorItem.writeIndexToNBT(armorStack, playerLevel);
+                }
+            }
         }
     }
 
@@ -212,6 +247,9 @@ public final class PlayerDifficultyManager {
     public void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             MinecraftServer server = this.server;
+
+            // Update lunar armor modifier index.
+            calculateLunarArmorIndex(server);
 
             // Tick acid rain damage
             if (ApocalypseConfig.ACID_RAIN.ACID_RAIN.rainDamage.get() > 0) {
@@ -278,6 +316,50 @@ public final class PlayerDifficultyManager {
         }
     }
 
+    /**
+     * Calculates the Lunar Armor attribute modifier index and also writes it
+     * to the NBT of any Lunar Armor pieces the players have equipped.<br><br>
+     * Used in {@link LunarArmorItem} to decide which armor attribute modifiers to use.
+     */
+    private void calculateLunarArmorIndex(MinecraftServer server) {
+        if (++sporadicLunarIndexTime >= 1200) {
+            sporadicLunarIndexTime = 0;
+            sporadicLunarArmorIndex = server.overworld().random.nextInt(LunarArmorItem.MAX_INDEX) + 1;
+        }
+        int lunarArmorModIndex;
+
+        if (isFullMoonNight()) {
+            lunarArmorModIndex = sporadicLunarArmorIndex;
+        }
+        else {
+            lunarArmorModIndex = isNewMoon() ? -1 : 0;
+        }
+        if (currentLunarArmorIndex != lunarArmorModIndex) {
+            // Update clients
+            for (ServerPlayer serverPlayer : server.getPlayerList().getPlayers()) {
+                boolean playSound = false;
+
+                for (EquipmentSlot slot : MobEquipmentHandler.ARMOR_SLOTS) {
+                    ItemStack armorStack = serverPlayer.getItemBySlot(slot);
+
+                    if (armorStack.getItem() instanceof LunarArmorItem) {
+                        playSound = true;
+                        LunarArmorItem.writeIndexToNBT(armorStack, serverPlayer.level());
+                    }
+                }
+                if (playSound) {
+                    serverPlayer.level().playSound(
+                            null,
+                            serverPlayer.blockPosition(),
+                            SoundEvents.ENCHANTMENT_TABLE_USE,
+                            SoundSource.PLAYERS,
+                            0.9F,
+                            serverPlayer.getRandom().nextFloat() * 0.1F + 1.0F);
+                }
+            }
+            currentLunarArmorIndex = lunarArmorModIndex;
+        }
+    }
 
     /**
      * Updates the player's difficulty.
@@ -441,7 +523,17 @@ public final class PlayerDifficultyManager {
         }
     }
 
+    public int getLunarArmorModIndex() {
+        return currentLunarArmorIndex;
+    }
 
+    /**
+     * Used for updating the client via packet.
+     * Value is calculated on the server in {@link #calculateLunarArmorIndex(MinecraftServer)}
+     */
+    public void setLunarArmorModIndex(int index) {
+        currentLunarArmorIndex = index;
+    }
 
     /** Contains miscellaneous info about a world. */
     public static class WorldInfo {

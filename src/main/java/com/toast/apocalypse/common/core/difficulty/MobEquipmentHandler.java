@@ -22,7 +22,7 @@ import static com.toast.apocalypse.common.core.config.ApocalypseConfig.MOB_BUFFI
 
 public final class MobEquipmentHandler {
 
-    private static final EquipmentSlot[] ARMOR_SLOTS = new EquipmentSlot[] {
+    public static final EquipmentSlot[] ARMOR_SLOTS = new EquipmentSlot[] {
             EquipmentSlot.FEET,
             EquipmentSlot.LEGS,
             EquipmentSlot.CHEST,

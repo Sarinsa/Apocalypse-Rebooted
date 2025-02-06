@@ -13,6 +13,7 @@ public class References {
     public static final String FATHERLY_TOAST_DESC = "apocalypse.item_desc.fatherly_toast";
     public static final String FATHERLY_TOAST_LEVEL = "apocalypse.item.desc.fatherly_toast.level";
     public static final String BUCKET_HELM_DESC = "apocalypse.item_desc.bucket_helm";
+    public static final String LUNAR_ARMOR_DESC = "apocalypse.item_desc.lunar_armor";
 
     public static final String TRY_SLEEP_FULL_MOON = "title.bed.apocalypse.full_moon";
 

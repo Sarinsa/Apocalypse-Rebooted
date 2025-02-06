@@ -4,8 +4,6 @@ import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.network.message.*;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.NaturalSpawner;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
@@ -45,7 +43,7 @@ public class PacketHandler {
         registerMessage(S2COpenMobWikiScreen.class, S2COpenMobWikiScreen::encode, S2COpenMobWikiScreen::decode, S2COpenMobWikiScreen::handle);
         registerMessage(S2COpenGrumpInventory.class, S2COpenGrumpInventory::encode, S2COpenGrumpInventory::decode, S2COpenGrumpInventory::handle);
         registerMessage(S2CSimpleClientTask.class, S2CSimpleClientTask::encode, S2CSimpleClientTask::decode, S2CSimpleClientTask::handle);
-        registerMessage(S2CDynTrap.class, S2CDynTrap::encode, S2CDynTrap::decode, S2CDynTrap::handle);
+        registerMessage(S2CDynTrapUpdate.class, S2CDynTrapUpdate::encode, S2CDynTrapUpdate::decode, S2CDynTrapUpdate::handle);
 
         // Client -> Server
         registerMessage(C2SOpenGrumpInventory.class, C2SOpenGrumpInventory::encode, C2SOpenGrumpInventory::decode, C2SOpenGrumpInventory::handle);

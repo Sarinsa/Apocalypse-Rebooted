@@ -9,8 +9,12 @@ import com.toast.apocalypse.common.blockentity.DynamicTrapBlockEntity;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.capability.difficulty.DifficultyCapProvider;
 import com.toast.apocalypse.common.capability.mobwiki.MobWikiCapProvider;
+import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.difficulty.MobEquipmentHandler;
+import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.entity.living.Grump;
 import com.toast.apocalypse.common.inventory.container.GrumpInventoryContainer;
+import com.toast.apocalypse.common.item.LunarArmorItem;
 import com.toast.apocalypse.common.network.message.*;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
@@ -18,8 +22,14 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 /**
@@ -130,10 +140,11 @@ public class ClientWork {
         }
     }
 
-
-    public static void handleDynTrapUpdate(S2CDynTrap message) {
+    public static void handleDynTrapUpdate(S2CDynTrapUpdate message) {
         BlockPos pos = message.pos;
         ClientLevel level = Minecraft.getInstance().level;
+
+        if (level == null) return;
 
         if (level.getExistingBlockEntity(pos) instanceof DynamicTrapBlockEntity trap) {
             if (message.id.isEmpty()) {

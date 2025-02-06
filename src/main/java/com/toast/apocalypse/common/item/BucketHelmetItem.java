@@ -50,7 +50,6 @@ public class BucketHelmetItem extends ArmorItem {
         });
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(ItemStack itemStack, Level level, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.translatable(References.BUCKET_HELM_DESC).withStyle(ChatFormatting.GRAY));

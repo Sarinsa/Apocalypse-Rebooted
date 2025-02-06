@@ -53,6 +53,7 @@
   "apocalypse.item_desc.fatherly_toast": "Mmmm, toasty!",
   "apocalypse.item.desc.fatherly_toast.level": "Toast Level: %s",
   "apocalypse.item_desc.bucket_helm": "Protects you from the rain",
+  "apocalypse.item_desc.lunar_armor": "Reacts to the moon",
 
   "apocalypse.command.argument.difficulty.invalid_value": "Value can not be less than 0 or exceed the configured difficulty limit",
   "apocalypse.command.difficulty.set_message.single": "Set difficulty to %s for %s",
