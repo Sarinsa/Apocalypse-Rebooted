@@ -413,6 +413,8 @@ public final class PlayerDifficultyManager {
         }
         final double scaledDifficulty = (double) (CapabilityHelper.getPlayerDifficulty(player) / References.DAY_LENGTH);
 
+        System.out.println(events.keySet());
+
         // Check for events to start
         for (EventType<?> type : EventRegistry.EVENTS.values()) {
             if (!events.keySet().contains(type)) {

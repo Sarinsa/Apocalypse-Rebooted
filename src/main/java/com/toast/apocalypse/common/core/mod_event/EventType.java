@@ -1,6 +1,8 @@
 package com.toast.apocalypse.common.core.mod_event;
 
 import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 
 import javax.annotation.Nullable;
 
@@ -44,11 +46,6 @@ public class EventType<T extends AbstractEvent> {
         return startMessage;
     }
 
-    @Deprecated
-    public final int getPriority() {
-        return priority;
-    }
-
     /**
      * @return This event type's start predicate with the conditions that must be met
      *         for the event type to start the event.
@@ -72,6 +69,11 @@ public class EventType<T extends AbstractEvent> {
      */
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String toString() {
+        return getId() + "," + getName();
     }
 
     public interface IEventFactory<T> {
