@@ -78,8 +78,8 @@ public class Fearwolf extends Monster implements Enemy {
     public boolean doHurtTarget(Entity entity) {
         if (super.doHurtTarget(entity)) {
             if (entity instanceof Player player) {
-                int duration = this.level().getDifficulty() == Difficulty.HARD ? 140 : 80;
-                player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, duration));
+                int duration = this.level().getDifficulty() == Difficulty.HARD ? 80 : 40;
+                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, duration));
             }
             return true;
         }
