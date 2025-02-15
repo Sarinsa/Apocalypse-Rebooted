@@ -6,6 +6,7 @@ import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
+import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
 import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
 import com.toast.apocalypse.common.inventory.container.GrumpInventoryContainer;
 import com.toast.apocalypse.common.misc.PlayerKeyBindInfo;
@@ -89,7 +90,7 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
 
     /**The current fishhook entity launched by the grump. */
     private MonsterFishHook fishHook;
-    private final MoveHelperController moveHelperController;
+    private final SimpleFlyingMoveController moveHelperController;
 
     protected final SimpleContainer inventory = new SimpleContainer(1);
 
@@ -98,7 +99,7 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
 
     public Grump(EntityType<? extends Ghast> entityType, Level level) {
         super(entityType, level);
-        moveHelperController = new MoveHelperController(this);
+        moveHelperController = new SimpleFlyingMoveController(this);
         moveControl = moveHelperController;
         xpReward = 3;
         inventory.addListener(this);

@@ -1,8 +1,6 @@
 package com.toast.apocalypse.common.core.mod_event;
 
 import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
 
 import javax.annotation.Nullable;
 
@@ -11,21 +9,18 @@ public class EventType<T extends AbstractEvent> {
     private final IEventFactory<T> factory;
     private final int id;
     private final String name;
-    private final String startMessage;
-    private final int priority;
-    private final IEventPredicate startPredicate;
     @Nullable
-    private final IEventPredicate persistPredicate;
+    private final String startMessage;
+    @Nullable
+    private final IEventPredicate startPredicate;
 
-    public EventType(int id, String name, IEventFactory<T> factory, String startMessage, int priority,
-                     IEventPredicate startPredicate, @Nullable IEventPredicate persistPredicate) {
+    public EventType(int id, String name, IEventFactory<T> factory, @Nullable String startMessage,
+                     @Nullable IEventPredicate startPredicate) {
         this.factory = factory;
         this.name = name;
         this.id = id;
         this.startMessage = startMessage;
-        this.priority = priority;
         this.startPredicate = startPredicate;
-        this.persistPredicate = persistPredicate;
     }
 
     public final T createEvent() {
@@ -42,25 +37,20 @@ public class EventType<T extends AbstractEvent> {
      *         event starts, which will later be
      *         parsed to a TranslationTextComponent
      */
+    @Nullable
     public final String getEventStartMessage() {
         return startMessage;
     }
 
     /**
      * @return This event type's start predicate with the conditions that must be met
-     *         for the event type to start the event.
+     *         for the event type to start the event.<br>
+     *         If this is null, assume the event is meant to be started manually and
+     *         not by {@link com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager}
      */
+    @Nullable
     public final IEventPredicate getStartPredicate() {
         return startPredicate;
-    }
-
-    /**
-     * @return This event type's persist predicate with the conditions that must be met
-     *         for the event to keep running after it has started.<br>
-     *         If persistPredicate is null, the start predicate is returned instead.
-     */
-    public final IEventPredicate getPersistPredicate() {
-        return persistPredicate == null ? startPredicate : persistPredicate;
     }
 
     /**

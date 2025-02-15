@@ -42,6 +42,9 @@ public abstract class AbstractEvent {
      */
     public abstract void update(ServerLevel level, ServerPlayer player, PlayerDifficultyManager difficultyManager);
 
+    /** Called before each update to check if this event should keep running. */
+    public abstract boolean shouldContinueRunning(ServerLevel level, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager);
+
     /** Called when the event ends. */
     public abstract void onEnd(MinecraftServer server, ServerPlayer player);
 
@@ -49,7 +52,7 @@ public abstract class AbstractEvent {
      *  Called when the player disconnects
      *  before the event should be over.
      */
-    public abstract void stop(ServerLevel level);
+    public abstract void stop(ServerLevel level, ServerPlayer player);
 
     /**
      * Called from {@link PlayerDifficultyManager#onPlayerDeath(LivingDeathEvent)}

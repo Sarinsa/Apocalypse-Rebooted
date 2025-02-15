@@ -30,13 +30,13 @@ public interface DifficultyProvider {
      *         currently running apocalypse events.
      *         <strong>(Server side only)</strong><br><br>
      *
-     * -1: No/empty event
-     * <br><br>
      * 0: Lunar Siege
      * <br><br>
      * 1: Thunderstorm
      * <br><br>
      * 2: Acid rain
+     * <br><br>
+     * 3: Call of The Shadows
      */
     <T extends ServerPlayer> List<Integer> getEventIds(T player);
 }

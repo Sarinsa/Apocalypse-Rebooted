@@ -25,6 +25,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -109,12 +110,17 @@ public final class FullMoonEvent extends AbstractEvent {
     }
 
     @Override
+    public boolean shouldContinueRunning(ServerLevel level, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager) {
+        return ApocalypseConfig.LUNAR_SIEGE.GENERAL.enableLunarSieges.get() && difficultyManager.isFullMoonNight();
+    }
+
+    @Override
     public void onEnd(MinecraftServer server, ServerPlayer player) {
 
     }
 
     @Override
-    public void stop(ServerLevel level) {}
+    public void stop(ServerLevel level, ServerPlayer player) {}
 
     /**
      * Returns true if it is time to spawn a new full moon mob.

@@ -31,9 +31,9 @@ public class RainDamageTickHandler {
      * <br>
      */
     public void checkAndPerformRainDamageTick(Iterable<ServerLevel> serverLevels, PlayerDifficultyManager difficultyManager) {
-        if (ACID_RAIN.ACID_RAIN.rainDamage.get() <= 0) return;
+        if (ACID_RAIN.GENERAL.rainDamage.get() <= 0) return;
 
-        if (++timeRainDmgCheck >= (ACID_RAIN.ACID_RAIN.damageRate.get() * 20)) {
+        if (++timeRainDmgCheck >= (ACID_RAIN.GENERAL.damageRate.get() * 20)) {
             for (ServerLevel level : serverLevels) {
                 for (ServerPlayer player : level.players()) {
                     if (!difficultyManager.isRainingAcid(level))
@@ -51,7 +51,7 @@ public class RainDamageTickHandler {
                         headStack.hurtAndBreak(player.getRandom().nextInt(2), player, (playerEntity) -> player.broadcastBreakEvent(EquipmentSlot.HEAD));
                     }
                     else {
-                        player.hurt(ApocalypseDamageSources.of(level, ApocalypseDamageSources.ACID_RAIN), ACID_RAIN.ACID_RAIN.rainDamage.get());
+                        player.hurt(ApocalypseDamageSources.of(level, ApocalypseDamageSources.ACID_RAIN), ACID_RAIN.GENERAL.rainDamage.get());
                     }
                 }
             }

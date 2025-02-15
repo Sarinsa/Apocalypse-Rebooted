@@ -1,10 +1,14 @@
 package com.toast.apocalypse.common.core.mod_event;
 
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
+import com.toast.apocalypse.common.core.config.COTSConfig;
 import com.toast.apocalypse.common.core.mod_event.events.*;
 import com.toast.apocalypse.common.util.References;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.lighting.SkyLightEngine;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -18,26 +22,28 @@ import java.util.Objects;
 public class EventRegistry {
 
     public static final HashMap<Integer, EventType<?>> EVENTS = new HashMap<>();
-    private static int idIndex = -1;
+    private static int idIndex = 0;
 
 
-    public static final EventType<?> NONE = register("none", EmptyEvent::new, null, 0,
-            (serverLevel, player, difficulty, difficultyManager) -> false,
-            (serverLevel, player, difficulty, difficultyManager) -> false);
-
-    public static final EventType<?> FULL_MOON = register("full_moon_siege", FullMoonEvent::new, References.FULL_MOON, 100,
+    public static final EventType<?> FULL_MOON = register("full_moon_siege", FullMoonEvent::new, References.FULL_MOON,
             (serverLevel, player, difficulty, difficultyManager) ->
-                    ApocalypseConfig.LUNAR_SIEGE.GENERAL.enableLunarSieges.get() && difficulty > 0 && difficultyManager.isFullMoonNight(),
-            (serverLevel, player, difficulty, difficultyManager) ->
-                    ApocalypseConfig.LUNAR_SIEGE.GENERAL.enableLunarSieges.get() && difficultyManager.isFullMoonNight());
+                    ApocalypseConfig.LUNAR_SIEGE.GENERAL.enableLunarSieges.get() && difficulty > 0 && difficultyManager.isFullMoonNight());
 
-    public static final EventType<?> THUNDERSTORM = register("thunderstorm", ThunderstormEvent::new, References.THUNDERSTORM, 2,
-            (serverLevel, player, difficulty, difficultyManager) -> serverLevel.isThundering(),
-            null);
+    public static final EventType<?> THUNDERSTORM = register("thunderstorm", ThunderstormEvent::new, References.THUNDERSTORM,
+            (serverLevel, player, difficulty, difficultyManager) -> serverLevel.isThundering());
 
-    public static final EventType<?> ACID_RAIN = register("acid_rain", AcidRainEvent::new, References.ACID_RAIN, 1,
-            (serverLevel, player, difficulty, difficultyManager) -> difficultyManager.isRainingAcid(serverLevel),
-            null);
+    public static final EventType<?> ACID_RAIN = register("acid_rain", AcidRainEvent::new, References.ACID_RAIN,
+            (serverLevel, player, difficulty, difficultyManager) -> difficultyManager.isRainingAcid(serverLevel));
+
+    public static final EventType<?> CALL_OF_THE_SHADOWS = register("call_of_the_shadows", DarknessEvent::new, null,
+            (serverLevel, player, difficulty, difficultyManager) -> {
+                if (player.isCreative() || !ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.enabled.get()) return false;
+
+                BlockPos pos = player.blockPosition();
+                return serverLevel.getBrightness(LightLayer.SKY, pos) <= ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.skyLightLevel.get()
+                        && serverLevel.getBrightness(LightLayer.BLOCK, pos) <= ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.blockLightLevel.get();
+            });
+
 
 
     /**
@@ -59,24 +65,18 @@ public class EventRegistry {
      * @param name The named id of this event type.
      * @param factory The event factory of this event type. Used to instantiate a new event.
      * @param startMessage The translation key for the message that should be displayed to the player when the event starts.
-     * @param priority The tick priority of this event type.
      * @param startupPredicate The predicate used for testing if this event can start.
-     * @param persistPredicate The predicate used for testing if this event can continue running after it has started.
-     *                         If this is null, the startup predicate will be used instead.
      */
     private static <T extends AbstractEvent> EventType<T> register(String name,  @Nonnull EventType.IEventFactory<T> factory,
-                                                                   String startMessage, int priority, @Nonnull IEventPredicate startupPredicate,
-                                                                   @Nullable IEventPredicate persistPredicate) {
+                                                                   @Nullable String startMessage, @Nonnull IEventPredicate startupPredicate) {
         Objects.requireNonNull(factory);
-        Objects.requireNonNull(startupPredicate);
 
-        EventType<T> eventType = new EventType<>(idIndex++, name, factory, startMessage, priority, startupPredicate, persistPredicate);
+        EventType<T> eventType = new EventType<>(idIndex++, name, factory, startMessage, startupPredicate);
         EVENTS.put(idIndex, eventType);
         return eventType;
     }
 
     // Class loading epic moment
     public static void init() {
-
     }
 }

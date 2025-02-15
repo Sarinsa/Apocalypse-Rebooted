@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.entity.living;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
+import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -58,8 +59,8 @@ public class Destroyer extends AbstractFullMoonGhast {
 
     public Destroyer(EntityType<? extends Ghast> entityType, Level level) {
         super(entityType, level);
-        moveControl = new MoveHelperController(this);
-        this.xpReward = 5;
+        moveControl = new SimpleFlyingMoveController(this);
+        xpReward = 5;
     }
 
     public static AttributeSupplier.Builder createDestroyerAttributes() {

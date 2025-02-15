@@ -27,6 +27,7 @@ public class ApocalypseEntities {
     public static final RegistryObject<EntityType<Grump>> GRUMP = register("grump", EntityType.Builder.of(Grump::new, MobCategory.MONSTER).sized(1.0F, 1.0F));
     public static final RegistryObject<EntityType<Breecher>> BREECHER = register("breecher", EntityType.Builder.of(Breecher::new, MobCategory.MONSTER).sized(0.6F, 1.7F).clientTrackingRange(8));
     public static final RegistryObject<EntityType<Fearwolf>> FEARWOLF = register("fearwolf", EntityType.Builder.of(Fearwolf::new, MobCategory.MONSTER).sized(1.6F, 1.8F));
+    public static final RegistryObject<EntityType<Shadefiend>> SHADEFIEND = register("shadefiend", EntityType.Builder.of(Shadefiend::new, MobCategory.MONSTER).sized(0.9F, 0.5F));
 
 
     /**
@@ -40,6 +41,7 @@ public class ApocalypseEntities {
         event.put(GRUMP.get(), Grump.createGrumpAttributes().build());
         event.put(BREECHER.get(), Breecher.createBreecherAttributes().build());
         event.put(FEARWOLF.get(), Fearwolf.createAttributes().build());
+        event.put(SHADEFIEND.get(), Shadefiend.createAttributes().build());
     }
 
     /**
@@ -53,6 +55,7 @@ public class ApocalypseEntities {
         event.register(SEEKER.get(), SpawnPlacements.Type.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING, Seeker::checkSeekerSpawnRules, SpawnPlacementRegisterEvent.Operation.REPLACE);
         event.register(GRUMP.get(), SpawnPlacements.Type.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING, Grump::checkGrumpSpawnRules, SpawnPlacementRegisterEvent.Operation.REPLACE);
         event.register(FEARWOLF.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Fearwolf::checkFearwolfSpawnRules, SpawnPlacementRegisterEvent.Operation.REPLACE);
+        event.register(SHADEFIEND.get(), SpawnPlacements.Type.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING, Shadefiend::checkShadefiendSpawnRules, SpawnPlacementRegisterEvent.Operation.REPLACE);
     }
 
     private static <I extends Entity> RegistryObject<EntityType<I>> register(String name, EntityType.Builder<I> builder) {

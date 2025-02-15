@@ -11,6 +11,7 @@ public class ApocalypseModelLayers {
     public static final ModelLayerLocation GRUMP = create("grump");
     public static final ModelLayerLocation BREECHER = create("breecher");
     public static final ModelLayerLocation FEARWOLF = create("fearwolf");
+    public static final ModelLayerLocation SHADEFIEND = create("shadefiend");
 
     public static final ModelLayerLocation BUCKET_HELMET = create("bucket_helmet");
     public static final ModelLayerLocation GRUMP_BUCKET_HELMET = create("grump_bucket_helmet");

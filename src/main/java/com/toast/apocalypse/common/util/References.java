@@ -21,6 +21,9 @@ public class References {
     public static final String FULL_MOON = "event.apocalypse.full_moon";
     public static final String THUNDERSTORM = "event.apocalypse.thunderstorm";
     public static final String ACID_RAIN = "event.apocalypse.acid_rain";
+    public static final String CALL_OF_THE_SHADOWS_0 = "event.apocalypse.call_of_the_shadows.first_warn";
+    public static final String CALL_OF_THE_SHADOWS_1 = "event.apocalypse.call_of_the_shadows.second_warn";
+    public static final String CALL_OF_THE_SHADOWS_2 = "event.apocalypse.call_of_the_shadows.creature_summoned";
 
     public static final String COMMAND_INVALID_DIFFICULTY_VALUE = "apocalypse.command.argument.difficulty.invalid_value";
     public static final String COMMAND_INVALID_MAX_DIFFICULTY_VALUE = "apocalypse.command.argument.max_difficulty.invalid_value";

@@ -68,13 +68,19 @@ public class ApocalypseBaseCommand {
                 source.sendSystemMessage(Component.literal("Current events: " + ChatFormatting.GRAY + "none"));
             }
             else {
-                StringBuilder builder = new StringBuilder("Current events: ");
+                source.sendSystemMessage(Component.literal("Current events: "));
 
                 for (EventType<?> eventType : eventTypes) {
-                    builder.append(ChatFormatting.GREEN).append(eventType.getId()).append(ChatFormatting.WHITE).append(" (")
-                    .append(ChatFormatting.GRAY).append(eventType.getName()).append(ChatFormatting.WHITE).append(") ");
+                    String s = String.valueOf(ChatFormatting.GREEN) +
+                            eventType.getId() +
+                            ChatFormatting.WHITE +
+                            " (" +
+                            ChatFormatting.GRAY +
+                            eventType.getName() +
+                            ChatFormatting.WHITE +
+                            ") ";
+                    source.sendSystemMessage(Component.literal(s));
                 }
-                source.sendSystemMessage(Component.literal(builder.toString()));
             }
             return 1;
         }

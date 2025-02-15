@@ -24,7 +24,7 @@ public class LunarSiegeConfig extends AbstractConfigFile {
     /** Builds the config spec that should be used for this config. */
     public LunarSiegeConfig(ConfigManager cfgManager, String cfgName) {
         super(cfgManager, cfgName,
-                "This config contains settings related to Lunar Sieges / Full moon events."
+                "This config contains settings related to Apocalypse's Lunar Sieges / Full moon events."
         );
         SPEC.fileOnlyNewLine();
         SPEC.describeRegistryEntryList();
@@ -43,7 +43,7 @@ public class LunarSiegeConfig extends AbstractConfigFile {
 
         General(LunarSiegeConfig parent) {
             super(parent, "general",
-                    "General settings.");
+                    "General event settings.");
 
             enableLunarSieges = SPEC.define(new BooleanField("enable_lunar_sieges", true,
                     "If enabled, every full moon night a 'lunar siege' will start, spawning stronger monsters and full moon monsters.",

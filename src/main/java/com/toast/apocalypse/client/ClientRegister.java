@@ -14,6 +14,8 @@ import com.toast.apocalypse.client.renderer.entity.living.ghost.GhostModel;
 import com.toast.apocalypse.client.renderer.entity.living.ghost.GhostRenderer;
 import com.toast.apocalypse.client.renderer.entity.living.grump.GrumpRenderer;
 import com.toast.apocalypse.client.renderer.entity.living.seeker.SeekerRenderer;
+import com.toast.apocalypse.client.renderer.entity.living.shadefiend.ShadefiendModel;
+import com.toast.apocalypse.client.renderer.entity.living.shadefiend.ShadefiendRenderer;
 import com.toast.apocalypse.client.renderer.entity.projectile.monsterhook.MonsterHookRenderer;
 import com.toast.apocalypse.client.renderer.model.armor.BucketHelmetModel;
 import com.toast.apocalypse.client.renderer.model.armor.GrumpBucketHelmetModel;
@@ -22,6 +24,7 @@ import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.core.register.ApocalypseMenus;
 import com.toast.apocalypse.common.core.register.ApocalypseParticles;
+import com.toast.apocalypse.common.entity.living.Shadefiend;
 import fathertoast.crust.api.ICrustApi;
 import fathertoast.crust.api.config.client.ClientConfigUtil;
 import fathertoast.crust.api.config.common.ConfigManager;
@@ -101,6 +104,7 @@ public class ClientRegister {
         event.registerLayerDefinition(ApocalypseModelLayers.GRUMP, GhastModel::createBodyLayer);
         event.registerLayerDefinition(ApocalypseModelLayers.BREECHER, () -> CreeperModel.createBodyLayer(CubeDeformation.NONE));
         event.registerLayerDefinition(ApocalypseModelLayers.FEARWOLF, FearwolfModel::createBodyLayer);
+        event.registerLayerDefinition(ApocalypseModelLayers.SHADEFIEND, ShadefiendModel::createBodyLayer);
 
         event.registerLayerDefinition(ApocalypseModelLayers.BUCKET_HELMET, BucketHelmetModel::createBodyLayer);
         event.registerLayerDefinition(ApocalypseModelLayers.GRUMP_BUCKET_HELMET, GrumpBucketHelmetModel::createBodyLayer);
@@ -114,6 +118,7 @@ public class ClientRegister {
         event.registerEntityRenderer(ApocalypseEntities.GRUMP.get(), GrumpRenderer::new);
         event.registerEntityRenderer(ApocalypseEntities.BREECHER.get(), BreecherRenderer::new);
         event.registerEntityRenderer(ApocalypseEntities.FEARWOLF.get(), FearwolfRenderer::new);
+        event.registerEntityRenderer(ApocalypseEntities.SHADEFIEND.get(), ShadefiendRenderer::new);
 
         event.registerEntityRenderer(ApocalypseEntities.MONSTER_FISH_HOOK.get(), MonsterHookRenderer::new);
         event.registerEntityRenderer(ApocalypseEntities.DESTROYER_FIREBALL.get(), (context) -> new ThrownItemRenderer<>(context, 3.0F, true));

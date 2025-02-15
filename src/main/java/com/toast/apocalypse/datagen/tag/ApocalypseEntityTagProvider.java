@@ -23,7 +23,8 @@ public class ApocalypseEntityTagProvider extends EntityTypeTagsProvider {
                 ApocalypseEntities.DESTROYER.get(),
                 ApocalypseEntities.SEEKER.get(),
                 ApocalypseEntities.GHOST.get(),
-                ApocalypseEntities.GRUMP.get()
+                ApocalypseEntities.GRUMP.get(),
+                ApocalypseEntities.SHADEFIEND.get()
         );
     }
 }

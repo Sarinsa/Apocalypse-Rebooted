@@ -75,7 +75,7 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
     public Ghost(EntityType<? extends FlyingMob> entityType, Level level) {
         super(entityType, level);
         this.moveControl = new GhostMovementController<>(this);
-        this.xpReward = 3;
+        xpReward = 3;
     }
 
     public static AttributeSupplier.Builder createGhostAttributes() {
@@ -92,13 +92,13 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(0, new Ghost.ManeuverAttackerGoal<>(this));
-        this.goalSelector.addGoal(1, new Ghost.MeleeAttackGoal<>(this));
-        this.goalSelector.addGoal(2, new RandomFlyGoal(this));
-        this.goalSelector.addGoal(3, new GhostLookAtGoal(this, Player.class,8.0F));
-        this.targetSelector.addGoal(0, new MobHurtByTargetGoal(this, Enemy.class));
-        this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, false, false));
+        goalSelector.addGoal(0, new Ghost.ManeuverAttackerGoal<>(this));
+        goalSelector.addGoal(1, new Ghost.MeleeAttackGoal<>(this));
+        goalSelector.addGoal(2, new RandomFlyGoal(this));
+        goalSelector.addGoal(3, new GhostLookAtGoal(this, Player.class,8.0F));
+        targetSelector.addGoal(0, new MobHurtByTargetGoal(this, Enemy.class));
+        targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
+        targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, false, false));
     }
 
     @Override

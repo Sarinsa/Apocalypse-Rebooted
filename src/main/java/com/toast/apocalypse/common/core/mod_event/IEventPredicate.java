@@ -10,5 +10,8 @@ import net.minecraft.server.level.ServerPlayer;
 @FunctionalInterface
 public interface IEventPredicate {
 
+    /**
+     * NOTE: Checking scaled difficulty is not a good idea for persist predicates. May be 0 when the player is dead.
+     */
     boolean test(ServerLevel serverWorld, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager);
 }

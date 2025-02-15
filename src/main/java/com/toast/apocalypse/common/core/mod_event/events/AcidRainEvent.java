@@ -25,11 +25,16 @@ public final class AcidRainEvent extends AbstractEvent {
     }
 
     @Override
+    public boolean shouldContinueRunning(ServerLevel level, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager) {
+        return difficultyManager.isRainingAcid(level);
+    }
+
+    @Override
     public void onEnd(MinecraftServer server, ServerPlayer player) {
     }
 
     @Override
-    public void stop(ServerLevel level) {
+    public void stop(ServerLevel level, ServerPlayer player) {
 
     }
 

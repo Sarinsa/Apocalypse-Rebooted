@@ -55,17 +55,17 @@ public class Breecher extends Creeper implements IFullMoonMob {
     }
 
     protected void registerGoals() {
-        this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(2, new BreecherSwellGoal(this));
-        this.goalSelector.addGoal(3, new BreecherFindExplosionPos(this, 1.0D, 20, 6));
-        this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, Ocelot.class, 6.0F, 1.0D, 1.2D));
-        this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, Cat.class, 6.0F, 1.0D, 1.2D));
-        this.goalSelector.addGoal(4, new MeleeAttackGoal(this, 1.0D, false));
-        this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.8D));
-        this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
-        this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
-        this.targetSelector.addGoal(0, new MobHurtByTargetGoal(this, Enemy.class));
-        this.targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
+        goalSelector.addGoal(1, new FloatGoal(this));
+        goalSelector.addGoal(2, new BreecherSwellGoal(this));
+        goalSelector.addGoal(3, new BreecherFindExplosionPos(this, 1.0D, 20, 6));
+        goalSelector.addGoal(3, new AvoidEntityGoal<>(this, Ocelot.class, 6.0F, 1.0D, 1.2D));
+        goalSelector.addGoal(3, new AvoidEntityGoal<>(this, Cat.class, 6.0F, 1.0D, 1.2D));
+        goalSelector.addGoal(4, new MeleeAttackGoal(this, 1.0D, false));
+        goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.8D));
+        goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
+        goalSelector.addGoal(6, new RandomLookAroundGoal(this));
+        targetSelector.addGoal(0, new MobHurtByTargetGoal(this, Enemy.class));
+        targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
     }
 
     @Override

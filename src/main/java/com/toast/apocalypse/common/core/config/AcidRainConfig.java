@@ -8,28 +8,28 @@ import fathertoast.crust.api.config.common.field.IntField;
 
 public class AcidRainConfig extends AbstractConfigFile {
 
-    public final AcidRain ACID_RAIN;
+    public final General GENERAL;
 
 
     /** Builds the config spec that should be used for this config. */
     public AcidRainConfig(ConfigManager cfgManager, String cfgName) {
         super(cfgManager, cfgName,
-                "This config contains settings related to Apocalypse's acid rain."
+                "This config contains settings related to Apocalypse's acid rain event."
         );
-        ACID_RAIN = new AcidRain(this);
+        GENERAL = new General(this);
     }
 
 
-    public static class AcidRain extends AbstractConfigCategory<AcidRainConfig> {
+    public static class General extends AbstractConfigCategory<AcidRainConfig> {
 
         public final DoubleField acidRainChance;
         public final IntField damageRate;
         public final IntField rainDamage;
 
 
-        AcidRain(AcidRainConfig parent) {
+        General(AcidRainConfig parent) {
             super(parent, "general",
-                    "General acid rain settings");
+                    "General event settings");
 
             acidRainChance = SPEC.define(new DoubleField("acid_rain_chance", 0.5, DoubleField.Range.PERCENT,
                     "The chance of triggering an Acid Rain event when it starts raining. 1.0 = 100% chance, 0.5 = 50% etc.",

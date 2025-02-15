@@ -25,12 +25,17 @@ public final class ThunderstormEvent extends AbstractEvent {
     }
 
     @Override
+    public boolean shouldContinueRunning(ServerLevel level, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager) {
+        return level.isThundering();
+    }
+
+    @Override
     public void onEnd(MinecraftServer server, ServerPlayer player) {
 
     }
 
     @Override
-    public void stop(ServerLevel level) {
+    public void stop(ServerLevel level, ServerPlayer player) {
 
     }
 

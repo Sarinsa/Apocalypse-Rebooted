@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.entity.living;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
+import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
 import com.toast.apocalypse.common.util.ApocalypseEventFactory;
@@ -56,7 +57,8 @@ public class Seeker extends AbstractFullMoonGhast {
 
     public Seeker(EntityType<? extends Ghast> entityType, Level level) {
         super(entityType, level);
-        this.xpReward = 5;
+        moveControl = new SimpleFlyingMoveController(this);
+        xpReward = 5;
     }
 
     public static AttributeSupplier.Builder createSeekerAttributes() {
@@ -215,7 +217,14 @@ public class Seeker extends AbstractFullMoonGhast {
                 Level level = seeker.level();
                 ++chargeTime;
                 if (chargeTime == 10 && !seeker.isSilent()) {
-                    level.levelEvent(null, 1015, seeker.blockPosition(), 0);
+                    level.playSound(
+                            null,
+                            seeker.blockPosition(),
+                            SoundEvents.GHAST_WARN,
+                            seeker.getSoundSource(),
+                            seeker.getSoundVolume(),
+                            (level.random.nextFloat() - level.random.nextFloat()) * 0.2F + 1.0F
+                    );
                 }
 
                 if (this.chargeTime == 20) {
@@ -224,15 +233,8 @@ public class Seeker extends AbstractFullMoonGhast {
                     double y = target.getY(0.5D) - (0.5D + seeker.getY(0.5D));
                     double z = target.getZ() - (seeker.getZ() + vec3.z * 4.0D);
 
-                    if (!this.seeker.isSilent()) {
-                        level.playSound(
-                                null,
-                                seeker.blockPosition(),
-                                SoundEvents.GHAST_WARN,
-                                seeker.getSoundSource(),
-                                seeker.getSoundVolume(),
-                                (level.random.nextFloat() - level.random.nextFloat()) * 0.2F + 1.0F
-                        );
+                    if (!seeker.isSilent()) {
+                        level.levelEvent(null, 1016, seeker.blockPosition(), 0);
                     }
                     boolean canSeeTarget = seeker.canSeeDirectly(target);
                     SeekerFireballEntity fireball = new SeekerFireballEntity(level, seeker, canSeeTarget, x, y, z);

@@ -7,6 +7,7 @@ import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.config.util.ServerConfigHelper;
 import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.core.mod_event.EventType;
+import com.toast.apocalypse.common.core.mod_event.IEventPredicate;
 import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
 import com.toast.apocalypse.common.item.LunarArmorItem;
 import com.toast.apocalypse.common.network.NetworkHelper;
@@ -222,7 +223,7 @@ public final class PlayerDifficultyManager {
             saveEventData(player);
 
             for (AbstractEvent abstractEvent : playerEvents.get(player.getUUID()).values()) {
-                abstractEvent.stop(player.serverLevel());
+                abstractEvent.stop(player.serverLevel(), player);
             }
             playerEvents.remove(player.getUUID());
         }
@@ -252,7 +253,7 @@ public final class PlayerDifficultyManager {
             calculateLunarArmorIndex(server);
 
             // Tick acid rain damage
-            if (ApocalypseConfig.ACID_RAIN.ACID_RAIN.rainDamage.get() > 0) {
+            if (ApocalypseConfig.ACID_RAIN.GENERAL.rainDamage.get() > 0) {
                 rainDamageHelper.checkAndPerformRainDamageTick(server.getAllLevels(), this);
             }
 
@@ -407,31 +408,33 @@ public final class PlayerDifficultyManager {
 
         Map<EventType<?>, AbstractEvent> events = playerEvents.get(player.getUUID());
 
-        // Tick current events
-        for (AbstractEvent abstractEvent : events.values()) {
-            abstractEvent.update(level, player, this);
-        }
         final double scaledDifficulty = (double) (CapabilityHelper.getPlayerDifficulty(player) / References.DAY_LENGTH);
 
-        System.out.println(events.keySet());
-
-        // Check for events to start
-        for (EventType<?> type : EventRegistry.EVENTS.values()) {
-            if (!events.keySet().contains(type)) {
-                if (type.getStartPredicate().test(level, player, scaledDifficulty, this)) {
-                    startEvent(player, type);
-                }
-            }
-        }
         // Loop through running events and
         // stop any events that should no longer run.
         events.values().removeIf((abstractEvent) -> {
-            if (!abstractEvent.getType().getPersistPredicate().test(level, player, scaledDifficulty, this)) {
+            if (!abstractEvent.shouldContinueRunning(level, player, scaledDifficulty, this)) {
                 abstractEvent.onEnd(server, player);
                 return true;
             }
             return false;
         });
+
+        // Tick current events
+        for (AbstractEvent abstractEvent : events.values()) {
+            abstractEvent.update(level, player, this);
+        }
+
+        // Check for events to start
+        for (EventType<?> type : EventRegistry.EVENTS.values()) {
+            if (!events.keySet().contains(type)) {
+                IEventPredicate startPredicate = type.getStartPredicate();
+
+                if (startPredicate != null && startPredicate.test(level, player, scaledDifficulty, this)) {
+                    startEvent(player, type);
+                }
+            }
+        }
     }
 
     /** Starts an event for the given player, if possible.
@@ -567,7 +570,7 @@ public final class PlayerDifficultyManager {
         public void setJustStartedRaining(boolean value, RandomSource random) {
             justStartedRaining = value;
 
-            if (value && random.nextDouble() <= ApocalypseConfig.ACID_RAIN.ACID_RAIN.acidRainChance.get())
+            if (value && random.nextDouble() <= ApocalypseConfig.ACID_RAIN.GENERAL.acidRainChance.get())
                 setRainingAcid(true);
         }
 
