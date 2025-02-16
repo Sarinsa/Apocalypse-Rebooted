@@ -9,6 +9,7 @@ import fathertoast.crust.api.config.common.field.DoubleField;
 import fathertoast.crust.api.config.common.field.IntField;
 import fathertoast.crust.api.config.common.value.BlockEntry;
 import fathertoast.crust.api.config.common.value.BlockList;
+import jdk.jfr.Event;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.Tags;
@@ -19,6 +20,7 @@ public class MiscConfig extends AbstractConfigFile {
 
     public final VersionCheck VERSION_CHECK;
     public final TrapProperties TRAP_PROPERTIES;
+    public final Events EVENTS;
     public final Other OTHER;
 
 
@@ -33,6 +35,7 @@ public class MiscConfig extends AbstractConfigFile {
 
         VERSION_CHECK = new VersionCheck(this);
         TRAP_PROPERTIES = new TrapProperties(this);
+        EVENTS = new Events(this);
         OTHER = new Other(this);
     }
 
@@ -68,6 +71,23 @@ public class MiscConfig extends AbstractConfigFile {
                     "The range for the Dynamic Trap's AoE in which the Ghost Freeze trap will affect ghosts."));
             armorShatterRange = SPEC.define(new IntField("armor_shatter_range", 20, 1, 60,
                     "The range for the Dynamic Trap's AoE in which the Armor Shatter trap will affect mobs."));
+
+            SPEC.newLine();
+        }
+    }
+
+
+    public static class Events extends AbstractConfigCategory<MiscConfig> {
+
+        public final BooleanField displayStartMessage;
+
+
+        Events(MiscConfig parent) {
+            super(parent, "events",
+                    "Contains settings shared by all events from Apocalypse.");
+
+            displayStartMessage = SPEC.define(new BooleanField("display_start_message", true,
+                    "If enabled, Apocalypse events will display a short message to the player when they start up."));
 
             SPEC.newLine();
         }

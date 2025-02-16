@@ -464,7 +464,7 @@ public final class PlayerDifficultyManager {
         newEvent.onStart(server, player);
         playerEvents.get(player.getUUID()).put(eventType, newEvent);
 
-        if (eventType.getEventStartMessage() != null) {
+        if (eventType.getEventStartMessage() != null && ApocalypseConfig.MISC.EVENTS.displayStartMessage.get()) {
             player.displayClientMessage(Component.translatable(eventType.getEventStartMessage()), true);
         }
     }
