@@ -25,9 +25,7 @@ import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Enemy;
-import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -36,7 +34,6 @@ import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
-import java.util.Optional;
 
 public class Shadefiend extends FlyingMob implements Enemy {
 
@@ -47,6 +44,7 @@ public class Shadefiend extends FlyingMob implements Enemy {
         super(type, level);
         moveControl = new ShadefiendMoveControl(this);
         lookControl = new ShadefiendLookControl(this);
+        xpReward = 1;
     }
 
     public static boolean checkShadefiendSpawnRules(EntityType<? extends Shadefiend> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
@@ -68,6 +66,7 @@ public class Shadefiend extends FlyingMob implements Enemy {
 
     @Override
     protected void registerGoals() {
+        // Only be active when we have a target player, looks more creepy from a distance
         goalSelector.addGoal(0, new Shadefiend.MeleeAttackGoal(this));
         targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Player.class, true));
     }
