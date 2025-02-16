@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
 import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
 import net.minecraft.core.BlockPos;
@@ -119,14 +120,24 @@ public class Shadefiend extends FlyingMob implements Enemy {
                     0.0D, 0.0D, 0.0D
             );
         }
-        boolean inHarmfulLight = (level().getBrightness(LightLayer.BLOCK, blockPosition()) > 7)
-                || (level().isDay() && level().getBrightness(LightLayer.SKY, blockPosition()) > 7);
+        boolean inHarmfulLight = (level().getBrightness(LightLayer.BLOCK, blockPosition()) > getLightLevelLimit(LightLayer.BLOCK))
+                || (level().isDay() && level().getBrightness(LightLayer.SKY, blockPosition()) > getLightLevelLimit(LightLayer.SKY));
         if (!level().isClientSide) {
             entityData.set(IS_IN_LIGHT, inHarmfulLight);
         }
 
         if (inHarmfulLight)  {
             hurt(ApocalypseDamageSources.of(level(), ApocalypseDamageSources.LIGHT_INTOLERANCE), 2);
+        }
+    }
+
+    /** Returns the max brightness for the specified light layer that the shadefiend can tolerate. */
+    private int getLightLevelLimit(LightLayer lightLayer) {
+        if (lightLayer == LightLayer.SKY) {
+            return ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.skyLightLevel.get();
+        }
+        else {
+            return level().isDay() ? 0 : ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.blockLightLevel.get();
         }
     }
 

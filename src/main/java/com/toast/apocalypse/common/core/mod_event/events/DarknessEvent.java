@@ -22,7 +22,7 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.LightLayer;
 import net.minecraftforge.event.ForgeEventFactory;
 
-public class DarknessEvent extends AbstractEvent {
+public final class DarknessEvent extends AbstractEvent {
 
     private int timeNextStage = 150;
     private Stage stage = Stage.STARTING;
