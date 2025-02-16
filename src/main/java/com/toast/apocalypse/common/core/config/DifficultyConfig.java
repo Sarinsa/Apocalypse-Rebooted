@@ -1,20 +1,15 @@
 package com.toast.apocalypse.common.core.config;
 
+import com.toast.apocalypse.common.core.difficulty.ReductionType;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import fathertoast.crust.api.config.common.AbstractConfigCategory;
 import fathertoast.crust.api.config.common.AbstractConfigFile;
 import fathertoast.crust.api.config.common.ConfigManager;
-import fathertoast.crust.api.config.common.field.DoubleField;
-import fathertoast.crust.api.config.common.field.EntityListField;
-import fathertoast.crust.api.config.common.field.EnvironmentListField;
+import fathertoast.crust.api.config.common.field.*;
 import fathertoast.crust.api.config.common.value.EntityEntry;
 import fathertoast.crust.api.config.common.value.EntityList;
 import fathertoast.crust.api.config.common.value.EnvironmentEntry;
 import fathertoast.crust.api.config.common.value.EnvironmentList;
-import fathertoast.crust.api.config.common.value.environment.dimension.DimensionTypeEnvironment;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.dimension.LevelStem;
 
 public class DifficultyConfig extends AbstractConfigFile {
 
@@ -43,6 +38,10 @@ public class DifficultyConfig extends AbstractConfigFile {
         public final DoubleField multiplayerMultiplier;
         public final DoubleField sleepPenaltyMultiplier;
 
+        public final EnumField<ReductionType> reductionType;
+        public final DoubleField reductionPercentage;
+        public final IntField reductionLevel;
+
         public final EnvironmentListField dimensionPenaltyList;
 
         public final EntityListField mobSpawnDifficulties;
@@ -61,6 +60,21 @@ public class DifficultyConfig extends AbstractConfigFile {
                     "When this value is greater than 1.0, it causes players who sleep through the night to have their difficulty go higher " +
                             "than if they had just stayed up the whole night.",
                     "For example, a value of 1.5 would equal a 50% increase."));
+
+            SPEC.newLine();
+
+            reductionType = SPEC.define(new EnumField<>("difficulty_reduction_type", ReductionType.NONE,
+                    "Determines if the player's difficulty should be reduced upon death.",
+                    "'NONE': nothing happens when the player dies.",
+                    "'RESET': difficulty is set to 0 upon death, unless the player is still on their grace period.",
+                    "'LEVEL': difficulty is reduced by the amount of levels specified by 'reduction_levels' upon death.",
+                    "'PERCENTAGE': difficulty is reduced by the percentage specified by 'reduction_percentage' upon death."));
+
+            reductionPercentage = SPEC.define(new DoubleField("reduction_percentage", 0.25, DoubleField.Range.PERCENT,
+                    "Works in conjunction with 'difficulty_reduction_type'"));
+
+            reductionLevel = SPEC.define(new IntField("reduction_levels", 10, IntField.Range.POSITIVE,
+                    "Works in conjunction with 'difficulty_reduction_type'"));
 
             SPEC.newLine();
 

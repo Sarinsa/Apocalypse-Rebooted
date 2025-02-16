@@ -244,7 +244,7 @@ public final class PlayerDifficultyManager {
                 switch (reductionType) {
                     case RESET -> CapabilityHelper.setPlayerDifficulty(serverPlayer, 0);
                     case LEVEL -> {
-                        long newDifficulty = difficulty - ApocalypseConfig.DIFFICULTY.GENERAL.reductionLevel.get();
+                        long newDifficulty = difficulty - (ApocalypseConfig.DIFFICULTY.GENERAL.reductionLevel.get() * References.DAY_LENGTH);
                         CapabilityHelper.setPlayerDifficulty(serverPlayer, Math.max(0, newDifficulty));
                     }
                     case PERCENTAGE -> {
