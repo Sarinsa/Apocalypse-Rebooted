@@ -173,7 +173,7 @@ public class DifficultyRegistryEntryList<T> implements IStringArray {
         while (iterator.hasNext()) {
             DifficultyRegListEntry<T> entry = iterator.next();
 
-            if (level <= entry.DIFFICULTY_LEVEL) {
+            if (entry.DIFFICULTY_LEVEL <= level) {
                 List<T> list = entry.getRegistryEntries(registry, customPredicate);
 
                 if (list != null && !list.isEmpty())
