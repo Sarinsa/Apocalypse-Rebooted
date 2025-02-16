@@ -277,7 +277,7 @@ public class MobBuffingConfig extends AbstractConfigFile {
                     "The maximum weapon chance that can be given over time. Default is 0.95 (95% chance)."));
             currentWeaponTierOnly = SPEC.define(new BooleanField("current_weapon_tier_only", false,
                     "If enabled, only weapons from the highest difficulty tier available will be given to mobs.",
-                    "When disabled, weapons will be be picked randomly from all tiers."));
+                    "When disabled, weapons will be picked randomly from all tiers."));
 
             SPEC.newLine();
 
