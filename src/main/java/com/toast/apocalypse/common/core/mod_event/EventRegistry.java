@@ -17,7 +17,7 @@ import java.util.Objects;
 
 /**
  * The registry for Apocalypse's event types.<br>
- * Intended for internal use (other mods creating their own types is not really supported).
+ * Intended for internal use. Other mods can create their own events if desired, but it is not really supported.
  */
 public class EventRegistry {
 
@@ -67,7 +67,7 @@ public class EventRegistry {
      * @param startMessage The translation key for the message that should be displayed to the player when the event starts.
      * @param startupPredicate The predicate used for testing if this event can start.
      */
-    private static <T extends AbstractEvent> EventType<T> register(String name,  @Nonnull EventType.IEventFactory<T> factory,
+    public static <T extends AbstractEvent> EventType<T> register(String name,  @Nonnull EventType.IEventFactory<T> factory,
                                                                    @Nullable String startMessage, @Nonnull IEventPredicate startupPredicate) {
         Objects.requireNonNull(factory);
 
