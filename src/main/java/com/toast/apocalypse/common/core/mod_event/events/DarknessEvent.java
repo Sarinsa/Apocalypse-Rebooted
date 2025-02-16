@@ -75,7 +75,7 @@ public final class DarknessEvent extends AbstractEvent {
 
     @Override
     public boolean shouldContinueRunning(ServerLevel level, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager) {
-        if (stage == Stage.RESET || player.isCreative()) return false;
+        if (stage == Stage.RESET || player.isCreative() || player.isSpectator()) return false;
 
         BlockPos pos = player.blockPosition();
         return level.getBrightness(LightLayer.SKY, pos) <= ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.skyLightLevel.get()
