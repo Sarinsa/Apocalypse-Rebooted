@@ -28,6 +28,7 @@ import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidType;
@@ -118,20 +119,15 @@ public class Shadefiend extends FlyingMob implements Enemy {
                     0.0D, 0.0D, 0.0D
             );
         }
-        boolean inHarmfulLight = level().getRawBrightness(blockPosition(), 0) > 7;
-        entityData.set(IS_IN_LIGHT, inHarmfulLight);
+        boolean inHarmfulLight = (level().getBrightness(LightLayer.BLOCK, blockPosition()) > 7)
+                || (level().isDay() && level().getBrightness(LightLayer.SKY, blockPosition()) > 7);
+        if (!level().isClientSide) {
+            entityData.set(IS_IN_LIGHT, inHarmfulLight);
+        }
 
         if (inHarmfulLight)  {
             hurt(ApocalypseDamageSources.of(level(), ApocalypseDamageSources.LIGHT_INTOLERANCE), 2);
         }
-    }
-
-    @Override
-    public void aiStep() {
-        if (isAlive() && isSunBurnTick()) {
-            setSecondsOnFire(8);
-        }
-        super.aiStep();
     }
 
     @Override
