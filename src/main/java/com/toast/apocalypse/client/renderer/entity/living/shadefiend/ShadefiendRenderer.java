@@ -8,7 +8,6 @@ import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.living.Shadefiend;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.GhastRenderer;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 
@@ -24,6 +23,11 @@ public class ShadefiendRenderer extends MobRenderer<Shadefiend, ShadefiendModel>
     @Override
     public ResourceLocation getTextureLocation(Shadefiend shadefiend) {
         return TEXTURE;
+    }
+
+    @Override
+    protected boolean isShaking(Shadefiend shadefiend) {
+        return shadefiend.isInLight();
     }
 
     @Override

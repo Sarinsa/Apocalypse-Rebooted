@@ -5,6 +5,7 @@ import com.toast.apocalypse.datagen.loot.ApocalypseLootModProvider;
 import com.toast.apocalypse.datagen.loot.ApocalypseLootTableProvider;
 import com.toast.apocalypse.datagen.recipe.ApocalypseRecipeProvider;
 import com.toast.apocalypse.datagen.tag.ApocalypseBlockTagProvider;
+import com.toast.apocalypse.datagen.tag.ApocalypseDamageTagProvider;
 import com.toast.apocalypse.datagen.tag.ApocalypseEntityTagProvider;
 import com.toast.apocalypse.datagen.tag.ApocalypseItemTagProvider;
 import net.minecraft.core.HolderLookup;
@@ -34,6 +35,7 @@ public class DataGatherer {
             dataGenerator.addProvider(true, blockTagProvider);
             dataGenerator.addProvider(true, new ApocalypseItemTagProvider(dataGenerator, lookupProvider, blockTagProvider.contentsGetter(), fileHelper));
             dataGenerator.addProvider(true, new ApocalypseEntityTagProvider(dataGenerator, lookupProvider, fileHelper));
+            dataGenerator.addProvider(true, new ApocalypseDamageTagProvider(dataGenerator, lookupProvider, fileHelper));
             dataGenerator.addProvider(true, new ApocalypseLootModProvider(dataGenerator));
         }
     }

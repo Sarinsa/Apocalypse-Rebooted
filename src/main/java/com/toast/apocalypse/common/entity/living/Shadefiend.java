@@ -1,8 +1,12 @@
 package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
+import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -22,6 +26,7 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
@@ -29,8 +34,12 @@ import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
+import java.util.Optional;
 
 public class Shadefiend extends FlyingMob implements Enemy {
+
+    protected static final EntityDataAccessor<Boolean> IS_IN_LIGHT = SynchedEntityData.defineId(Shadefiend.class, EntityDataSerializers.BOOLEAN);
+
 
     public Shadefiend(EntityType<? extends Shadefiend> type, Level level) {
         super(type, level);
@@ -50,6 +59,12 @@ public class Shadefiend extends FlyingMob implements Enemy {
     }
 
     @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        entityData.define(IS_IN_LIGHT, false);
+    }
+
+    @Override
     protected void registerGoals() {
         goalSelector.addGoal(0, new Shadefiend.MeleeAttackGoal(this));
         targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Player.class, true));
@@ -58,6 +73,10 @@ public class Shadefiend extends FlyingMob implements Enemy {
     @Override
     protected boolean shouldDespawnInPeaceful() {
         return true;
+    }
+
+    public boolean isInLight() {
+        return entityData.get(IS_IN_LIGHT);
     }
 
     @Override
@@ -98,6 +117,12 @@ public class Shadefiend extends FlyingMob implements Enemy {
                     getZ() - (double) zOffset,
                     0.0D, 0.0D, 0.0D
             );
+        }
+        boolean inHarmfulLight = level().getRawBrightness(blockPosition(), 0) > 7;
+        entityData.set(IS_IN_LIGHT, inHarmfulLight);
+
+        if (inHarmfulLight)  {
+            hurt(ApocalypseDamageSources.of(level(), ApocalypseDamageSources.LIGHT_INTOLERANCE), 2);
         }
     }
 
