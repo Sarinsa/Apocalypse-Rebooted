@@ -235,6 +235,24 @@ public final class PlayerDifficultyManager {
             for (AbstractEvent abstractEvent : playerEvents.get(serverPlayer.getUUID()).values()) {
                 abstractEvent.onPlayerDeath(serverPlayer, serverPlayer.serverLevel());
             }
+            long difficulty = CapabilityHelper.getPlayerDifficulty(serverPlayer);
+
+            // Reduce difficulty if we should
+            if (difficulty > 0) {
+                ReductionType reductionType = ApocalypseConfig.DIFFICULTY.GENERAL.reductionType.get();
+
+                switch (reductionType) {
+                    case RESET -> CapabilityHelper.setPlayerDifficulty(serverPlayer, 0);
+                    case LEVEL -> {
+                        long newDifficulty = difficulty - ApocalypseConfig.DIFFICULTY.GENERAL.reductionLevel.get();
+                        CapabilityHelper.setPlayerDifficulty(serverPlayer, Math.max(0, newDifficulty));
+                    }
+                    case PERCENTAGE -> {
+                        double multiplier = 1.0 - ApocalypseConfig.DIFFICULTY.GENERAL.reductionPercentage.get();
+                        CapabilityHelper.setPlayerDifficulty(serverPlayer, (long) (difficulty * multiplier));
+                    }
+                }
+            }
         }
     }
 
@@ -366,30 +384,29 @@ public final class PlayerDifficultyManager {
      * Updates the player's difficulty.
      */
     private void updatePlayerDifficulty(ServerPlayer player) {
-        final int playerCount = server.getPlayerCount();
         final long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty(player);
         long currentDifficulty = CapabilityHelper.getPlayerDifficulty(player);
         double difficultyMultiplier = 1.0D;
-
-        // Apply multiplayer difficulty multiplier, if enabled.
-        if (playerCount > 1 && ApocalypseConfig.DIFFICULTY.GENERAL.multiplayerMultiplier.get() > 1.0D) {
-            difficultyMultiplier = ApocalypseConfig.DIFFICULTY.GENERAL.multiplayerMultiplier.get();
-        }
-
-        // Apply dimension difficulty rate penalty if any player is in a dimension with a penalty multiplier
-        Double dimensionPenalty = ApocalypseConfig.DIFFICULTY.GENERAL.dimensionPenaltyList.get(player.level());
-
-        if (dimensionPenalty != null && dimensionPenalty > 1.0D) {
-            if (!player.isSpectator()) {
-                difficultyMultiplier += (dimensionPenalty - 1.0D);
-            }
-        }
         boolean maxDifficultyReached = maxDifficulty >= 0 && currentDifficulty >= maxDifficulty;
 
-        if (maxDifficultyReached || player.isCreative() || player.isSpectator()) {
-            return;
+        if (!maxDifficultyReached && !player.isCreative() && !player.isSpectator()) {
+            final int playerCount = server.getPlayerCount();
+
+            // Apply multiplayer difficulty multiplier, if enabled.
+            if (playerCount > 1 && ApocalypseConfig.DIFFICULTY.GENERAL.multiplayerMultiplier.get() > 1.0D) {
+                difficultyMultiplier = ApocalypseConfig.DIFFICULTY.GENERAL.multiplayerMultiplier.get();
+            }
+
+            // Apply dimension difficulty rate penalty if any player is in a dimension with a penalty multiplier
+            Double dimensionPenalty = ApocalypseConfig.DIFFICULTY.GENERAL.dimensionPenaltyList.get(player.level());
+
+            if (dimensionPenalty != null && dimensionPenalty > 1.0D) {
+                if (!player.isSpectator()) {
+                    difficultyMultiplier += (dimensionPenalty - 1.0D);
+                }
+            }
+            currentDifficulty += (long) (TICKS_PER_UPDATE * difficultyMultiplier);
         }
-        currentDifficulty += (long) (TICKS_PER_UPDATE * difficultyMultiplier);
 
         // Update difficulty stuff on clients
         CapabilityHelper.setPlayerDifficulty(player, currentDifficulty);
