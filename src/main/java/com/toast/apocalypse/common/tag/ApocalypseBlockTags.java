@@ -22,8 +22,6 @@ public class ApocalypseBlockTags {
         return BlockTags.create(id);
     }
 
-    public static void init() {}
-
     // Utility class, instantiation redundant
     private ApocalypseBlockTags() {}
 }

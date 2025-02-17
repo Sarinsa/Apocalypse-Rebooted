@@ -26,8 +26,6 @@ public class ApocalypseEntityTags {
         return TagKey.create(Registries.ENTITY_TYPE, id);
     }
 
-    public static void init() {}
-
     // Utility class, instantiation redundant
     private ApocalypseEntityTags() {}
 }
