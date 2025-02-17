@@ -79,9 +79,7 @@ public class Apocalypse {
         // Static init stuff
         EventRegistry.init();
         ApocalypseTriggers.init();
-        MobWikiIndexes.init();
-        ApocalypseEntityTags.init();
-        ApocalypseBlockTags.init();
+        //MobWikiIndexes.init();
 
         ConfigManager.create("Apocalypse Rebooted", Apocalypse.MODID);
 
