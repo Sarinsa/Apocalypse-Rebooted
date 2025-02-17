@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.entity.projectile;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.entity.living.Grump;
 import com.toast.apocalypse.common.network.NetworkHelper;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -14,9 +15,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -28,8 +27,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.network.NetworkHooks;
 
@@ -44,12 +42,10 @@ import javax.annotation.Nullable;
 public class MonsterFishHook extends Projectile implements IEntityAdditionalSpawnData {
 
     private static final EntityDataAccessor<Integer> DATA_HOOKED_ENTITY = SynchedEntityData.defineId(MonsterFishHook.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> LAUNCHED_BY_RIDER = SynchedEntityData.defineId(MonsterFishHook.class, EntityDataSerializers.BOOLEAN);
     private int life;
     private Entity hookedIn;
     private State currentState = State.FLYING;
-    /** Whether this fishhook was launched by a player. */
-    private boolean launchedOnCommand = false;
-
 
     public MonsterFishHook(EntityType<? extends MonsterFishHook> entityType, Level level) {
         super(entityType, level);
@@ -74,24 +70,24 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
         this.shoot(dX, dY + dH * 0.2, dZ, 1.3F, 0);
     }
 
-    public MonsterFishHook(LivingEntity rider, Mob mob, Level level) {
+    public MonsterFishHook(Vec3 riderLookVec, Mob mob, Level level) {
         this(level, mob);
-        launchedOnCommand = true;
+        getEntityData().set(LAUNCHED_BY_RIDER, true);
 
-        final Vec3 riderLookVec = rider.getViewVector(1.0F).scale(rider.getBbWidth());
-        final Vec3 grumpLookVec = mob.getViewVector(1.0F).scale(mob.getBbWidth());
-        this.setPos(mob.getX() + grumpLookVec.x, mob.getEyeY() - 0.1, mob.getZ() + grumpLookVec.z);
+        final Vec3 vec = mob.getEyePosition().add(riderLookVec.x * 10, riderLookVec.y * 10, riderLookVec.z * 10);
+        this.setPos(mob.getX() + riderLookVec.x, mob.getEyeY() - 0.1, mob.getZ() + riderLookVec.z);
 
-        final double dX = riderLookVec.x() - getX();
-        final double dY = riderLookVec.y() - getY();
-        final double dZ = riderLookVec.z() - getZ();
+        final double dX = vec.x() - getX();
+        final double dY = vec.y() - getY();
+        final double dZ = vec.z() - getZ();
         final double dH = Mth.sqrt((float) (dX * dX + dZ * dZ));
         this.shoot(dX, dY + dH * 0.2, dZ, 1.3F, 0);
     }
 
     @Override
     protected void defineSynchedData() {
-        this.getEntityData().define(DATA_HOOKED_ENTITY, 0);
+        getEntityData().define(DATA_HOOKED_ENTITY, 0);
+        getEntityData().define(LAUNCHED_BY_RIDER, false);
     }
 
     @Override
@@ -104,13 +100,11 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
     public boolean shouldRenderAtSqrDistance(double distance) {
         return distance < 4096.0D;
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
     public void lerpTo(double parameter, double mappings, double would, float be, float nice, int to, boolean have) {
     }
 
@@ -119,28 +113,26 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
         super.tick();
         LivingEntity livingEntity = this.getLivingOwner();
 
+        // Remove self if owner is null
         if (livingEntity == null) {
             discard();
         }
-        else if (level().isClientSide || !shouldStopFishing(livingEntity)) {
-            if (onGround()) {
+        else if (!shouldStopFishing(livingEntity)) {
+            // Remove hook after a while, unless launched by a rider.
+            if (!getEntityData().get(LAUNCHED_BY_RIDER)) {
                 ++life;
-                if (life >= 1200) {
+                if (life >= 120) {
                     discard();
                     return;
                 }
             }
-            else {
-                life = 0;
-            }
-            float f = 0.0F;
-            BlockPos blockpos = blockPosition();
-            FluidState fluidstate = level().getFluidState(blockpos);
+            float fluidHeight = 0.0F;
+            BlockPos pos = blockPosition();
+            FluidState fluidState = level().getFluidState(pos);
 
-            if (fluidstate.is(FluidTags.WATER)) {
-                f = fluidstate.getHeight(level(), blockpos);
+            if (fluidState.getFluidType() == ForgeMod.WATER_TYPE.get()) {
+                fluidHeight = fluidState.getHeight(level(), pos);
             }
-            boolean flag = f > 0.0F;
 
             if (currentState == State.FLYING) {
                 if (hookedIn != null) {
@@ -149,7 +141,7 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
                     return;
                 }
 
-                if (flag) {
+                if (fluidHeight > 0.0F) {
                     setDeltaMovement(getDeltaMovement().multiply(0.3D, 0.2D, 0.3D));
                     currentState = State.BOBBING;
                     return;
@@ -172,16 +164,16 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
 
                 if (currentState == State.BOBBING) {
                     Vec3 vec3 = getDeltaMovement();
-                    double d0 = getY() + vec3.y - (double)blockpos.getY() - (double)f;
+                    double d0 = getY() + vec3.y - pos.getY() - (double) fluidHeight;
 
                     if (Math.abs(d0) < 0.01D) {
                         d0 += Math.signum(d0) * 0.1D;
                     }
-                    setDeltaMovement(vec3.x * 0.9D, vec3.y - d0 * (double)random.nextFloat() * 0.2D, vec3.z * 0.9D);
+                    setDeltaMovement(vec3.x * 0.9D, vec3.y - d0 * (double) random.nextFloat() * 0.2D, vec3.z * 0.9D);
                 }
             }
 
-            if (!fluidstate.is(FluidTags.WATER)) {
+            if (fluidState.getFluidType() != ForgeMod.WATER_TYPE.get()) {
                 setDeltaMovement(getDeltaMovement().add(0.0D, -0.03D, 0.0D));
             }
             move(MoverType.SELF, getDeltaMovement());
@@ -270,9 +262,8 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
     public void handleEntityEvent(byte event) {
-        if (event == 31 && level().isClientSide && hookedIn instanceof Player player && player.isLocalPlayer()) {
+        if (event == 31 && level().isClientSide && hookedIn instanceof LocalPlayer) {
             bringInHookedEntity();
         }
         super.handleEntityEvent(event);
@@ -292,7 +283,7 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
             double v = Math.sqrt(xMotion * xMotion + yMotion * yMotion + zMotion * zMotion);
             double multiplier = 0.3;
 
-            Vec3 velocity = new Vec3(xMotion * multiplier, yMotion * multiplier + Math.sqrt(v) * 0.1, zMotion * multiplier);
+            Vec3 velocity = new Vec3(xMotion * multiplier, yMotion * (multiplier / 2) + Math.sqrt(v) * 0.1, zMotion * multiplier);
 
             if (entity instanceof ServerPlayer serverPlayer) {
                 NetworkHelper.sendEntityVelocityUpdate(serverPlayer, serverPlayer, velocity);

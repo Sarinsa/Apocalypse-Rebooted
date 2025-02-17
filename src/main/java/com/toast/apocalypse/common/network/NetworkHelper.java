@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
@@ -138,5 +139,9 @@ public class NetworkHelper {
 
     public static void requestGrumpDescentUpdate(@Nonnull UUID playerUUID, boolean keyPressed) {
         PacketHandler.CHANNEL.sendToServer(new C2SUpdateGrumpDescent(playerUUID, keyPressed));
+    }
+
+    public static void requestGrumpInteractUpdate(@Nonnull UUID playerUUID, Vec3 lookVec) {
+        PacketHandler.CHANNEL.sendToServer(new C2SUpdateGrumpInteract(playerUUID, lookVec));
     }
 }

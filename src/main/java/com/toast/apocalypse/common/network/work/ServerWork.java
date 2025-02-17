@@ -5,6 +5,7 @@ import com.toast.apocalypse.common.entity.living.Grump;
 import com.toast.apocalypse.common.misc.PlayerKeyBindInfo;
 import com.toast.apocalypse.common.network.message.C2SOpenGrumpInventory;
 import com.toast.apocalypse.common.network.message.C2SUpdateGrumpDescent;
+import com.toast.apocalypse.common.network.message.C2SUpdateGrumpInteract;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -42,6 +43,27 @@ public class ServerWork {
 
         if (player != null) {
             PlayerKeyBindInfo.getInfo(player.getUUID()).grumpDescent.setValue(message.keyPressed);
+        }
+    }
+
+    public static void handleUpdateGrumpInteract(C2SUpdateGrumpInteract message) {
+        if (server == null)
+            return;
+
+        ServerPlayer player = server.getPlayerList().getPlayer(message.uuid);
+
+        if (player != null && player.getVehicle() instanceof Grump grump) {
+            if (grump.getOwnerUUID().equals(message.uuid)) {
+                if (!grump.hasExistingHook()) {
+                    grump.spawnFishHook(null, message.lookVec);
+                }
+                else {
+                    if (grump.getFishHook().getHookedIn() != null) {
+                        grump.getFishHook().bringInHookedEntity();
+                    }
+                    grump.removeFishHook();
+                }
+            }
         }
     }
 }

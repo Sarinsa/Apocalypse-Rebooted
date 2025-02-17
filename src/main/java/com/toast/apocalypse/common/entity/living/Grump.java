@@ -39,9 +39,7 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
-import net.minecraft.world.entity.monster.Creeper;
-import net.minecraft.world.entity.monster.Enemy;
-import net.minecraft.world.entity.monster.Ghast;
+import net.minecraft.world.entity.monster.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -54,8 +52,6 @@ import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
@@ -70,7 +66,7 @@ import java.util.UUID;
  * This is a full moon mob that is meant to be a high threat to players that are not in a safe area from them.
  * Grumps fly, have a pulling attack, and have a melee attack that can't be reduced below 2 damage and applies a
  * short gravity effect. The pull attack/hook attack can be blocked with a shield, but blocking the hook twice or more
- * will enrage the grump, granting it a powerful speed and attack knockback bonus.<br><br>
+ * will enrage the grump, granting it a speed and attack knockback bonus.<br><br>
  * Unlike most full moon mobs, this one has no means of breaking through defenses and therefore relies on the
  * player being vulnerable to attack - whether by will or by other mobs breaking through to the player.
  *
@@ -145,7 +141,7 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
 
     @Override
     protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
-        return 0.60F;
+        return 0.50F;
     }
 
     @Override
@@ -271,7 +267,7 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
         setTarget(null);
         setPlayerTargetUUID(null);
         // Stop potential weird movement happening
-        // if a move goal was suddenly interrupted
+        // if a movement goal is running.
         moveHelperController.setAction(MoveControl.Operation.WAIT);
         level().broadcastEntityEvent(this, (byte)7);
     }
@@ -342,7 +338,6 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
     public void handleEntityEvent(byte eventId) {
         if (eventId == 7) {
             performEatEffects(1);
@@ -471,6 +466,56 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
         entityData.set(STAND_BY, standBy);
     }
 
+    public boolean hasExistingHook() {
+        return fishHook != null && fishHook.isAlive();
+    }
+
+    /**
+     *  Makes the Grump launch a fishhook.<br>
+     *  If riderLook is not null, assume we are launching a hook on behalf
+     *  of the player riding the Grump.
+     */
+    public void spawnFishHook(@Nullable LivingEntity target, @Nullable Vec3 riderLook) {
+        if (!level().isClientSide) {
+            Level level = level();
+            MonsterFishHook fishHook = null;
+
+            if (riderLook != null) {
+                if (getControllingPassenger() != null) {
+                    fishHook = new MonsterFishHook(riderLook, this, level);
+                }
+            }
+            else if (target != null) {
+                fishHook = new MonsterFishHook(this, target, level);
+            }
+
+            if (fishHook != null) {
+                level.addFreshEntity(fishHook);
+                this.fishHook = fishHook;
+
+                level.playSound(
+                        null,
+                        blockPosition(),
+                        SoundEvents.FISHING_BOBBER_THROW,
+                        SoundSource.NEUTRAL,
+                        0.6F,
+                        0.4F / (level.random.nextFloat() * 0.4F + 0.8F)
+                );
+            }
+        }
+    }
+
+    @Nullable
+    public MonsterFishHook getFishHook() {
+        return fishHook;
+    }
+
+    public void removeFishHook() {
+        if (this.fishHook != null) {
+            fishHook.discard();
+            fishHook = null;
+        }
+    }
 
     @SuppressWarnings("ConstantConditions")
     @Override
@@ -662,7 +707,7 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
 
         @Override
         public void stop() {
-            if (grump.fishHook != null) {
+            if (grump.hasExistingHook()) {
                 grump.fishHook.discard();
                 grump.fishHook = null;
             }
@@ -672,11 +717,13 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
 
         @Override
         public void tick() {
+            if (grump.getTarget() == null) return;
+
             MonsterFishHook hook = grump.fishHook;
 
             if (hook == null) {
                 if (++timeNextHookLaunch >= 40) {
-                    spawnMonsterFishHook(grump.getTarget());
+                    grump.spawnFishHook(grump.getTarget(), null);
                     timeNextHookLaunch = 0;
                 }
             }
@@ -686,31 +733,15 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
                     if (hook.getHookedIn() != grump) {
                         hook.bringInHookedEntity();
                     }
-                    removeMonsterFishHook();
+                    grump.removeFishHook();;
                     return;
                 }
 
                 if (++timeHookExisted >= 60) {
                     timeHookExisted = 0;
-                    removeMonsterFishHook();
+                    grump.removeFishHook();
                 }
             }
-        }
-
-        private void removeMonsterFishHook() {
-            grump.fishHook.discard();
-            grump.fishHook = null;
-        }
-
-        private void spawnMonsterFishHook(@Nullable LivingEntity target) {
-            if (target == null)
-                return;
-
-            Level level = grump.getCommandSenderWorld();
-            MonsterFishHook fishHook = new MonsterFishHook(grump, target, level);
-            level.addFreshEntity(fishHook);
-            grump.fishHook = fishHook;
-            level.playSound(null, grump.blockPosition(), SoundEvents.FISHING_BOBBER_THROW, SoundSource.NEUTRAL, 0.6F, 0.4F / (level.random.nextFloat() * 0.4F + 0.8F));
         }
     }
 
@@ -803,7 +834,6 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
 
         @Override
         public void setTarget(@org.jetbrains.annotations.Nullable LivingEntity target) {
-            Apocalypse.LOGGER.info("Target: " + target);
             super.setTarget(target);
         }
 
