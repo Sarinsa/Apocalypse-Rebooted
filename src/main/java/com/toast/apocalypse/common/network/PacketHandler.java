@@ -48,6 +48,7 @@ public class PacketHandler {
         // Client -> Server
         registerMessage(C2SOpenGrumpInventory.class, C2SOpenGrumpInventory::encode, C2SOpenGrumpInventory::decode, C2SOpenGrumpInventory::handle);
         registerMessage(C2SUpdateGrumpDescent.class, C2SUpdateGrumpDescent::encode, C2SUpdateGrumpDescent::decode, C2SUpdateGrumpDescent::handle);
+        registerMessage(C2SUpdateGrumpInteract.class, C2SUpdateGrumpInteract::encode, C2SUpdateGrumpInteract::decode, C2SUpdateGrumpInteract::handle);
     }
 
     public <MSG> void registerMessage(Class<MSG> messageType, BiConsumer<MSG, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, MSG> decoder, BiConsumer<MSG, Supplier<NetworkEvent.Context>> messageConsumer) {

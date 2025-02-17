@@ -7,8 +7,11 @@ import com.toast.apocalypse.common.misc.PlayerKeyBindInfo;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.joml.Vector3d;
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
 public class KeyInputListener {
@@ -25,17 +28,34 @@ public class KeyInputListener {
     public void onKey(InputEvent.Key event) {
         // Check if the player has no open GUIs
         if (mc.player != null && mc.screen == null) {
-            if (keyPressed(event, mc.options.keyInventory)) {
-                handleInventoryPress();
-            }
-            else if (keyPressed(event, ApocalypseKeyBindings.GRUMP_DESCENT)) {
-                handleGrumpDescent(true);
-            }
-            else if (keyReleased(event, ApocalypseKeyBindings.GRUMP_DESCENT)) {
-                handleGrumpDescent(false);
-            }
-            else if (keyPressed(event, ApocalypseKeyBindings.GRUMP_INTERACTION)) {
-                handleGrumpInteract();
+            int action = event.getAction();
+
+            switch (action) {
+                // RELEASE
+                case 0: {
+                    if (key(event, ApocalypseKeyBindings.GRUMP_DESCENT)) {
+                        handleGrumpDescent(false);
+                    }
+                }
+                break;
+                // PRESS
+                case 1: {
+                    if (key(event, mc.options.keyInventory)) {
+                        handleInventoryPress();
+                    }
+                    else if (key(event, ApocalypseKeyBindings.GRUMP_DESCENT)) {
+                        handleGrumpDescent(true);
+                    }
+                    else if (key(event, ApocalypseKeyBindings.GRUMP_INTERACTION)) {
+                        handleGrumpInteract();
+                    }
+                }
+                break;
+                // REPEAT
+                case 2: {
+
+                }
+                break;
             }
         }
     }
@@ -60,19 +80,15 @@ public class KeyInputListener {
     }
 
     private void handleGrumpInteract() {
+        if (mc.player != null) {
+            LocalPlayer player = mc.player;
+            Vec3 lookVec = player.getViewVector(1.0F).scale(player.getBbWidth());
 
+            NetworkHelper.requestGrumpInteractUpdate(player.getUUID(), lookVec);
+        }
     }
 
-    /** Checks if the given KeyBinding has been pressed */
-    private boolean keyPressed(InputEvent.Key event, KeyMapping checkedKey) {
-        return event.getKey() == checkedKey.getKey().getValue() && event.getAction() == GLFW.GLFW_PRESS;
-    }
-
-    private boolean keyReleased(InputEvent.Key event, KeyMapping checkedKey) {
-        return event.getKey() == checkedKey.getKey().getValue() && event.getAction() == GLFW.GLFW_RELEASE;
-    }
-
-    private boolean keyRepeatOrPress(InputEvent.Key event, KeyMapping checkedKey) {
-        return event.getKey() == checkedKey.getKey().getValue() && (event.getAction() == GLFW.GLFW_REPEAT || event.getAction() == GLFW.GLFW_PRESS);
+    private boolean key(InputEvent.Key event, KeyMapping checkedKey) {
+        return event.getKey() == checkedKey.getKey().getValue();
     }
 }

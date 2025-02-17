@@ -60,7 +60,6 @@ public class PlayerKeyBindInfo {
     public static class KeyBindInfo {
 
         public KeyInfo grumpDescent = new KeyInfo();
-        public KeyInfo grumpInteract = new KeyInfo();
     }
 
     /** Represents the "value" of a key binding (has it been pressed?) */

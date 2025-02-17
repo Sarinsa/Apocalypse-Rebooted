@@ -39,7 +39,6 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidType;
 
 import javax.annotation.Nullable;
@@ -270,7 +269,6 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
     public void handleEntityEvent(byte eventId) {
         if (eventId == 7) {
             displayFreezeParticles();

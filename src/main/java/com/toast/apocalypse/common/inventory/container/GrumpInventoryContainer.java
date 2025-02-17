@@ -11,7 +11,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -37,7 +36,6 @@ public class GrumpInventoryContainer extends AbstractContainerMenu {
             }
 
             @Override
-            @OnlyIn(Dist.CLIENT)
             public boolean isActive() {
                 return true;
             }
