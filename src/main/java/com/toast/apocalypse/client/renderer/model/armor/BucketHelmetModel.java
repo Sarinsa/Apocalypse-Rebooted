@@ -29,16 +29,13 @@ public class BucketHelmetModel extends HumanoidModel<LivingEntity> {
         PartDefinition partdefinition = meshdefinition.getRoot();
 
         PartDefinition rope = partdefinition.addOrReplaceChild("rope", CubeListBuilder.create(), PartPose.offset(0.0F, 24.0F, 0.0F));
-
-        PartDefinition cube_r1 = rope.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(0, 9).addBox(-5.0F, 2.0F, 0.0F, 10.0F, 5.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -6.0F, 0.0F, -0.3927F, 0.0F, 0.0F));
-
-        PartDefinition bone = partdefinition.addOrReplaceChild("bone", CubeListBuilder.create().texOffs(0, 14).addBox(-4.0F, -13.0F, -4.0F, 8.0F, 10.0F, 8.0F, new CubeDeformation(0.25F)), PartPose.offset(0.0F, 24.0F, 0.0F));
+        rope.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(0, 9).addBox(-5.0F, 2.0F, 0.0F, 10.0F, 5.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -6.0F, 0.0F, -0.3927F, 0.0F, 0.0F));
+        partdefinition.addOrReplaceChild("bone", CubeListBuilder.create().texOffs(0, 14).addBox(-4.0F, -13.0F, -4.0F, 8.0F, 10.0F, 8.0F, new CubeDeformation(0.25F)), PartPose.offset(0.0F, 24.0F, 0.0F));
 
         return LayerDefinition.create(meshdefinition, 32, 32);
     }
 
     // Copy over head model rotations and positions here because weirdness.
-    // I miss the old days.
     public BucketHelmetModel copyProps(HumanoidModel<?> humanoidModel) {
         rope.xRot = humanoidModel.head.xRot;
         rope.yRot = humanoidModel.head.yRot;
