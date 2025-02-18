@@ -11,19 +11,26 @@ import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import com.toast.apocalypse.common.util.NBTUtil;
 import com.toast.apocalypse.common.util.References;
+import fathertoast.crust.api.lib.EnvironmentHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.monster.Skeleton;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
@@ -132,40 +139,35 @@ public class EntityEvents {
      * Handles equipment and potion effects for mobs.
      */
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onEntityJoinWorld(EntityJoinLevelEvent event) {
-        if (event.getLevel().isClientSide)
+    public void onEntityJoinWorld(MobSpawnEvent.FinalizeSpawn event) {
+        if (!EnvironmentHelper.isLoaded(event.getLevel(), BlockPos.containing(event.getX(), event.getY(), event.getZ())))
             return;
 
-        if (!event.getLevel().isLoaded(BlockPos.containing(event.getEntity().position())))
+        if (NBTUtil.isEntityProcessed(event.getEntity()))
             return;
 
-        if (!(event.getEntity() instanceof LivingEntity livingEntity) || event.getEntity() instanceof Player)
-            return;
-
-        if (NBTUtil.isEntityProcessed(livingEntity))
-            return;
-
-        Level level = livingEntity.level();
+        Mob mob = event.getEntity();
+        ServerLevelAccessor level = event.getLevel();
         RandomSource random = level.getRandom();
-        final long difficulty = PlayerDifficultyManager.getNearestPlayerDifficulty(level, livingEntity);
+        final long difficulty = PlayerDifficultyManager.getNearestPlayerDifficulty(level, mob);
         final boolean fullMoon = Apocalypse.INSTANCE.getDifficultyManager().isFullMoonNight();
 
         // Don't do anything if the player is still on grace period
         if (difficulty <= 0L)
             return;
 
-        if (!(livingEntity instanceof Enemy) && ApocalypseConfig.MOB_BUFFING.GENERAL.enemiesOnly.get())
+        if (!(mob instanceof Enemy) && ApocalypseConfig.MOB_BUFFING.GENERAL.enemiesOnly.get())
             return;
 
-        MobAttributeHandler.handleAttributes(livingEntity, difficulty, fullMoon);
-        MobPotionHandler.handlePotions(livingEntity, difficulty, fullMoon, random);
-        MobEquipmentHandler.handleMobEquipment(livingEntity, difficulty, fullMoon, random);
+        MobAttributeHandler.handleAttributes(mob, difficulty, fullMoon);
+        MobPotionHandler.handlePotions(mob, difficulty, fullMoon, random);
+        MobEquipmentHandler.handleMobEquipment(mob, difficulty, fullMoon, random);
 
         // Arright, the deed is done! Now lets just mark
         // the entity as "processed" so that we don't do
         // all of this again for the same entity the next
         // time it is loaded into the world.
-        NBTUtil.markEntityProcessed(livingEntity);
+        NBTUtil.markEntityProcessed(mob);
     }
 
     /**
