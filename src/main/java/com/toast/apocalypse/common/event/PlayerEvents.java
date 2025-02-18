@@ -2,6 +2,7 @@ package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
+import com.toast.apocalypse.common.entity.living.Grump;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
@@ -14,6 +15,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.level.SleepFinishedTimeEvent;
@@ -110,6 +112,16 @@ public class PlayerEvents {
             CapabilityHelper.setPlayerDifficulty(newPlayer, difficulty);
             CapabilityHelper.setMaxPlayerDifficulty(newPlayer, maxDifficulty);
             //CapabilityHelper.setMobWikiIndexes(newPlayer, mobWikiIndexes);
+        }
+    }
+
+    /** Prevent players from getting kicked from dedi servers when riding a grump. */
+    @SubscribeEvent
+    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase == TickEvent.Phase.END && event.player instanceof ServerPlayer serverPlayer) {
+            if (serverPlayer.getVehicle() instanceof Grump) {
+                serverPlayer.connection.clientVehicleIsFloating = false;
+            }
         }
     }
 }
