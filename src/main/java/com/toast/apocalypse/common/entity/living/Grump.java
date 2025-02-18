@@ -17,6 +17,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -45,6 +46,7 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
@@ -136,7 +138,17 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
 
     @Override
     public void die(DamageSource damageSource) {
+        Component deathMessage = getCombatTracker().getDeathMessage();
         super.die(damageSource);
+
+        if (dead)
+            if (!level().isClientSide && level().getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES)) {
+                LivingEntity owner = getOwner();
+
+                if (owner instanceof ServerPlayer) {
+                    owner.sendSystemMessage(deathMessage);
+                }
+            }
     }
 
     @Override
