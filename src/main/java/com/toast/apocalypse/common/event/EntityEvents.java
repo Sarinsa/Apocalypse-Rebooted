@@ -12,33 +12,60 @@ import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import com.toast.apocalypse.common.util.NBTUtil;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.toast.apocalypse.common.core.config.ApocalypseConfig.DIFFICULTY;
 
 public class EntityEvents {
 
-    /**
-     * Cancel full moon monsters despawning during full moons.
-     */
+    /** A map containing an entity instance per entity type in the registry. */
+    private static final Map<EntityType<?>, Entity> ENTITY_FOR_TYPE = new HashMap<>();
+
+    @SubscribeEvent
+    public void onServerStarted(ServerStartedEvent event) {
+        for (EntityType<?> type : ForgeRegistries.ENTITY_TYPES) {
+            Entity entity = type.create(event.getServer().overworld());
+
+            if (entity != null) {
+                ENTITY_FOR_TYPE.put(type, entity);
+            }
+            else {
+                Apocalypse.LOGGER.error("Failed to create entity instance for type {}! Mob spawn difficulty config list will not work for this type!", type);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onServerStopped(ServerStoppedEvent event) {
+        ENTITY_FOR_TYPE.clear();
+    }
+
+    /** Cancel full moon monsters despawning during full moons. */
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onDespawnCheck(MobSpawnEvent.AllowDespawn event) {
         if (!event.getLevel().isClientSide()) {
@@ -53,26 +80,52 @@ public class EntityEvents {
      * to have passed a certain difficulty to spawn.
      */
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onCheckSpawn(MobSpawnEvent.SpawnPlacementCheck event) {
+    public void onSpawnPlacementCheck(MobSpawnEvent.SpawnPlacementCheck event) {
         MobSpawnType spawnType = event.getSpawnType();
 
         if (spawnType == MobSpawnType.SPAWNER || spawnType == MobSpawnType.SPAWN_EGG || spawnType == MobSpawnType.COMMAND
                 || spawnType == MobSpawnType.MOB_SUMMONED || spawnType == MobSpawnType.STRUCTURE)
             return;
 
+        // Create or get entity instance to check against the list properly
         EntityType<?> entityType = event.getEntityType();
-        final Entity entity = entityType.create(event.getLevel().getLevel());
+        final Entity entity = ENTITY_FOR_TYPE.getOrDefault(entityType, null);
 
-        if (entity == null) return;
-
-        if (DIFFICULTY.GENERAL.mobSpawnDifficulties.contains(entity)) {
+        // Check if mob can spawn with the difficulty of the closest player
+        if (entity != null && DIFFICULTY.GENERAL.mobSpawnDifficulties.contains(entity)) {
             final double neededDifficulty = DIFFICULTY.GENERAL.mobSpawnDifficulties.get().getValue(entity);
             final long nearestDifficulty = (PlayerDifficultyManager.getNearestPlayerDifficulty(event.getLevel(), event.getPos())) / References.DAY_LENGTH;
 
-            if (nearestDifficulty < neededDifficulty)
+            if (nearestDifficulty < neededDifficulty) {
                 event.setResult(Event.Result.DENY);
+                return;
+            }
         }
-        entity.discard();
+
+        // Completely ignore spawn placement checks if thunderstorm event is running
+        if (event.getLevel() instanceof ServerLevel level) {
+            if (ApocalypseConfig.THUNDERSTORM.GENERAL.enabled.get() && level.isThundering() && entity instanceof Enemy) {
+                if (!ApocalypseConfig.THUNDERSTORM.GENERAL.spawnsIgnoreLight.get()) {
+                    event.setResult(Monster.isDarkEnoughToSpawn(level, event.getPos(), event.getRandom())
+                            ? Event.Result.ALLOW
+                            : Event.Result.DEFAULT
+                    );
+                    return;
+                }
+                event.setResult(Event.Result.ALLOW);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onSpawnPositionCheck(MobSpawnEvent.PositionCheck event) {
+        if (event.getSpawnType() != MobSpawnType.NATURAL) return;
+
+        if (event.getLevel() instanceof Level level && level.isThundering()) {
+            if (event.getEntity() instanceof Enemy) {
+                event.setResult(Event.Result.ALLOW);
+            }
+        }
     }
 
     /**
@@ -92,7 +145,7 @@ public class EntityEvents {
         if (NBTUtil.isEntityProcessed(livingEntity))
             return;
 
-        Level level = livingEntity.getCommandSenderWorld();
+        Level level = livingEntity.level();
         RandomSource random = level.getRandom();
         final long difficulty = PlayerDifficultyManager.getNearestPlayerDifficulty(level, livingEntity);
         final boolean fullMoon = Apocalypse.INSTANCE.getDifficultyManager().isFullMoonNight();
@@ -145,7 +198,7 @@ public class EntityEvents {
             Item item = itemEntity.getItem().getItem();
 
             if (item == Items.BREAD) {
-                Level level = event.getEntity().getCommandSenderWorld();
+                Level level = event.getEntity().level();
                 int itemCount = itemEntity.getItem().getCount();
                 ItemStack stack = new ItemStack(ApocalypseItems.FATHERLY_TOAST.get(), itemCount);
                 // Toast level, nice

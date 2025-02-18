@@ -60,7 +60,7 @@ public class SeekerFireballEntity extends Fireball {
     @Override
     protected void onHitEntity(EntityHitResult result) {
         Entity entity = result.getEntity();
-        Level level = entity.getCommandSenderWorld();
+        Level level = entity.level();
 
         if (entity instanceof Seeker) {
             boolean canDestroy = level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) || ForgeEventFactory.getMobGriefingEvent(level, this);

@@ -30,7 +30,7 @@ public class EventRegistry {
                     ApocalypseConfig.LUNAR_SIEGE.GENERAL.enableLunarSieges.get() && difficulty > 0 && difficultyManager.isFullMoonNight());
 
     public static final EventType<?> THUNDERSTORM = register("thunderstorm", ThunderstormEvent::new, References.THUNDERSTORM,
-            (serverLevel, player, difficulty, difficultyManager) -> serverLevel.isThundering());
+            (serverLevel, player, difficulty, difficultyManager) -> ApocalypseConfig.THUNDERSTORM.GENERAL.enabled.get() && serverLevel.isThundering());
 
     public static final EventType<?> ACID_RAIN = register("acid_rain", AcidRainEvent::new, References.ACID_RAIN,
             (serverLevel, player, difficulty, difficultyManager) -> difficultyManager.isRainingAcid(serverLevel));

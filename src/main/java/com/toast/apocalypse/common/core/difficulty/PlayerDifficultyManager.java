@@ -184,7 +184,7 @@ public final class PlayerDifficultyManager {
 
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        if (!event.getEntity().getCommandSenderWorld().isClientSide) {
+        if (!event.getEntity().level().isClientSide) {
             ServerPlayer player = (ServerPlayer) event.getEntity();
             ServerLevel overworld = server.overworld();
             ServerLevel playerLevel = player.serverLevel();

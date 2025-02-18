@@ -89,7 +89,7 @@ public class DestroyerFireballEntity extends Fireball {
             }
         }
         if (!level().isClientSide) {
-            destroyerExplosion(getCommandSenderWorld(), this, level().damageSources().fireball(this, getOwner()), getX(), getY(), getZ(), explosionPower);
+            destroyerExplosion(level(), this, level().damageSources().fireball(this, getOwner()), getX(), getY(), getZ(), explosionPower);
             discard();
         }
     }
@@ -104,7 +104,7 @@ public class DestroyerFireballEntity extends Fireball {
             // wants to use the dummy info that would be parsed, lets not.
             // Did that explanation make sense? Probably not.
             if (!level().isClientSide) {
-                destroyerExplosion(getCommandSenderWorld(), this, level().damageSources().fireball(this, getOwner()), getX(), getY(), getZ(), explosionPower);
+                destroyerExplosion(level(), this, level().damageSources().fireball(this, getOwner()), getX(), getY(), getZ(), explosionPower);
                 discard();
             }
         }
@@ -121,7 +121,7 @@ public class DestroyerFireballEntity extends Fireball {
             // Reflect fireball and set fuse time
             Entity entity = damageSource.getEntity();
             Vec3 vec = entity.getLookAngle();
-            entity.getCommandSenderWorld().playSound(null, blockPosition(), SoundEvents.TNT_PRIMED, SoundSource.NEUTRAL, 0.8F, 1.0F);
+            entity.level().playSound(null, blockPosition(), SoundEvents.TNT_PRIMED, SoundSource.NEUTRAL, 0.8F, 1.0F);
             fuseTime = 10;
             setDeltaMovement(vec);
             xPower = vec.x * 0.1D;

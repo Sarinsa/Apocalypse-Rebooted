@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.core.mod_event.events;
 
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 
@@ -26,7 +27,7 @@ public final class ThunderstormEvent extends AbstractEvent {
 
     @Override
     public boolean shouldContinueRunning(ServerLevel level, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager) {
-        return level.isThundering();
+        return ApocalypseConfig.THUNDERSTORM.GENERAL.enabled.get() && level.isThundering();
     }
 
     @Override
