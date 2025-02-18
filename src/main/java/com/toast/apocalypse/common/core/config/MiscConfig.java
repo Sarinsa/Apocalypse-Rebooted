@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.core.config;
 
+import com.toast.apocalypse.common.core.register.ApocalypseBlocks;
 import fathertoast.crust.api.config.common.AbstractConfigCategory;
 import fathertoast.crust.api.config.common.AbstractConfigFile;
 import fathertoast.crust.api.config.common.ConfigManager;
@@ -122,7 +123,7 @@ public class MiscConfig extends AbstractConfigFile {
 
             breecherExplosionTargets = SPEC.define(new BlockListField("breecher_explosion_targets", new BlockList(List.of(), List.of(
                     BlockTags.BEDS, BlockTags.DOORS, BlockTags.TRAPDOORS, Tags.Blocks.CHESTS, Tags.Blocks.BARRELS, Tags.Blocks.FENCE_GATES
-            )),
+            ), new BlockEntry(ApocalypseBlocks.DYNAMIC_TRAP.get())),
                     "A list of blocks that the Breecher will target and try to explode if it can't currently reach its target player."));
 
             SPEC.newLine();
