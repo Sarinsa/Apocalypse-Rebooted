@@ -25,8 +25,8 @@ public class NaturalSpawnerMixin {
     @Inject(
             method = "isSpawnPositionOk",
             at = @At(
-                    value = "HEAD"
-            ),
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/SpawnPlacements$Type;canSpawnAt(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/EntityType;)Z"),
             cancellable = true
     )
     private static void onIsSpawnPositionOk(SpawnPlacements.Type type, LevelReader levelReader,

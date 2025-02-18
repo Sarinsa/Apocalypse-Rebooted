@@ -121,7 +121,7 @@ public class EntityEvents {
     public void onSpawnPositionCheck(MobSpawnEvent.PositionCheck event) {
         if (event.getSpawnType() != MobSpawnType.NATURAL) return;
 
-        if (event.getLevel() instanceof Level level && level.isThundering()) {
+        if (event.getLevel() instanceof Level level && ApocalypseConfig.THUNDERSTORM.GENERAL.enabled.get() && level.isThundering()) {
             if (event.getEntity() instanceof Enemy) {
                 event.setResult(Event.Result.ALLOW);
             }

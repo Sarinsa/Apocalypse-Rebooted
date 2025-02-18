@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.misc.mixin_work;
 
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.difficulty.MobAttributeHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -66,7 +67,7 @@ public class CommonMixinHooks {
     public static void onCanSpawnAtBody(SpawnPlacements.Type type, LevelReader levelReader,
                                         BlockPos pos, EntityType<?> entityType, CallbackInfoReturnable<Boolean> cir) {
         if (type == SpawnPlacements.Type.NO_RESTRICTIONS || type == SpawnPlacements.Type.ON_GROUND) {
-            if (levelReader instanceof Level level && level.isThundering()) {
+            if (levelReader instanceof Level level && ApocalypseConfig.THUNDERSTORM.GENERAL.enabled.get() && level.isThundering()) {
                 BlockPos belowPos = pos.below();
                 BlockState state = level.getBlockState(pos);
                 BlockState belowState = level.getBlockState(belowPos);
