@@ -5,13 +5,14 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.toast.apocalypse.client.event.ClientEvents;
 import com.toast.apocalypse.client.renderer.model.armor.BucketHelmetModel;
-import com.toast.apocalypse.client.renderer.weather.AcidRainRenderHelper;
 import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import org.joml.Vector3f;
 
 public class ClientUtil {
 
@@ -23,7 +24,16 @@ public class ClientUtil {
     // Unused (will probably remain unused, very sad)
     public static int[] UNLOCKED_INDEXES = new int[]{};
 
-    public static final AcidRainRenderHelper ACID_RAIN_TICKER = new AcidRainRenderHelper();
+    public static Vector3f RAIN_COLOR;
+    private static boolean isRainingAcid;
+
+    public static void setIsRainingAcid(boolean isRainingAcid) {
+        ClientUtil.isRainingAcid = isRainingAcid;
+    }
+
+    public static boolean isRainingAcid() {
+        return isRainingAcid;
+    }
 
 
     public static void onAddLayer(EntityRenderersEvent.AddLayers event) {

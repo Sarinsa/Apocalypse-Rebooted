@@ -1,7 +1,7 @@
 package com.toast.apocalypse.client.config;
 
+import com.toast.apocalypse.client.ClientUtil;
 import com.toast.apocalypse.client.renderer.DifficultyOverlayRenderHandler;
-import com.toast.apocalypse.client.renderer.weather.AcidRainRenderHelper;
 import fathertoast.crust.api.config.common.AbstractConfigCategory;
 import fathertoast.crust.api.config.common.AbstractConfigFile;
 import fathertoast.crust.api.config.common.ConfigManager;
@@ -77,7 +77,7 @@ public class ClientConfig extends AbstractConfigFile {
             rainColor = SPEC.define(new InjectionWrapperField<>(new ColorIntField("acid_rain_color", 0xACFF75, false,
                     "Decides the color of Apocalypse's acid rain."),
                     (color) -> {
-                        AcidRainRenderHelper.RAIN_COLOR = new Vector3f(color.getRed(), color.getGreen(), color.getBlue());
+                        ClientUtil.RAIN_COLOR = new Vector3f(color.getRed(), color.getGreen(), color.getBlue());
                     })
             );
             renderAcidRain = SPEC.define(new BooleanField("render_acid_rain", true,

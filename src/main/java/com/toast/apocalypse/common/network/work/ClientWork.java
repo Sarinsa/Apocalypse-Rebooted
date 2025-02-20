@@ -133,10 +133,10 @@ public class ClientWork {
 
     public static void handleSimpleClientTaskRequest(S2CSimpleClientTask message) {
         if (message.action == S2CSimpleClientTask.SET_ACID_RAIN) {
-            ClientUtil.ACID_RAIN_TICKER.setRainingAcid(true);
+            ClientUtil.setIsRainingAcid(true);
         }
         else if (message.action == S2CSimpleClientTask.REMOVE_ACID_RAIN) {
-            ClientUtil.ACID_RAIN_TICKER.setRainingAcid(false);
+            ClientUtil.setIsRainingAcid(false);
         }
     }
 
