@@ -354,7 +354,7 @@ public class Seeker extends AbstractFullMoonGhast {
                 ApocalypseEventFactory.fireSeekerAlertEvent(seeker.level(), seeker, toAlert, target);
 
                 for (Mob mob : toAlert) {
-                    if (mob.getTarget() != target) {
+                    if (!mob.isRemoved() && mob.isAlive() && mob.getTarget() != target) {
                         mob.setLastHurtByMob(null);
                         mob.setTarget(target);
                         AttributeInstance attributeInstance = mob.getAttribute(Attributes.FOLLOW_RANGE);
