@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(NaturalSpawner.class)
-public class NaturalSpawnerMixin {
+public abstract class NaturalSpawnerMixin {
 
     /**
      * The purpose of this injector is to effectively skip checking
