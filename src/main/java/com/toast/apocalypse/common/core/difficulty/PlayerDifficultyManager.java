@@ -1,7 +1,6 @@
 package com.toast.apocalypse.common.core.difficulty;
 
 import com.google.common.collect.ImmutableSet;
-import com.mojang.datafixers.util.Pair;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.config.util.ServerConfigHelper;
@@ -14,14 +13,12 @@ import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.network.message.S2CSimpleClientTask;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.util.CapabilityHelper;
-import com.toast.apocalypse.common.util.RainDamageTickHandler;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,7 +32,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -89,9 +85,6 @@ public final class PlayerDifficultyManager {
     /** A Map containing each online player's current event. */
     private final Map<UUID, Map<EventType<?>, AbstractEvent>> playerEvents = new HashMap<>();
 
-    /** Manages rain damage. */
-    private final RainDamageTickHandler rainDamageHelper;
-
     /** Server instance. */
     private MinecraftServer server;
 
@@ -100,7 +93,6 @@ public final class PlayerDifficultyManager {
 
 
     public PlayerDifficultyManager() {
-        rainDamageHelper = new RainDamageTickHandler();
     }
 
     public static long queryDayTime(long dayTime) {
@@ -269,11 +261,6 @@ public final class PlayerDifficultyManager {
 
             // Update lunar armor modifier index.
             calculateLunarArmorIndex(server);
-
-            // Tick acid rain damage
-            if (ApocalypseConfig.ACID_RAIN.GENERAL.rainDamage.get() > 0) {
-                rainDamageHelper.checkAndPerformRainDamageTick(server.getAllLevels(), this);
-            }
 
             if (++timeUpdate >= TICKS_PER_UPDATE) {
                 timeUpdate = 0;
@@ -510,7 +497,6 @@ public final class PlayerDifficultyManager {
         timeSave = 0;
         timeAdvCheck = 0;
         playerEvents.clear();
-        rainDamageHelper.resetTimer();
         worldInfo.clear();
     }
 

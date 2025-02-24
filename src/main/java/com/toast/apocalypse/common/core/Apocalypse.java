@@ -16,12 +16,9 @@ import com.toast.apocalypse.common.event.CapabilityAttachEvents;
 import com.toast.apocalypse.common.event.EntityEvents;
 import com.toast.apocalypse.common.event.PlayerEvents;
 import com.toast.apocalypse.common.event.VillagerTradeEvents;
-import com.toast.apocalypse.common.misc.MobWikiIndexes;
 import com.toast.apocalypse.common.network.PacketHandler;
-import com.toast.apocalypse.common.tag.ApocalypseBlockTags;
-import com.toast.apocalypse.common.tag.ApocalypseEntityTags;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
-import com.toast.apocalypse.common.util.RainDamageTickHandler;
+import com.toast.apocalypse.common.event.RainDamageTickHandler;
 import com.toast.apocalypse.common.util.VersionCheckHelper;
 import fathertoast.crust.api.config.common.ConfigManager;
 import net.minecraft.resources.ResourceLocation;
@@ -95,7 +92,6 @@ public class Apocalypse {
         eventBus.addListener(this::sendIMCMessages);
 
         // Register event listeners
-        MinecraftForge.EVENT_BUS.register(new RainDamageTickHandler());
         MinecraftForge.EVENT_BUS.register(new EntityEvents());
         MinecraftForge.EVENT_BUS.register(new PlayerEvents());
         MinecraftForge.EVENT_BUS.register(new CapabilityAttachEvents());
