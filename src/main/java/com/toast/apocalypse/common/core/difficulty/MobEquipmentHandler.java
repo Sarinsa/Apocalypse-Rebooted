@@ -14,6 +14,7 @@ import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
@@ -34,7 +35,7 @@ public final class MobEquipmentHandler {
 
     /**
      * Handles Apocalypse equipment for mobs when they spawn, such as weapon and armor.<br>
-     * Called from {@link com.toast.apocalypse.common.event.EntityEvents#onEntityJoinWorld(EntityJoinLevelEvent)}
+     * Called from {@link com.toast.apocalypse.common.event.EntityEvents#onEntityJoinWorld(MobSpawnEvent.FinalizeSpawn)} (EntityJoinLevelEvent)}
      *
      * @param entity The entity to handle equipment for.
      * @param difficulty The raw difficulty of the nearest player.
@@ -94,7 +95,7 @@ public final class MobEquipmentHandler {
 
         if (!MOB_BUFFING.EQUIPMENT.weaponTierList.isEmpty()) {
             if (MOB_BUFFING.EQUIPMENT.currentWeaponTierOnly.get()) {
-                Item item = DataStructureUtils.getRandomListElement(random, MOB_BUFFING.EQUIPMENT.weaponTierList.getClosestValues(difficulty));
+                Item item = DataStructureUtils.getRandomListValue(random, MOB_BUFFING.EQUIPMENT.weaponTierList.getClosestValues(difficulty));
 
                 if (item != null) {
                     weapon = new ItemStack(item);
@@ -102,7 +103,7 @@ public final class MobEquipmentHandler {
             }
             else {
                 List<Item> items = MOB_BUFFING.EQUIPMENT.weaponTierList.getAllUntil(difficulty);
-                Item item = DataStructureUtils.getRandomListElement(random, items);
+                Item item = DataStructureUtils.getRandomListValue(random, items);
 
                 if (item != null) {
                     weapon = new ItemStack(item);
@@ -141,10 +142,10 @@ public final class MobEquipmentHandler {
                     }
                 }
                 Map<EquipmentSlot, List<Item>> armors = ARMOR_MAPS.get(tier);
-                toEquip[0] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.FEET)));
-                toEquip[1] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.LEGS)));
-                toEquip[2] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.CHEST)));
-                toEquip[3] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.HEAD)));
+                toEquip[0] = new ItemStack(DataStructureUtils.getRandomListValue(random, armors.get(EquipmentSlot.FEET)));
+                toEquip[1] = new ItemStack(DataStructureUtils.getRandomListValue(random, armors.get(EquipmentSlot.LEGS)));
+                toEquip[2] = new ItemStack(DataStructureUtils.getRandomListValue(random, armors.get(EquipmentSlot.CHEST)));
+                toEquip[3] = new ItemStack(DataStructureUtils.getRandomListValue(random, armors.get(EquipmentSlot.HEAD)));
             }
             else {
                 List<Integer> availableTiers = new ArrayList<>();
@@ -157,11 +158,11 @@ public final class MobEquipmentHandler {
                 if (availableTiers.isEmpty())
                     return;
 
-                Map<EquipmentSlot, List<Item>> armors = ARMOR_MAPS.get(DataStructureUtils.getRandomListElement(random, availableTiers));
-                toEquip[0] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.FEET)));
-                toEquip[1] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.LEGS)));
-                toEquip[2] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.CHEST)));
-                toEquip[3] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.HEAD)));
+                Map<EquipmentSlot, List<Item>> armors = ARMOR_MAPS.get(DataStructureUtils.getRandomListValue(random, availableTiers));
+                toEquip[0] = new ItemStack(DataStructureUtils.getRandomListValue(random, armors.get(EquipmentSlot.FEET)));
+                toEquip[1] = new ItemStack(DataStructureUtils.getRandomListValue(random, armors.get(EquipmentSlot.LEGS)));
+                toEquip[2] = new ItemStack(DataStructureUtils.getRandomListValue(random, armors.get(EquipmentSlot.CHEST)));
+                toEquip[3] = new ItemStack(DataStructureUtils.getRandomListValue(random, armors.get(EquipmentSlot.HEAD)));
             }
             for (int i = 0; i < toEquip.length; i++) {
                 if (entity.getItemBySlot(ARMOR_SLOTS[i]).isEmpty() && !toEquip[i].isEmpty()) {

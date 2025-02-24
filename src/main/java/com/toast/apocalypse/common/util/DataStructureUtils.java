@@ -21,20 +21,20 @@ public class DataStructureUtils {
     }
 
     @Nullable
-    public static <T> T getRandomListElement(@Nonnull Random random, @Nonnull List<T> list) {
+    public static <T> T getRandomListValue(@Nonnull Random random, @Nonnull List<T> list) {
         return list.isEmpty() ? null :
                 (list.size() == 1) ? list.get(0) : list.get(random.nextInt(list.size()));
     }
 
     @Nullable
-    public static <T> T getRandomListElement(@Nonnull RandomSource random, @Nonnull List<T> list) {
+    public static <T> T getRandomListValue(@Nonnull RandomSource random, @Nonnull List<T> list) {
         return list.isEmpty() ? null :
                 (list.size() == 1) ? list.get(0) : list.get(random.nextInt(list.size()));
     }
 
 
     @Nullable
-    public static <T> T getRandomCollectionElementFiltered(Random random, Collection<T> collection, Predicate<T> predicate) {
+    public static <T> T getRandomCollectionValueFiltered(Random random, Collection<T> collection, Predicate<T> predicate) {
         final List<T> candidateElements = new ArrayList<>();
 
         for (T element : collection) {
@@ -49,7 +49,7 @@ public class DataStructureUtils {
 
 
     @Nullable
-    public static <T> T getRandomCollectionElementFiltered(RandomSource random, Collection<T> collection, Predicate<T> predicate) {
+    public static <T> T getRandomCollectionValueFiltered(RandomSource random, Collection<T> collection, Predicate<T> predicate) {
         final List<T> candidateElements = new ArrayList<>();
 
         for (T element : collection) {
@@ -63,7 +63,7 @@ public class DataStructureUtils {
     }
 
     @Nullable
-    public static <K, V> V getRandomMapElementFiltered(Random random, Map<K, V> map, BiPredicate<K, V> biPredicate) {
+    public static <K, V> V getRandomMapValueFiltered(Random random, Map<K, V> map, BiPredicate<K, V> biPredicate) {
         final List<V> candidateElements = new ArrayList<>();
 
         for (K key : map.keySet()) {
@@ -79,7 +79,7 @@ public class DataStructureUtils {
     }
 
     @Nullable
-    public static <K, V> V getRandomMapElementFiltered(RandomSource random, Map<K, V> map, BiPredicate<K, V> biPredicate) {
+    public static <K, V> V getRandomMapValueFiltered(RandomSource random, Map<K, V> map, BiPredicate<K, V> biPredicate) {
         final List<V> candidateElements = new ArrayList<>();
 
         for (K key : map.keySet()) {

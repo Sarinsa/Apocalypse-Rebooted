@@ -7,6 +7,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ public final class MobPotionHandler {
     /**
      * Attempts to pick a potion/mob effect from the config and
      * apply to the given entity.<br>
-     * Called from {@link com.toast.apocalypse.common.event.EntityEvents#onEntityJoinWorld(EntityJoinLevelEvent)}
+     * Called from {@link com.toast.apocalypse.common.event.EntityEvents#onFinalizeSpawn(MobSpawnEvent.FinalizeSpawn)}
      *
      * @param livingEntity The entity to find a potion effect for.
      * @param difficulty The raw difficulty of the nearest player.
@@ -43,7 +44,7 @@ public final class MobPotionHandler {
         }
         if (random.nextDouble() <= bonus) {
             final List<MobEffect> availableEffects = MOB_BUFFING.POTION_EFFECTS.potionEffectList.getAllUntil(difficulty);
-            MobEffect mobEffect = DataStructureUtils.getRandomListElement(random, availableEffects);
+            MobEffect mobEffect = DataStructureUtils.getRandomListValue(random, availableEffects);
 
             if (mobEffect != null) {
                 livingEntity.addEffect(new MobEffectInstance(mobEffect, -1));

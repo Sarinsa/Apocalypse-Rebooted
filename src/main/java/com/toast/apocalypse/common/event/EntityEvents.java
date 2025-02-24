@@ -139,7 +139,7 @@ public class EntityEvents {
      * Handles equipment and potion effects for mobs.
      */
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onEntityJoinWorld(MobSpawnEvent.FinalizeSpawn event) {
+    public void onFinalizeSpawn(MobSpawnEvent.FinalizeSpawn event) {
         if (!EnvironmentHelper.isLoaded(event.getLevel(), BlockPos.containing(event.getX(), event.getY(), event.getZ())))
             return;
 
