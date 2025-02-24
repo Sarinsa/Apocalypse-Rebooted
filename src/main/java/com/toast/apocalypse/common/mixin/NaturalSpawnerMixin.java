@@ -15,10 +15,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class NaturalSpawnerMixin {
 
     /**
-     * The purpose of this injector is to effectively skip checking
-     * if the block an entity is trying to spawn on is a valid spawn,
-     * allowing mobs to spawn on pretty much any block as long as it
-     * has collision.<br><br>
+     * The purpose of this injector is to omit the block state check when the natural spawner looks
+     * for a valid position to spawn a mob ({@link net.minecraftforge.common.extensions.IForgeBlockState#isValidSpawn(LevelReader, BlockPos, SpawnPlacements.Type, EntityType)})
+     * <br><br>
+     * Instead, we only check if the below block state has a collision box and the fluid state is empty, and return true if so.
+     * <br><br>
      * See {@link CommonMixinHooks#onCanSpawnAtBody(SpawnPlacements.Type, LevelReader, BlockPos, EntityType, CallbackInfoReturnable)} for more details.
      */
     @Inject(
