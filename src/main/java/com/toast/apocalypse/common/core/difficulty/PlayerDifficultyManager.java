@@ -292,6 +292,22 @@ public final class PlayerDifficultyManager {
 
                     // Update world info
                     if (!worldInfo.isEmpty()) {
+                        Level overworld = server.overworld();
+                        WorldInfo overworldInfo = worldInfo.get(overworld);
+
+                        if (overworldInfo != null) {
+                            if (overworld.isRaining()) {
+                                if (!overworldInfo.justStartedRaining()) {
+                                    overworldInfo.setJustStartedRaining(true, overworld.random);
+                                }
+                            } else {
+                                overworldInfo.setJustStartedRaining(false, overworld.random);
+                                overworldInfo.setRainingAcid(false);
+                            }
+                        }
+
+                        // Currently only triggering acid rain in the overworld
+                        /*
                         for (ServerLevel level : server.getAllLevels()) {
                             WorldInfo info = worldInfo.get(level);
 
@@ -307,6 +323,8 @@ public final class PlayerDifficultyManager {
                                 info.setRainingAcid(false);
                             }
                         }
+
+                         */
                     }
                 }
             }
