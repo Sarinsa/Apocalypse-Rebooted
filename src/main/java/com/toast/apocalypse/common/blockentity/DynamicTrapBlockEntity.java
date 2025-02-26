@@ -37,6 +37,8 @@ import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -46,7 +48,10 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
     private static final List<AABB> EMPTY = List.of();
 
     private NonNullList<ItemStack> items = NonNullList.withSize(9, ItemStack.EMPTY);
+
     private BaseTrapAction currentTrap = null;
+    private int currentTrapRadius = 0;
+
     @Nullable
     private TrapRecipe currentRecipe = null;
     private int preparationTime = 0;
@@ -85,7 +90,7 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, DynamicTrapBlockEntity trap) {
-        if (trap.currentTrap == null) {
+        if (trap.getCurrentTrap() == null) {
             if (trap.findValidRecipe()) {
                 trap.updateTrapBlock(DynamicTrapBlock.TrapState.PROCESSING);
 
@@ -157,11 +162,25 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
 
     public void setCurrentTrap(@Nullable BaseTrapAction trapAction) {
         currentTrap = trapAction;
+        currentTrapRadius = trapAction == null ? -1 : trapAction.getEffectRadius();
     }
 
     @Nullable
     public BaseTrapAction getCurrentTrap() {
         return currentTrap;
+    }
+
+    /** Overwrite called on client via packet. Do not use. */
+    public void setCurrentTrapRadius(int radius) {
+        this.currentTrapRadius = radius;
+    }
+
+    /**
+     * @return The effect radius of the current trap.<br>
+     *         If current trap is null, this returns -1.
+     */
+    public int getCurrentTrapRadius() {
+        return getCurrentTrap() == null ? -1 : currentTrapRadius;
     }
 
     public int getPreparationTime() {
@@ -206,7 +225,7 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
             ResourceLocation id = ResourceLocation.tryParse(compoundTag.getString("CurrentTrap"));
 
             if (ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsKey(id)) {
-                currentTrap = ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue(id);
+                setCurrentTrap(ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue(id));
             }
         }
     }
@@ -219,9 +238,9 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
 
         compoundTag.putInt("CraftingTime", preparationTime);
 
-        if (currentTrap != null) {
-            if (ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsValue(currentTrap)) {
-                compoundTag.putString("CurrentTrap", ModRegistries.TRAP_ACTIONS_REGISTRY.get().getKey(currentTrap).toString());
+        if (getCurrentTrap() != null) {
+            if (ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsValue(getCurrentTrap())) {
+                compoundTag.putString("CurrentTrap", ModRegistries.TRAP_ACTIONS_REGISTRY.get().getKey(getCurrentTrap()).toString());
             }
         }
     }
@@ -294,9 +313,9 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
     public CompoundTag getUpdateTag() {
         CompoundTag compoundTag = new CompoundTag();
 
-        if (currentTrap != null) {
-            if (ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsValue(currentTrap)) {
-                compoundTag.putString("CurrentTrap", ModRegistries.TRAP_ACTIONS_REGISTRY.get().getKey(currentTrap).toString());
+        if (getCurrentTrap() != null) {
+            if (ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsValue(getCurrentTrap())) {
+                compoundTag.putString("CurrentTrap", ModRegistries.TRAP_ACTIONS_REGISTRY.get().getKey(getCurrentTrap()).toString());
             }
         }
         return compoundTag;
@@ -308,16 +327,16 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
             ResourceLocation id = ResourceLocation.tryParse(tag.getString("CurrentTrap"));
 
             if (ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsKey(id)) {
-                currentTrap = ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue(id);
+                setCurrentTrap(ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue(id));
             }
         }
     }
 
     @Override
     public @Nullable List<AABB> getBoundingBoxes() {
-        if (currentTrap == null) return EMPTY;
+        if (getCurrentTrapRadius() < 0) return EMPTY;
 
-        final int effectRadius = currentTrap.getEffectRadius();
+        final int effectRadius = currentTrapRadius;
         final Direction dir = getBlockState().getValue(DynamicTrapBlock.FACING);
         AABB box = new AABB(getBlockPos()).inflate(effectRadius);
 

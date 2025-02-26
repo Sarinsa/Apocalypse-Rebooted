@@ -120,9 +120,10 @@ public class NetworkHelper {
         String id = trap.getCurrentTrap() == null
                 ? ""
                 : ModRegistries.TRAP_ACTIONS_REGISTRY.get().getKey(trap.getCurrentTrap()).toString();
+        int trapRadius = trap.getCurrentTrapRadius();
 
         for (ServerPlayer player : level.players()) {
-            PacketHandler.sendToClient(new S2CDynTrapUpdate(trap.getBlockPos(), id), player);
+            PacketHandler.sendToClient(new S2CDynTrapUpdate(trap.getBlockPos(), id, trapRadius), player);
         }
     }
 

@@ -162,6 +162,7 @@ public class ClientWork {
 
             if (ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsKey(id)) {
                 trap.setCurrentTrap(ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue(id));
+                trap.setCurrentTrapRadius(message.trapRadius);
             }
         }
     }
