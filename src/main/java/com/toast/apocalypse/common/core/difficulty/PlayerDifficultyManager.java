@@ -338,7 +338,7 @@ public final class PlayerDifficultyManager {
      * Used in {@link LunarArmorItem} to decide which armor attribute modifiers to use.
      */
     private void calculateLunarArmorIndex(MinecraftServer server) {
-        if (++sporadicLunarIndexTime >= 1200) {
+        if (++sporadicLunarIndexTime >= (ApocalypseConfig.MISC.OTHER.lunarEquipmentUpdateTime.get() * 20)) {
             sporadicLunarIndexTime = 0;
             sporadicLunarArmorIndex = server.overworld().random.nextInt(LunarArmorItem.MAX_INDEX) + 1;
         }

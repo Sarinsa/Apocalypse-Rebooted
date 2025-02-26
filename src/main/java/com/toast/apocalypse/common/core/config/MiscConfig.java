@@ -110,6 +110,8 @@ public class MiscConfig extends AbstractConfigFile {
 
         public final BooleanField pauseDaylightCycle;
 
+        public final IntField lunarEquipmentUpdateTime;
+
 
         Other(MiscConfig parent) {
             super(parent, "other",
@@ -151,6 +153,12 @@ public class MiscConfig extends AbstractConfigFile {
             pauseDaylightCycle = SPEC.define(new BooleanField("pause_daylight_cycle", true,
                     "(Only relevant for multiplayer) If enabled, the day-night cycle will pause if no players are online.",
                     "Useful if you want your players to be unable to just skip through full moons by disconnecting."));
+
+            SPEC.newLine();
+
+            lunarEquipmentUpdateTime = SPEC.define(new IntField("lunar_equipment_update_time", 60, 5, 3600,
+                    "Some equipment added by Apocalypse (Midnight Steel armor) has abilities or attribute modifiers that halve on new moons or change over time when it is a full moon night.",
+                    "This field's value is the amount of seconds that must pass before the equipment's stats change again during full moon nights."));
 
             SPEC.newLine();
         }
