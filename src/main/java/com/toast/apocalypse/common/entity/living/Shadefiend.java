@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.entity.living;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
 import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
+import fathertoast.crust.api.lib.CrustObjects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -150,6 +151,7 @@ public class Shadefiend extends FlyingMob implements Enemy {
                     effectDuration = 80;
                 }
                 livingEntity.addEffect(new MobEffectInstance(MobEffects.DARKNESS, effectDuration, 0), this);
+                livingEntity.addEffect(new MobEffectInstance(CrustObjects.vulnerability(), effectDuration, 0), this);
             }
             return true;
         }
