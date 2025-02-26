@@ -2,14 +2,19 @@
   "required": true,
   "package": "com.toast.apocalypse.common.mixin",
   "compatibilityLevel": "JAVA_17",
-  "minVersion": "0.8",
-  "refmap": "apocalypse.mixins.refmap.json",
+  "minVersion": "0.8.5",
+  "refmap": "apocalypse.refmap.json",
   "mixins": [
+    "CreeperEntityMixin",
+    "NaturalSpawnerMixin",
+    "PlayerEntityMixin",
+    "ServerWorldMixin"
   ],
   "server": [
   ],
   "client": [
-    "CreateWorldScreenMixin"
+    "CreateWorldScreenMixin",
+    "LevelRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

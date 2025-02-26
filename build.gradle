@@ -21,7 +21,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 
 mixin {
-    add sourceSets.main, "apocalypse.mixins.refmap.json"
+    add sourceSets.main, "apocalypse.refmap.json"
 }
 
 version = "${mc_version}-${mod_version}-${mod_state}"
@@ -50,13 +50,11 @@ minecraft {
         }
         client {
             property "mixin.debug.export", "true"
-            property 'mixin.env.disableRefMap', 'true'
 
             arg "-mixin.config=apocalypse.mixins.json"
         }
 
         server {
-            property 'mixin.env.disableRefMap', 'true'
             property "mixin.debug.export", "true"
 
             arg "-mixin.config=apocalypse.mixins.json"
@@ -98,18 +96,29 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
-    // compile against the JEI API but do not include it at runtime
+    // JEI
     compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}"))
     compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}"))
-
-    // at runtime, use the full JEI jar for Forge
     runtimeOnly(fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}"))
 
     // Crust; only implement the api, but include the entire mod at runtime
     implementation "curse.maven:crust-873570:${crust_api_version}"
     runtimeOnly "curse.maven:crust-873570:${crust_src_version}"
 
+    // Jade
     implementation fg.deobf("curse.maven:jade-324717:${jade_version}")
+
+    // Serene Seasons
+    runtimeOnly fg.deobf("curse.maven:sereneseasons-291874:${serene_s_version}")
+
+    // Twilight
+    runtimeOnly fg.deobf("curse.maven:twilightforest-227639:5468648")
+
+    // MixinExtras
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
+    implementation(jarJar("io.github.llamalad7:mixinextras-forge:0.4.1")) {
+        jarJar.ranged(it, "[0.4.1,)")
+    }
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }

@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.CustomSpawner;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -26,7 +27,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
-//@Mixin(ServerLevel.class)
+@Mixin(ServerLevel.class)
 public abstract class ServerWorldMixin extends Level implements WorldGenLevel {
 
 
@@ -35,12 +36,10 @@ public abstract class ServerWorldMixin extends Level implements WorldGenLevel {
         super(levelData, levelId, registryAccess, dimensionType, profilerFiller, isClient, isDebug, seed, maxChainedNeighborUpdates);
     }
 
-    /*
+
     @Final
     @Inject(method = "setDayTime", at = @At("HEAD"), cancellable = true)
     public void onSetDayTime(long time, CallbackInfo ci) {
         ServerMixinHooks.onServerWorldSetDayTime((ServerLevel) (Object) this, ci);
     }
-
-     */
 }

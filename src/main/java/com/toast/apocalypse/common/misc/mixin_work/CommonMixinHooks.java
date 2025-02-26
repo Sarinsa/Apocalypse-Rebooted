@@ -5,6 +5,7 @@ import com.toast.apocalypse.common.core.difficulty.MobAttributeHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.Parrot;
@@ -18,6 +19,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class CommonMixinHooks {
@@ -32,29 +34,10 @@ public class CommonMixinHooks {
         return originalDamage;
     }
 
-    public static void capAreaEffectCloudDurations(AreaEffectCloud effectCloud) {
-        List<MobEffectInstance> overriddenPotionEffects = new ArrayList<>();
-        final int cap = 600;
-
-        for (MobEffectInstance effectInstance : effectCloud.potion.getEffects()) {
-            if (effectInstance.getDuration() > cap) {
-                overriddenPotionEffects.add(new MobEffectInstance(effectInstance.getEffect(), cap, effectInstance.getAmplifier(), effectInstance.isAmbient(), effectInstance.isVisible(), effectInstance.showIcon(), effectInstance.hiddenEffect, effectInstance.getFactorData()));
-            }
-        }
-        if (!overriddenPotionEffects.isEmpty()) {
-            effectCloud.setPotion(new Potion(overriddenPotionEffects.toArray(new MobEffectInstance[0])));
-        }
-
-        List<MobEffectInstance> overriddenEffects = new ArrayList<>();
-
+    public static void capLingeringCloudEffectDurations(AreaEffectCloud effectCloud) {
         for (MobEffectInstance effectInstance : effectCloud.effects) {
-            if (effectInstance.getDuration() > cap) {
-                overriddenEffects.add(new MobEffectInstance(effectInstance.getEffect(), cap, effectInstance.getAmplifier(), effectInstance.isAmbient(), effectInstance.isVisible(), effectInstance.showIcon(), effectInstance.hiddenEffect, effectInstance.getFactorData()));
-            }
-        }
-        if (!overriddenEffects.isEmpty()) {
-            effectCloud.effects.clear();
-            effectCloud.effects.addAll(overriddenEffects);
+            if (effectInstance.isInfiniteDuration())
+                effectInstance.duration = 600;
         }
     }
 
