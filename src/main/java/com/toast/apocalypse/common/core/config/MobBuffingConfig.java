@@ -398,7 +398,7 @@ public class MobBuffingConfig extends AbstractConfigFile {
             SPEC.newLine();
 
             entityBlacklist = SPEC.define(new EntityListField("entity_blacklist", new EntityList(
-                    new EntityEntry(EntityType.WARDEN)
+                    null, new EntityEntry(EntityType.WARDEN)
             ).addTagEntries(List.of(new EntityTagEntry(Tags.EntityTypes.BOSSES)))
                     .setNoValues(),
                     "A list of entities that should not be given potion effects upon spawning."));

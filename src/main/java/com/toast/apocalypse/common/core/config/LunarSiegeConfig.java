@@ -77,7 +77,7 @@ public class LunarSiegeConfig extends AbstractConfigFile {
 
             SPEC.newLine();
 
-            mobSpawnSettings = SPEC.define( new RegistryEntryValueListField<>( "mob_spawn_settings", new RegistryEntryValueList<>( () -> ForgeRegistries.ENTITY_TYPES,
+            mobSpawnSettings = SPEC.define( new RegistryEntryValueListField<>( "mob_spawn_settings", new RegistryEntryValueList<>(null, () -> ForgeRegistries.ENTITY_TYPES,
                     new RegistryValueEntry<>(
                             SiegeMobProperties.this.mobSpawnSettings,
                             ForgeRegistries.ENTITY_TYPES.getKey(ApocalypseEntities.BREECHER.get()),

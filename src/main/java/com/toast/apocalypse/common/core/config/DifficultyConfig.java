@@ -88,7 +88,7 @@ public class DifficultyConfig extends AbstractConfigFile {
             SPEC.newLine();
 
             mobSpawnDifficulties = SPEC.define(new EntityListField("mob_spawn_difficulty_levels", new EntityList(
-                    new EntityEntry(ApocalypseEntities.FEARWOLF.get(), 30.0D)
+                    null, new EntityEntry(ApocalypseEntities.FEARWOLF.get(), 30.0D)
             ).setSingleValue().setRangePos(),
                     "A list of entity types linked with a difficulty value,",
                     "representing the difficulty level required for them to start spawning naturally in the world.",

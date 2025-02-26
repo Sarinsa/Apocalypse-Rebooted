@@ -62,6 +62,7 @@ public class AcidRainConfig extends AbstractConfigFile {
                     "If true, acid rain will damage all living things and not just players."));
             mobBlacklist = SPEC.define(new EntityListField("mob_blacklist",
                     new EntityList(
+                            null,
                             new EntityEntry(EntityType.VEX),
                             new EntityEntry(EntityType.SLIME),
                             new EntityEntry(EntityType.WARDEN),
