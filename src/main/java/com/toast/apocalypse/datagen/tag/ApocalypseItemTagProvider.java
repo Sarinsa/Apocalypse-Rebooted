@@ -2,11 +2,13 @@ package com.toast.apocalypse.datagen.tag;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
+import com.toast.apocalypse.common.tag.ApocalypseItemTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.data.ExistingFileHelper;
@@ -22,6 +24,9 @@ public class ApocalypseItemTagProvider extends ItemTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider lookupProvider) {
+        tag(ApocalypseItemTags.COOKIES)
+                .add(Items.COOKIE);
+
         tag(Tags.Items.INGOTS)
                 .add(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get());
 

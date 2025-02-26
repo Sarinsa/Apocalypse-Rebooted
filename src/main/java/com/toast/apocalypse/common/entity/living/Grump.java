@@ -11,6 +11,7 @@ import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
 import com.toast.apocalypse.common.inventory.container.GrumpInventoryContainer;
 import com.toast.apocalypse.common.misc.PlayerKeyBindInfo;
 import com.toast.apocalypse.common.network.NetworkHelper;
+import com.toast.apocalypse.common.tag.ApocalypseItemTags;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import fathertoast.crust.api.lib.CrustObjects;
 import net.minecraft.core.BlockPos;
@@ -235,7 +236,7 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
             }
             return InteractionResult.CONSUME;
         }
-        else if (itemStack.getItem() == Items.COOKIE) {
+        else if (itemStack.is(ApocalypseItemTags.COOKIES)) {
             if (getHealth() < getMaxHealth()) {
                 heal((getMaxHealth() + 1.0F) / 6);
                 performEatEffects(1);
