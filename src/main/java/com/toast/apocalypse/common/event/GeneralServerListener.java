@@ -45,7 +45,6 @@ public class GeneralServerListener {
             NetworkHelper.sendUpdatePlayerDifficultyMult(player);
             NetworkHelper.sendUpdatePlayerMaxDifficulty(player);
 
-            NetworkHelper.sendSimpleClientTaskRequest(player, S2CSimpleClientTask.UPDATE_MOON_PHASE, overworld.dimensionType().moonPhase(overworld.getDayTime()));
             NetworkHelper.sendSimpleClientTaskRequest(player,
                     difficultyManager.isRainingAcid((ServerLevel) player.level())
                             ? S2CSimpleClientTask.SET_ACID_RAIN

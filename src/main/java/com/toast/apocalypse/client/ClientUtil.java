@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.toast.apocalypse.client.event.ClientEvents;
 import com.toast.apocalypse.client.renderer.model.armor.BucketHelmetModel;
 import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -19,8 +18,6 @@ public class ClientUtil {
     private static final ResourceLocation BUCKET_HELM_OVERLAY_TEXTURE = Apocalypse.resourceLoc("textures/misc/bucket_blur.png");
     public static BucketHelmetModel BUCKET_HELMET_MODEL;
 
-    /** Gets updated via packet */
-    public static int OVERWORLD_MOON_PHASE = 0;
     // Unused (will probably remain unused, very sad)
     public static int[] UNLOCKED_INDEXES = new int[]{};
 

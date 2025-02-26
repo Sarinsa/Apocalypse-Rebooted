@@ -1,20 +1,18 @@
 package com.toast.apocalypse.common.blockentity;
 
+import com.toast.apocalypse.api.BaseTrapAction;
 import com.toast.apocalypse.api.register.ModRegistries;
 import com.toast.apocalypse.common.block.DynamicTrapBlock;
 import com.toast.apocalypse.common.core.register.ApocalypseBlockEntities;
 import com.toast.apocalypse.common.core.register.ApocalypseRecipeTypes;
-import com.toast.apocalypse.common.core.register.ApocalypseTrapActions;
 import com.toast.apocalypse.common.menus.DynamicTrapMenu;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.recipe.TrapRecipe;
-import com.toast.apocalypse.api.BaseTrapAction;
 import com.toast.apocalypse.common.util.References;
 import fathertoast.crust.api.util.IBlockEntityBBProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -36,9 +34,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;

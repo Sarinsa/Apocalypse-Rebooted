@@ -314,9 +314,6 @@ public final class PlayerDifficultyManager {
 
                 for (ServerPlayer player : server.getPlayerList().getPlayers()) {
                     saveEventData(player);
-                    // Cheekily sneak in a moon phase update here, since
-                    // it doesn't exactly need to happen often.
-                    NetworkHelper.sendSimpleClientTaskRequest(player, S2CSimpleClientTask.UPDATE_MOON_PHASE, overworld.dimensionType().moonPhase(overworld.getDayTime()));
                 }
             }
 

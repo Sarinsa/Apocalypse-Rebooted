@@ -12,7 +12,6 @@ public class S2CSimpleClientTask {
     public static final byte REMOVE_ACID_RAIN = 1;
     public static final byte ENABLE_ACID_SNOW = 2;
     public static final byte DISABLE_ACID_SNOW = 3;
-    public static final byte UPDATE_MOON_PHASE = 4;
 
 
     /** The "ID" of the logic to run on the client. */

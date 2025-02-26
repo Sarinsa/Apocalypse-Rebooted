@@ -136,10 +136,6 @@ public class ClientWork {
                 ClientUtil.setAcidSnowEnabled(false);
                 break;
             }
-            case UPDATE_MOON_PHASE: {
-                ClientUtil.OVERWORLD_MOON_PHASE = message.value;
-                break;
-            }
         }
     }
 
