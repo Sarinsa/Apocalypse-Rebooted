@@ -178,15 +178,7 @@ public final class PlayerDifficultyManager {
     public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (!event.getEntity().level().isClientSide) {
             ServerPlayer player = (ServerPlayer) event.getEntity();
-            ServerLevel overworld = server.overworld();
             ServerLevel playerLevel = player.serverLevel();
-
-            // Send some neato packets
-            NetworkHelper.sendUpdatePlayerDifficulty(player);
-            NetworkHelper.sendUpdatePlayerDifficultyMult(player);
-            NetworkHelper.sendUpdatePlayerMaxDifficulty(player);
-            NetworkHelper.sendMoonPhaseUpdate(player, overworld);
-            NetworkHelper.sendSimpleClientTaskRequest(player, isRainingAcid(playerLevel) ? S2CSimpleClientTask.SET_ACID_RAIN : S2CSimpleClientTask.REMOVE_ACID_RAIN);
 
             // Load event data
             playerEvents.put(player.getUUID(), new HashMap<>());
@@ -258,6 +250,7 @@ public final class PlayerDifficultyManager {
     public void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             MinecraftServer server = this.server;
+            ServerLevel overworld = server.overworld();
 
             // Update lunar armor modifier index.
             calculateLunarArmorIndex(server);
@@ -279,7 +272,6 @@ public final class PlayerDifficultyManager {
 
                     // Update world info
                     if (!worldInfo.isEmpty()) {
-                        Level overworld = server.overworld();
                         WorldInfo overworldInfo = worldInfo.get(overworld);
 
                         if (overworldInfo != null) {
@@ -324,7 +316,7 @@ public final class PlayerDifficultyManager {
                     saveEventData(player);
                     // Cheekily sneak in a moon phase update here, since
                     // it doesn't exactly need to happen often.
-                    NetworkHelper.sendMoonPhaseUpdate(player, server.overworld());
+                    NetworkHelper.sendSimpleClientTaskRequest(player, S2CSimpleClientTask.UPDATE_MOON_PHASE, overworld.dimensionType().moonPhase(overworld.getDayTime()));
                 }
             }
 

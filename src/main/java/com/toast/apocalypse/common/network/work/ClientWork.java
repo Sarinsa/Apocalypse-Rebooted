@@ -9,12 +9,8 @@ import com.toast.apocalypse.common.blockentity.DynamicTrapBlockEntity;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.capability.difficulty.DifficultyCapProvider;
 import com.toast.apocalypse.common.capability.mobwiki.MobWikiCapProvider;
-import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.difficulty.MobEquipmentHandler;
-import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.entity.living.Grump;
 import com.toast.apocalypse.common.inventory.container.GrumpInventoryContainer;
-import com.toast.apocalypse.common.item.LunarArmorItem;
 import com.toast.apocalypse.common.network.message.*;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
@@ -22,15 +18,11 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+
+import static com.toast.apocalypse.common.network.message.S2CSimpleClientTask.*;
 
 /**
  * Referencing client only code here should cause no trouble
@@ -82,11 +74,6 @@ public class ClientWork {
     }
 
 
-    public static void handleMoonPhaseUpdate(S2CUpdateMoonPhase message) {
-        ClientUtil.OVERWORLD_MOON_PHASE = message.moonPhase;
-    }
-
-
     public static void handleMobWikiIndexUpdate(S2CUpdateMobWikiIndexes message) {
         LocalPlayer player = Minecraft.getInstance().player;
 
@@ -132,13 +119,30 @@ public class ClientWork {
 
 
     public static void handleSimpleClientTaskRequest(S2CSimpleClientTask message) {
-        if (message.action == S2CSimpleClientTask.SET_ACID_RAIN) {
-            ClientUtil.setIsRainingAcid(true);
-        }
-        else if (message.action == S2CSimpleClientTask.REMOVE_ACID_RAIN) {
-            ClientUtil.setIsRainingAcid(false);
+        switch (message.actionId) {
+            case SET_ACID_RAIN: {
+                ClientUtil.setIsRainingAcid(true);
+                break;
+            }
+            case REMOVE_ACID_RAIN: {
+                ClientUtil.setIsRainingAcid(false);
+                break;
+            }
+            case ENABLE_ACID_SNOW: {
+                ClientUtil.setAcidSnowEnabled(true);
+                break;
+            }
+            case DISABLE_ACID_SNOW: {
+                ClientUtil.setAcidSnowEnabled(false);
+                break;
+            }
+            case UPDATE_MOON_PHASE: {
+                ClientUtil.OVERWORLD_MOON_PHASE = message.value;
+                break;
+            }
         }
     }
+
 
     public static void handleDynTrapUpdate(S2CDynTrapUpdate message) {
         BlockPos pos = message.pos;

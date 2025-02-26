@@ -1,13 +1,16 @@
 package com.toast.apocalypse.common.core.config;
 
+import com.toast.apocalypse.common.core.config.util.ServerConfigHelper;
+import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import fathertoast.crust.api.config.common.AbstractConfigCategory;
 import fathertoast.crust.api.config.common.AbstractConfigFile;
 import fathertoast.crust.api.config.common.ConfigManager;
-import fathertoast.crust.api.config.common.field.BooleanField;
-import fathertoast.crust.api.config.common.field.DoubleField;
-import fathertoast.crust.api.config.common.field.EntityListField;
-import fathertoast.crust.api.config.common.field.IntField;
+import fathertoast.crust.api.config.common.field.*;
+import fathertoast.crust.api.config.common.value.EntityEntry;
 import fathertoast.crust.api.config.common.value.EntityList;
+import net.minecraft.world.entity.EntityType;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 
 public class AcidRainConfig extends AbstractConfigFile {
 
@@ -33,6 +36,8 @@ public class AcidRainConfig extends AbstractConfigFile {
         public final BooleanField damageMobs;
         public final EntityListField mobBlacklist;
 
+        public final BooleanField acidSnow;
+
 
         General(AcidRainConfig parent) {
             super(parent, "general",
@@ -56,8 +61,19 @@ public class AcidRainConfig extends AbstractConfigFile {
             damageMobs = SPEC.define(new BooleanField("damage_mobs", false,
                     "If true, acid rain will damage all living things and not just players."));
             mobBlacklist = SPEC.define(new EntityListField("mob_blacklist",
-                    new EntityList().setNoValues(),
+                    new EntityList(
+                            new EntityEntry(EntityType.VEX),
+                            new EntityEntry(EntityType.SLIME),
+                            new EntityEntry(EntityType.WARDEN),
+                            new EntityEntry(ApocalypseEntities.GHOST.get())
+                    ).setNoValues(),
                     "If 'damage_mobs' is true, this field acts as a blacklist for mobs that should be an exception and NOT take damage from acid rain."));
+
+            SPEC.newLine();
+
+            acidSnow = SPEC.define(new BooleanField("acid_snow", false,
+                    "If true, colder biomes/areas where it snows will have acid snow when the acid rain event triggers."),
+                    RestartNote.WORLD);
 
             SPEC.newLine();
         }

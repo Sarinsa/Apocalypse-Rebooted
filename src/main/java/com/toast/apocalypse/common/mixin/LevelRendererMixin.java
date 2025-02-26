@@ -33,12 +33,26 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     @ModifyArg(
             method = "renderSnowAndRain",
             at = @At(
-                value = "INVOKE",
-                target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderTexture(ILnet/minecraft/resources/ResourceLocation;)V"
-            ),
-            require = 2
+                    value = "INVOKE",
+                    target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderTexture(ILnet/minecraft/resources/ResourceLocation;)V",
+                    ordinal = 0
+            )
     )
-    public ResourceLocation modify_renderSnowAndRain(
+    public ResourceLocation modifyFirst_renderSnowAndRain(
+            ResourceLocation originalTexture,
+            @Local(ordinal = 0) Biome.Precipitation precipitation) {
+        return ClientMixinHooks.getRenderSnowAndRainTexture(originalTexture, precipitation);
+    }
+
+    @ModifyArg(
+            method = "renderSnowAndRain",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderTexture(ILnet/minecraft/resources/ResourceLocation;)V",
+                    ordinal = 1
+            )
+    )
+    public ResourceLocation modifySecond_renderSnowAndRain(
             ResourceLocation originalTexture,
             @Local(ordinal = 0) Biome.Precipitation precipitation) {
         return ClientMixinHooks.getRenderSnowAndRainTexture(originalTexture, precipitation);
@@ -53,8 +67,8 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
             index = 0,
             require = 8
     )
-    public float modifyRColor_renderSnowAndRain(float originalR) {
-        return ClientMixinHooks.getAcidRainColor(originalR, 0);
+    public float modifyRColor_renderSnowAndRain(float originalR, @Local(ordinal = 0) Biome.Precipitation precipitation) {
+        return ClientMixinHooks.getAcidRainColor(originalR, 0, precipitation);
     }
 
     @ModifyArg(
@@ -66,8 +80,8 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
             index = 1,
             require = 8
     )
-    public float modifyGColor_renderSnowAndRain(float originalR) {
-        return ClientMixinHooks.getAcidRainColor(originalR, 1);
+    public float modifyGColor_renderSnowAndRain(float originalR, @Local(ordinal = 0) Biome.Precipitation precipitation) {
+        return ClientMixinHooks.getAcidRainColor(originalR, 1, precipitation);
     }
 
     @ModifyArg(
@@ -79,8 +93,8 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
             index = 2,
             require = 8
     )
-    public float modifyBColor_renderSnowAndRain(float originalR) {
-        return ClientMixinHooks.getAcidRainColor(originalR, 2);
+    public float modifyBColor_renderSnowAndRain(float originalR, @Local(ordinal = 0) Biome.Precipitation precipitation) {
+        return ClientMixinHooks.getAcidRainColor(originalR, 2, precipitation);
     }
 
     @ModifyArg(

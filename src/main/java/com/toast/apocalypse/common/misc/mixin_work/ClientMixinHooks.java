@@ -23,11 +23,18 @@ public class ClientMixinHooks {
         if (!ClientUtil.isRainingAcid() || !ClientRegister.CLIENT_CONFIG.MISC.renderAcidRain.get())
             return originalTexture;
 
-        return precipitation == Biome.Precipitation.RAIN ? ACID_RAIN_TEXTURE : ACID_SNOW_TEXTURE;
+        if (precipitation == Biome.Precipitation.RAIN) return ACID_RAIN_TEXTURE;
+        else if (precipitation == Biome.Precipitation.SNOW) {
+            return ClientUtil.acidSnowEnabled() ? ACID_SNOW_TEXTURE : originalTexture;
+        }
+        return originalTexture;
     }
 
-    public static float getAcidRainColor(float originalValue, int index) {
+    public static float getAcidRainColor(float originalValue, int index, Biome.Precipitation precipitation) {
         if (!ClientUtil.isRainingAcid() || !ClientRegister.CLIENT_CONFIG.MISC.renderAcidRain.get())
+            return originalValue;
+
+        if (precipitation == Biome.Precipitation.SNOW && !ClientUtil.acidSnowEnabled())
             return originalValue;
 
         return switch (index) {

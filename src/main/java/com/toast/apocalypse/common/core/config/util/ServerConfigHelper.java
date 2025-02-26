@@ -2,19 +2,34 @@ package com.toast.apocalypse.common.core.config.util;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.network.NetworkHelper;
+import com.toast.apocalypse.common.network.message.S2CSimpleClientTask;
+import fathertoast.crust.api.config.common.field.BooleanField;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ConfigTracker;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.util.EnumMap;
+import java.util.function.Consumer;
 
 /**
  * Weird and hacky helper for modifying server/world config
  * before world creation on clients.
  */
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, modid = Apocalypse.MODID, value = Dist.DEDICATED_SERVER)
 public class ServerConfigHelper {
 
     /**

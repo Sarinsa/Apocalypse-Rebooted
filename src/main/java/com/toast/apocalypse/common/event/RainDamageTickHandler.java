@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
@@ -17,6 +18,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -29,10 +31,16 @@ import static com.toast.apocalypse.common.core.config.ApocalypseConfig.ACID_RAIN
 @Mod.EventBusSubscriber(modid = Apocalypse.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class RainDamageTickHandler {
 
+    private static boolean acidSnowEnabled = false;
     private static int timeRainDmgCheck;
 
 
     private RainDamageTickHandler() {}
+
+    @SubscribeEvent
+    public static void onServerStarted(ServerStartedEvent event) {
+        acidSnowEnabled = ACID_RAIN.GENERAL.acidSnow.get();
+    }
 
     /**
      * Checks if it is time to apply acid rain tick damage,
@@ -55,7 +63,11 @@ public class RainDamageTickHandler {
                 for (ServerPlayer player : overworld.players()) {
                     if (player.level().dimension() != Level.OVERWORLD) continue;
 
-                    if (EnchantmentHelper.hasAquaAffinity(player) || !isRainingOrSnowingAt(overworld, player.blockPosition().offset(0, (int) player.getEyeHeight(), 0)))
+                    boolean rainingAcidAt = acidSnowEnabled
+                            ? isRainingOrSnowingAt(overworld, player.blockPosition().offset(0, (int) player.getEyeHeight(), 0))
+                            : overworld.isRainingAt(player.blockPosition().offset(0, (int) player.getEyeHeight(), 0));
+
+                    if (EnchantmentHelper.hasAquaAffinity(player) || !rainingAcidAt)
                         continue;
 
                     ItemStack headStack = player.getItemBySlot(EquipmentSlot.HEAD);
@@ -78,7 +90,11 @@ public class RainDamageTickHandler {
                     if (entity.level().dimension() != Level.OVERWORLD || ACID_RAIN.GENERAL.mobBlacklist.contains(entity)) continue;
 
                     if (entity instanceof LivingEntity livingEntity) {
-                        if (EnchantmentHelper.hasAquaAffinity(livingEntity) || !isRainingOrSnowingAt(overworld, livingEntity.blockPosition().offset(0, (int) livingEntity.getEyeHeight(), 0)))
+                        boolean rainingAcidAt = acidSnowEnabled
+                                ? isRainingOrSnowingAt(overworld, livingEntity.blockPosition().offset(0, (int) livingEntity.getEyeHeight(), 0))
+                                : overworld.isRainingAt(livingEntity.blockPosition().offset(0, (int) livingEntity.getEyeHeight(), 0));
+
+                        if (EnchantmentHelper.hasAquaAffinity(livingEntity) || !rainingAcidAt)
                             continue;
 
                         ItemStack headStack = livingEntity.getItemBySlot(EquipmentSlot.HEAD);

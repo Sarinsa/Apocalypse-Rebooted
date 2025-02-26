@@ -66,6 +66,7 @@ public class CapabilityHelper {
         });
     }
 
+    /** Currently unused. */
     public static void setMobWikiIndexes(@Nonnull ServerPlayer player, int[] entries) {
         player.getCapability(ApocalypseCapabilities.MOB_WIKI_CAPABILITY).ifPresent((capability) -> {
             capability.setEntries(entries);

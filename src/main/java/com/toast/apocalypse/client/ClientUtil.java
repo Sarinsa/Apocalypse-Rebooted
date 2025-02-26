@@ -25,15 +25,20 @@ public class ClientUtil {
     public static int[] UNLOCKED_INDEXES = new int[]{};
 
     public static Vector3f RAIN_COLOR;
+
     private static boolean isRainingAcid;
+    public static boolean acidSnowEnabled;
 
-    public static void setIsRainingAcid(boolean isRainingAcid) {
-        ClientUtil.isRainingAcid = isRainingAcid;
-    }
 
-    public static boolean isRainingAcid() {
-        return isRainingAcid;
-    }
+
+    public static void setIsRainingAcid(boolean isRainingAcid) { ClientUtil.isRainingAcid = isRainingAcid; }
+
+    public static boolean isRainingAcid() { return isRainingAcid; }
+
+    public static void setAcidSnowEnabled(boolean enabled) { acidSnowEnabled = enabled; }
+
+    public static boolean acidSnowEnabled() { return acidSnowEnabled; }
+
 
 
     public static void onAddLayer(EntityRenderersEvent.AddLayers event) {

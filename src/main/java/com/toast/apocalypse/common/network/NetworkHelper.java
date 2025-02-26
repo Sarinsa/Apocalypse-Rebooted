@@ -14,7 +14,7 @@ import org.joml.Vector3f;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
-/** Helper class for easily sending messages */
+/** Helper class for sending packets */
 public class NetworkHelper {
 
     /**
@@ -27,6 +27,11 @@ public class NetworkHelper {
         PacketHandler.sendToClient(new S2CUpdatePlayerDifficultyRate(multiplier), player);
     }
 
+    /**
+     * Sends a message from the server to client
+     * to inform of a change in world difficulty rate,
+     * using the current value from the server.
+     */
     public static void sendUpdatePlayerDifficultyMult(@Nonnull ServerPlayer player) {
         PacketHandler.sendToClient(new S2CUpdatePlayerDifficultyRate(CapabilityHelper.getPlayerDifficultyMult(player)), player);
     }
@@ -41,6 +46,11 @@ public class NetworkHelper {
         PacketHandler.sendToClient(new S2CUpdatePlayerDifficulty(difficulty), player);
     }
 
+    /**
+     * Sends a message from the server to client
+     * to inform that the player's difficulty changed,
+     * using the current difficulty value from the server.
+     */
     public static void sendUpdatePlayerDifficulty(@Nonnull ServerPlayer player) {
         PacketHandler.sendToClient(new S2CUpdatePlayerDifficulty(CapabilityHelper.getPlayerDifficulty(player)), player);
     }
@@ -55,6 +65,11 @@ public class NetworkHelper {
         PacketHandler.sendToClient(new S2CUpdatePlayerMaxDifficulty(maxDifficulty), player);
     }
 
+    /**
+     * Sends a message from the server to client
+     * to inform that the player's max difficulty changed,
+     * using the current max difficulty value from the server.
+     */
     public static void sendUpdatePlayerMaxDifficulty(@Nonnull ServerPlayer player) {
         PacketHandler.sendToClient(new S2CUpdatePlayerMaxDifficulty(CapabilityHelper.getMaxPlayerDifficulty(player)), player);
     }
@@ -73,15 +88,6 @@ public class NetworkHelper {
 
     /**
      * Sends a message from the server to client
-     * to update the overworld moon phase
-     * value in {@link com.toast.apocalypse.client.ClientUtil}
-     */
-    public static void sendMoonPhaseUpdate(@Nonnull ServerPlayer player, ServerLevel overworld) {
-        PacketHandler.sendToClient(new S2CUpdateMoonPhase(overworld.dimensionType().moonPhase(overworld.getDayTime())), player);
-    }
-
-    /**
-     * Sends a message from the server to client
      * to update unlocked mob wiki indexes.
      */
     public static void sendMobWikiIndexUpdate(@Nonnull ServerPlayer player, int[] unlockedIndexes) {
@@ -89,7 +95,7 @@ public class NetworkHelper {
     }
 
     /**
-     * Used when a player joins the world.
+     * Currently unused
      */
     public static void sendMobWikiIndexUpdate(@Nonnull ServerPlayer player) {
         PacketHandler.sendToClient(new S2CUpdateMobWikiIndexes(CapabilityHelper.getMobWikiIndexes(player)), player);
@@ -103,6 +109,10 @@ public class NetworkHelper {
         PacketHandler.sendToClient(new S2COpenMobWikiScreen(player.getUUID()), player);
     }
 
+    /**
+     * Sends a message from the server to client
+     * to update the trap type that is currently inside the given dynamic trap.
+     */
     public static void sendDynTrapUpdate(@Nonnull ServerLevel level, DynamicTrapBlockEntity trap) {
         if (trap == null)
             return;
@@ -119,28 +129,49 @@ public class NetworkHelper {
     /**
      * Sends a message from the server to client
      * to request one of the listed tasks depending on
-     * the value of "action":<br>
+     * the value of "actionId":<br>
      * <br>
      *
-     * 0 - Replaces weather render handlers with acid rain render handlers.<br>
-     * 1 - Removes acid rain weather render handlers from WorldRenderer if present.
+     * 0 - It is raining acid.<br>
+     * 1 - It is no longer raining acid.<br>
+     * 2 - Acid snow is enabled.<br>
+     * 3 - Acid snow is disabled.<br>
      */
-    public static void sendSimpleClientTaskRequest(@Nonnull ServerPlayer player, byte action) {
-        PacketHandler.sendToClient(new S2CSimpleClientTask(action), player);
+    public static void sendSimpleClientTaskRequest(@Nonnull ServerPlayer player, byte actionId) {
+        PacketHandler.sendToClient(new S2CSimpleClientTask(actionId), player);
     }
 
+    /**
+     * Same as above method, except an additional piece of data is sent (value).
+     */
+    public static void sendSimpleClientTaskRequest(@Nonnull ServerPlayer player, byte actionId, int value) {
+        PacketHandler.sendToClient(new S2CSimpleClientTask(actionId, value), player);
+    }
+
+    /**
+     * Tells the client to open the Grump inventory GUI.
+     */
     public static void openGrumpInventory(@Nonnull ServerPlayer player, int containerId, @Nonnull Grump grump) {
         PacketHandler.sendToClient(new S2COpenGrumpInventory(player.getUUID(), containerId, grump.getId()), player);
     }
 
+    /**
+     * Requests from the server to open the Grump inventory container.
+     */
     public static void requestOpenGrumpInventory(@Nonnull UUID playerUUID) {
         PacketHandler.CHANNEL.sendToServer(new C2SOpenGrumpInventory(playerUUID));
     }
 
+    /**
+     * Informs the server when the player is riding a Grump and pressing the 'descend' keybinding.
+     */
     public static void requestGrumpDescentUpdate(@Nonnull UUID playerUUID, boolean keyPressed) {
         PacketHandler.CHANNEL.sendToServer(new C2SUpdateGrumpDescent(playerUUID, keyPressed));
     }
 
+    /**
+     * Informs the server when the player is riding a Grump and pressing the 'Grump interact' keybinding (launching a fishhook).
+     */
     public static void requestGrumpInteractUpdate(@Nonnull UUID playerUUID, Vec3 lookVec) {
         PacketHandler.CHANNEL.sendToServer(new C2SUpdateGrumpInteract(playerUUID, lookVec));
     }

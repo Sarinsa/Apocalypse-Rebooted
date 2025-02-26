@@ -10,12 +10,23 @@ public class S2CSimpleClientTask {
 
     public static final byte SET_ACID_RAIN = 0;
     public static final byte REMOVE_ACID_RAIN = 1;
+    public static final byte ENABLE_ACID_SNOW = 2;
+    public static final byte DISABLE_ACID_SNOW = 3;
+    public static final byte UPDATE_MOON_PHASE = 4;
 
-    public byte action;
+
+    /** The "ID" of the logic to run on the client. */
+    public byte actionId;
+    /** Optional value for some actions. Can be interpreted as different things depending on actions. */
+    public int value;
 
 
-    public S2CSimpleClientTask(byte action) {
-        this.action = action;
+    public S2CSimpleClientTask(byte actionId, int value) {
+        this.actionId = actionId;
+    }
+
+    public S2CSimpleClientTask(byte actionId) {
+        this(actionId, 0);
     }
 
     public static void handle(S2CSimpleClientTask message, Supplier<NetworkEvent.Context> contextSupplier) {
@@ -28,10 +39,11 @@ public class S2CSimpleClientTask {
     }
 
     public static S2CSimpleClientTask decode(FriendlyByteBuf buffer) {
-        return new S2CSimpleClientTask(buffer.readByte());
+        return new S2CSimpleClientTask(buffer.readByte(), buffer.readInt());
     }
 
     public static void encode(S2CSimpleClientTask message, FriendlyByteBuf buffer) {
-        buffer.writeByte(message.action);
+        buffer.writeByte(message.actionId);
+        buffer.writeInt(message.value);
     }
 }

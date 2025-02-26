@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.core.mod_event;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.config.COTSConfig;
 import com.toast.apocalypse.common.core.mod_event.events.*;
+import com.toast.apocalypse.common.event.RainDamageTickHandler;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Mob;
@@ -42,7 +43,7 @@ public class EventRegistry {
                 BlockPos pos = player.blockPosition();
                 return serverLevel.getBrightness(LightLayer.SKY, pos) <= ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.skyLightLevel.get()
                         && serverLevel.getBrightness(LightLayer.BLOCK, pos) <= ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.blockLightLevel.get();
-            });
+    });
 
 
 

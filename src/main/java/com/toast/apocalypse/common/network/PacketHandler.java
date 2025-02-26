@@ -38,7 +38,6 @@ public class PacketHandler {
         registerMessage(S2CUpdatePlayerDifficultyRate.class, S2CUpdatePlayerDifficultyRate::encode, S2CUpdatePlayerDifficultyRate::decode, S2CUpdatePlayerDifficultyRate::handle);
         registerMessage(S2CUpdatePlayerMaxDifficulty.class, S2CUpdatePlayerMaxDifficulty::encode, S2CUpdatePlayerMaxDifficulty::decode, S2CUpdatePlayerMaxDifficulty::handle);
         registerMessage(S2CUpdateEntityVelocity.class, S2CUpdateEntityVelocity::encode, S2CUpdateEntityVelocity::decode, S2CUpdateEntityVelocity::handle);
-        registerMessage(S2CUpdateMoonPhase.class, S2CUpdateMoonPhase::encode, S2CUpdateMoonPhase::decode, S2CUpdateMoonPhase::handle);
         registerMessage(S2CUpdateMobWikiIndexes.class, S2CUpdateMobWikiIndexes::encode, S2CUpdateMobWikiIndexes::decode, S2CUpdateMobWikiIndexes::handle);
         registerMessage(S2COpenMobWikiScreen.class, S2COpenMobWikiScreen::encode, S2COpenMobWikiScreen::decode, S2COpenMobWikiScreen::handle);
         registerMessage(S2COpenGrumpInventory.class, S2COpenGrumpInventory::encode, S2COpenGrumpInventory::decode, S2COpenGrumpInventory::handle);
