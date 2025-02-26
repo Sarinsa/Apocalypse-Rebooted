@@ -138,6 +138,29 @@ jar {
     }
 }
 
+task srcJar(type: Jar) {
+    archiveClassifier.set('src')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    // Include the entire mod (deobf) plus java files
+    from sourceSets.main.output
+    from sourceSets.main.allSource
+
+    // Generate same jar manifest as main jar to include
+    manifest {
+        attributes([
+                "Specification-Title"     : "Apocalypse",
+                "Specification-Vendor"    : "Sarinsa",
+                "Specification-Version"   : "1", // We are version 1 of ourselves
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : "${mod_version}",
+                "Implementation-Vendor"   : "Sarinsa",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "MixinConfigs"            : "apocalypse.mixins.json"
+        ])
+    }
+}
+
 task apiJar(type: Jar) {
     archiveClassifier = 'api'
     include 'com/toast/apocalypse/api/**/*'
@@ -182,6 +205,7 @@ task updateVersionCheck {
 }
 
 artifacts {
+    archives srcJar
     archives apiJar
 }
 
