@@ -212,6 +212,7 @@ public class Seeker extends AbstractFullMoonGhast {
         @Override
         public void tick() {
             LivingEntity target = seeker.getTarget();
+            if (target == null) return;
 
             if (seeker.horizontalDistanceToSqr(target) < 4096.0D) {
                 Level level = seeker.level();
