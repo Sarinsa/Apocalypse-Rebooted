@@ -70,7 +70,7 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
 
     @Override
     protected float getSoundVolume() {
-        // Louder than ghast; help players realize they might be getting fireballed from afar.
+        // Louder than vanilla ghast; help players realize they might be getting fireballed from afar.
         return 12.0F;
     }
 
