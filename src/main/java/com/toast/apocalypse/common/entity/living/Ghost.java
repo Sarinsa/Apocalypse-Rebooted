@@ -496,6 +496,8 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
         @Override
         public void tick() {
             LivingEntity target = ghost.getTarget();
+            if (target == null) return;
+
             double distance = ghost.distanceToSqr(target);
 
             if (!ghost.isManeuvering() && ghost.tickCount % 20 == 0) {
