@@ -31,7 +31,15 @@ public abstract class PlayerEntityMixin extends LivingEntity {
         apocalypseDamageSource = damageSource;
     }
 
-    @ModifyVariable(method = "hurt", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/common/ForgeHooks;onPlayerAttack(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/damagesource/DamageSource;F)Z"), ordinal = 0, argsOnly = true)
+    @ModifyVariable(
+            method = "hurt",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraftforge/common/ForgeHooks;onPlayerAttack(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/damagesource/DamageSource;F)Z"
+            ),
+            ordinal = 0,
+            argsOnly = true
+    )
     public float modifyDamage(float damage){
         damage = CommonMixinHooks.livingEntityHurtModifyArg(apocalypseDamageSource, (Player) (Object) this, damage);
         apocalypseDamageSource = null;
