@@ -220,6 +220,7 @@ public class Destroyer extends AbstractFullMoonGhast {
         @Override
         public void tick() {
             LivingEntity target = destroyer.getTarget();
+            if (target == null) return;
 
             if (destroyer.withinFiringRange(target.position()) && destroyer.hasLineOfSight(target)) {
                 Level level = destroyer.level();
