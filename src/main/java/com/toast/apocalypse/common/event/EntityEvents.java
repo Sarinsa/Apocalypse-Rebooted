@@ -56,13 +56,19 @@ public class EntityEvents {
     @SubscribeEvent
     public void onServerStarted(ServerStartedEvent event) {
         for (EntityType<?> type : ForgeRegistries.ENTITY_TYPES) {
-            Entity entity = type.create(event.getServer().overworld());
+            try {
+                Entity entity = type.create(event.getServer().overworld());
 
-            if (entity != null) {
-                ENTITY_FOR_TYPE.put(type, entity);
+                // We only bother with living entities.
+                if (entity instanceof LivingEntity) {
+                    ENTITY_FOR_TYPE.put(type, entity);
+                }
+                else if (entity == null) {
+                    Apocalypse.LOGGER.error("Failed to create entity instance for type {}! Mob spawn difficulty config list will not work for this type!", type);
+                }
             }
-            else {
-                Apocalypse.LOGGER.error("Failed to create entity instance for type {}! Mob spawn difficulty config list will not work for this type!", type);
+            catch (Exception ignored) {
+                // If this explodes, no worries (probably isn't a normal living entity anyway)
             }
         }
     }
