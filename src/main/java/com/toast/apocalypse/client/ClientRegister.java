@@ -28,7 +28,10 @@ import com.toast.apocalypse.common.entity.living.Shadefiend;
 import fathertoast.crust.api.ICrustApi;
 import fathertoast.crust.api.config.client.ClientConfigUtil;
 import fathertoast.crust.api.config.common.ConfigManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.DebugScreenOverlay;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.gui.screens.controls.KeyBindsScreen;
 import net.minecraft.client.model.CreeperModel;
 import net.minecraft.client.model.GhastModel;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -56,9 +59,9 @@ public class ClientRegister {
 
 
     public static final IGuiOverlay DIFFICULTY_OVERLAY = (forgeGui, guiGraphics, partialTick, screenWidth, screenHeight) -> {
-        if (!forgeGui.getMinecraft().options.hideGui) {
-            DifficultyOverlayRenderHandler.renderDifficulty(forgeGui, guiGraphics, partialTick, screenWidth, screenHeight);
-        }
+        if (forgeGui.getMinecraft().options.hideGui || Minecraft.getInstance().options.renderDebug)
+            return;
+        DifficultyOverlayRenderHandler.renderDifficulty(forgeGui, guiGraphics, partialTick, screenWidth, screenHeight);
     };
 
 
