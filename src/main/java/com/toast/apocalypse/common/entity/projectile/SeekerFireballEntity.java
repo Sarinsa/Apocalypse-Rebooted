@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.entity.projectile;
 
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
+import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.entity.living.Seeker;
 import com.toast.apocalypse.common.misc.SeekerExplosionCalculator;
 import net.minecraft.core.BlockPos;
@@ -9,17 +10,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.monster.Ghast;
 import net.minecraft.world.entity.projectile.Fireball;
-import net.minecraft.world.entity.projectile.LargeFireball;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.FireBlock;
@@ -103,7 +100,7 @@ public class SeekerFireballEntity extends Fireball {
 
                     if (level().isEmptyBlock(firePos)) {
                         level().setBlockAndUpdate(firePos, FireBlock.getState(level(), firePos));
-                        level().playSound(null, blockPosition(), SoundEvents.BLAZE_SHOOT, SoundSource.MASTER, 2.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F);
+                        level().playSound(null, blockPosition(), ApocalypseSounds.SEEKER_FIREBALL_IGNITE.get(), SoundSource.MASTER, 2.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F);
                     }
                 }
             }

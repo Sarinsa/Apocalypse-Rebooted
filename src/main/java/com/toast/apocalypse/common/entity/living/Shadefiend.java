@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
+import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
 import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
 import fathertoast.crust.api.lib.CrustObjects;
@@ -10,7 +11,6 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -32,7 +32,6 @@ import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidType;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumSet;
 
@@ -95,7 +94,7 @@ public class Shadefiend extends FlyingMob implements Enemy {
             if (hasTarget && f > 0.0F && f1 <= 0.0F) {
                 level().playLocalSound(
                         getX(), getY(), getZ(),
-                        SoundEvents.PHANTOM_FLAP,
+                        ApocalypseSounds.SHADEFIEND_FLAP.get(),
                         getSoundSource(),
                         0.95F + random.nextFloat() * 0.05F,
                         0.95F + random.nextFloat() * 0.05F,
@@ -188,18 +187,18 @@ public class Shadefiend extends FlyingMob implements Enemy {
     }
 
     @Override
-    protected @Nullable SoundEvent getAmbientSound() {
-        return SoundEvents.PHANTOM_AMBIENT;
+    protected SoundEvent getAmbientSound() {
+        return ApocalypseSounds.SHADEFIEND_IDLE.get();
     }
 
     @Override
-    protected @Nullable SoundEvent getHurtSound(DamageSource damageSource) {
-        return SoundEvents.PHANTOM_HURT;
+    protected SoundEvent getHurtSound(DamageSource damageSource) {
+        return ApocalypseSounds.SHADEFIEND_HURT.get();
     }
 
     @Override
-    protected @Nullable SoundEvent getDeathSound() {
-        return SoundEvents.PHANTOM_DEATH;
+    protected SoundEvent getDeathSound() {
+        return ApocalypseSounds.SHADEFIEND_DEATH.get();
     }
 
     class ShadefiendBodyRotationControl extends BodyRotationControl {
@@ -349,6 +348,14 @@ public class Shadefiend extends FlyingMob implements Enemy {
 
             if (shadefiend.getBoundingBox().inflate(0.3F).intersects(target.getBoundingBox())) {
                 shadefiend.doHurtTarget(target);
+                shadefiend.level().playSound(
+                        null,
+                        shadefiend.blockPosition(),
+                        ApocalypseSounds.SHADEFIEND_BITE.get(),
+                        shadefiend.getSoundSource(),
+                        shadefiend.getSoundVolume(),
+                        (shadefiend.random.nextFloat() - shadefiend.random.nextFloat()) * 0.2F + 1.0F
+                );
             }
             else {
                 if ((shadefiend.tickCount & 20) == 0) {

@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
+import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
@@ -14,7 +15,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
@@ -153,6 +154,16 @@ public class Seeker extends AbstractFullMoonGhast {
     }
 
     @Override
+    protected SoundEvent getHurtSound(DamageSource damageSource) {
+        return ApocalypseSounds.SEEKER_HURT.get();
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return ApocalypseSounds.SEEKER_DEATH.get();
+    }
+
+    @Override
     public int getExplosionPower() {
         return explosionPower == 0 ? ApocalypseConfig.MISC.OTHER.seekerExplosionPower.get() : explosionPower;
     }
@@ -221,7 +232,7 @@ public class Seeker extends AbstractFullMoonGhast {
                     level.playSound(
                             null,
                             seeker.blockPosition(),
-                            SoundEvents.GHAST_WARN,
+                            ApocalypseSounds.SEEKER_WARN.get(),
                             seeker.getSoundSource(),
                             seeker.getSoundVolume(),
                             (level.random.nextFloat() - level.random.nextFloat()) * 0.2F + 1.0F
@@ -235,7 +246,14 @@ public class Seeker extends AbstractFullMoonGhast {
                     double z = target.getZ() - (seeker.getZ() + vec3.z * 4.0D);
 
                     if (!seeker.isSilent()) {
-                        level.levelEvent(null, 1016, seeker.blockPosition(), 0);
+                        level.playSound(
+                                null,
+                                seeker.blockPosition(),
+                                ApocalypseSounds.SEEKER_SHOOT.get(),
+                                seeker.getSoundSource(),
+                                seeker.getSoundVolume(),
+                                (level.random.nextFloat() - level.random.nextFloat()) * 0.2F + 1.0F
+                        );
                     }
                     boolean canSeeTarget = seeker.canSeeDirectly(target);
                     SeekerFireballEntity fireball = new SeekerFireballEntity(level, seeker, canSeeTarget, x, y, z);
@@ -364,7 +382,7 @@ public class Seeker extends AbstractFullMoonGhast {
                 }
                 seeker.currentTarget = seeker.getTarget();
                 seeker.setAlerting(true);
-                seeker.playSound(SoundEvents.GHAST_SCREAM, 5.0F, 0.6F);
+                seeker.playSound(ApocalypseSounds.SEEKER_ALERT_MOBS.get(), 5.0F, 0.6F);
             }
         }
 

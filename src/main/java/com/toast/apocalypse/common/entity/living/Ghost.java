@@ -1,6 +1,5 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.common.core.register.ApocalypseMobEffects;
 import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
@@ -14,7 +13,6 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -38,7 +36,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fluids.FluidType;
 
 import javax.annotation.Nullable;
@@ -293,12 +290,12 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return isFrozen() ? null : SoundEvents.BLAZE_AMBIENT;
+        return isFrozen() ? null : ApocalypseSounds.GHOST_IDLE.get();
     }
 
     @Override
     protected SoundEvent getHurtSound(DamageSource damageSource) {
-        return SoundEvents.ENDERMAN_SCREAM;
+        return ApocalypseSounds.GHOST_HURT.get();
     }
 
     @Override
@@ -311,7 +308,7 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
 
     @Override
     protected SoundEvent getDeathSound() {
-        return SoundEvents.BLAZE_DEATH;
+        return ApocalypseSounds.GHOST_DEATH.get();
     }
 
     @Override

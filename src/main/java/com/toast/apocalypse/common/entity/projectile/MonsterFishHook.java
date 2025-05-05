@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.entity.projectile;
 
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
+import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.entity.living.Grump;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import net.minecraft.client.player.LocalPlayer;
@@ -13,7 +14,6 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.*;
@@ -273,7 +273,7 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
         LivingEntity livingEntity = getLivingOwner();
 
         if (livingEntity != null) {
-            level().playSound(null, livingEntity.blockPosition(), SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.HOSTILE, 0.6F, 0.4F / (level().random.nextFloat() * 0.4F + 0.8F));
+            level().playSound(null, livingEntity.blockPosition(), ApocalypseSounds.MONSTER_HOOK_RETRIEVE.get(), SoundSource.NEUTRAL, 0.6F, 0.4F / (level().random.nextFloat() * 0.4F + 0.8F));
             Entity entity = hookedIn;
 
             double xMotion = livingEntity.getX() - getX();

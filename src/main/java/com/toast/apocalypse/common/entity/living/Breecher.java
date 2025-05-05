@@ -1,15 +1,16 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.entity.living.ai.BreecherFindExplosionPos;
 import com.toast.apocalypse.common.entity.living.ai.BreecherSwellGoal;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -110,6 +111,16 @@ public class Breecher extends Creeper implements IFullMoonMob {
                 discard();
             }
         }
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource damageSource) {
+        return ApocalypseSounds.BREECHER_HURT.get();
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return ApocalypseSounds.BREECHER_DEATH.get();
     }
 
     public void forceSwell() {

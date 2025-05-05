@@ -2,6 +2,7 @@ package com.toast.apocalypse.common.entity.projectile;
 
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
+import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.entity.living.Destroyer;
 import com.toast.apocalypse.common.misc.DestroyerExplosionCalculator;
 import net.minecraft.nbt.CompoundTag;
@@ -9,7 +10,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -118,10 +118,10 @@ public class DestroyerFireballEntity extends Fireball {
         markHurt();
 
         if (fuseTime < 0 && damageSource.getEntity() != null) {
-            // Reflect fireball and set fuse time
+            // Deflect fireball and set fuse time
             Entity entity = damageSource.getEntity();
             Vec3 vec = entity.getLookAngle();
-            entity.level().playSound(null, blockPosition(), SoundEvents.TNT_PRIMED, SoundSource.NEUTRAL, 0.8F, 1.0F);
+            entity.level().playSound(null, blockPosition(), ApocalypseSounds.DESTROYER_FIREBALL_DEFLECT.get(), SoundSource.NEUTRAL, 0.8F, 1.0F);
             fuseTime = 10;
             setDeltaMovement(vec);
             xPower = vec.x * 0.1D;

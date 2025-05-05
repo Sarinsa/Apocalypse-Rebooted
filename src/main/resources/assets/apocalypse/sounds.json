@@ -1,14 +1,273 @@
 {
-  "entity.ghost.ghost_freeze": {
-    "subtitle": "sound_event.apocalypse.subtitle.ghost_freeze",
+  "item.lunar_armor.react": {
+    "subtitle": "sound_event.apocalypse.subtitle.lunar_armor.react",
+    "sounds": [
+      "minecraft:block/enchantment_table/enchant1",
+      "minecraft:block/enchantment_table/enchant2",
+      "minecraft:block/enchantment_table/enchant3"
+    ]
+  },
+  "item.armor.equip_lunar": {
+    "subtitle": "sound_event.apocalypse.subtitle.lunar_armor.equip",
+    "sounds": [
+      "minecraft:item/armor/equip_iron1",
+      "minecraft:item/armor/equip_iron2",
+      "minecraft:item/armor/equip_iron3",
+      "minecraft:item/armor/equip_iron4",
+      "minecraft:item/armor/equip_iron5",
+      "minecraft:item/armor/equip_iron6"
+    ]
+  },
+  "block.dynamic_trap.activate": {
+    "subtitle": "sound_event.apocalypse.subtitle.dynamic_trap.activate",
+    "sounds": [
+      "minecraft:random/click"
+    ]
+  },
+  "entity.monster_fish_hook.retrieve": {
+    "subtitle": "sound_event.apocalypse.subtitle.monster_fish_hook.retrieve",
+    "sounds": [
+      "minecraft:entity/bobber/retrieve1",
+      "minecraft:entity/bobber/retrieve2"
+    ]
+  },
+  "entity.destroyer_fireball.deflect": {
+    "subtitle": "sound_event.apocalypse.subtitle.destroyer_fireball.deflect",
+    "sounds": [
+      "minecraft:random/fuse"
+    ]
+  },
+  "entity.seeker_fireball.ignite": {
+    "subtitle": "sound_event.apocalypse.subtitle.seeker_fireball.ignite",
+    "sounds": [
+      "minecraft:mob/ghast/fireball4"
+    ]
+  },
+  "entity.destroyer.warn": {
+    "subtitle": "sound_event.apocalypse.subtitle.destroyer.warn",
+    "sounds": [
+      "minecraft:mob/ghast/charge"
+    ]
+  },
+  "entity.destroyer.shoot": {
+    "subtitle": "sound_event.apocalypse.subtitle.destroyer.shoot",
+    "sounds": [
+      "minecraft:mob/ghast/fireball4"
+    ]
+  },
+  "entity.destroyer.hurt": {
+    "subtitle": "sound_event.apocalypse.subtitle.destroyer.hurt",
+    "sounds": [
+      "minecraft:mob/ghast/scream1",
+      "minecraft:mob/ghast/scream2",
+      "minecraft:mob/ghast/scream3",
+      "minecraft:mob/ghast/scream4",
+      "minecraft:mob/ghast/scream5"
+    ]
+  },
+  "entity.destroyer.death": {
+    "subtitle": "sound_event.apocalypse.subtitle.destroyer.death",
+    "sounds": [
+      "minecraft:mob/ghast/death"
+    ]
+  },
+  "entity.seeker.warn": {
+    "subtitle": "sound_event.apocalypse.subtitle.seeker.warn",
+    "sounds": [
+      "minecraft:mob/ghast/charge"
+    ]
+  },
+  "entity.seeker.shoot": {
+    "subtitle": "sound_event.apocalypse.subtitle.seeker.shoot",
+    "sounds": [
+      "minecraft:mob/ghast/fireball4"
+    ]
+  },
+  "entity.seeker.alert_mobs": {
+    "subtitle": "sound_event.apocalypse.subtitle.seeker.alert_mobs",
+    "sounds": [
+      "minecraft:mob/ghast/affectionate_scream"
+    ]
+  },
+  "entity.seeker.hurt": {
+    "subtitle": "sound_event.apocalypse.subtitle.seeker.hurt",
+    "sounds": [
+      "minecraft:mob/ghast/scream1",
+      "minecraft:mob/ghast/scream2",
+      "minecraft:mob/ghast/scream3",
+      "minecraft:mob/ghast/scream4",
+      "minecraft:mob/ghast/scream5"
+    ]
+  },
+  "entity.seeker.death": {
+    "subtitle": "sound_event.apocalypse.subtitle.seeker.death",
+    "sounds": [
+      "minecraft:mob/ghast/death"
+    ]
+  },
+  "entity.breecher.hurt": {
+    "subtitle": "sound_event.apocalypse.subtitle.breecher.hurt",
+    "sounds": [
+      "minecraft:mob/creeper/say1",
+      "minecraft:mob/creeper/say2",
+      "minecraft:mob/creeper/say3",
+      "minecraft:mob/creeper/say4"
+    ]
+  },
+  "entity.breecher.death": {
+    "subtitle": "sound_event.apocalypse.subtitle.breecher.death",
+    "sounds": [
+      "minecraft:mob/creeper/death"
+    ]
+  },
+  "entity.ghost.idle": {
+    "subtitle": "sound_event.apocalypse.subtitle.ghost.idle",
+    "sounds": [
+      "minecraft:mob/blaze/breathe1",
+      "minecraft:mob/blaze/breathe2",
+      "minecraft:mob/blaze/breathe3",
+      "minecraft:mob/blaze/breathe4"
+    ]
+  },
+  "entity.ghost.hurt": {
+    "subtitle": "sound_event.apocalypse.subtitle.ghost.hurt",
+    "sounds": [
+      "minecraft:mob/endermen/scream1",
+      "minecraft:mob/endermen/scream2",
+      "minecraft:mob/endermen/scream3",
+      "minecraft:mob/endermen/scream4"
+    ]
+  },
+  "entity.ghost.death": {
+    "subtitle": "sound_event.apocalypse.subtitle.ghost.death",
+    "sounds": [
+      "minecraft:mob/blaze/death"
+    ]
+  },
+  "entity.ghost.freeze": {
+    "subtitle": "sound_event.apocalypse.subtitle.ghost.freeze",
     "sounds": [
       "apocalypse:entity/ghost/ghost_freeze"
     ]
   },
+  "entity.grump.hurt": {
+    "subtitle": "sound_event.apocalypse.subtitle.grump.hurt",
+    "sounds": [
+      "minecraft:mob/ghast/scream1",
+      "minecraft:mob/ghast/scream2",
+      "minecraft:mob/ghast/scream3",
+      "minecraft:mob/ghast/scream4",
+      "minecraft:mob/ghast/scream5"
+    ]
+  },
+  "entity.grump.death": {
+    "subtitle": "sound_event.apocalypse.subtitle.grump.death",
+    "sounds": [
+      "minecraft:mob/ghast/death"
+    ]
+  },
   "entity.grump.rage": {
-    "subtitle": "sound_event.apocalypse.subtitle.grump_rage",
+    "subtitle": "sound_event.apocalypse.subtitle.grump.rage",
     "sounds": [
       "apocalypse:entity/grump/rage"
+    ]
+  },
+  "entity.grump.eat": {
+    "subtitle": "sound_event.apocalypse.subtitle.grump.eat",
+    "sounds": [
+      "minecraft:entity/horse/eat1",
+      "minecraft:entity/horse/eat2",
+      "minecraft:entity/horse/eat3",
+      "minecraft:entity/horse/eat4",
+      "minecraft:entity/horse/eat5"
+    ]
+  },
+  "entity.grump.launch_hook": {
+    "subtitle": "sound_event.apocalypse.subtitle.grump.launch_hook",
+    "sounds": [
+      "minecraft:entity/bobber/castfast"
+    ]
+  },
+  "entity.grump.equip_saddle": {
+    "subtitle": "sound_event.apocalypse.subtitle.grump.equip_saddle",
+    "sounds": [
+      "minecraft:mob/horse/leather"
+    ]
+  },
+  "entity.fearwolf.step": {
+    "subtitle": "sound_event.apocalypse.subtitle.fearwolf.step",
+    "sounds": [
+      "minecraft:mob/wolf/step1",
+      "minecraft:mob/wolf/step2",
+      "minecraft:mob/wolf/step3",
+      "minecraft:mob/wolf/step4",
+      "minecraft:mob/wolf/step5"
+    ]
+  },
+  "entity.fearwolf.idle": {
+    "subtitle": "sound_event.apocalypse.subtitle.fearwolf.idle",
+    "sounds": [
+      "minecraft:mob/wolf/growl1",
+      "minecraft:mob/wolf/growl2",
+      "minecraft:mob/wolf/growl3"
+    ]
+  },
+  "entity.fearwolf.hurt": {
+    "subtitle": "sound_event.apocalypse.subtitle.fearwolf.hurt",
+    "sounds": [
+      "minecraft:mob/wolf/hurt1",
+      "minecraft:mob/wolf/hurt2",
+      "minecraft:mob/wolf/hurt3"
+    ]
+  },
+  "entity.fearwolf.death": {
+    "subtitle": "sound_event.apocalypse.subtitle.fearwolf.death",
+    "sounds": [
+      "minecraft:mob/wolf/death"
+    ]
+  },
+  "entity.shadefiend.flap": {
+    "subtitle": "sound_event.apocalypse.subtitle.shadefiend.flap",
+    "sounds": [
+      "minecraft:mob/phantom/flap1",
+      "minecraft:mob/phantom/flap2",
+      "minecraft:mob/phantom/flap3",
+      "minecraft:mob/phantom/flap4",
+      "minecraft:mob/phantom/flap5",
+      "minecraft:mob/phantom/flap6"
+    ]
+  },
+  "entity.shadefiend.bite": {
+    "subtitle": "sound_event.apocalypse.subtitle.shadefiend.bite",
+    "sounds": [
+      "minecraft:mob/phantom/bite1",
+      "minecraft:mob/phantom/bite2"
+    ]
+  },
+  "entity.shadefiend.idle": {
+    "subtitle": "sound_event.apocalypse.subtitle.shadefiend.idle",
+    "sounds": [
+      "minecraft:mob/phantom/idle1",
+      "minecraft:mob/phantom/idle2",
+      "minecraft:mob/phantom/idle3",
+      "minecraft:mob/phantom/idle4",
+      "minecraft:mob/phantom/idle5"
+    ]
+  },
+  "entity.shadefiend.hurt": {
+    "subtitle": "sound_event.apocalypse.subtitle.shadefiend.hurt",
+    "sounds": [
+      "minecraft:mob/phantom/hurt1",
+      "minecraft:mob/phantom/hurt2",
+      "minecraft:mob/phantom/hurt3"
+    ]
+  },
+  "entity.shadefiend.death": {
+    "subtitle": "sound_event.apocalypse.subtitle.shadefiend.death",
+    "sounds": [
+      "minecraft:mob/phantom/death1",
+      "minecraft:mob/phantom/death2",
+      "minecraft:mob/phantom/death3"
     ]
   }
 }

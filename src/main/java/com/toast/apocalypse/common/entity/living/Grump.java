@@ -1,6 +1,5 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.core.register.ApocalypseSounds;
@@ -24,7 +23,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.OldUsersConverter;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -41,7 +40,9 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
-import net.minecraft.world.entity.monster.*;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.monster.Ghast;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -161,6 +162,16 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
     protected float getSoundVolume() {
         // Not nearly as loud as a ghast since it is much smaller.
         return 2.0F;
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource damageSource) {
+        return ApocalypseSounds.GRUMP_HURT.get();
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return ApocalypseSounds.GRUMP_DEATH.get();
     }
 
     @Override
@@ -347,7 +358,7 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
             level().addParticle(particleType, getRandomX(1.0D), getRandomY() + 0.5D, getRandomZ(1.0D), x, y, z);
         }
         Vec3 pos = position();
-        level().playLocalSound(pos.x(), pos.y(), pos.z(), SoundEvents.HORSE_EAT, SoundSource.NEUTRAL, 0.8F, 1.0F + (random.nextFloat() - random.nextFloat()) * 0.4F, false);
+        level().playLocalSound(pos.x(), pos.y(), pos.z(), ApocalypseSounds.GRUMP_EAT.get(), SoundSource.NEUTRAL, 0.8F, 1.0F + (random.nextFloat() - random.nextFloat()) * 0.4F, false);
     }
 
     @Override
@@ -509,7 +520,7 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
                 level.playSound(
                         null,
                         blockPosition(),
-                        SoundEvents.FISHING_BOBBER_THROW,
+                        ApocalypseSounds.GRUMP_LAUNCH_HOOK.get(),
                         SoundSource.NEUTRAL,
                         0.6F,
                         0.4F / (level.random.nextFloat() * 0.4F + 0.8F)
@@ -606,7 +617,7 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
             getPassengers().forEach(Entity::stopRiding);
         }
         else if (tickCount > 20 && itemStack.getItem() == Items.SADDLE || itemStack.getItem() == ApocalypseItems.BUCKET_HELM.get()) {
-            playSound(SoundEvents.HORSE_SADDLE, 0.5F, 1.0F);
+            playSound(ApocalypseSounds.GRUMP_EQUIP_SADDLE.get(), 0.5F, 1.0F);
         }
     }
 

@@ -8,6 +8,7 @@ import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.core.mod_event.IEventPredicate;
 import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
+import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.item.LunarArmorItem;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.network.message.S2CSimpleClientTask;
@@ -22,7 +23,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -43,7 +43,10 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * This class manages player difficulty and mod events
@@ -364,7 +367,7 @@ public final class PlayerDifficultyManager {
                     serverPlayer.level().playSound(
                             null,
                             serverPlayer.blockPosition(),
-                            SoundEvents.ENCHANTMENT_TABLE_USE,
+                            ApocalypseSounds.LUNAR_ARMOR_REACT.get(),
                             SoundSource.PLAYERS,
                             0.9F,
                             serverPlayer.getRandom().nextFloat() * 0.1F + 1.0F);

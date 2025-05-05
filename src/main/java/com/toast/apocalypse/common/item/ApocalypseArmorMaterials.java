@@ -3,8 +3,8 @@ package com.toast.apocalypse.common.item;
 import com.google.common.base.Suppliers;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
+import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -17,7 +17,7 @@ public enum ApocalypseArmorMaterials implements ArmorMaterial {
             new int[] {165, 240, 225, 195},
             new int[] {2, 6, 5, 2},
             13,
-            () -> SoundEvents.ARMOR_EQUIP_IRON,
+            ApocalypseSounds.ARMOR_EQUIP_LUNAR,
             () -> Ingredient.of(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get()),
             name("midnight_steel"),
             0.0F,
