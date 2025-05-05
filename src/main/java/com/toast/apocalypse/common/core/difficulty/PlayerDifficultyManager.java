@@ -131,17 +131,35 @@ public final class PlayerDifficultyManager {
         return 0;
     }
 
+    /**
+     *  @return True if the current moon phase in the overworld is "new moon".<br>
+     *          Always returns false if {@link PlayerDifficultyManager#server} is null.
+     */
     public boolean isNewMoon() {
+        if (server == null) return false;
+
         ServerLevel world = server.overworld();
         return world.dimensionType().moonPhase(world.getDayTime()) == 4;
     }
 
+    /**
+     *  @return True if the current moon phase in the overworld is "full moon".<br>
+     *          Always returns false if {@link PlayerDifficultyManager#server} is null.
+     */
     public boolean isFullMoon() {
+        if (server == null) return false;
+
         ServerLevel world = server.overworld();
         return world.dimensionType().moonPhase(world.getDayTime()) == 0;
     }
 
+    /**
+     *  @return True if the current moon phase in the overworld is "new moon" and it is nighttime.<br>
+     *          Always returns false if {@link PlayerDifficultyManager#server} is null.
+     */
     public boolean isFullMoonNight() {
+        if (server == null) return false;
+
         ServerLevel world = server.overworld();
         long dayTime = queryDayTime(world.getDayTime());
 
