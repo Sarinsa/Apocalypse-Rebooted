@@ -23,6 +23,18 @@ public class DataStructureUtils {
                 (list.size() == 1) ? list.get(0) : list.get(random.nextInt(list.size()));
     }
 
+    @Nullable
+    public static <T> T getRandomListElementElse(@Nonnull Random random, @Nonnull List<T> list, T defaultValue) {
+        return list.isEmpty() ? defaultValue :
+                (list.size() == 1) ? list.get(0) : list.get(random.nextInt(list.size()));
+    }
+
+    @Nullable
+    public static <T> T getRandomListElementElse(@Nonnull RandomSource random, @Nonnull List<T> list, T defaultValue) {
+        return list.isEmpty() ? defaultValue :
+                (list.size() == 1) ? list.get(0) : list.get(random.nextInt(list.size()));
+    }
+
 
     @Nullable
     public static <T> T getRandomCollectionElementFiltered(Random random, Collection<T> collection, Predicate<T> predicate) {

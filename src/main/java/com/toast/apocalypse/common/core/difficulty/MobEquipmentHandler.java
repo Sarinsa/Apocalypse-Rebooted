@@ -86,53 +86,66 @@ public final class MobEquipmentHandler {
     }
 
     /**
-     * Returns a new ItemStack of a weapon in the weapons lists.
-     * What weapon is chosen depends on the parsed difficulty.
+     * Attempts to pick a weapon from the configurable weapons list
+     * and equip it into the given living entity.
+     *
+     * @param entity The living entity to pick a weapon for
+     * @param difficulty The raw difficulty of the nearest player
      */
     private static void equipWeapon(LivingEntity entity, long difficulty, RandomSource random) {
         int scaledDifficulty = (int) (difficulty / References.DAY_LENGTH);
         ItemStack weapon = null;
 
-        if (!WEAPON_LISTS.keySet().isEmpty()) {
-            if (CURRENT_WEAPON_TIER_ONLY) {
-                int tier = 0;
+        // No weapon tiers defined, abort
+        if (WEAPON_LISTS.keySet().isEmpty()) return;
 
-                for (int i : WEAPON_LISTS.keySet()) {
-                    if (i <= scaledDifficulty) {
-                        tier = i;
-                    }
-                }
-                List<Item> weaponList = WEAPON_LISTS.get(tier);
-                Item item = DataStructureUtils.getRandomListElement(random, weaponList);
+        if (CURRENT_WEAPON_TIER_ONLY) {
+            int tier = 0;
 
-                if (item != null) {
-                    weapon = new ItemStack(item);
+            for (int i : WEAPON_LISTS.keySet()) {
+                if (i <= scaledDifficulty) {
+                    tier = i;
                 }
             }
-            else {
-                List<Integer> availableTiers = new ArrayList<>();
+            List<Item> weaponList = WEAPON_LISTS.get(tier);
+            Item item = DataStructureUtils.getRandomListElement(random, weaponList);
 
-                for (int tier : WEAPON_LISTS.keySet()) {
-                    if (tier <= scaledDifficulty) {
-                        availableTiers.add(tier);
-                    }
-                }
-                if (availableTiers.isEmpty())
-                    return;
-
-                List<Item> weaponList = WEAPON_LISTS.get(DataStructureUtils.getRandomListElement(random, availableTiers));
-                Item item = DataStructureUtils.getRandomListElement(random, weaponList);
-
-                if (item != null) {
-                    weapon = new ItemStack(item);
-                }
+            if (item != null) {
+                weapon = new ItemStack(item);
             }
         }
+        else {
+            List<Integer> availableTiers = new ArrayList<>();
+
+            for (int tier : WEAPON_LISTS.keySet()) {
+                if (tier <= scaledDifficulty) {
+                    availableTiers.add(tier);
+                }
+            }
+            if (availableTiers.isEmpty())
+                return;
+
+            List<Item> weaponList = WEAPON_LISTS.get(DataStructureUtils.getRandomListElement(random, availableTiers));
+            Item item = DataStructureUtils.getRandomListElement(random, weaponList);
+
+            if (item != null) {
+                weapon = new ItemStack(item);
+            }
+        }
+
         if (weapon != null) {
             entity.setItemInHand(InteractionHand.MAIN_HAND, weapon);
         }
     }
 
+
+    /**
+     * Attempts to pick a set of armor from the configurable armor set list
+     * and equip it onto the given living entity.
+     *
+     * @param entity The living entity to pick armor for
+     * @param difficulty The raw difficulty of the nearest player
+     */
     private static void equipArmor(LivingEntity entity, long difficulty, RandomSource random) {
         int scaledDifficulty = (int) (difficulty / References.DAY_LENGTH);
         ItemStack[] toEquip = new ItemStack[] {
@@ -142,41 +155,52 @@ public final class MobEquipmentHandler {
                 ItemStack.EMPTY
         };
 
-        if (!ARMOR_MAPS.keySet().isEmpty()) {
-            if (CURRENT_ARMOR_TIER_ONLY) {
-                int tier = 0;
+        // No armor tiers defined, abort
+        if (ARMOR_MAPS.keySet().isEmpty()) return;
 
-                for (int i : ARMOR_MAPS.keySet()) {
-                    if (i <= scaledDifficulty) {
-                        tier = i;
-                    }
+        // Check if we are only looking for current-tier armor.
+        if (CURRENT_ARMOR_TIER_ONLY) {
+            int tier = 0;
+
+            for (int i : ARMOR_MAPS.keySet()) {
+                if (i <= scaledDifficulty) {
+                    tier = i;
                 }
-                Map<EquipmentSlot, List<Item>> armors = ARMOR_MAPS.get(tier);
-                toEquip[0] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.FEET)));
-                toEquip[1] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.LEGS)));
-                toEquip[2] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.CHEST)));
-                toEquip[3] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.HEAD)));
             }
-            else {
-                List<Integer> availableTiers = new ArrayList<>();
+            final Map<EquipmentSlot, List<Item>> armors = ARMOR_MAPS.get(tier);
 
-                for (int tier : ARMOR_MAPS.keySet()) {
-                    if (tier <= scaledDifficulty) {
-                        availableTiers.add(tier);
-                    }
-                }
-                if (availableTiers.isEmpty())
-                    return;
-
-                Map<EquipmentSlot, List<Item>> armors = ARMOR_MAPS.get(DataStructureUtils.getRandomListElement(random, availableTiers));
+            // Make sure tier exists before doing anything
+            if (armors != null) {
                 toEquip[0] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.FEET)));
                 toEquip[1] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.LEGS)));
                 toEquip[2] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.CHEST)));
                 toEquip[3] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.HEAD)));
             }
         }
+        // Current tier and all previous tiers are viable!
+        else {
+            List<Integer> availableTiers = new ArrayList<>();
+
+            for (int tier : ARMOR_MAPS.keySet()) {
+                // Filter out tiers that haven't been reached yet
+                if (tier <= scaledDifficulty) {
+                    availableTiers.add(tier);
+                }
+            }
+            // No tiers left to pick from, abort
+            if (availableTiers.isEmpty()) return;
+
+            final Map<EquipmentSlot, List<Item>> armors = ARMOR_MAPS.get(DataStructureUtils.getRandomListElement(random, availableTiers));
+            toEquip[0] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.FEET)));
+            toEquip[1] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.LEGS)));
+            toEquip[2] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.CHEST)));
+            toEquip[3] = new ItemStack(DataStructureUtils.getRandomListElement(random, armors.get(EquipmentSlot.HEAD)));
+        }
+
         for (int i = 0; i < toEquip.length; i++) {
-            if (entity.getItemBySlot(ARMOR_SLOTS[i]).isEmpty() && !toEquip[i].isEmpty()) {
+            // Only equip if target equipment slot is empty,
+            // and we actually got an armor piece to equip.
+            if (entity.getItemBySlot(ARMOR_SLOTS[i]).isEmpty() && toEquip[i] != null && !toEquip[i].isEmpty()) {
                 entity.setItemSlot(ARMOR_SLOTS[i], toEquip[i]);
             }
         }

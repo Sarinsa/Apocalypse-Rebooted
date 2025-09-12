@@ -153,7 +153,7 @@ task apiJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
-task updateVersionCheck {
+tasks.register('updateVersionCheck') {
     try {
         File jsonFile = file('version_check.json')
 
@@ -161,8 +161,7 @@ task updateVersionCheck {
             println("Version check json not present, strange! Generating new file...")
             jsonFile.createNewFile()
             println("The newly generated file is empty, cause I am lazy. Lets fill it out manually!")
-        }
-        else {
+        } else {
             def parsedJson = new JsonSlurper().parse(jsonFile)
             Map<String, String> versions = parsedJson.promos
 
