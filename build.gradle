@@ -96,6 +96,10 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
+
+    //--------------- Dependencies -----------------
+
+
     // JEI
     compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}"))
     compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}"))
@@ -108,17 +112,25 @@ dependencies {
     // Jade
     implementation fg.deobf("curse.maven:jade-324717:${jade_version}")
 
+    // MixinExtras
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
+    implementation(jarJar("io.github.llamalad7:mixinextras-forge:0.4.1")) {
+        jarJar.ranged(it, "[0.4.1,)")
+    }
+
+
+    //----------------- Testing -------------------
+
+
     // Serene Seasons
     runtimeOnly fg.deobf("curse.maven:sereneseasons-291874:${serene_s_version}")
 
     // Twilight
     runtimeOnly fg.deobf("curse.maven:twilightforest-227639:5468648")
 
-    // MixinExtras
-    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
-    implementation(jarJar("io.github.llamalad7:mixinextras-forge:0.4.1")) {
-        jarJar.ranged(it, "[0.4.1,)")
-    }
+
+    //------------------ Other --------------------
+
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
