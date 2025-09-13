@@ -51,7 +51,10 @@ public class CommonConfigReloadListener {
 
         List<ResourceKey<Level>> list = new ArrayList<>();
         COMMON.getDifficultyPenaltyDimensions().forEach((s -> list.add(ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(s)))));
+        List<ResourceKey<Level>> list1 = new ArrayList<>();
+        COMMON.getSiegeDimensionBlacklist().forEach((s -> list1.add(ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(s)))));
         PlayerDifficultyManager.DIMENSION_PENALTY_LIST = list;
+        PlayerDifficultyManager.SIEGE_DIMENSION_BLACKLIST = list1;
         PlayerDifficultyManager.DIMENSION_PENALTY = COMMON.getDimensionPenalty();
         PlayerDifficultyManager.ACID_RAIN_CHANCE = COMMON.getAcidRainChance();
 

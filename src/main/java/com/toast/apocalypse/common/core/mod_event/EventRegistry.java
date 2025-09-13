@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.core.mod_event;
 
+import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.core.mod_event.events.*;
 import com.toast.apocalypse.common.util.References;
 
@@ -17,8 +18,8 @@ public class EventRegistry {
             (serverWorld, currentEvent, player, difficultyManager) -> true);
 
     public static final EventType<?> FULL_MOON = register(0, "full_moon_siege", FullMoonEvent::new, References.FULL_MOON, 100,
-            (serverWorld, currentEvent, player, difficultyManager) -> difficultyManager.isFullMoonNight(),
-            (serverWorld, currentEvent, player, difficultyManager) -> difficultyManager.isFullMoonNight());
+            (serverWorld, currentEvent, player, difficultyManager) -> difficultyManager.isFullMoonNight() && ApocalypseCommonConfig.COMMON.fullMoonsEnabled(),
+            (serverWorld, currentEvent, player, difficultyManager) -> difficultyManager.isFullMoonNight() && ApocalypseCommonConfig.COMMON.fullMoonsEnabled());
 
     public static final EventType<?> THUNDERSTORM = register(1, "thunderstorm", ThunderstormEvent::new, References.THUNDERSTORM, 2,
             (serverWorld, currentEvent, player, difficultyManager) -> serverWorld.isThundering(),

@@ -51,6 +51,9 @@ public class ApocalypseCommonConfig {
                 BuiltinDimensionTypes.NETHER.location().toString(),
                 BuiltinDimensionTypes.END.location().toString());
 
+        private static final List<? extends String> DEFAULT_SIEGE_DIMENSION_BLACKLIST = Arrays.asList(
+                BuiltinDimensionTypes.END.location().toString());
+
         private static final List<? extends String> DEFAULT_DESTROYER_PROOF_BLOCKS = Arrays.asList(
                 ForgeRegistries.BLOCKS.getKey(Blocks.BARRIER).toString(),
                 ForgeRegistries.BLOCKS.getKey(Blocks.BEDROCK).toString()
@@ -101,6 +104,9 @@ public class ApocalypseCommonConfig {
         private final ForgeConfigSpec.ConfigValue<CommentedConfig> mobDifficulties;
 
         // Full moon stuff
+        private final ForgeConfigSpec.BooleanValue fullMoonsEnabled;
+        private final ForgeConfigSpec.BooleanValue denySleep;
+        private final ForgeConfigSpec.ConfigValue<List<? extends String>> dimensionSiegeBlacklist;
         private final ForgeConfigSpec.BooleanValue despawnMobsOnDeath;
         private final ForgeConfigSpec.DoubleValue difficultyUntilNextIncrease;
         private final HashMap<Class<? extends IFullMoonMob>, ForgeConfigSpec.LongValue> moonMobStartDifficulties = new HashMap<>();
@@ -228,6 +234,15 @@ public class ApocalypseCommonConfig {
 
             configBuilder.comment("This section revolves around everything related to the full moon sieges.");
             configBuilder.push("full_moon");
+
+            this.fullMoonsEnabled = configBuilder.comment("If enabled, full moon sieges will trigger every full moon night for players that have passed their grace period.")
+                    .define("fullMoonsEnabled", true);
+
+            this.denySleep = configBuilder.comment("If enabled, players cannot sleep through full moon nights.")
+                    .define("denySleep", true);
+
+            this.dimensionSiegeBlacklist = configBuilder.comment("A list of IDs of dimensions where full moon mobs shouldn't be able to spawn.")
+                    .defineListAllowEmpty(split("dimensionSiegeBlacklist"), () -> DEFAULT_SIEGE_DIMENSION_BLACKLIST, isResourceLocation());
 
             this.despawnMobsOnDeath = configBuilder.comment("If enabled, all full moon mobs spawned for a specific player will despawn if the player dies, which can help prevent spawn killing.")
                     .define("despawnMobsOnDeath", true);
@@ -522,6 +537,18 @@ public class ApocalypseCommonConfig {
         //
         // FULL MOON
         //
+        public boolean fullMoonsEnabled() {
+            return fullMoonsEnabled.get();
+        }
+
+        public boolean denySleep() {
+            return denySleep.get();
+        }
+
+        public List<? extends String> getSiegeDimensionBlacklist() {
+            return this.dimensionSiegeBlacklist.get();
+        }
+
         public boolean getDespawnMobsOnDeath() {
             return this.despawnMobsOnDeath.get();
         }

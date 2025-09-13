@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.core.mod_event.events;
 
+import com.toast.apocalypse.common.core.config.ApocalypseCommonConfig;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
@@ -117,7 +118,7 @@ public final class FullMoonEvent extends AbstractEvent {
             timeUntilNextSpawn -= PlayerDifficultyManager.TICKS_PER_UPDATE;
         }
 
-        if (canSpawn()) {
+        if (canSpawn(player)) {
             boolean hasMobsLeft = false;
 
             for (int id : mobsToSpawn.keySet()) {
@@ -158,8 +159,9 @@ public final class FullMoonEvent extends AbstractEvent {
     /**
      * Returns true if it is time to spawn a new full moon mob.
      */
-    private boolean canSpawn() {
-        return gracePeriod <= 0 && hasMobsLeft && timeUntilNextSpawn <= 0;
+    private boolean canSpawn(ServerPlayer player) {
+        return gracePeriod <= 0 && hasMobsLeft
+                && timeUntilNextSpawn <= 0 && !PlayerDifficultyManager.SIEGE_DIMENSION_BLACKLIST.contains(player.level.dimension());
     }
 
     /**

@@ -59,6 +59,7 @@ public final class PlayerDifficultyManager {
     public static double SLEEP_PENALTY;
     public static double DIMENSION_PENALTY;
     public static List<ResourceKey<Level>> DIMENSION_PENALTY_LIST;
+    public static List<ResourceKey<Level>> SIEGE_DIMENSION_BLACKLIST;
 
     /** Number of ticks per update. */
     public static final int TICKS_PER_UPDATE = 5;
@@ -293,7 +294,7 @@ public final class PlayerDifficultyManager {
         if (maxDifficultyReached || player.isCreative() || player.isSpectator()) {
             return;
         }
-        currentDifficulty += TICKS_PER_UPDATE * difficultyMultiplier;
+        currentDifficulty += (long) (TICKS_PER_UPDATE * difficultyMultiplier);
 
         // Update player difficulty stuff
         CapabilityHelper.setPlayerDifficulty(player, currentDifficulty);
