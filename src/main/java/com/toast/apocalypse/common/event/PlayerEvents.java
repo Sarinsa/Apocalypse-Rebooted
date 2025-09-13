@@ -51,7 +51,9 @@ public class PlayerEvents {
         if (player.isSleeping() || !player.isAlive())
             return;
 
-        if (!player.level().isClientSide && Apocalypse.INSTANCE.getDifficultyManager().isFullMoon()) {
+        if (!player.level().isClientSide
+                && Apocalypse.INSTANCE.getDifficultyManager().isFullMoon()
+                && ApocalypseConfig.LUNAR_SIEGE.GENERAL.denySleep.get()) {
             event.setResult(Player.BedSleepingProblem.NOT_POSSIBLE_HERE);
             player.displayClientMessage(Component.translatable(References.TRY_SLEEP_FULL_MOON), true);
         }
