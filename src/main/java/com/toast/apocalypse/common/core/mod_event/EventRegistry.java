@@ -39,10 +39,7 @@ public class EventRegistry {
     public static final EventType<?> CALL_OF_THE_SHADOWS = register("call_of_the_shadows", DarknessEvent::new, null,
             (serverLevel, player, difficulty, difficultyManager) -> {
                 if (player.isCreative() || player.isSpectator() || !ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.enabled.get()) return false;
-
-                BlockPos pos = player.blockPosition();
-                return serverLevel.getBrightness(LightLayer.SKY, pos) <= ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.skyLightLevel.get()
-                        && serverLevel.getBrightness(LightLayer.BLOCK, pos) <= ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.blockLightLevel.get();
+                return DarknessEvent.isLowBrightnessAt(serverLevel, player.blockPosition());
     });
 
 

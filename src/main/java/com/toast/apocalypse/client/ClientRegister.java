@@ -20,6 +20,7 @@ import com.toast.apocalypse.client.renderer.entity.projectile.monsterhook.Monste
 import com.toast.apocalypse.client.renderer.model.armor.BucketHelmetModel;
 import com.toast.apocalypse.client.renderer.model.armor.GrumpBucketHelmetModel;
 import com.toast.apocalypse.client.screen.DynamicTrapMenuScreen;
+import com.toast.apocalypse.common.compat.ryaomic.RyoamicCompat;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.core.register.ApocalypseMenus;
@@ -69,6 +70,8 @@ public class ClientRegister {
     public static void onClientSetup(FMLClientSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(new ClientEvents());
         MinecraftForge.EVENT_BUS.register(new KeyInputListener());
+
+        RyoamicCompat.init();
 
         // Config loading
         CLIENT_CONFIG.SPEC.initialize();

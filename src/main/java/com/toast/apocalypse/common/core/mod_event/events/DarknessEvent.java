@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.core.mod_event.events;
 
+import com.toast.apocalypse.common.compat.ryaomic.RyoamicCompat;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
@@ -19,8 +20,11 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraftforge.event.ForgeEventFactory;
+import org.thinkingstudio.ryoamiclights.RyoamicLights;
+import org.thinkingstudio.ryoamiclights.RyoamicLightsCompat;
 
 public final class DarknessEvent extends AbstractEvent {
 
@@ -77,9 +81,7 @@ public final class DarknessEvent extends AbstractEvent {
     public boolean shouldContinueRunning(ServerLevel level, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager) {
         if (stage == Stage.RESET || player.isCreative() || player.isSpectator()) return false;
 
-        BlockPos pos = player.blockPosition();
-        return level.getBrightness(LightLayer.SKY, pos) <= ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.skyLightLevel.get()
-                && level.getBrightness(LightLayer.BLOCK, pos) <= ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.blockLightLevel.get();
+        return isLowBrightnessAt(level, player.blockPosition());
     }
 
     @Override
@@ -107,6 +109,18 @@ public final class DarknessEvent extends AbstractEvent {
             int ordinal = Mth.clamp(data.getInt("EventStage"), 0, Stage.values().length - 1);
             stage = Stage.values()[ordinal];
         }
+    }
+
+    /**
+     * @return True if the skylight and block light at the given position
+     *         is low enough to trigger this event.
+     */
+    public static boolean isLowBrightnessAt(Level level, BlockPos pos) {
+        int skylight = level.getBrightness(LightLayer.SKY, pos);
+        int blockLight = RyoamicCompat.getBlockOrDynamicLightAt(level, pos);
+
+        return skylight <= ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.skyLightLevel.get()
+                && blockLight <= ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.blockLightLevel.get();
     }
 
     enum Stage {

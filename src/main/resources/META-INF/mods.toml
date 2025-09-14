@@ -33,3 +33,10 @@ issueTrackerURL="https://github.com/Sarinsa/Apocalypse-Rebooted/issues"
     versionRange = "[2.5.9,)"
     ordering = "AFTER"
     side = "BOTH"
+
+[[dependencies.apocalypse]]
+    modId = "ryoamiclights"
+    mandatory = false
+    versionRange = "[0.2.3,)"
+    ordering = "NONE"
+    side = "BOTH"

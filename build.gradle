@@ -101,9 +101,9 @@ dependencies {
 
 
     // JEI
-    compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}"))
-    compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}"))
-    runtimeOnly(fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}"))
+    compileOnly fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}")
+    compileOnly fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}")
+    runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}")
 
     // Crust; only implement the api, but include the entire mod at runtime
     implementation "curse.maven:crust-873570:${crust_api_version}"
@@ -111,6 +111,11 @@ dependencies {
 
     // Jade
     implementation fg.deobf("curse.maven:jade-324717:${jade_version}")
+
+    // Ryomic Lights
+    implementation fg.deobf("curse.maven:ryoamiclights-913587:${ryoamic_version}")
+    compileOnly "curse.maven:ryoamiclights_src-913587:${ryoamic_src_version}"
+    implementation fg.deobf("curse.maven:obsidianui-684718:${obsidianui_version}")
 
     // MixinExtras
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
