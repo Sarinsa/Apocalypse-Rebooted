@@ -56,6 +56,8 @@ public class EntityEvents {
     @SubscribeEvent
     public void onServerStarted(ServerStartedEvent event) {
         for (EntityType<?> type : ForgeRegistries.ENTITY_TYPES) {
+            if (type == EntityType.PLAYER) continue;
+
             try {
                 Entity entity = type.create(event.getServer().overworld());
 

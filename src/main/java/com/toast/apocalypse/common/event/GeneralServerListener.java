@@ -49,6 +49,7 @@ public class GeneralServerListener {
                     difficultyManager.isRainingAcid((ServerLevel) player.level())
                             ? S2CSimpleClientTask.SET_ACID_RAIN
                             : S2CSimpleClientTask.REMOVE_ACID_RAIN);
+
             NetworkHelper.sendSimpleClientTaskRequest(player,
                     ApocalypseConfig.ACID_RAIN.GENERAL.acidSnow.get()
                             ? S2CSimpleClientTask.ENABLE_ACID_SNOW
