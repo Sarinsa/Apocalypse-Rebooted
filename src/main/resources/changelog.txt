@@ -1,0 +1,7 @@
+1.20.1-3.9.8
+    - Updated min required Crust version.
+    - Added some compat for RyoamicLights.
+    - Denying sleep during full moon nights is now configurable.
+    - Added environment list config option for better control over where lunar siege mobs can and can't spawn.
+    -
+    - Some internal cleanup
