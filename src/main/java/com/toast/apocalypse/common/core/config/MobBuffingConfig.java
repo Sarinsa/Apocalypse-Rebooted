@@ -16,6 +16,8 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -109,7 +111,7 @@ public class MobBuffingConfig extends AbstractConfigFile {
 
             SPEC.titledComment("Max Health", "Settings for max health boost.");
             maxHealthBlacklist = SPEC.define(new LazyRegistryEntryListField<>("max_health_blacklist", new LazyRegistryEntryList<>(
-                    ForgeRegistries.ENTITY_TYPES, List.of()
+                    ForgeRegistries.ENTITY_TYPES
             ), "A list of entities that should not receive max health boost."));
             healthLunarFlatBonus = SPEC.define(new DoubleField("health_lunar_flat_bonus", 5.0, DoubleField.Range.NON_NEGATIVE,
                     "The flat bonus gained from a full moon. Default is 10.0 (+10 hearts on full moons)."));
@@ -130,7 +132,7 @@ public class MobBuffingConfig extends AbstractConfigFile {
 
             SPEC.titledComment("Attack Damage", "Settings for attack damage boost.");
             attackDamageBlacklist = SPEC.define(new LazyRegistryEntryListField<>("attack_damage_blacklist", new LazyRegistryEntryList<>(
-                    ForgeRegistries.ENTITY_TYPES, List.of()
+                    ForgeRegistries.ENTITY_TYPES
             ), "A list of entities that should not receive attack damage boost."));
             damageLunarFlatBonus = SPEC.define(new DoubleField("damage_lunar_flat_bonus", 1.0, DoubleField.Range.NON_NEGATIVE,
                     "The flat bonus gained from a full moon. Default is 1.0 (+half a heart of damage on full moons)."));
@@ -170,7 +172,7 @@ public class MobBuffingConfig extends AbstractConfigFile {
 
             SPEC.titledComment("Knockback Resistance", "Settings for knockback resistance boost.");
             knockbackResBlacklist = SPEC.define(new LazyRegistryEntryListField<>("knockback_resistance_blacklist", new LazyRegistryEntryList<>(
-                    ForgeRegistries.ENTITY_TYPES, List.of()
+                    ForgeRegistries.ENTITY_TYPES
             ), "A list of entities that should not receive knockback resistance boost."));
             knockbackResLunarFlatBonus = SPEC.define(new DoubleField("knockback_res_lunar_flat_bonus", 0.2, DoubleField.Range.NON_NEGATIVE,
                     "The flat bonus gained from a full moon in percentage. Default is 0.2 (+20% on full moons)"));
@@ -205,6 +207,13 @@ public class MobBuffingConfig extends AbstractConfigFile {
         public final DoubleField armorLunarChance;
         public final DoubleField armorMaxChance;
         public final BooleanField currentArmorTierOnly;
+
+        public final RegistryEntryListField<EntityType<?>> canGetEnchantments;
+        public final DoubleField enchantDifficultySpan;
+        public final DoubleField enchantChance;
+        public final DoubleField enchantLunarChance;
+        public final DoubleField enchantMaxChance;
+        public final IntField.RandomRange enchantLevelRange;
 
 
         Equipment(MobBuffingConfig parent) {
@@ -353,6 +362,30 @@ public class MobBuffingConfig extends AbstractConfigFile {
                     "If enabled, only armor from the most recently unlocked armor tier will be given to mobs.",
                     "When disabled, random armor pieces will be picked from all unlocked tiers."));
 
+            SPEC.newLine();
+
+            canGetEnchantments = SPEC.define(new RegistryEntryListField<>("can_get_enchantments",
+                    new RegistryEntryList<>(ForgeRegistries.ENTITY_TYPES,
+                            List.of(), List.of(),
+                            EntityType.ZOMBIE, EntityType.ZOMBIE_VILLAGER, EntityType.DROWNED, EntityType.HUSK,
+                            EntityType.WITHER_SKELETON, EntityType.SKELETON, EntityType.PIGLIN, EntityType.PIGLIN_BRUTE
+                    ),
+                    "A list of entity types that can get their equipment enchanted when spawning."));
+
+            SPEC.newLine();
+
+            enchantDifficultySpan = SPEC.define(new DoubleField("enchant_difficulty_span", 10.0, DoubleField.Range.NON_NEGATIVE,
+                    "The difficulty level for each application of the fields below."));
+            enchantChance = SPEC.define(new DoubleField("enchant_chance", 0.05, DoubleField.Range.PERCENT,
+                    "The chance that a mob will get their equipment enchanted. Default is 0.05 (5% chance).",
+                    "This value increases in accordance to 'enchant_difficulty_span'.",
+                    "Note that this chance is rolled one time for each piece of equipment; held weapon, helmet, leggings etc."));
+            enchantLunarChance = SPEC.define(new DoubleField("enchant_lunar_chance", 0.25, DoubleField.Range.PERCENT,
+                    "The additional chance gained from a full moon. Default is 0.25 (+25% chance on full moon)."));
+            enchantMaxChance = SPEC.define(new DoubleField("enchant_max_chance", 0.90, DoubleField.Range.PERCENT,
+                    "The maximum enchant chance that can be given over time. Default is 0.90 (90% chance)."));
+            enchantLevelRange = new IntField.RandomRange(SPEC, "enchant_level_range", 4, 27, 0, 30,
+                    "The lowest and highest value possible when picking the level when enchanting a piece of equipment.");
         }
     }
 

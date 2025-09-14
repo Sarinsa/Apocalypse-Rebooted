@@ -3,5 +3,5 @@
     - Added some compat for RyoamicLights.
     - Denying sleep during full moon nights is now configurable.
     - Added environment list config option for better control over where lunar siege mobs can and can't spawn.
-    -
+    - Added config options for enchanting living entities' equipment when they spawn
     - Some internal cleanup
