@@ -240,6 +240,8 @@ public final class FullMoonEvent extends AbstractEvent {
                 int y = level.getHeight(SpawnPlacements.getHeightmapType(entityType), x, z);
                 BlockPos.MutableBlockPos pos = new BlockPos(x, y, z).mutable();
 
+                // If we are in a dimension with a ceiling,
+                // move the position down until we find a pocket of air
                 if (level.dimensionType().hasCeiling()) {
                     do {
                         pos.move(Direction.DOWN);
