@@ -9,7 +9,7 @@ import com.toast.apocalypse.common.tag.ApocalypseEntityTags;
 import com.toast.apocalypse.common.util.CapabilityHelper;
 import com.toast.apocalypse.common.util.DataStructureUtils;
 import com.toast.apocalypse.common.util.References;
-import fathertoast.crust.api.config.common.value.EntityList;
+import fathertoast.crust.api.config.common.value.EntityTagEntry;
 import fathertoast.crust.api.config.common.value.RegistryEntryValueList;
 import fathertoast.crust.api.config.common.value.RegistryValueEntry;
 import net.minecraft.core.BlockPos;
@@ -19,20 +19,23 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
+
+import static com.toast.apocalypse.common.core.config.ApocalypseConfig.LUNAR_SIEGE;
 
 /**
  * The full moon event. This event can occur every 8 days in game and will interrupt any other event and can not be interrupted
@@ -111,7 +114,7 @@ public final class FullMoonEvent extends AbstractEvent {
 
     @Override
     public boolean shouldContinueRunning(ServerLevel level, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager) {
-        return ApocalypseConfig.LUNAR_SIEGE.GENERAL.enableLunarSieges.get() && difficultyManager.isFullMoonNight();
+        return LUNAR_SIEGE.GENERAL.enableLunarSieges.get() && difficultyManager.isFullMoonNight();
     }
 
     @Override
@@ -135,13 +138,13 @@ public final class FullMoonEvent extends AbstractEvent {
      * @param difficulty The player's difficulty.
      */
     private void calculateMobs(long difficulty) {
-        final double difficultyPerIncrease = ApocalypseConfig.LUNAR_SIEGE.SIEGE_MOB_PROPS.difficultyPerIncrease.get();
+        final double difficultyPerIncrease = LUNAR_SIEGE.SIEGE_MOB_PROPS.difficultyPerIncrease.get();
         final double scaledDifficulty = (double) difficulty / References.DAY_LENGTH;
 
         double effectiveDifficulty;
         int count;
 
-        final RegistryEntryValueList<EntityType<?>> entryList = ApocalypseConfig.LUNAR_SIEGE.SIEGE_MOB_PROPS.mobSpawnSettings.get();
+        final RegistryEntryValueList<EntityType<?>> entryList = LUNAR_SIEGE.SIEGE_MOB_PROPS.mobSpawnSettings.get();
 
         for (RegistryValueEntry<EntityType<?>> entry : entryList.getEntries()) {
             final double startDifficulty = entry.VALUES[0];
@@ -276,13 +279,15 @@ public final class FullMoonEvent extends AbstractEvent {
                 }
             }
         }
+        // No viable spawn position found, abort
         if (spawnPos == null)
             return null;
 
-        Double envValue = ApocalypseConfig.LUNAR_SIEGE.GENERAL.siegeSpawningConditions.get(level, spawnPos);
+        Double envValue = LUNAR_SIEGE.GENERAL.siegeSpawningConditions.get(level, spawnPos);
 
-        // Check environment conditions before spawning
-        if (ApocalypseConfig.LUNAR_SIEGE.GENERAL.siegeSpawningConditions.isEmpty() || (envValue != null && envValue > 0.0)) {
+        // Check environment conditions before spawning.
+        // If the condition list is empty, consider all positions valid.
+        if (LUNAR_SIEGE.GENERAL.siegeSpawningConditions.isEmpty() || (envValue != null && envValue > 0.0)) {
             return entityType.create(level, null, null, spawnPos, MobSpawnType.EVENT, true, true);
         }
         else {
