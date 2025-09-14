@@ -282,7 +282,7 @@ public final class FullMoonEvent extends AbstractEvent {
         Double envValue = ApocalypseConfig.LUNAR_SIEGE.GENERAL.siegeSpawningConditions.get(level, spawnPos);
 
         // Check environment conditions before spawning
-        if (envValue != null && envValue > 0.0) {
+        if (ApocalypseConfig.LUNAR_SIEGE.GENERAL.siegeSpawningConditions.isEmpty() || (envValue != null && envValue > 0.0)) {
             return entityType.create(level, null, null, spawnPos, MobSpawnType.EVENT, true, true);
         }
         else {
