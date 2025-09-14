@@ -24,11 +24,12 @@ public class DifficultyConfig extends AbstractConfigFile {
         SPEC.fileOnlyNewLine();
         SPEC.describeRegistryEntryList();
         SPEC.fileOnlyNewLine();
-        SPEC.describeEnvironmentListPart1of2();
-        SPEC.describeEnvironmentListPart2of2();
-        SPEC.fileOnlyNewLine();
 
         GENERAL = new General(cfgManager, this);
+
+        SPEC.fileOnlyNewLine();
+        SPEC.describeEnvironmentListPart1of2();
+        SPEC.describeEnvironmentListPart2of2();
     }
 
 

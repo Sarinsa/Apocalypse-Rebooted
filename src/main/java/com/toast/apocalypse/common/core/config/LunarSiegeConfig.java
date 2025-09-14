@@ -4,14 +4,8 @@ import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import fathertoast.crust.api.config.common.AbstractConfigCategory;
 import fathertoast.crust.api.config.common.AbstractConfigFile;
 import fathertoast.crust.api.config.common.ConfigManager;
-import fathertoast.crust.api.config.common.field.BooleanField;
-import fathertoast.crust.api.config.common.field.DoubleField;
-import fathertoast.crust.api.config.common.field.EntityListField;
-import fathertoast.crust.api.config.common.field.RegistryEntryValueListField;
-import fathertoast.crust.api.config.common.value.EntityEntry;
-import fathertoast.crust.api.config.common.value.EntityList;
-import fathertoast.crust.api.config.common.value.RegistryEntryValueList;
-import fathertoast.crust.api.config.common.value.RegistryValueEntry;
+import fathertoast.crust.api.config.common.field.*;
+import fathertoast.crust.api.config.common.value.*;
 import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -30,8 +24,12 @@ public class LunarSiegeConfig extends AbstractConfigFile {
         SPEC.describeRegistryEntryList();
         SPEC.fileOnlyNewLine();
 
-        GENERAL = new General(this);
+        GENERAL = new General(cfgManager,this);
         SIEGE_MOB_PROPS = new SiegeMobProperties(this);
+
+        SPEC.fileOnlyNewLine();
+        SPEC.describeEnvironmentListPart1of2();
+        SPEC.describeEnvironmentListPart2of2();
     }
 
     public static class General extends AbstractConfigCategory<LunarSiegeConfig> {
@@ -39,9 +37,10 @@ public class LunarSiegeConfig extends AbstractConfigFile {
         public final BooleanField enableLunarSieges;
         public final BooleanField denySleep;
         public final BooleanField despawnMobsOnDeath;
+        public final EnvironmentListField siegeSpawningConditions;
 
 
-        General(LunarSiegeConfig parent) {
+        General(ConfigManager cfgManager, LunarSiegeConfig parent) {
             super(parent, "general",
                     "General event settings.");
 
@@ -56,11 +55,20 @@ public class LunarSiegeConfig extends AbstractConfigFile {
                     "If enabled, any mobs that are still alive that were summoned by X player's Lunar Siege event will despawn if their target player dies.",
                     "Can help prevent horrible spawn-camping"));
 
+            siegeSpawningConditions = SPEC.define(new EnvironmentListField("siege_spawning_conditions", new EnvironmentList(
+                    EnvironmentEntry.builder(cfgManager, 1.0).notInTheEnd().build())
+                    .setRange(0.0, 1.0),
+                    "This is a list of environment condition entries that can be used to control under what circumstances lunar siege mobs can spawn.",
+                    "If a string of conditions should PREVENT spawning, its value should be 0.0",
+                    "If a string of conditions should ALLOW spawning, its value should be 1.0",
+                    "By default, we only prevent siege mobs from spawning in The End."
+            ));
+
             SPEC.newLine();
         }
     }
 
-
+    @SuppressWarnings("ConstantConditions")
     public static class SiegeMobProperties extends AbstractConfigCategory<LunarSiegeConfig> {
 
         public final DoubleField difficultyPerIncrease;
@@ -118,8 +126,6 @@ public class LunarSiegeConfig extends AbstractConfigFile {
                     "4th value: Additional spawn count for the given mob type (works in conjunction with 'difficulty_per_additional_increase')."));
 
             SPEC.newLine();
-
-
         }
     }
 }
