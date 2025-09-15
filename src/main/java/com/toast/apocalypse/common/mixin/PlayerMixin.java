@@ -15,13 +15,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 // Creds to gudenau (a cool guy in the Fabric Discord server) for helping with this.
 @Mixin(Player.class)
-public abstract class PlayerEntityMixin extends LivingEntity {
+public abstract class PlayerMixin extends LivingEntity {
 
     @Unique
     private DamageSource apocalypseDamageSource;
 
 
-    protected PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, Level level) {
+    protected PlayerMixin(EntityType<? extends LivingEntity> entityType, Level level) {
         super(entityType, level);
     }
 
