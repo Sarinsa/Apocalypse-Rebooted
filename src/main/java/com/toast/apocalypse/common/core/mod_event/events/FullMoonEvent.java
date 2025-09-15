@@ -1,15 +1,13 @@
 package com.toast.apocalypse.common.core.mod_event.events;
 
-import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import com.toast.apocalypse.common.tag.ApocalypseEntityTags;
-import com.toast.apocalypse.common.util.CapabilityHelper;
+import com.toast.apocalypse.common.capability.CapabilityHelper;
 import com.toast.apocalypse.common.util.DataStructureUtils;
 import com.toast.apocalypse.common.util.References;
-import fathertoast.crust.api.config.common.value.EntityTagEntry;
 import fathertoast.crust.api.config.common.value.RegistryEntryValueList;
 import fathertoast.crust.api.config.common.value.RegistryValueEntry;
 import net.minecraft.core.BlockPos;
@@ -19,7 +17,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;

@@ -1,6 +1,5 @@
-package com.toast.apocalypse.common.util;
+package com.toast.apocalypse.common.capability;
 
-import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.capability.difficulty.DifficultyCapProvider;
 import com.toast.apocalypse.common.capability.mobwiki.MobWikiCapProvider;
 import com.toast.apocalypse.common.network.NetworkHelper;

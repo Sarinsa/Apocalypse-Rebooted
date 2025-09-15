@@ -1,17 +1,14 @@
 package com.toast.apocalypse.common.misc;
 
 import com.toast.apocalypse.common.entity.living.*;
-import com.toast.apocalypse.common.util.CapabilityHelper;
+import com.toast.apocalypse.common.capability.CapabilityHelper;
 import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Utility class for keeping track of which
- * mob has which index in the mob wiki.
- */
+// TODO - Maybe some day do something with this
 public final class MobWikiIndexes {
 
     private static final Map<Class<? extends IFullMoonMob>, Integer> INDEXES = new HashMap<>();

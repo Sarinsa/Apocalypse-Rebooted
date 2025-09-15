@@ -7,7 +7,7 @@ import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
-import com.toast.apocalypse.common.util.ApocalypseEventFactory;
+import com.toast.apocalypse.common.event.ApocalypseEventFactory;
 import com.toast.apocalypse.common.util.MobHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;

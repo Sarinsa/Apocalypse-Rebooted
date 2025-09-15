@@ -13,7 +13,7 @@ import com.toast.apocalypse.common.item.LunarArmorItem;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.network.message.S2CSimpleClientTask;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
-import com.toast.apocalypse.common.util.CapabilityHelper;
+import com.toast.apocalypse.common.capability.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;

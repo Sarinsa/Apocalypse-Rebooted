@@ -12,13 +12,12 @@ import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.core.register.*;
-import com.toast.apocalypse.common.event.CapabilityAttachEvents;
-import com.toast.apocalypse.common.event.EntityEvents;
-import com.toast.apocalypse.common.event.PlayerEvents;
-import com.toast.apocalypse.common.event.VillagerTradeEvents;
+import com.toast.apocalypse.common.event.CapabilityAttachListener;
+import com.toast.apocalypse.common.event.EntityEventListener;
+import com.toast.apocalypse.common.event.PlayerEventListener;
+import com.toast.apocalypse.common.event.VillagerTradeListener;
 import com.toast.apocalypse.common.network.PacketHandler;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
-import com.toast.apocalypse.common.event.RainDamageTickHandler;
 import com.toast.apocalypse.common.util.VersionCheckHelper;
 import fathertoast.crust.api.config.common.ConfigManager;
 import net.minecraft.resources.ResourceLocation;
@@ -92,11 +91,11 @@ public class Apocalypse {
         eventBus.addListener(this::sendIMCMessages);
 
         // Register event listeners
-        MinecraftForge.EVENT_BUS.register(new EntityEvents());
-        MinecraftForge.EVENT_BUS.register(new PlayerEvents());
-        MinecraftForge.EVENT_BUS.register(new CapabilityAttachEvents());
+        MinecraftForge.EVENT_BUS.register(new EntityEventListener());
+        MinecraftForge.EVENT_BUS.register(new PlayerEventListener());
+        MinecraftForge.EVENT_BUS.register(new CapabilityAttachListener());
         MinecraftForge.EVENT_BUS.register(this.getDifficultyManager());
-        MinecraftForge.EVENT_BUS.register(new VillagerTradeEvents());
+        MinecraftForge.EVENT_BUS.register(new VillagerTradeListener());
         MinecraftForge.EVENT_BUS.addListener(CommandRegister::registerCommands);
 
         // Register game objects

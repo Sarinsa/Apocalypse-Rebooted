@@ -4,12 +4,11 @@ import com.toast.apocalypse.api.register.ModRegistries;
 import com.toast.apocalypse.common.blockentity.DynamicTrapBlockEntity;
 import com.toast.apocalypse.common.entity.living.Grump;
 import com.toast.apocalypse.common.network.message.*;
-import com.toast.apocalypse.common.util.CapabilityHelper;
+import com.toast.apocalypse.common.capability.CapabilityHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;

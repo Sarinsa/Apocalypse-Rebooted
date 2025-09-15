@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.toast.apocalypse.api.plugin.DifficultyProvider;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.mod_event.EventType;
-import com.toast.apocalypse.common.util.CapabilityHelper;
+import com.toast.apocalypse.common.capability.CapabilityHelper;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 

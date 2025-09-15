@@ -6,7 +6,7 @@ import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-public class VillagerTradeEvents {
+public class VillagerTradeListener {
 
     @SubscribeEvent
     public void onTrade(VillagerTradesEvent event) {

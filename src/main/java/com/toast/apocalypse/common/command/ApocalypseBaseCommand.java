@@ -6,9 +6,8 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.toast.apocalypse.common.command.argument.DifficultyArgument;
 import com.toast.apocalypse.common.command.argument.MaxDifficultyArgument;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.core.mod_event.EventType;
-import com.toast.apocalypse.common.util.CapabilityHelper;
+import com.toast.apocalypse.common.capability.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSource;
@@ -19,7 +18,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 public class ApocalypseBaseCommand {

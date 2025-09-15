@@ -16,22 +16,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.monster.Skeleton;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
@@ -40,7 +32,6 @@ import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.HashMap;
@@ -48,37 +39,11 @@ import java.util.Map;
 
 import static com.toast.apocalypse.common.core.config.ApocalypseConfig.DIFFICULTY;
 
-public class EntityEvents {
+public class EntityEventListener {
 
     /** A map containing an entity instance per entity type in the registry. */
-    private static final Map<EntityType<?>, Entity> ENTITY_FOR_TYPE = new HashMap<>();
+    protected static final Map<EntityType<?>, Entity> ENTITY_FOR_TYPE = new HashMap<>();
 
-    @SubscribeEvent
-    public void onServerStarted(ServerStartedEvent event) {
-        for (EntityType<?> type : ForgeRegistries.ENTITY_TYPES) {
-            if (type == EntityType.PLAYER) continue;
-
-            try {
-                Entity entity = type.create(event.getServer().overworld());
-
-                // We only bother with living entities.
-                if (entity instanceof LivingEntity) {
-                    ENTITY_FOR_TYPE.put(type, entity);
-                }
-                else if (entity == null) {
-                    Apocalypse.LOGGER.error("Failed to create entity instance for type {}! Mob spawn difficulty config list will not work for this type!", type);
-                }
-            }
-            catch (Exception ignored) {
-                // If this explodes, no worries (probably isn't a normal living entity anyway)
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public void onServerStopped(ServerStoppedEvent event) {
-        ENTITY_FOR_TYPE.clear();
-    }
 
     /** Cancel full moon monsters despawning during full moons. */
     @SubscribeEvent(priority = EventPriority.LOW)

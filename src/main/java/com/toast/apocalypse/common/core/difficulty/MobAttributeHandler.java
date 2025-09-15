@@ -1,7 +1,8 @@
 package com.toast.apocalypse.common.core.difficulty;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.util.CapabilityHelper;
+import com.toast.apocalypse.common.mixin.PlayerMixin;
+import com.toast.apocalypse.common.capability.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -118,7 +119,7 @@ public final class MobAttributeHandler {
         }
     }
 
-    /** Used in {@link com.toast.apocalypse.common.mixin.PlayerEntityMixin} */
+    /** Used in {@link PlayerMixin} */
     public static float getLivingDamage(LivingEntity attacker, Player player, float originalDamage) {
         final double scaledDifficulty = (double) (CapabilityHelper.getPlayerDifficulty(player) / References.DAY_LENGTH);
         double effectiveDifficulty = scaledDifficulty / MOB_BUFFING.ATTRIBUTES.damageDifficultySpan.get();

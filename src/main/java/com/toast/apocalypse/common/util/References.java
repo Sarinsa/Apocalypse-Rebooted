@@ -2,7 +2,9 @@ package com.toast.apocalypse.common.util;
 
 public class References {
 
-    // How many ticks there are in one day
+    //
+    // NUMERIC CONSTANTS
+    //
     public static final long DAY_LENGTH = 24000L;
     public static final long MAX_DIFFICULTY_HARD_LIMIT = 100000L * DAY_LENGTH;
     public static final long DEFAULT_COLOR_CHANGE = 240L * DAY_LENGTH;
@@ -32,8 +34,6 @@ public class References {
     public static final String MAX_DIFFICULTY_SET_SINGLE = "apocalypse.command.difficulty.max_message.single";
     public static final String MAX_DIFFICULTY_SET_MULTIPLE = "apocalypse.command.difficulty.max_message.multiple";
 
-    public static final String APOCALYPSE_WORLD_CREATE_BUTTON = "apocalypse.screen.tooltip.create_world_config";
-    public static final String APOCALYPSE_WORLD_CREATE_CONFIG_TITLE = "apocalypse.screen.title.create_world_config";
     public static final String MAX_DIFFICULTY_CONFIG_FIELD = "apocalypse.screen.text_field.create_world_config.max_difficulty";
     public static final String GRACE_PERIOD_CONFIG_FIELD = "apocalypse.screen.text_field.create_world_config.grace_period";
     public static final String MAX_DIFFICULTY_CONFIG_FIELD_DESC = "apocalypse.screen.text_field.desc.create_world_config.max_difficulty";

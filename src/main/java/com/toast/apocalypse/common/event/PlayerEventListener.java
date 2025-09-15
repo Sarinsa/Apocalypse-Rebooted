@@ -2,12 +2,13 @@ package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
+import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.entity.living.Grump;
 import com.toast.apocalypse.common.network.NetworkHelper;
-import com.toast.apocalypse.common.util.CapabilityHelper;
+import com.toast.apocalypse.common.capability.CapabilityHelper;
+import com.toast.apocalypse.common.network.message.S2CSimpleClientTask;
 import com.toast.apocalypse.common.util.References;
 import com.toast.apocalypse.common.util.VersionCheckHelper;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerLevel;
@@ -22,21 +23,38 @@ import net.minecraftforge.event.level.SleepFinishedTimeEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-public class PlayerEvents {
+public class PlayerEventListener {
 
-    /**
-     * Notify the player of an available
-     * mod update on login, if there is one.
-     */
     @SubscribeEvent
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        if (!ApocalypseConfig.MISC.VERSION_CHECK.sendUpdateMessage.get())
-            return;
+        // Check if we should notify about an update
+        if (ApocalypseConfig.MISC.VERSION_CHECK.sendUpdateMessage.get()) {
+            String updateMessage = VersionCheckHelper.getUpdateMessage();
 
-        String updateMessage = VersionCheckHelper.getUpdateMessage();
+            if (updateMessage != null) {
+                event.getEntity().sendSystemMessage(Component.literal(updateMessage));
+            }
+        }
 
-        if (updateMessage != null) {
-            event.getEntity().sendSystemMessage(Component.literal(updateMessage));
+        // Send some sync packets to the client
+        if (!event.getEntity().level().isClientSide) {
+            ServerPlayer player = (ServerPlayer) event.getEntity();
+            PlayerDifficultyManager difficultyManager = Apocalypse.INSTANCE.getDifficultyManager();
+
+            // Send some neato packets
+            NetworkHelper.sendUpdatePlayerDifficulty(player);
+            NetworkHelper.sendUpdatePlayerDifficultyMult(player);
+            NetworkHelper.sendUpdatePlayerMaxDifficulty(player);
+
+            NetworkHelper.sendSimpleClientTaskRequest(player,
+                    difficultyManager.isRainingAcid((ServerLevel) player.level())
+                            ? S2CSimpleClientTask.SET_ACID_RAIN
+                            : S2CSimpleClientTask.REMOVE_ACID_RAIN);
+
+            NetworkHelper.sendSimpleClientTaskRequest(player,
+                    ApocalypseConfig.ACID_RAIN.GENERAL.acidSnow.get()
+                            ? S2CSimpleClientTask.ENABLE_ACID_SNOW
+                            : S2CSimpleClientTask.DISABLE_ACID_SNOW);
         }
     }
 

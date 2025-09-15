@@ -1,4 +1,4 @@
-package com.toast.apocalypse.common.util;
+package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.api.SeekerAlertEvent;
 import net.minecraft.world.entity.LivingEntity;
