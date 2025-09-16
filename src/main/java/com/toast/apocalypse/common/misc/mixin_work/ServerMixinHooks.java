@@ -19,7 +19,16 @@ public class ServerMixinHooks {
         }
     }
 
-    public static void onTickChunk(ServerLevel serverLevel, LevelChunk levelChunk, int randomTickSpeed, CallbackInfo ci) {
+    public static int modifySnowAccumulation(ServerLevel serverLevel, BlockPos pos, int original) {
+        Biome biome = serverLevel.getBiome(pos).get();
+
+        if (biome.shouldSnow(serverLevel, pos) && !ApocalypseConfig.ACID_RAIN.GENERAL.acidSnowAccumulates.get()) {
+            return 0;
+        }
+        return original;
+    }
+
+    public static void onTickChunk(ServerLevel serverLevel, LevelChunk levelChunk, CallbackInfo ci) {
         if (!ApocalypseConfig.ACID_RAIN.WORLD_DEGRADATION.enableBlockDegradation.get()) return;
         if (ApocalypseConfig.ACID_RAIN.WORLD_DEGRADATION.blockTransformations.isEmpty()) return;
         if (!Apocalypse.INSTANCE.getDifficultyManager().isRainingAcid(serverLevel)) return;
@@ -28,24 +37,47 @@ public class ServerMixinHooks {
         final int minChunkX = levelChunk.getPos().getMinBlockX();
         final int minChunkZ = levelChunk.getPos().getMinBlockZ();
 
-        // Pick the below position of a random xz position in the chunk that is exposed to the sky
-        BlockPos pos = serverLevel.getHeightmapPos(
+        // Pick random XZ coordinates in the chunk and
+        // get the top position in the column as well as the highest solid block position
+        BlockPos basePos = serverLevel.getBlockRandomPos(minChunkX, 0, minChunkZ, 15);
+
+        BlockPos topPos = serverLevel.getHeightmapPos(
                 Heightmap.Types.WORLD_SURFACE,
-                serverLevel.getBlockRandomPos(minChunkX, 0, minChunkZ, 15)
+                basePos
+        ).below();
+        BlockPos topSolidPos = serverLevel.getHeightmapPos(
+                Heightmap.Types.MOTION_BLOCKING,
+                basePos
         ).below();
 
         // Make sure we don't accidentally load neighboring chunks
-        if (!serverLevel.isAreaLoaded(pos, 1)) return;
+        if (!serverLevel.isAreaLoaded(topPos, 1)) return;
 
-        Biome biome = serverLevel.getBiome(pos).value();
+        // Corrode top block
+        corrodeBlock(serverLevel, topPos);
 
-        if (biome.getPrecipitationAt(pos) != Biome.Precipitation.NONE) {
-            BlockState currentState = serverLevel.getBlockState(pos);
-            BlockState resultState = ApocalypseConfig.ACID_RAIN.WORLD_DEGRADATION.blockTransformations.getResultFor(currentState);
+        // If the first block was not motion-blocking,
+        // and we have a solid block underneath somewhere,
+        // try and corrode at that position as well.
+        if (!topPos.equals(topSolidPos)) {
+            corrodeBlock(serverLevel, topSolidPos);
+        }
+    }
 
-            if (resultState != null) {
-                serverLevel.setBlockAndUpdate(pos, resultState);
-            }
+    private static void corrodeBlock(ServerLevel level, BlockPos pos) {
+        Biome biome = level.getBiome(pos).value();
+
+        if (biome.getPrecipitationAt(pos) == Biome.Precipitation.NONE) return;
+
+        // If we are in a snowy place but acid snow isn't enabled, return
+        if (biome.getPrecipitationAt(pos) == Biome.Precipitation.SNOW && !ApocalypseConfig.ACID_RAIN.GENERAL.acidSnow.get())
+            return;
+
+        BlockState currentState = level.getBlockState(pos);
+        BlockState resultState = ApocalypseConfig.ACID_RAIN.WORLD_DEGRADATION.blockTransformations.getResultFor(currentState);
+
+        if (resultState != null) {
+            level.setBlockAndUpdate(pos, resultState);
         }
     }
 }

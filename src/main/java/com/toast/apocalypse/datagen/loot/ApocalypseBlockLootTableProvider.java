@@ -2,6 +2,7 @@ package com.toast.apocalypse.datagen.loot;
 
 import com.toast.apocalypse.common.core.register.ApocalypseBlocks;
 import net.minecraft.data.loot.BlockLootSubProvider;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -34,5 +35,7 @@ public class ApocalypseBlockLootTableProvider extends BlockLootSubProvider {
         dropSelf(ApocalypseBlocks.LUNAR_PHASE_SENSOR.get());
         dropSelf(ApocalypseBlocks.MIDNIGHT_STEEL_BLOCK.get());
         dropSelf(ApocalypseBlocks.DYNAMIC_TRAP.get());
+        add(ApocalypseBlocks.DEAD_GRASS.get(), noDrop());
+        add(ApocalypseBlocks.DEAD_PLANT.get(), noDrop());
     }
 }

@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.core.config.value;
 import fathertoast.crust.api.config.common.ConfigUtil;
 import fathertoast.crust.api.config.common.field.AbstractConfigField;
 import fathertoast.crust.api.config.common.file.TomlHelper;
+import fathertoast.crust.api.config.common.value.BlockList;
 import fathertoast.crust.api.config.common.value.IStringArray;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
@@ -37,14 +38,20 @@ public class BlockTransformList implements IStringArray {
         entryQuery:
         for (Entry entry : entries) {
             // Avoid entries with duplicate inputs, be it tag or block
-            if (entry.inputBlock != null && encounteredBlocks.contains(entry.inputBlock))
+            if (entry.inputBlock != null && encounteredBlocks.contains(entry.inputBlock)) {
+                ConfigUtil.LOG.warn("Found block transform entry with duplicate input block ID! Block ID: {}",
+                        ForgeRegistries.BLOCKS.getKey(entry.inputBlock));
                 continue;
+            }
             else encounteredBlocks.add(entry.inputBlock);
 
             if (entry.inputTag != null) {
                 for (TagKey<Block> tag : encounteredTags) {
-                    if (tag.toString().equals(entry.inputTag.toString()))
+                    if (tag.toString().equals(entry.inputTag.toString())) {
+                        ConfigUtil.LOG.warn("Found block transform entry with duplicate input block tag! Tag key: {}",
+                                tag.toString());
                         continue entryQuery;
+                    }
                 }
                 encounteredTags.add(entry.inputTag);
             }
@@ -56,6 +63,10 @@ public class BlockTransformList implements IStringArray {
      * Create a new block list from a list of block state strings.
      */
     public BlockTransformList(AbstractConfigField field, List<String> entries) {
+        List<Block> encounteredBlocks = new ArrayList<>();
+        List<TagKey<Block>> encounteredTags = new ArrayList<>();
+
+        entryQuery:
         for(String line : entries) {
             String[] components = line.split(" ");
 
@@ -88,8 +99,10 @@ public class BlockTransformList implements IStringArray {
                 }
                 inputTag = BlockTags.create(tagLocation);
             }
+            // Input is not a tag, check if it is a block ID instead
             else {
                 ResourceLocation blockId = ResourceLocation.tryParse(inputString);
+                // Make sure the string is a valid block ID and exists in the registry
                 if (blockId == null || !ForgeRegistries.BLOCKS.containsKey(blockId)) {
                     ConfigUtil.LOG.warn("Invalid input block for {} \"{}\"! Block ID is malformed or does not exist in the registry, skipping entry. Invalid block ID: {}",
                             field.getClass(), field.getKey(), inputString);
@@ -106,8 +119,28 @@ public class BlockTransformList implements IStringArray {
             // Failed parsing, skip entry
             if (resultState == null) continue;
 
-            // Success!
-            ENTRIES.add(new Entry(inputBlock, inputTag, resultState, copyProperties));
+            Entry entry = new Entry(inputBlock, inputTag, resultState, copyProperties);
+
+            // Check for duplicate input entries before adding
+            if (entry.inputBlock != null && encounteredBlocks.contains(entry.inputBlock)) {
+                ConfigUtil.LOG.warn("Duplicate input block found in {} \"{}\"! Entry will be skipped. Duplicate block ID: {}",
+                        field.getClass(), field.getKey(), ForgeRegistries.BLOCKS.getKey(entry.inputBlock));
+                continue;
+            }
+            else encounteredBlocks.add(entry.inputBlock);
+
+            if (entry.inputTag != null) {
+                for (TagKey<Block> tag : encounteredTags) {
+                    if (tag.toString().equals(entry.inputTag.toString())) {
+                        ConfigUtil.LOG.warn("Duplicate input tag found in {} \"{}\"! Entry will be skipped. Duplicate tag key: {}",
+                                field.getClass(), field.getKey(), ForgeRegistries.BLOCKS.getKey(entry.inputBlock));
+                        continue entryQuery;
+                    }
+                }
+                encounteredTags.add(entry.inputTag);
+            }
+            // Add entry!
+            ENTRIES.add(entry);
         }
     }
 

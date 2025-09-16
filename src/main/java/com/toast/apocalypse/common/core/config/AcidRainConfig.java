@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.core.config;
 import com.toast.apocalypse.common.core.config.field.BlockTransformListField;
 import com.toast.apocalypse.common.core.config.util.ServerConfigHelper;
 import com.toast.apocalypse.common.core.config.value.BlockTransformList;
+import com.toast.apocalypse.common.core.register.ApocalypseBlocks;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import fathertoast.crust.api.config.common.AbstractConfigCategory;
 import fathertoast.crust.api.config.common.AbstractConfigFile;
@@ -51,6 +52,7 @@ public class AcidRainConfig extends AbstractConfigFile {
         public final EntityListField mobBlacklist;
 
         public final BooleanField acidSnow;
+        public final BooleanField acidSnowAccumulates;
 
 
         General(AcidRainConfig parent) {
@@ -90,6 +92,10 @@ public class AcidRainConfig extends AbstractConfigFile {
                     "If true, colder biomes/areas where it snows will have acid snow when the acid rain event triggers."),
                     RestartNote.WORLD);
 
+            acidSnowAccumulates = SPEC.define(new BooleanField("acid_snow_accumulates", false,
+                    "If acid snow is enabled, setting this to false will stop snow layers from being placed on the ground when it is " +
+                            "snowing acid."));
+
             SPEC.newLine();
         }
     }
@@ -107,21 +113,65 @@ public class AcidRainConfig extends AbstractConfigFile {
 
             enableBlockDegradation = SPEC.define(new BooleanField("enable_block_degradation", false,
                     "If enabled, acid rain will start \"corroding\" blocks it comes in contact with.",
-                    "What blocks are affected and what they turn into can be configured in the below transformation list."));
+                    "What blocks are affected and what they turn into can be configured in the below transformation list.",
+                    "Note that block degradation by acid rain will not happen in snowy areas unless \"acidSnow\" is enabled in the general category."));
 
             blockTransformations = SPEC.define(new BlockTransformListField("block_transformations", defaultTransformList(),
                     "A list of input blocks and what block state they turn into when exposed to acid rain.",
-                    "Consider this example: \"minecraft:mossy_cobblestone_stairs minecraft:cobblestone_stairs[] true\"",
+                    "Consider this example entry:",
+                    "\"minecraft:mossy_cobblestone_stairs minecraft:cobblestone_stairs[] true\"",
                     "This will result in mossy cobble stairs turning into normal cobblestone stairs, and since the \"copy\" properties flag is set to true, " +
                             "the block state property values of the old stairs will be copied over to the new ones so we retain the rotation of the stairs."));
+
+            SPEC.newLine();
         }
 
         private static BlockTransformList defaultTransformList() {
             return new BlockTransformList(
+
+                    // Grass, plants, crops and small flowers
                     new BlockTransformList.Entry(Blocks.GRASS_BLOCK, null, BlockTransformList.StateProperties.Builder
                             .builder(Blocks.DIRT)
                             .build(),
                             false),
+                    new BlockTransformList.Entry(Blocks.GRASS, null, BlockTransformList.StateProperties.Builder
+                            .builder(ApocalypseBlocks.DEAD_GRASS.get())
+                            .build(),
+                            false),
+                    new BlockTransformList.Entry(Blocks.TALL_GRASS, null, BlockTransformList.StateProperties.Builder
+                            .builder(Blocks.GRASS)
+                            .build(),
+                            false),
+                    new BlockTransformList.Entry(null, BlockTags.SMALL_FLOWERS, BlockTransformList.StateProperties.Builder
+                            .builder(ApocalypseBlocks.DEAD_PLANT.get())
+                            .build(),
+                            false),
+                    new BlockTransformList.Entry(Blocks.FERN, null, BlockTransformList.StateProperties.Builder
+                            .builder(ApocalypseBlocks.DEAD_PLANT.get())
+                            .build(),
+                            false),
+                    new BlockTransformList.Entry(Blocks.LARGE_FERN, null, BlockTransformList.StateProperties.Builder
+                            .builder(Blocks.FERN)
+                            .build(),
+                            false),
+                    new BlockTransformList.Entry(Blocks.BROWN_MUSHROOM, null, BlockTransformList.StateProperties.Builder
+                            .builder(Blocks.AIR)
+                            .build(),
+                            false),
+                    new BlockTransformList.Entry(null, BlockTags.SAPLINGS, BlockTransformList.StateProperties.Builder
+                            .builder(Blocks.DEAD_BUSH)
+                            .build(),
+                            false),
+                    new BlockTransformList.Entry(null, BlockTags.CROPS, BlockTransformList.StateProperties.Builder
+                            .builder(ApocalypseBlocks.DEAD_PLANT.get())
+                            .build(),
+                            false),
+                    new BlockTransformList.Entry(Blocks.SWEET_BERRY_BUSH, null, BlockTransformList.StateProperties.Builder
+                            .builder(Blocks.DEAD_BUSH)
+                            .build(),
+                            false),
+
+                    // Blocks with mossy qualities
                     new BlockTransformList.Entry(Blocks.MOSSY_COBBLESTONE, null, BlockTransformList.StateProperties.Builder
                             .builder(Blocks.COBBLESTONE)
                             .build(),
@@ -138,29 +188,22 @@ public class AcidRainConfig extends AbstractConfigFile {
                             .builder(Blocks.COBBLESTONE_STAIRS)
                             .build(),
                             true),
-                    new BlockTransformList.Entry(null, BlockTags.SAPLINGS, BlockTransformList.StateProperties.Builder
-                            .builder(Blocks.DEAD_BUSH)
+                    new BlockTransformList.Entry(Blocks.MOSSY_STONE_BRICKS, null, BlockTransformList.StateProperties.Builder
+                            .builder(Blocks.STONE_BRICKS)
                             .build(),
                             false),
-                    new BlockTransformList.Entry(null, BlockTags.CROPS, BlockTransformList.StateProperties.Builder
-                            .builder(Blocks.AIR)
+                    new BlockTransformList.Entry(Blocks.MOSSY_STONE_BRICK_SLAB, null, BlockTransformList.StateProperties.Builder
+                            .builder(Blocks.STONE_BRICK_SLAB)
                             .build(),
-                            false),
-                    new BlockTransformList.Entry(Blocks.SWEET_BERRY_BUSH, null, BlockTransformList.StateProperties.Builder
-                            .builder(Blocks.DEAD_BUSH)
+                            true),
+                    new BlockTransformList.Entry(Blocks.MOSSY_STONE_BRICK_WALL, null, BlockTransformList.StateProperties.Builder
+                            .builder(Blocks.STONE_BRICK_WALL)
                             .build(),
-                            false),
-                    new BlockTransformList.Entry(Blocks.GLOWSTONE, null, BlockTransformList.StateProperties.Builder
-                            .builder(Blocks.REDSTONE_LAMP)
-                            .withValue(RedstoneLampBlock.LIT, true)
+                            true),
+                    new BlockTransformList.Entry(Blocks.MOSSY_STONE_BRICK_STAIRS, null, BlockTransformList.StateProperties.Builder
+                            .builder(Blocks.STONE_BRICK_STAIRS)
                             .build(),
-                            false),
-                    new BlockTransformList.Entry(Blocks.FURNACE, null, BlockTransformList.StateProperties.Builder
-                            .builder(Blocks.FURNACE)
-                            .withValue(FurnaceBlock.LIT, true)
-                            .withValue(FurnaceBlock.FACING, Direction.NORTH)
-                            .build(),
-                            false)
+                            true)
             );
         }
     }

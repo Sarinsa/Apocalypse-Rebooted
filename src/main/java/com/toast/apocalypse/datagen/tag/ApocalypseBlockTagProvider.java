@@ -33,5 +33,11 @@ public class ApocalypseBlockTagProvider extends BlockTagsProvider {
                         ApocalypseBlocks.MIDNIGHT_STEEL_BLOCK.get(),
                         ApocalypseBlocks.DYNAMIC_TRAP.get()
                 );
+
+        tag(BlockTags.REPLACEABLE)
+                .add(
+                        ApocalypseBlocks.DEAD_GRASS.get(),
+                        ApocalypseBlocks.DEAD_PLANT.get()
+                );
     }
 }
