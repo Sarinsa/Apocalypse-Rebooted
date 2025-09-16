@@ -3,6 +3,7 @@ package com.toast.apocalypse.common.core.register;
 import com.google.common.collect.ImmutableList;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.item.*;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -38,6 +39,7 @@ public class ApocalypseItems {
     public static final RegistryObject<Item> MIDNIGHT_STEEL_BOOTS = registerItem("midnight_steel_boots", () -> new LunarArmorItem(ArmorItem.Type.BOOTS), CreativeModeTabs.COMBAT);
     public static final RegistryObject<Item> LUNAR_CLOCK = registerItem("lunar_clock", () -> new Item(new Item.Properties().stacksTo(1)), CreativeModeTabs.TOOLS_AND_UTILITIES);
     public static final RegistryObject<Item> APOCALYPSE_COMPENDIUM = registerItem("apocalypse_compendium", MobWikiBookItem::new, CreativeModeTabs.TOOLS_AND_UTILITIES);
+    public static final RegistryObject<BlockItem> WET_TORCH = registerItem("wet_torch", () -> new StandingAndWallBlockItem(ApocalypseBlocks.WET_TORCH.get(), ApocalypseBlocks.WET_WALL_TORCH.get(), new Item.Properties(), Direction.DOWN));
     public static final RegistryObject<ForgeSpawnEggItem> GHOST_SPAWN_EGG = registerSpawnEgg("ghost", ApocalypseEntities.GHOST, 0xBCBCBC, 0x708899);
     public static final RegistryObject<ForgeSpawnEggItem> DESTROYER_SPAWN_EGG = registerSpawnEgg("destroyer", ApocalypseEntities.DESTROYER, 0x877B6F, 0x912820);
     public static final RegistryObject<ForgeSpawnEggItem> SEEKER_SPAWN_EGG = registerSpawnEgg("seeker", ApocalypseEntities.SEEKER, 0x766F87, 0x912820);

@@ -6,6 +6,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.LootTable;
 
 import java.util.HashSet;
@@ -37,5 +38,7 @@ public class ApocalypseBlockLootTableProvider extends BlockLootSubProvider {
         dropSelf(ApocalypseBlocks.DYNAMIC_TRAP.get());
         add(ApocalypseBlocks.DEAD_GRASS.get(), noDrop());
         add(ApocalypseBlocks.DEAD_PLANT.get(), noDrop());
+        dropOther(ApocalypseBlocks.WET_TORCH.get(), Blocks.TORCH);
+        dropOther(ApocalypseBlocks.WET_WALL_TORCH.get(), Blocks.TORCH);
     }
 }

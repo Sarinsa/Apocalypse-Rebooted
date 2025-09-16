@@ -19,6 +19,8 @@
   "block.apocalypse.dynamic_trap": "Dynamic Trap",
   "block.apocalypse.dead_grass": "Dead Grass",
   "block.apocalypse.dead_plant": "Dead Plant",
+  "block.apocalypse.wet_torch": "Wet Torch",
+  "block.apocalypse.wet_wall_torch": "Wet Torch",
 
   "item.apocalypse.fragmented_soul": "Fragmented Soul",
   "item.apocalypse.midnight_steel_ingot": "Midnight Steel Ingot",

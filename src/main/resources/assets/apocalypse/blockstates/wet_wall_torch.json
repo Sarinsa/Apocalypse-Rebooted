@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "apocalypse:block/wet_wall_torch"
+    },
+    "facing=north": {
+      "model": "apocalypse:block/wet_wall_torch",
+      "y": 270
+    },
+    "facing=south": {
+      "model": "apocalypse:block/wet_wall_torch",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "apocalypse:block/wet_wall_torch",
+      "y": 180
+    }
+  }
+}

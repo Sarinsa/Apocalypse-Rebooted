@@ -97,6 +97,8 @@ public class MiscConfig extends AbstractConfigFile {
 
     public static class Other extends AbstractConfigCategory<MiscConfig> {
 
+        public final BooleanField rainFizzlesTorches;
+
         public final DoubleField grumpBucketHelmetChance;
 
         public final BlockListField breecherExplosionTargets;
@@ -116,6 +118,12 @@ public class MiscConfig extends AbstractConfigFile {
         Other(MiscConfig parent) {
             super(parent, "other",
                     "Some uncategorized settings. Very cool!");
+
+            rainFizzlesTorches = SPEC.define(new BooleanField("rain_fizzles_torches", true,
+                    "If enabled, torches exposed to rain will become wet and fizzle out.",
+                    "Wet torches give off very little light, but will reignite on their own when the rain stops."));
+
+            SPEC.newLine();
 
             grumpBucketHelmetChance = SPEC.define(new DoubleField("grump_bucket_helmet_chance", 0.05, DoubleField.Range.PERCENT,
                     "The chance for grumps to spawn with a bucket helmet equipped.",

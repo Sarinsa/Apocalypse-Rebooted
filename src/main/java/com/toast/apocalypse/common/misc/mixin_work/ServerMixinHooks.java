@@ -2,10 +2,12 @@ package com.toast.apocalypse.common.misc.mixin_work;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
+import com.toast.apocalypse.common.core.register.ApocalypseBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.WallTorchBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -29,11 +31,6 @@ public class ServerMixinHooks {
     }
 
     public static void onTickChunk(ServerLevel serverLevel, LevelChunk levelChunk, CallbackInfo ci) {
-        if (!ApocalypseConfig.ACID_RAIN.WORLD_DEGRADATION.enableBlockDegradation.get()) return;
-        if (ApocalypseConfig.ACID_RAIN.WORLD_DEGRADATION.blockTransformations.isEmpty()) return;
-        if (!Apocalypse.INSTANCE.getDifficultyManager().isRainingAcid(serverLevel)) return;
-        if (serverLevel.random.nextInt(15) != 0) return;
-
         final int minChunkX = levelChunk.getPos().getMinBlockX();
         final int minChunkZ = levelChunk.getPos().getMinBlockZ();
 
@@ -45,6 +42,18 @@ public class ServerMixinHooks {
                 Heightmap.Types.WORLD_SURFACE,
                 basePos
         ).below();
+
+        // If its raining and wet torches are enabled, check if we are on a torch block and fizzle it out
+        if (ApocalypseConfig.MISC.OTHER.rainFizzlesTorches.get() && serverLevel.isRainingAt(topPos)) {
+            maybeFizzleTorch(serverLevel, topPos);
+        }
+
+        // Proceed to check if we should do acid rain stuff
+        if (!ApocalypseConfig.ACID_RAIN.WORLD_DEGRADATION.enableBlockDegradation.get()) return;
+        if (ApocalypseConfig.ACID_RAIN.WORLD_DEGRADATION.blockTransformations.isEmpty()) return;
+        if (!Apocalypse.INSTANCE.getDifficultyManager().isRainingAcid(serverLevel)) return;
+        if (serverLevel.random.nextInt(15) != 0) return;
+
         BlockPos topSolidPos = serverLevel.getHeightmapPos(
                 Heightmap.Types.MOTION_BLOCKING,
                 basePos
@@ -78,6 +87,26 @@ public class ServerMixinHooks {
 
         if (resultState != null) {
             level.setBlockAndUpdate(pos, resultState);
+        }
+    }
+
+    private static void maybeFizzleTorch(ServerLevel serverLevel, BlockPos pos) {
+        BlockState stateAtPos = serverLevel.getBlockState(pos);
+
+        if (stateAtPos.is(Blocks.TORCH)) {
+            serverLevel.setBlockAndUpdate(pos, ApocalypseBlocks.WET_TORCH.get().defaultBlockState());
+        }
+        else if (stateAtPos.is(Blocks.WALL_TORCH)) {
+            BlockState wallTorch = ApocalypseBlocks.WET_WALL_TORCH.get().defaultBlockState();
+
+            try {
+                wallTorch = wallTorch.setValue(WallTorchBlock.FACING, stateAtPos.getValue(WallTorchBlock.FACING));
+            }
+            catch (Exception ignored) {
+                Apocalypse.LOGGER.warn("Failed to copy block state facing property of wet wall torch to a vanilla wall torch. " +
+                        "This should normally work!");
+            }
+            serverLevel.setBlockAndUpdate(pos, wallTorch);
         }
     }
 }
