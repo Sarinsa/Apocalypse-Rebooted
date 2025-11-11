@@ -12,14 +12,14 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.function.Supplier;
 
 public class ApocalypseMenus {
-
-    public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, Apocalypse.MODID);
-
-
-    public static final RegistryObject<MenuType<DynamicTrapMenu>> DYNAMIC_TRAP = register("dynamic_trap", () -> new MenuType<>(DynamicTrapMenu::new, FeatureFlags.VANILLA_SET));
-
-
-    private static <T extends AbstractContainerMenu> RegistryObject<MenuType<T>> register(String name, Supplier<MenuType<T>> menuTypeSupplier) {
-        return MENU_TYPES.register(name, menuTypeSupplier);
+    
+    public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create( ForgeRegistries.MENU_TYPES, Apocalypse.MODID );
+    
+    
+    public static final RegistryObject<MenuType<DynamicTrapMenu>> DYNAMIC_TRAP = register( "dynamic_trap", () -> new MenuType<>( DynamicTrapMenu::new, FeatureFlags.VANILLA_SET ) );
+    
+    
+    private static <T extends AbstractContainerMenu> RegistryObject<MenuType<T>> register( String name, Supplier<MenuType<T>> menuTypeSupplier ) {
+        return MENU_TYPES.register( name, menuTypeSupplier );
     }
 }

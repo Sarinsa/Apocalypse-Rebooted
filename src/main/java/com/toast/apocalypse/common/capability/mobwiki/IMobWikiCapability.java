@@ -6,10 +6,10 @@ import net.minecraftforge.common.util.INBTSerializable;
 
 @AutoRegisterCapability
 public interface IMobWikiCapability extends INBTSerializable<CompoundTag> {
-
-    void addEntry(int entry);
-
-    void setEntries(int[] entries);
-
+    
+    void addEntry( int entry );
+    
+    void setEntries( int[] entries );
+    
     int[] getEntries();
 }

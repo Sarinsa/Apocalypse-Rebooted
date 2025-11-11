@@ -11,14 +11,14 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.function.Supplier;
 
 public class ApocalypseRecipeSerializers {
-
-    public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, Apocalypse.MODID);
-
-
-    public static final RegistryObject<RecipeSerializer<TrapRecipe>> TRAP_ASSEMBLING= register("trap_assembling", TrapRecipe.Serializer::new);
-
-
-    public static <T extends Recipe<?>> RegistryObject<RecipeSerializer<T>> register(String name, Supplier<RecipeSerializer<T>> supplier) {
-        return RECIPE_SERIALIZERS.register(name, supplier);
+    
+    public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create( ForgeRegistries.RECIPE_SERIALIZERS, Apocalypse.MODID );
+    
+    
+    public static final RegistryObject<RecipeSerializer<TrapRecipe>> TRAP_ASSEMBLING = register( "trap_assembling", TrapRecipe.Serializer::new );
+    
+    
+    public static <T extends Recipe<?>> RegistryObject<RecipeSerializer<T>> register( String name, Supplier<RecipeSerializer<T>> supplier ) {
+        return RECIPE_SERIALIZERS.register( name, supplier );
     }
 }

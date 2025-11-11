@@ -7,27 +7,27 @@ import net.minecraftforge.network.NetworkEvent;
 import java.util.function.Supplier;
 
 public class S2CUpdatePlayerDifficulty {
-
+    
     public final long difficulty;
-
-    public S2CUpdatePlayerDifficulty(long difficulty) {
+    
+    public S2CUpdatePlayerDifficulty( long difficulty ) {
         this.difficulty = difficulty;
     }
-
-    public static void handle(S2CUpdatePlayerDifficulty message, Supplier<NetworkEvent.Context> contextSupplier) {
+    
+    public static void handle( S2CUpdatePlayerDifficulty message, Supplier<NetworkEvent.Context> contextSupplier ) {
         NetworkEvent.Context context = contextSupplier.get();
-
-        if (context.getDirection().getReceptionSide().isClient()) {
-            context.enqueueWork(() -> ClientWork.handleDifficultyUpdate(message));
+        
+        if( context.getDirection().getReceptionSide().isClient() ) {
+            context.enqueueWork( () -> ClientWork.handleDifficultyUpdate( message ) );
         }
-        context.setPacketHandled(true);
+        context.setPacketHandled( true );
     }
-
-    public static S2CUpdatePlayerDifficulty decode(FriendlyByteBuf buffer) {
-        return new S2CUpdatePlayerDifficulty(buffer.readLong());
+    
+    public static S2CUpdatePlayerDifficulty decode( FriendlyByteBuf buffer ) {
+        return new S2CUpdatePlayerDifficulty( buffer.readLong() );
     }
-
-    public static void encode(S2CUpdatePlayerDifficulty message, FriendlyByteBuf buffer) {
-        buffer.writeLong(message.difficulty);
+    
+    public static void encode( S2CUpdatePlayerDifficulty message, FriendlyByteBuf buffer ) {
+        buffer.writeLong( message.difficulty );
     }
 }

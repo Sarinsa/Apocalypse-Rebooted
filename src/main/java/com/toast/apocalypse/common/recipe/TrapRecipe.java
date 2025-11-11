@@ -4,196 +4,200 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
+import com.toast.apocalypse.api.BaseTrapAction;
 import com.toast.apocalypse.api.register.ModRegistries;
 import com.toast.apocalypse.common.blockentity.DynamicTrapBlockEntity;
-import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.register.ApocalypseRecipeSerializers;
 import com.toast.apocalypse.common.core.register.ApocalypseRecipeTypes;
-import com.toast.apocalypse.common.core.register.ApocalypseTrapActions;
-import com.toast.apocalypse.api.BaseTrapAction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
-@SuppressWarnings("ClassCanBeRecord")
+@SuppressWarnings( "ClassCanBeRecord" )
 public final class TrapRecipe implements Recipe<DynamicTrapBlockEntity> {
-
+    
     private static final int MAX_PREP_TIME = 100000;
     private static final int MAX_INGREDIENTS = 9;
-
+    
     private final ResourceLocation id;
     private final BaseTrapAction resultTrap;
     private final int preparationTime;
     private final NonNullList<Ingredient> ingredients;
-
-    public TrapRecipe(ResourceLocation id, BaseTrapAction resultTrap, int preparationTime, NonNullList<Ingredient> ingredients) {
-        Objects.requireNonNull(id);
-        Objects.requireNonNull(resultTrap);
-
-        if (preparationTime < 0 || preparationTime > MAX_PREP_TIME)
-            throw new IllegalArgumentException("Tried to create trap recipe with invalid preparation time. Value must not be less than 0 or greater than 10000");
-
-        if (ingredients.size() < 1 || ingredients.size() > MAX_INGREDIENTS)
-            throw new IllegalArgumentException("Tried to create trap recipe with more than 9 item types. This is not allowed!");
-
+    
+    public TrapRecipe( ResourceLocation id, BaseTrapAction resultTrap, int preparationTime, NonNullList<Ingredient> ingredients ) {
+        Objects.requireNonNull( id );
+        Objects.requireNonNull( resultTrap );
+        
+        if( preparationTime < 0 || preparationTime > MAX_PREP_TIME )
+            throw new IllegalArgumentException( "Tried to create trap recipe with invalid preparation time. Value must not be less than 0 or greater than 10000" );
+        
+        if( ingredients.size() < 1 || ingredients.size() > MAX_INGREDIENTS )
+            throw new IllegalArgumentException( "Tried to create trap recipe with more than 9 item types. This is not allowed!" );
+        
         boolean emptyRecipe = true;
-
-        for (Ingredient ingredient : ingredients) {
-            if (!ingredient.isEmpty()) {
+        
+        for( Ingredient ingredient : ingredients ) {
+            if( !ingredient.isEmpty() ) {
                 emptyRecipe = false;
                 break;
             }
         }
-        if (emptyRecipe)
-            throw new IllegalArgumentException("Tried to create trap recipe with empty ingredients. This is not allowed.");
-
+        if( emptyRecipe )
+            throw new IllegalArgumentException( "Tried to create trap recipe with empty ingredients. This is not allowed." );
+        
         this.id = id;
         this.resultTrap = resultTrap;
         this.preparationTime = preparationTime;
         this.ingredients = ingredients;
     }
-
+    
     public int getPreparationTime() {
         return preparationTime;
     }
-
+    
     @Override
-    public boolean matches(DynamicTrapBlockEntity container, Level level) {
-        List<ItemStack> copy = new ArrayList<>(container.getContents());
-
+    public boolean matches( DynamicTrapBlockEntity container, Level level ) {
+        List<ItemStack> copy = new ArrayList<>( container.getContents() );
+        
         int foundIngredients = 0;
-
-        for (Ingredient ingredient : getIngredients()) {
-            for (ItemStack itemStack : copy) {
-                if (ingredient.test(itemStack)) {
+        
+        for( Ingredient ingredient : getIngredients() ) {
+            for( ItemStack itemStack : copy ) {
+                if( ingredient.test( itemStack ) ) {
                     ++foundIngredients;
-                    copy.remove(itemStack);
+                    copy.remove( itemStack );
                     break;
                 }
             }
         }
         return foundIngredients == getIngredients().size();
     }
-
+    
     @Override
-    public ItemStack assemble(DynamicTrapBlockEntity container, RegistryAccess registryAccess) {
+    public ItemStack assemble( DynamicTrapBlockEntity container, RegistryAccess registryAccess ) {
         return null;
     }
-
+    
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
+    public boolean canCraftInDimensions( int width, int height ) {
         return false;
     }
-
+    
     @Override
-    public ItemStack getResultItem(RegistryAccess registryAccess) {
+    public ItemStack getResultItem( RegistryAccess registryAccess ) {
         return ItemStack.EMPTY;
     }
-
+    
     @Nonnull
     public BaseTrapAction getResultTrap() {
         return resultTrap;
     }
-
+    
     public NonNullList<Ingredient> getIngredients() {
         return ingredients;
     }
-
+    
     @Override
     public ResourceLocation getId() {
         return id;
     }
-
+    
     @Override
     public RecipeSerializer<?> getSerializer() {
         return ApocalypseRecipeSerializers.TRAP_ASSEMBLING.get();
     }
-
+    
     @Override
     public RecipeType<?> getType() {
         return ApocalypseRecipeTypes.TRAP_ASSEMBLING.get();
     }
-
-    @SuppressWarnings("ConstantConditions")
+    
+    @SuppressWarnings( "ConstantConditions" )
     public static class Serializer implements RecipeSerializer<TrapRecipe> {
-
+        
         @Override
-        public TrapRecipe fromJson(ResourceLocation id, JsonObject jsonObject) {
-            if (!jsonObject.has("result") || !jsonObject.get("result").isJsonObject()) throw new JsonSyntaxException("Missing result, expected to find a string or object");
-
-            JsonObject resultObj = GsonHelper.getAsJsonObject(jsonObject, "result");
-
-            NonNullList<Ingredient> ingredients = itemsFromJson(GsonHelper.getAsJsonArray(jsonObject, "ingredients"));
-            int preparationTime = GsonHelper.getAsInt(resultObj, "preparation_time", 200);
-            ResourceLocation trapId = ResourceLocation.tryParse(GsonHelper.getAsString(resultObj, "trap_type"));
-
-            if (ingredients.isEmpty()) {
-                throw new JsonParseException("No ingredients for trap assembling recipe");
+        public TrapRecipe fromJson( ResourceLocation id, JsonObject jsonObject ) {
+            if( !jsonObject.has( "result" ) || !jsonObject.get( "result" ).isJsonObject() )
+                throw new JsonSyntaxException( "Missing result, expected to find a string or object" );
+            
+            JsonObject resultObj = GsonHelper.getAsJsonObject( jsonObject, "result" );
+            
+            NonNullList<Ingredient> ingredients = itemsFromJson( GsonHelper.getAsJsonArray( jsonObject, "ingredients" ) );
+            int preparationTime = GsonHelper.getAsInt( resultObj, "preparation_time", 200 );
+            ResourceLocation trapId = ResourceLocation.tryParse( GsonHelper.getAsString( resultObj, "trap_type" ) );
+            
+            if( ingredients.isEmpty() ) {
+                throw new JsonParseException( "No ingredients for trap assembling recipe" );
             }
-            if (ingredients.size() > MAX_INGREDIENTS) {
-                throw new JsonParseException("Too many ingredients for trap assembling recipe. The maximum is 9");
+            if( ingredients.size() > MAX_INGREDIENTS ) {
+                throw new JsonParseException( "Too many ingredients for trap assembling recipe. The maximum is 9" );
             }
-            if (trapId == null || !ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsKey(trapId)) {
-                throw new JsonParseException("No valid result trap type found for assembling recipe. ID is either malformed or doesn't exist in the registry.");
+            if( trapId == null || !ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsKey( trapId ) ) {
+                throw new JsonParseException( "No valid result trap type found for assembling recipe. ID is either malformed or doesn't exist in the registry." );
             }
             else {
-                return new TrapRecipe(id, ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue(trapId), preparationTime, ingredients);
+                return new TrapRecipe( id, ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue( trapId ), preparationTime, ingredients );
             }
         }
-
-        private static NonNullList<Ingredient> itemsFromJson(JsonArray jsonArray) {
+        
+        private static NonNullList<Ingredient> itemsFromJson( JsonArray jsonArray ) {
             NonNullList<Ingredient> list = NonNullList.create();
-
-            for(int i = 0; i < jsonArray.size(); ++i) {
-                Ingredient ingredient = Ingredient.fromJson(jsonArray.get(i), false);
-                list.add(ingredient);
+            
+            for( int i = 0; i < jsonArray.size(); ++i ) {
+                Ingredient ingredient = Ingredient.fromJson( jsonArray.get( i ), false );
+                list.add( ingredient );
             }
-            for (int i = list.size(); i < MAX_INGREDIENTS; i++) {
-                list.add(Ingredient.EMPTY);
+            for( int i = list.size(); i < MAX_INGREDIENTS; i++ ) {
+                list.add( Ingredient.EMPTY );
             }
             return list;
         }
-
+        
         @Override
-        public @Nullable TrapRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf byteBuf) {
+        public @Nullable TrapRecipe fromNetwork( ResourceLocation id, FriendlyByteBuf byteBuf ) {
             try {
                 ResourceLocation trapId = byteBuf.readResourceLocation();
                 int preparationTime = byteBuf.readInt();
                 int ingredientsCount = byteBuf.readInt();
-
-                if (ingredientsCount != 9)
-                    throw new IllegalArgumentException("Tried reading Apocalypse trap recipe from network, but got invalid ingredient count of " + ingredientsCount);
-
-                NonNullList<Ingredient> ingredients = NonNullList.withSize(MAX_INGREDIENTS, Ingredient.EMPTY);
-
-                for (int j = 0; j < ingredientsCount; ++j) {
-                    ingredients.set(j, Ingredient.fromNetwork(byteBuf));
+                
+                if( ingredientsCount != 9 )
+                    throw new IllegalArgumentException( "Tried reading Apocalypse trap recipe from network, but got invalid ingredient count of " + ingredientsCount );
+                
+                NonNullList<Ingredient> ingredients = NonNullList.withSize( MAX_INGREDIENTS, Ingredient.EMPTY );
+                
+                for( int j = 0; j < ingredientsCount; ++j ) {
+                    ingredients.set( j, Ingredient.fromNetwork( byteBuf ) );
                 }
-                return new TrapRecipe(id, ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue(trapId), preparationTime, ingredients);
+                return new TrapRecipe( id, ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue( trapId ), preparationTime, ingredients );
             }
-            catch (Exception e) {
+            catch( Exception e ) {
                 e.printStackTrace();
                 return null;
             }
         }
-
+        
         @Override
-        public void toNetwork(FriendlyByteBuf byteBuf, TrapRecipe trapRecipe) {
-            byteBuf.writeResourceLocation(ModRegistries.TRAP_ACTIONS_REGISTRY.get().getKey(trapRecipe.getResultTrap()));
-            byteBuf.writeInt(trapRecipe.preparationTime);
-            byteBuf.writeInt(trapRecipe.ingredients.size());
-
-            for(Ingredient ingredient : trapRecipe.ingredients) {
-                ingredient.toNetwork(byteBuf);
+        public void toNetwork( FriendlyByteBuf byteBuf, TrapRecipe trapRecipe ) {
+            byteBuf.writeResourceLocation( ModRegistries.TRAP_ACTIONS_REGISTRY.get().getKey( trapRecipe.getResultTrap() ) );
+            byteBuf.writeInt( trapRecipe.preparationTime );
+            byteBuf.writeInt( trapRecipe.ingredients.size() );
+            
+            for( Ingredient ingredient : trapRecipe.ingredients ) {
+                ingredient.toNetwork( byteBuf );
             }
         }
     }

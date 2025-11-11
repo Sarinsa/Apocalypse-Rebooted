@@ -20,7 +20,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
@@ -40,25 +39,25 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements IBlockEntityBBProvider {
-
+    
     private static final List<AABB> EMPTY = List.of();
-
-    private NonNullList<ItemStack> items = NonNullList.withSize(9, ItemStack.EMPTY);
-
+    
+    private NonNullList<ItemStack> items = NonNullList.withSize( 9, ItemStack.EMPTY );
+    
     private BaseTrapAction currentTrap = null;
     private int currentTrapRadius = 0;
-
+    
     @Nullable
     private TrapRecipe currentRecipe = null;
     private int preparationTime = 0;
     private int maxPreparationTime = 0;
-
+    
     private final RecipeManager.CachedCheck<DynamicTrapBlockEntity, TrapRecipe> quickCheck;
-
-
+    
+    
     protected final ContainerData dataAccess = new ContainerData() {
-        public int get(int index) {
-            return switch (index) {
+        public int get( int index ) {
+            return switch( index ) {
                 case 0 -> DynamicTrapBlockEntity.this.getPreparationTime();
                 case 1 -> DynamicTrapBlockEntity.this.getMaxPreparationTime();
                 case 2 -> DynamicTrapBlockEntity.this.getBlockPos().getX();
@@ -67,301 +66,302 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
                 default -> 0;
             };
         }
-
-        public void set(int index, int value) {
-            switch (index) {
-                case 0 -> DynamicTrapBlockEntity.this.setPreparationTime(value);
-                case 1 -> DynamicTrapBlockEntity.this.setMaxPreparationTime(value);
+        
+        public void set( int index, int value ) {
+            switch( index ) {
+                case 0 -> DynamicTrapBlockEntity.this.setPreparationTime( value );
+                case 1 -> DynamicTrapBlockEntity.this.setMaxPreparationTime( value );
             }
         }
+        
         public int getCount() {
             return 5;
         }
     };
-
-
-    public DynamicTrapBlockEntity(BlockPos pos, BlockState state) {
-        super(ApocalypseBlockEntities.DYNAMIC_TRAP.get(), pos, state);
-        quickCheck = RecipeManager.createCheck(ApocalypseRecipeTypes.TRAP_ASSEMBLING.get());
+    
+    
+    public DynamicTrapBlockEntity( BlockPos pos, BlockState state ) {
+        super( ApocalypseBlockEntities.DYNAMIC_TRAP.get(), pos, state );
+        quickCheck = RecipeManager.createCheck( ApocalypseRecipeTypes.TRAP_ASSEMBLING.get() );
     }
-
-    public static void serverTick(Level level, BlockPos pos, BlockState state, DynamicTrapBlockEntity trap) {
-        if (trap.getCurrentTrap() == null) {
-            if (trap.findValidRecipe()) {
-                trap.updateTrapBlock(DynamicTrapBlock.TrapState.PROCESSING);
-
-                if (level.getGameTime() % 2 == 0) {
-                    Direction dir = state.getValue(DynamicTrapBlock.FACING);
+    
+    public static void serverTick( Level level, BlockPos pos, BlockState state, DynamicTrapBlockEntity trap ) {
+        if( trap.getCurrentTrap() == null ) {
+            if( trap.findValidRecipe() ) {
+                trap.updateTrapBlock( DynamicTrapBlock.TrapState.PROCESSING );
+                
+                if( level.getGameTime() % 2 == 0 ) {
+                    Direction dir = state.getValue( DynamicTrapBlock.FACING );
                     double x = (pos.getX() + 0.5D) + ((dir.getStepX() / 2.0) * 1.1);
                     double y = (pos.getY() + 0.5D) + ((dir.getStepY() / 2.0) * 1.1);
                     double z = (pos.getZ() + 0.5D) + ((dir.getStepZ() / 2.0) * 1.1);
-
-                    ((ServerLevel) level).sendParticles(ParticleTypes.SMOKE, x, y, z, 1,0.0D, 0.0D, 0.0D, 0.0D);
+                    
+                    ((ServerLevel) level).sendParticles( ParticleTypes.SMOKE, x, y, z, 1, 0.0D, 0.0D, 0.0D, 0.0D );
                 }
-
-                if (++trap.preparationTime >= trap.maxPreparationTime) {
-                    trap.setCurrentTrap(trap.currentRecipe.getResultTrap());
+                
+                if( ++trap.preparationTime >= trap.maxPreparationTime ) {
+                    trap.setCurrentTrap( trap.currentRecipe.getResultTrap() );
                     trap.currentRecipe = null;
                     trap.preparationTime = 0;
                     trap.maxPreparationTime = 0;
-
+                    
                     // Consume items used in the recipe
-                    for (ItemStack itemStack : trap.items) {
-                        if (!itemStack.isEmpty())
-                            itemStack.shrink(1);
+                    for( ItemStack itemStack : trap.items ) {
+                        if( !itemStack.isEmpty() )
+                            itemStack.shrink( 1 );
                     }
-                    NetworkHelper.sendDynTrapUpdate((ServerLevel) level, trap);
-                    trap.updateTrapBlock(DynamicTrapBlock.TrapState.READY);
+                    NetworkHelper.sendDynTrapUpdate( (ServerLevel) level, trap );
+                    trap.updateTrapBlock( DynamicTrapBlock.TrapState.READY );
                 }
             }
             else {
                 trap.currentRecipe = null;
                 trap.preparationTime = 0;
                 trap.maxPreparationTime = 0;
-                trap.updateTrapBlock(DynamicTrapBlock.TrapState.IDLE);
+                trap.updateTrapBlock( DynamicTrapBlock.TrapState.IDLE );
             }
         }
         else {
-            BlockPos facingPos = trap.getBlockPos().relative(trap.getBlockState().getValue(DynamicTrapBlock.FACING));
-
-            trap.updateTrapBlock(level.getBlockState(facingPos).blocksMotion()
+            BlockPos facingPos = trap.getBlockPos().relative( trap.getBlockState().getValue( DynamicTrapBlock.FACING ) );
+            
+            trap.updateTrapBlock( level.getBlockState( facingPos ).blocksMotion()
                     ? DynamicTrapBlock.TrapState.NOT_OPERATIONAL
-                    : DynamicTrapBlock.TrapState.READY);
-
+                    : DynamicTrapBlock.TrapState.READY );
+            
         }
     }
-
+    
     private boolean findValidRecipe() {
-        currentRecipe = quickCheck.getRecipeFor(this, level).orElse(null);
-
-        if (currentRecipe != null) {
+        currentRecipe = quickCheck.getRecipeFor( this, level ).orElse( null );
+        
+        if( currentRecipe != null ) {
             maxPreparationTime = currentRecipe.getPreparationTime();
             return true;
         }
         return false;
     }
-
-    @SuppressWarnings("ConstantConditions")
+    
+    @SuppressWarnings( "ConstantConditions" )
     public void activateTrap() {
-        if (getCurrentTrap() != null) {
-            getCurrentTrap().execute(level, getBlockPos(), getBlockState().getValue(DynamicTrapBlock.FACING), getBoundingBoxes().get(0));
-            setCurrentTrap(null);
-
-            if (!getLevel().isClientSide) {
-                NetworkHelper.sendDynTrapUpdate((ServerLevel) level, this);
+        if( getCurrentTrap() != null ) {
+            getCurrentTrap().execute( level, getBlockPos(), getBlockState().getValue( DynamicTrapBlock.FACING ), getBoundingBoxes().get( 0 ) );
+            setCurrentTrap( null );
+            
+            if( !getLevel().isClientSide ) {
+                NetworkHelper.sendDynTrapUpdate( (ServerLevel) level, this );
             }
         }
-        if (!level.isClientSide) {
-            level.playSound(null, getBlockPos(), ApocalypseSounds.DYNAMIC_TRAP_ACTIVATE.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
+        if( !level.isClientSide ) {
+            level.playSound( null, getBlockPos(), ApocalypseSounds.DYNAMIC_TRAP_ACTIVATE.get(), SoundSource.BLOCKS, 1.0F, 1.0F );
         }
     }
-
-    public void setCurrentTrap(@Nullable BaseTrapAction trapAction) {
+    
+    public void setCurrentTrap( @Nullable BaseTrapAction trapAction ) {
         currentTrap = trapAction;
         currentTrapRadius = trapAction == null ? -1 : trapAction.getEffectRadius();
     }
-
+    
     @Nullable
     public BaseTrapAction getCurrentTrap() {
         return currentTrap;
     }
-
+    
     /** Overwrite called on client via packet. Do not use. */
-    public void setCurrentTrapRadius(int radius) {
+    public void setCurrentTrapRadius( int radius ) {
         this.currentTrapRadius = radius;
     }
-
+    
     /**
      * @return The effect radius of the current trap.<br>
-     *         If current trap is null, this returns -1.
+     * If current trap is null, this returns -1.
      */
     public int getCurrentTrapRadius() {
         return getCurrentTrap() == null ? -1 : currentTrapRadius;
     }
-
+    
     public int getPreparationTime() {
         return preparationTime;
     }
-
+    
     public int getMaxPreparationTime() {
         return maxPreparationTime;
     }
-
+    
     /** Intended to be called via packets for client updates */
-    public void setPreparationTime(int preparationTime) {
+    public void setPreparationTime( int preparationTime ) {
         this.preparationTime = preparationTime;
     }
-
+    
     /** Intended to be called via packets for client updates */
-    public void setMaxPreparationTime(int maxPreparationTime) {
+    public void setMaxPreparationTime( int maxPreparationTime ) {
         this.maxPreparationTime = maxPreparationTime;
     }
-
-    @SuppressWarnings("ConstantConditions")
-    private void updateTrapBlock(DynamicTrapBlock.TrapState trapState) {
-        DynamicTrapBlock.TrapState currentState = getBlockState().getValue(DynamicTrapBlock.TRAP_STATE);
-
-        if (currentState != trapState) {
-            getLevel().setBlock(getBlockPos(), getBlockState().setValue(DynamicTrapBlock.TRAP_STATE, trapState), Block.UPDATE_CLIENTS);
+    
+    @SuppressWarnings( "ConstantConditions" )
+    private void updateTrapBlock( DynamicTrapBlock.TrapState trapState ) {
+        DynamicTrapBlock.TrapState currentState = getBlockState().getValue( DynamicTrapBlock.TRAP_STATE );
+        
+        if( currentState != trapState ) {
+            getLevel().setBlock( getBlockPos(), getBlockState().setValue( DynamicTrapBlock.TRAP_STATE, trapState ), Block.UPDATE_CLIENTS );
         }
     }
-
+    
     @Override
-    public void load(CompoundTag compoundTag) {
-        super.load(compoundTag);
-
-        items = NonNullList.withSize(getContainerSize(), ItemStack.EMPTY);
-        ContainerHelper.loadAllItems(compoundTag, items);
-
-        if (compoundTag.contains("CraftingTime", Tag.TAG_ANY_NUMERIC)) {
-            preparationTime = compoundTag.getInt("CraftingTime");
+    public void load( CompoundTag compoundTag ) {
+        super.load( compoundTag );
+        
+        items = NonNullList.withSize( getContainerSize(), ItemStack.EMPTY );
+        ContainerHelper.loadAllItems( compoundTag, items );
+        
+        if( compoundTag.contains( "CraftingTime", Tag.TAG_ANY_NUMERIC ) ) {
+            preparationTime = compoundTag.getInt( "CraftingTime" );
         }
-
-        if (compoundTag.contains("CurrentTrap", Tag.TAG_STRING)) {
-            ResourceLocation id = ResourceLocation.tryParse(compoundTag.getString("CurrentTrap"));
-
-            if (ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsKey(id)) {
-                setCurrentTrap(ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue(id));
+        
+        if( compoundTag.contains( "CurrentTrap", Tag.TAG_STRING ) ) {
+            ResourceLocation id = ResourceLocation.tryParse( compoundTag.getString( "CurrentTrap" ) );
+            
+            if( ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsKey( id ) ) {
+                setCurrentTrap( ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue( id ) );
             }
         }
     }
-
+    
     @Override
-    @SuppressWarnings("ConstantConditions")
-    protected void saveAdditional(CompoundTag compoundTag) {
-        super.saveAdditional(compoundTag);
-        ContainerHelper.saveAllItems(compoundTag, items);
-
-        compoundTag.putInt("CraftingTime", preparationTime);
-
-        if (getCurrentTrap() != null) {
-            if (ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsValue(getCurrentTrap())) {
-                compoundTag.putString("CurrentTrap", ModRegistries.TRAP_ACTIONS_REGISTRY.get().getKey(getCurrentTrap()).toString());
+    @SuppressWarnings( "ConstantConditions" )
+    protected void saveAdditional( CompoundTag compoundTag ) {
+        super.saveAdditional( compoundTag );
+        ContainerHelper.saveAllItems( compoundTag, items );
+        
+        compoundTag.putInt( "CraftingTime", preparationTime );
+        
+        if( getCurrentTrap() != null ) {
+            if( ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsValue( getCurrentTrap() ) ) {
+                compoundTag.putString( "CurrentTrap", ModRegistries.TRAP_ACTIONS_REGISTRY.get().getKey( getCurrentTrap() ).toString() );
             }
         }
     }
-
+    
     @Override
     protected Component getDefaultName() {
-        return Component.translatable(References.DYNAMIC_TRAP_CONTAINER);
+        return Component.translatable( References.DYNAMIC_TRAP_CONTAINER );
     }
-
+    
     @Override
-    protected AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
-        return new DynamicTrapMenu(containerId, inventory, this, dataAccess, getBlockPos());
+    protected AbstractContainerMenu createMenu( int containerId, Inventory inventory ) {
+        return new DynamicTrapMenu( containerId, inventory, this, dataAccess, getBlockPos() );
     }
-
+    
     @Override
     public int getContainerSize() {
         return items.size();
     }
-
+    
     @Override
     public boolean isEmpty() {
-        return items.stream().allMatch(ItemStack::isEmpty);
+        return items.stream().allMatch( ItemStack::isEmpty );
     }
-
+    
     @Override
-    public ItemStack getItem(int slot) {
-        return items.get(slot);
+    public ItemStack getItem( int slot ) {
+        return items.get( slot );
     }
-
+    
     public List<ItemStack> getContents() {
         return items;
     }
-
+    
     @Override
-    public ItemStack removeItem(int slot, int count) {
-        ItemStack itemStack = ContainerHelper.removeItem(items, slot, count);
-
-        if (!itemStack.isEmpty()) {
+    public ItemStack removeItem( int slot, int count ) {
+        ItemStack itemStack = ContainerHelper.removeItem( items, slot, count );
+        
+        if( !itemStack.isEmpty() ) {
             setChanged();
         }
         return itemStack;
     }
-
+    
     @Override
-    public ItemStack removeItemNoUpdate(int slot) {
-        return ContainerHelper.takeItem(items, slot);
+    public ItemStack removeItemNoUpdate( int slot ) {
+        return ContainerHelper.takeItem( items, slot );
     }
-
+    
     @Override
-    public void setItem(int slot, ItemStack itemStack) {
-        items.set(slot, itemStack);
-
-        if (itemStack.getCount() > getMaxStackSize()) {
-            itemStack.setCount(getMaxStackSize());
+    public void setItem( int slot, ItemStack itemStack ) {
+        items.set( slot, itemStack );
+        
+        if( itemStack.getCount() > getMaxStackSize() ) {
+            itemStack.setCount( getMaxStackSize() );
         }
         setChanged();
     }
-
+    
     @Override
-    public boolean stillValid(Player player) {
-        return Container.stillValidBlockEntity(this, player);
+    public boolean stillValid( Player player ) {
+        return Container.stillValidBlockEntity( this, player );
     }
-
+    
     @Override
     public void clearContent() {
         items.clear();
     }
-
+    
     @Override
     public CompoundTag getUpdateTag() {
         CompoundTag compoundTag = new CompoundTag();
-
-        if (getCurrentTrap() != null) {
-            if (ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsValue(getCurrentTrap())) {
-                compoundTag.putString("CurrentTrap", ModRegistries.TRAP_ACTIONS_REGISTRY.get().getKey(getCurrentTrap()).toString());
+        
+        if( getCurrentTrap() != null ) {
+            if( ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsValue( getCurrentTrap() ) ) {
+                compoundTag.putString( "CurrentTrap", ModRegistries.TRAP_ACTIONS_REGISTRY.get().getKey( getCurrentTrap() ).toString() );
             }
         }
         return compoundTag;
     }
-
+    
     @Override
-    public void handleUpdateTag(CompoundTag tag) {
-        if (tag.contains("CurrentTrap", Tag.TAG_STRING)) {
-            ResourceLocation id = ResourceLocation.tryParse(tag.getString("CurrentTrap"));
-
-            if (ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsKey(id)) {
-                setCurrentTrap(ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue(id));
+    public void handleUpdateTag( CompoundTag tag ) {
+        if( tag.contains( "CurrentTrap", Tag.TAG_STRING ) ) {
+            ResourceLocation id = ResourceLocation.tryParse( tag.getString( "CurrentTrap" ) );
+            
+            if( ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsKey( id ) ) {
+                setCurrentTrap( ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue( id ) );
             }
         }
     }
-
+    
     @Override
     public @Nullable List<AABB> getBoundingBoxes() {
-        if (getCurrentTrapRadius() < 0) return EMPTY;
-
+        if( getCurrentTrapRadius() < 0 ) return EMPTY;
+        
         final int effectRadius = currentTrapRadius;
-        final Direction dir = getBlockState().getValue(DynamicTrapBlock.FACING);
-        AABB box = new AABB(getBlockPos()).inflate(effectRadius);
-
-        switch (dir) {
+        final Direction dir = getBlockState().getValue( DynamicTrapBlock.FACING );
+        AABB box = new AABB( getBlockPos() ).inflate( effectRadius );
+        
+        switch( dir ) {
             case UP: {
-                box = box.move(0.0D, (effectRadius + 1), 0.0D);
+                box = box.move( 0.0D, (effectRadius + 1), 0.0D );
                 break;
             }
             case DOWN: {
-                box = box.move(0.0D, -(effectRadius + 1), 0.0D);
+                box = box.move( 0.0D, -(effectRadius + 1), 0.0D );
                 break;
             }
             case NORTH: {
-                box = box.move(0.0D, 0.0D, -(effectRadius + 1));
+                box = box.move( 0.0D, 0.0D, -(effectRadius + 1) );
                 break;
             }
             case EAST: {
-                box = box.move((effectRadius + 1), 0.0D, 0.0D);
+                box = box.move( (effectRadius + 1), 0.0D, 0.0D );
                 break;
             }
             case SOUTH: {
-                box = box.move(0.0D, 0.0D, (effectRadius + 1));
+                box = box.move( 0.0D, 0.0D, (effectRadius + 1) );
                 break;
             }
             case WEST: {
-                box = box.move(-(effectRadius + 1), 0.0D, 0.0D);
+                box = box.move( -(effectRadius + 1), 0.0D, 0.0D );
                 break;
             }
         }
-        return List.of(box);
+        return List.of( box );
     }
 }

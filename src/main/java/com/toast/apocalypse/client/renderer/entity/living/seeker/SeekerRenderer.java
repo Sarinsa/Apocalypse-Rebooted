@@ -10,28 +10,28 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 
 public class SeekerRenderer<T extends Seeker> extends MobRenderer<T, GhastModel<T>> {
-
+    
     private static final ResourceLocation[] TEXTURES = {
-            Apocalypse.resourceLoc("textures/entity/seeker/seeker.png"),
-            Apocalypse.resourceLoc("textures/entity/seeker/seeker_fire.png"),
-            Apocalypse.resourceLoc("textures/entity/seeker/seeker_alert.png")
+            Apocalypse.resourceLoc( "textures/entity/seeker/seeker.png" ),
+            Apocalypse.resourceLoc( "textures/entity/seeker/seeker_fire.png" ),
+            Apocalypse.resourceLoc( "textures/entity/seeker/seeker_alert.png" )
     };
-
-    public SeekerRenderer(EntityRendererProvider.Context context) {
-        super(context, new GhastModel<>(context.bakeLayer(ModelLayers.GHAST)), 3.0F);
-        this.addLayer(new SeekerEyesLayer<>(this));
+    
+    public SeekerRenderer( EntityRendererProvider.Context context ) {
+        super( context, new GhastModel<>( context.bakeLayer( ModelLayers.GHAST ) ), 3.0F );
+        this.addLayer( new SeekerEyesLayer<>( this ) );
     }
-
+    
     @Override
-    protected void scale(T destroyer, PoseStack poseStack, float scale) {
-        poseStack.scale(5.0F, 5.0F, 5.0F);
+    protected void scale( T destroyer, PoseStack poseStack, float scale ) {
+        poseStack.scale( 5.0F, 5.0F, 5.0F );
     }
-
+    
     @Override
-    public ResourceLocation getTextureLocation(T seeker) {
-        if (seeker.isAlerting())
+    public ResourceLocation getTextureLocation( T seeker ) {
+        if( seeker.isAlerting() )
             return TEXTURES[2];
-
+        
         return seeker.isCharging() ? TEXTURES[1] : TEXTURES[0];
     }
 }

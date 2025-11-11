@@ -14,23 +14,23 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 // Creds to gudenau (a cool guy in the Fabric Discord server) for helping with this.
-@Mixin(Player.class)
+@Mixin( Player.class )
 public abstract class PlayerMixin extends LivingEntity {
-
+    
     @Unique
     private DamageSource apocalypseDamageSource;
-
-
-    protected PlayerMixin(EntityType<? extends LivingEntity> entityType, Level level) {
-        super(entityType, level);
+    
+    
+    protected PlayerMixin( EntityType<? extends LivingEntity> entityType, Level level ) {
+        super( entityType, level );
     }
-
-
-    @Inject(method = "hurt", at = @At("HEAD"))
-    private void onHurt(DamageSource damageSource, float damage, CallbackInfoReturnable<Boolean> cir){
+    
+    
+    @Inject( method = "hurt", at = @At( "HEAD" ) )
+    private void onHurt( DamageSource damageSource, float damage, CallbackInfoReturnable<Boolean> cir ) {
         apocalypseDamageSource = damageSource;
     }
-
+    
     @ModifyVariable(
             method = "hurt",
             at = @At(
@@ -40,8 +40,8 @@ public abstract class PlayerMixin extends LivingEntity {
             ordinal = 0,
             argsOnly = true
     )
-    public float modifyDamage(float damage){
-        damage = CommonMixinHooks.livingEntityHurtModifyArg(apocalypseDamageSource, (Player) (Object) this, damage);
+    public float modifyDamage( float damage ) {
+        damage = CommonMixinHooks.livingEntityHurtModifyArg( apocalypseDamageSource, (Player) (Object) this, damage );
         apocalypseDamageSource = null;
         return damage;
     }

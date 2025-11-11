@@ -47,18 +47,18 @@ import java.util.UUID;
  * unlimited aggro range and ignores line of sight.
  * These are the bread and butter of invasions. Ghosts deal light damage that can't be reduced below 1 and apply
  * a short increased gravity effect to help deal with flying players.
- *
+ * <p>
  * The ghost will also occasionally maneuver away if damaged, phasing
  * through walls and disorienting the target.
  */
 public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
-
+    
     /**
-     *  Used to determine if the ghost should be frozen in place
-     *  and if the time freeze render should be rendered.<br>
+     * Used to determine if the ghost should be frozen in place
+     * and if the time freeze render should be rendered.<br>
      */
-    private static final EntityDataAccessor<Boolean> IS_FROZEN = SynchedEntityData.defineId(Ghost.class, EntityDataSerializers.BOOLEAN);
-
+    private static final EntityDataAccessor<Boolean> IS_FROZEN = SynchedEntityData.defineId( Ghost.class, EntityDataSerializers.BOOLEAN );
+    
     /** The constant player target, if this mob was spawned by the full moon event */
     private UUID playerTargetUUID;
     protected int playerDeathCount = 0;
@@ -66,83 +66,83 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
     private boolean isManeuvering;
     /** How long the ghost should be frozen in ticks */
     private int freezeTime = 0;
-
-
-    public Ghost(EntityType<? extends FlyingMob> entityType, Level level) {
-        super(entityType, level);
-        this.moveControl = new GhostMovementController<>(this);
+    
+    
+    public Ghost( EntityType<? extends FlyingMob> entityType, Level level ) {
+        super( entityType, level );
+        this.moveControl = new GhostMovementController<>( this );
         xpReward = 3;
     }
-
+    
     public static AttributeSupplier.Builder createGhostAttributes() {
         return FlyingMob.createMobAttributes()
-                .add(Attributes.ATTACK_DAMAGE, 1.0D)
-                .add(Attributes.MAX_HEALTH, 4.0D)
-                .add(Attributes.FLYING_SPEED, 0.50D)
-                .add(Attributes.FOLLOW_RANGE, 4096.0D);
+                .add( Attributes.ATTACK_DAMAGE, 1.0D )
+                .add( Attributes.MAX_HEALTH, 4.0D )
+                .add( Attributes.FLYING_SPEED, 0.50D )
+                .add( Attributes.FOLLOW_RANGE, 4096.0D );
     }
-
-    public static boolean checkGhostSpawnRules(EntityType<? extends Ghost> entityType, ServerLevelAccessor level, MobSpawnType spawnReason, BlockPos pos, RandomSource random) {
-        return level.getDifficulty() != Difficulty.PEACEFUL && Monster.isDarkEnoughToSpawn(level, pos, random);
+    
+    public static boolean checkGhostSpawnRules( EntityType<? extends Ghost> entityType, ServerLevelAccessor level, MobSpawnType spawnReason, BlockPos pos, RandomSource random ) {
+        return level.getDifficulty() != Difficulty.PEACEFUL && Monster.isDarkEnoughToSpawn( level, pos, random );
     }
-
+    
     @Override
     protected void registerGoals() {
-        goalSelector.addGoal(0, new Ghost.ManeuverAttackerGoal<>(this));
-        goalSelector.addGoal(1, new Ghost.MeleeAttackGoal<>(this));
-        goalSelector.addGoal(2, new RandomFlyGoal(this));
-        goalSelector.addGoal(3, new GhostLookAtGoal(this, Player.class,8.0F));
-        targetSelector.addGoal(0, new MobHurtByTargetGoal(this, Enemy.class));
-        targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
-        targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, false, false));
+        goalSelector.addGoal( 0, new Ghost.ManeuverAttackerGoal<>( this ) );
+        goalSelector.addGoal( 1, new Ghost.MeleeAttackGoal<>( this ) );
+        goalSelector.addGoal( 2, new RandomFlyGoal( this ) );
+        goalSelector.addGoal( 3, new GhostLookAtGoal( this, Player.class, 8.0F ) );
+        targetSelector.addGoal( 0, new MobHurtByTargetGoal( this, Enemy.class ) );
+        targetSelector.addGoal( 1, new MoonMobPlayerTargetGoal<>( this, false ) );
+        targetSelector.addGoal( 2, new NearestAttackableTargetGoal<>( this, Player.class, false, false ) );
     }
-
+    
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.getEntityData().define(IS_FROZEN, false);
+        this.getEntityData().define( IS_FROZEN, false );
     }
-
+    
     @Override
     protected boolean shouldDespawnInPeaceful() {
         return true;
     }
-
+    
     @Override
-    protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
+    protected float getStandingEyeHeight( Pose pose, EntityDimensions dimensions ) {
         return 1.80F;
     }
-
+    
     @Override
-    public void knockback(double strength, double xRatio, double zRatio) {
-        if (!isFrozen())
-            super.knockback(strength, xRatio, zRatio);
+    public void knockback( double strength, double xRatio, double zRatio ) {
+        if( !isFrozen() )
+            super.knockback( strength, xRatio, zRatio );
     }
-
+    
     @Override
-    public boolean hurt(DamageSource damageSource, float damage) {
+    public boolean hurt( DamageSource damageSource, float damage ) {
         Entity entity = damageSource.getEntity();
-
-        if (entity instanceof LivingEntity livingEntity) {
-            if (!isFrozen() && livingEntity.getItemInHand(InteractionHand.MAIN_HAND).getItem() == Items.BEDROCK) {
-                freeze(200);
+        
+        if( entity instanceof LivingEntity livingEntity ) {
+            if( !isFrozen() && livingEntity.getItemInHand( InteractionHand.MAIN_HAND ).getItem() == Items.BEDROCK ) {
+                freeze( 200 );
             }
         }
-        if (super.hurt(damageSource, damage)) {
-            if (!isFrozen() && entity != null && entity == getTarget() && random.nextInt(2) == 0) {
-                setManeuvering(true);
+        if( super.hurt( damageSource, damage ) ) {
+            if( !isFrozen() && entity != null && entity == getTarget() && random.nextInt( 2 ) == 0 ) {
+                setManeuvering( true );
             }
             return true;
         }
         return false;
     }
-
+    
     @Override
-    public boolean doHurtTarget(Entity entity) {
-        if (super.doHurtTarget(entity)) {
-            if (entity instanceof Player player) {
+    public boolean doHurtTarget( Entity entity ) {
+        if( super.doHurtTarget( entity ) ) {
+            if( entity instanceof Player player ) {
                 int duration = level().getDifficulty() == Difficulty.HARD ? 140 : 80;
-                player.addEffect(new MobEffectInstance(CrustObjects.weight(), duration, 1));
+                player.addEffect( new MobEffectInstance( CrustObjects.weight(), duration, 1 ) );
             }
             return true;
         }
@@ -150,133 +150,134 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
             return false;
         }
     }
-
+    
     @Override
     public void aiStep() {
-        if (isAlive()) {
+        if( isAlive() ) {
             boolean flag = isSunBurnTick();
-
-            if (flag) {
-                ItemStack itemstack = getItemBySlot(EquipmentSlot.HEAD);
-                if (!itemstack.isEmpty()) {
-                    if (itemstack.isDamageableItem()) {
-                        itemstack.setDamageValue(itemstack.getDamageValue() + random.nextInt(2));
-                        if (itemstack.getDamageValue() >= itemstack.getMaxDamage()) {
-                            broadcastBreakEvent(EquipmentSlot.HEAD);
-                            setItemSlot(EquipmentSlot.HEAD, ItemStack.EMPTY);
+            
+            if( flag ) {
+                ItemStack itemstack = getItemBySlot( EquipmentSlot.HEAD );
+                if( !itemstack.isEmpty() ) {
+                    if( itemstack.isDamageableItem() ) {
+                        itemstack.setDamageValue( itemstack.getDamageValue() + random.nextInt( 2 ) );
+                        if( itemstack.getDamageValue() >= itemstack.getMaxDamage() ) {
+                            broadcastBreakEvent( EquipmentSlot.HEAD );
+                            setItemSlot( EquipmentSlot.HEAD, ItemStack.EMPTY );
                         }
                     }
                     flag = false;
                 }
-                if (flag) {
-                    setSecondsOnFire(8);
+                if( flag ) {
+                    setSecondsOnFire( 8 );
                 }
             }
-            if (!level().isClientSide) {
-                if (freezeTime > 0) {
+            if( !level().isClientSide ) {
+                if( freezeTime > 0 ) {
                     --freezeTime;
-
-                    if (freezeTime <= 0 && isFrozen()) {
+                    
+                    if( freezeTime <= 0 && isFrozen() ) {
                         unfreeze();
                     }
                 }
             }
         }
         super.aiStep();
-
-        if (!level().isClientSide) {
+        
+        if( !level().isClientSide ) {
             ServerLevel serverLevel = (ServerLevel) level();
-
-            if (IFullMoonMob.shouldDisappear(getPlayerTargetUUID(), serverLevel, this)) {
-                IFullMoonMob.spawnSmoke(serverLevel, this);
+            
+            if( IFullMoonMob.shouldDisappear( getPlayerTargetUUID(), serverLevel, this ) ) {
+                IFullMoonMob.spawnSmoke( serverLevel, this );
                 discard();
             }
         }
     }
-
+    
     @Override
     public SoundSource getSoundSource() {
         return SoundSource.HOSTILE;
     }
-
+    
     /**
      * Completely ignore line of sight; the target
      * is always "visible"
      */
     @Override
-    public boolean hasLineOfSight(Entity entity) {
+    public boolean hasLineOfSight( Entity entity ) {
         return true;
     }
-
+    
     @Override
     public boolean isPushable() {
         return false; // Cannot be pushed by entities
     }
-
+    
     @Override
-    protected void doPush(Entity entity) {
+    protected void doPush( Entity entity ) {
         // Does not push other entities
     }
+    
     @Override
-    public boolean canDrownInFluidType(FluidType type) {
+    public boolean canDrownInFluidType( FluidType type ) {
         return false;
     }
-
+    
     @Override
-    public boolean isPushedByFluid(FluidType fluidType) {
+    public boolean isPushedByFluid( FluidType fluidType ) {
         return false; // Not pushed by fluids
     }
-
+    
     @Override
     protected boolean isAffectedByFluids() {
         return false; // Not affected by fluids
     }
-
+    
     @Override
     public void lavaHurt() {
         // Immune to lava
     }
-
+    
     public boolean isManeuvering() {
         return this.isManeuvering;
     }
-
-    protected void setManeuvering(boolean maneuvering) {
+    
+    protected void setManeuvering( boolean maneuvering ) {
         this.isManeuvering = maneuvering;
     }
-
+    
     public boolean isFrozen() {
-        return this.entityData.get(IS_FROZEN);
+        return this.entityData.get( IS_FROZEN );
     }
-
-    public void freeze(int freezeTime) {
-        this.entityData.set(IS_FROZEN, true);
+    
+    public void freeze( int freezeTime ) {
+        this.entityData.set( IS_FROZEN, true );
         this.freezeTime = freezeTime;
-
-        if (level() != null && !level().isClientSide) {
-            level().broadcastEntityEvent(this, (byte) 7);
+        
+        if( level() != null && !level().isClientSide ) {
+            level().broadcastEntityEvent( this, (byte) 7 );
         }
-        if (!level().isClientSide) {
-            playSound(ApocalypseSounds.GHOST_FREEZE.get(), 1.0F, 1.0F - (random.nextFloat() / 5));
+        if( !level().isClientSide ) {
+            playSound( ApocalypseSounds.GHOST_FREEZE.get(), 1.0F, 1.0F - (random.nextFloat() / 5) );
         }
     }
-
+    
     private void unfreeze() {
-        this.entityData.set(IS_FROZEN, false);
+        this.entityData.set( IS_FROZEN, false );
     }
-
+    
     @Override
-    public void handleEntityEvent(byte eventId) {
-        if (eventId == 7) {
+    public void handleEntityEvent( byte eventId ) {
+        if( eventId == 7 ) {
             displayFreezeParticles();
         }
         else {
-            super.handleEntityEvent(eventId);
+            super.handleEntityEvent( eventId );
         }
     }
-
+    
     private void displayFreezeParticles() {
-        for (int i = 0; i < 13; i++) {
+        for( int i = 0; i < 13; i++ ) {
             level().addParticle(
                     ParticleTypes.END_ROD,
                     getX() + 0.5D,
@@ -284,225 +285,225 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
                     getZ() + 0.5D,
                     random.nextGaussian() / 3,
                     random.nextGaussian() / 3,
-                    random.nextGaussian() / 3);
+                    random.nextGaussian() / 3 );
         }
     }
-
+    
     @Override
     protected SoundEvent getAmbientSound() {
         return isFrozen() ? null : ApocalypseSounds.GHOST_IDLE.get();
     }
-
+    
     @Override
-    protected SoundEvent getHurtSound(DamageSource damageSource) {
+    protected SoundEvent getHurtSound( DamageSource damageSource ) {
         return ApocalypseSounds.GHOST_HURT.get();
     }
-
+    
     @Override
-    protected void playHurtSound(DamageSource damageSource) {
-        if (isFrozen())
+    protected void playHurtSound( DamageSource damageSource ) {
+        if( isFrozen() )
             return;
-
-        super.playHurtSound(damageSource);
+        
+        super.playHurtSound( damageSource );
     }
-
+    
     @Override
     protected SoundEvent getDeathSound() {
         return ApocalypseSounds.GHOST_DEATH.get();
     }
-
+    
     @Override
-    protected void playStepSound(BlockPos pos, BlockState state) {
+    protected void playStepSound( BlockPos pos, BlockState state ) {
         // No step sound
     }
-
+    
     @Override
     public MobType getMobType() {
         return MobType.UNDEAD;
     }
-
+    
     @Override
     public void tick() {
         this.noPhysics = true;
         super.tick();
         this.noPhysics = false;
     }
-
+    
     @Nullable
     @Override
     public UUID getPlayerTargetUUID() {
         return this.playerTargetUUID;
     }
-
+    
     @Override
-    public void setPlayerTargetUUID(@Nullable UUID playerTargetUUID) {
+    public void setPlayerTargetUUID( @Nullable UUID playerTargetUUID ) {
         this.playerTargetUUID = playerTargetUUID;
     }
-
+    
     @Override
     public int getPlayerDeathCount() {
         return playerDeathCount;
     }
-
+    
     @Override
-    public void setPlayerDeathCount(int deathCount) {
+    public void setPlayerDeathCount( int deathCount ) {
         playerDeathCount = deathCount;
     }
-
+    
     @Override
-    public void addAdditionalSaveData(CompoundTag compoundTag) {
-        super.addAdditionalSaveData(compoundTag);
-
-        if (this.getPlayerTargetUUID() != null) {
-            compoundTag.putUUID(PLAYER_UUID_KEY, this.getPlayerTargetUUID());
+    public void addAdditionalSaveData( CompoundTag compoundTag ) {
+        super.addAdditionalSaveData( compoundTag );
+        
+        if( this.getPlayerTargetUUID() != null ) {
+            compoundTag.putUUID( PLAYER_UUID_KEY, this.getPlayerTargetUUID() );
         }
-        compoundTag.putInt("FreezeTime", this.freezeTime);
+        compoundTag.putInt( "FreezeTime", this.freezeTime );
     }
-
+    
     @Override
-    public void readAdditionalSaveData(CompoundTag compoundTag) {
-        super.readAdditionalSaveData(compoundTag);
-
-        if (compoundTag.hasUUID(PLAYER_UUID_KEY)) {
-            this.setPlayerTargetUUID(compoundTag.getUUID(PLAYER_UUID_KEY));
+    public void readAdditionalSaveData( CompoundTag compoundTag ) {
+        super.readAdditionalSaveData( compoundTag );
+        
+        if( compoundTag.hasUUID( PLAYER_UUID_KEY ) ) {
+            this.setPlayerTargetUUID( compoundTag.getUUID( PLAYER_UUID_KEY ) );
         }
-        if (compoundTag.contains("FreezeTime", Tag.TAG_ANY_NUMERIC)) {
-            this.freezeTime = compoundTag.getInt("FreezeTime");
+        if( compoundTag.contains( "FreezeTime", Tag.TAG_ANY_NUMERIC ) ) {
+            this.freezeTime = compoundTag.getInt( "FreezeTime" );
         }
     }
-
+    
     private static class GhostMovementController<T extends Ghost> extends MoveControl {
-
+        
         final T ghostEntity;
-
-        public GhostMovementController(T ghost) {
-            super(ghost);
+        
+        public GhostMovementController( T ghost ) {
+            super( ghost );
             this.ghostEntity = ghost;
         }
-
+        
         public void tick() {
-            if (operation == Operation.MOVE_TO) {
-
+            if( operation == Operation.MOVE_TO ) {
+                
                 T ghost = ghostEntity;
-
-                if (ghost.isFrozen())
+                
+                if( ghost.isFrozen() )
                     return;
-
-                Vec3 vec3 = new Vec3(wantedX - ghost.getX(), wantedY - ghost.getY(), wantedZ - ghost.getZ());
+                
+                Vec3 vec3 = new Vec3( wantedX - ghost.getX(), wantedY - ghost.getY(), wantedZ - ghost.getZ() );
                 double d0 = vec3.length();
-
-                if (d0 < ghost.getBoundingBox().getSize()) {
+                
+                if( d0 < ghost.getBoundingBox().getSize() ) {
                     operation = Operation.WAIT;
-                    ghost.setDeltaMovement(ghost.getDeltaMovement().scale(0.5D));
+                    ghost.setDeltaMovement( ghost.getDeltaMovement().scale( 0.5D ) );
                 }
                 else {
-                    ghost.setDeltaMovement(ghost.getDeltaMovement().add(vec3.scale(speedModifier * 0.05D / d0)));
-
-                    if (ghostEntity.getTarget() == null) {
+                    ghost.setDeltaMovement( ghost.getDeltaMovement().add( vec3.scale( speedModifier * 0.05D / d0 ) ) );
+                    
+                    if( ghostEntity.getTarget() == null ) {
                         Vec3 velocity = ghost.getDeltaMovement();
-                        ghost.setYRot(-((float) Mth.atan2(velocity.x, velocity.z)) * (180F / (float)Math.PI));
+                        ghost.setYRot( -((float) Mth.atan2( velocity.x, velocity.z )) * (180F / (float) Math.PI) );
                     }
                     else {
                         double xDist = ghost.getTarget().getX() - ghost.getX();
                         double zDist = ghost.getTarget().getZ() - ghost.getZ();
-                        ghost.setYRot(-((float)Mth.atan2(xDist, zDist)) * (180F / (float)Math.PI));
+                        ghost.setYRot( -((float) Mth.atan2( xDist, zDist )) * (180F / (float) Math.PI) );
                     }
                     ghost.yBodyRot = ghost.getYRot();
                 }
             }
         }
     }
-
+    
     private static class ManeuverAttackerGoal<T extends Ghost> extends Goal {
-
+        
         private final T ghost;
-
-        public ManeuverAttackerGoal(T ghost) {
+        
+        public ManeuverAttackerGoal( T ghost ) {
             this.ghost = ghost;
-            setFlags(EnumSet.of(Flag.MOVE));
+            setFlags( EnumSet.of( Flag.MOVE ) );
         }
-
+        
         @Override
         public boolean canUse() {
             return ghost.getTarget() != null && ghost.isManeuvering();
         }
-
+        
         @Override
         public boolean canContinueToUse() {
             return ghost.getTarget() != null && ghost.getTarget().isAlive() && ghost.isManeuvering() && ghost.moveControl.hasWanted();
         }
-
+        
         @Override
         public void start() {
             RandomSource random = ghost.getRandom();
-            final double speed = ghost.getAttributeValue(Attributes.FLYING_SPEED) * 2;
-            ghost.moveControl.setWantedPosition(ghost.getX() + (random.nextGaussian() * 10), ghost.getY() + (random.nextGaussian() * 10), ghost.getZ() + (random.nextGaussian() * 10), speed);
+            final double speed = ghost.getAttributeValue( Attributes.FLYING_SPEED ) * 2;
+            ghost.moveControl.setWantedPosition( ghost.getX() + (random.nextGaussian() * 10), ghost.getY() + (random.nextGaussian() * 10), ghost.getZ() + (random.nextGaussian() * 10), speed );
         }
-
+        
         @Override
         public void stop() {
-            ghost.setManeuvering(false);
+            ghost.setManeuvering( false );
         }
     }
-
+    
     private static class MeleeAttackGoal<T extends Ghost> extends Goal {
-
+        
         private final T ghost;
         private int ticksUntilNextAttack;
-
-        public MeleeAttackGoal(T ghost) {
-            setFlags(EnumSet.of(Goal.Flag.MOVE));
+        
+        public MeleeAttackGoal( T ghost ) {
+            setFlags( EnumSet.of( Goal.Flag.MOVE ) );
             this.ghost = ghost;
         }
-
-        private void setWantedPosition(LivingEntity target) {
-            Vec3 vec3 = target.getEyePosition(1.0F).add(0.0D, -(ghost.getBbHeight() / 1.8), 0.0D);
-            final double speed = ghost.getAttributeValue(Attributes.FLYING_SPEED);
-            ghost.moveControl.setWantedPosition(vec3.x, vec3.y, vec3.z, speed);
+        
+        private void setWantedPosition( LivingEntity target ) {
+            Vec3 vec3 = target.getEyePosition( 1.0F ).add( 0.0D, -(ghost.getBbHeight() / 1.8), 0.0D );
+            final double speed = ghost.getAttributeValue( Attributes.FLYING_SPEED );
+            ghost.moveControl.setWantedPosition( vec3.x, vec3.y, vec3.z, speed );
         }
-
+        
         @Override
         public boolean requiresUpdateEveryTick() {
             return true;
         }
-
+        
         @Override
         public boolean canUse() {
             return !ghost.isFrozen() && ghost.getTarget() != null && ghost.getTarget().isAlive();
         }
-
+        
         @Override
         public boolean canContinueToUse() {
             return canUse();
         }
-
+        
         @Override
         public void start() {
-            ghost.setAggressive(true);
+            ghost.setAggressive( true );
         }
-
+        
         @Override
         public void stop() {
             LivingEntity target = ghost.getTarget();
-            if (!EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(target)) {
-                ghost.setTarget(null);
+            if( !EntitySelector.NO_CREATIVE_OR_SPECTATOR.test( target ) ) {
+                ghost.setTarget( null );
             }
-            ghost.setAggressive(false);
+            ghost.setAggressive( false );
         }
-
+        
         @Override
         public void tick() {
             LivingEntity target = ghost.getTarget();
-            if (target == null) return;
-
-            double distance = ghost.distanceToSqr(target);
-
-            if (!ghost.isManeuvering() && ghost.tickCount % 20 == 0) {
-                setWantedPosition(target);
+            if( target == null ) return;
+            
+            double distance = ghost.distanceToSqr( target );
+            
+            if( !ghost.isManeuvering() && ghost.tickCount % 20 == 0 ) {
+                setWantedPosition( target );
             }
-            if (ticksUntilNextAttack <= 0) {
-                if (canAttackReach(target, distance)) {
-                    ghost.doHurtTarget(target);
+            if( ticksUntilNextAttack <= 0 ) {
+                if( canAttackReach( target, distance ) ) {
+                    ghost.doHurtTarget( target );
                     ticksUntilNextAttack = 20;
                 }
             }
@@ -510,30 +511,30 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
                 --ticksUntilNextAttack;
             }
         }
-
-        private boolean canAttackReach(LivingEntity target, double distance) {
-            return distance <= (double)(ghost.getBbWidth() * 2.0F * ghost.getBbWidth() * 2.0F + target.getBbWidth());
+        
+        private boolean canAttackReach( LivingEntity target, double distance ) {
+            return distance <= (double) (ghost.getBbWidth() * 2.0F * ghost.getBbWidth() * 2.0F + target.getBbWidth());
         }
     }
-
+    
     /** Copied from ghast */
     static class RandomFlyGoal extends Goal {
-
+        
         private final Ghost ghost;
-
-        public RandomFlyGoal(Ghost ghost) {
+        
+        public RandomFlyGoal( Ghost ghost ) {
             this.ghost = ghost;
-            setFlags(EnumSet.of(Goal.Flag.MOVE));
+            setFlags( EnumSet.of( Goal.Flag.MOVE ) );
         }
-
+        
         @Override
         public boolean canUse() {
             MoveControl moveControl = ghost.getMoveControl();
-
-            if (ghost.getTarget() != null || ghost.isManeuvering())
+            
+            if( ghost.getTarget() != null || ghost.isManeuvering() )
                 return false;
-
-            if (!moveControl.hasWanted()) {
+            
+            if( !moveControl.hasWanted() ) {
                 return true;
             }
             else {
@@ -544,47 +545,47 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
                 return d3 < 1.0D || d3 > 3600.0D;
             }
         }
-
+        
         @Override
         public void stop() {
         }
-
+        
         @Override
         public boolean canContinueToUse() {
             return false;
         }
-
+        
         @Override
         public void start() {
             RandomSource random = ghost.getRandom();
-            final double x = ghost.getX() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
-            final double y = ghost.getY() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
-            final double z = ghost.getZ() + (double)((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
-            final double speed = ghost.getAttributeValue(Attributes.FLYING_SPEED);
-            ghost.getMoveControl().setWantedPosition(x, y, z, speed);
+            final double x = ghost.getX() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
+            final double y = ghost.getY() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
+            final double z = ghost.getZ() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
+            final double speed = ghost.getAttributeValue( Attributes.FLYING_SPEED );
+            ghost.getMoveControl().setWantedPosition( x, y, z, speed );
         }
     }
-
+    
     static class GhostLookAtGoal extends LookAtPlayerGoal {
-
+        
         private final Ghost ghost;
-
-        public GhostLookAtGoal(Ghost ghost, Class<? extends LivingEntity> lookAt, float range) {
-            super(ghost, lookAt, range);
-            setFlags(EnumSet.of(Flag.LOOK));
+        
+        public GhostLookAtGoal( Ghost ghost, Class<? extends LivingEntity> lookAt, float range ) {
+            super( ghost, lookAt, range );
+            setFlags( EnumSet.of( Flag.LOOK ) );
             this.ghost = ghost;
         }
-
+        
         @Override
         public boolean requiresUpdateEveryTick() {
             return true;
         }
-
+        
         @Override
         public boolean canUse() {
             return super.canUse() && !ghost.isFrozen();
         }
-
+        
         @Override
         public boolean canContinueToUse() {
             return super.canContinueToUse() && !ghost.isFrozen();

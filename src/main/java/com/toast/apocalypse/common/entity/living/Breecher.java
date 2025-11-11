@@ -36,137 +36,137 @@ import java.util.UUID;
  * Visually, the ony difference is that their eyes are entranced by the moon's power.
  */
 public class Breecher extends Creeper implements IFullMoonMob {
-
+    
     /** The position of a specific block/thing the Breecher wants to explotando */
-    public static final EntityDataAccessor<Boolean> FORCE_SWELL = SynchedEntityData.defineId(Breecher.class, EntityDataSerializers.BOOLEAN);
-
+    public static final EntityDataAccessor<Boolean> FORCE_SWELL = SynchedEntityData.defineId( Breecher.class, EntityDataSerializers.BOOLEAN );
+    
     /** The constant player target, if this mob was spawned by the full moon event */
     private UUID playerTargetUUID;
     protected int playerDeathCount = 0;
-
-
-    public Breecher(EntityType<? extends Creeper> entityType, Level level) {
-        super(entityType, level);
+    
+    
+    public Breecher( EntityType<? extends Creeper> entityType, Level level ) {
+        super( entityType, level );
     }
-
+    
     public static AttributeSupplier.Builder createBreecherAttributes() {
         return Creeper.createAttributes()
-                .add(Attributes.MOVEMENT_SPEED, 0.32D)
-                .add(Attributes.FOLLOW_RANGE, 40.0D);
+                .add( Attributes.MOVEMENT_SPEED, 0.32D )
+                .add( Attributes.FOLLOW_RANGE, 40.0D );
     }
-
+    
     protected void registerGoals() {
-        goalSelector.addGoal(1, new FloatGoal(this));
-        goalSelector.addGoal(2, new BreecherSwellGoal(this));
-        goalSelector.addGoal(3, new BreecherFindExplosionPos(this, 1.0D, 20, 6));
-        goalSelector.addGoal(3, new AvoidEntityGoal<>(this, Ocelot.class, 6.0F, 1.0D, 1.2D));
-        goalSelector.addGoal(3, new AvoidEntityGoal<>(this, Cat.class, 6.0F, 1.0D, 1.2D));
-        goalSelector.addGoal(4, new MeleeAttackGoal(this, 1.0D, false));
-        goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.8D));
-        goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
-        goalSelector.addGoal(6, new RandomLookAroundGoal(this));
-        targetSelector.addGoal(0, new MobHurtByTargetGoal(this, Enemy.class));
-        targetSelector.addGoal(1, new MoonMobPlayerTargetGoal<>(this, false));
+        goalSelector.addGoal( 1, new FloatGoal( this ) );
+        goalSelector.addGoal( 2, new BreecherSwellGoal( this ) );
+        goalSelector.addGoal( 3, new BreecherFindExplosionPos( this, 1.0D, 20, 6 ) );
+        goalSelector.addGoal( 3, new AvoidEntityGoal<>( this, Ocelot.class, 6.0F, 1.0D, 1.2D ) );
+        goalSelector.addGoal( 3, new AvoidEntityGoal<>( this, Cat.class, 6.0F, 1.0D, 1.2D ) );
+        goalSelector.addGoal( 4, new MeleeAttackGoal( this, 1.0D, false ) );
+        goalSelector.addGoal( 5, new WaterAvoidingRandomStrollGoal( this, 0.8D ) );
+        goalSelector.addGoal( 6, new LookAtPlayerGoal( this, Player.class, 8.0F ) );
+        goalSelector.addGoal( 6, new RandomLookAroundGoal( this ) );
+        targetSelector.addGoal( 0, new MobHurtByTargetGoal( this, Enemy.class ) );
+        targetSelector.addGoal( 1, new MoonMobPlayerTargetGoal<>( this, false ) );
     }
-
+    
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        entityData.define(FORCE_SWELL, false);
+        entityData.define( FORCE_SWELL, false );
     }
-
+    
     @Override
-    public void die(DamageSource damageSource) {
-        super.die(damageSource);
+    public void die( DamageSource damageSource ) {
+        super.die( damageSource );
     }
-
+    
     /**
      * Completely ignore line of sight; the target
      * is always "visible"
      */
     @Override
-    public boolean hasLineOfSight(Entity entity) {
+    public boolean hasLineOfSight( Entity entity ) {
         return true;
     }
-
+    
     /**
      * Checks if the breecher has direct
      * line of sight to the target entity.
      */
-    public boolean canSeeDirectly(Entity entity) {
-        Vec3 vector3d = new Vec3(this.getX(), this.getEyeY(), this.getZ());
-        Vec3 vector3d1 = new Vec3(entity.getX(), entity.getEyeY(), entity.getZ());
-        return level().clip(new ClipContext(vector3d, vector3d1, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this)).getType() == HitResult.Type.MISS;
+    public boolean canSeeDirectly( Entity entity ) {
+        Vec3 vector3d = new Vec3( this.getX(), this.getEyeY(), this.getZ() );
+        Vec3 vector3d1 = new Vec3( entity.getX(), entity.getEyeY(), entity.getZ() );
+        return level().clip( new ClipContext( vector3d, vector3d1, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this ) ).getType() == HitResult.Type.MISS;
     }
-
+    
     @Override
     public void aiStep() {
         super.aiStep();
-
-        if (!level().isClientSide) {
+        
+        if( !level().isClientSide ) {
             ServerLevel serverLevel = (ServerLevel) level();
-
-            if (IFullMoonMob.shouldDisappear(getPlayerTargetUUID(), serverLevel, this)) {
-                IFullMoonMob.spawnSmoke(serverLevel, this);
+            
+            if( IFullMoonMob.shouldDisappear( getPlayerTargetUUID(), serverLevel, this ) ) {
+                IFullMoonMob.spawnSmoke( serverLevel, this );
                 discard();
             }
         }
     }
-
+    
     @Override
-    protected SoundEvent getHurtSound(DamageSource damageSource) {
+    protected SoundEvent getHurtSound( DamageSource damageSource ) {
         return ApocalypseSounds.BREECHER_HURT.get();
     }
-
+    
     @Override
     protected SoundEvent getDeathSound() {
         return ApocalypseSounds.BREECHER_DEATH.get();
     }
-
+    
     public void forceSwell() {
-        entityData.set(FORCE_SWELL, true);
+        entityData.set( FORCE_SWELL, true );
     }
-
+    
     public boolean shouldForceSwell() {
-        return entityData.get(FORCE_SWELL);
+        return entityData.get( FORCE_SWELL );
     }
-
+    
     @Nullable
     @Override
     public UUID getPlayerTargetUUID() {
         return this.playerTargetUUID;
     }
-
+    
     @Override
-    public void setPlayerTargetUUID(@Nullable UUID playerTargetUUID) {
+    public void setPlayerTargetUUID( @Nullable UUID playerTargetUUID ) {
         this.playerTargetUUID = playerTargetUUID;
     }
-
+    
     @Override
     public int getPlayerDeathCount() {
         return playerDeathCount;
     }
-
+    
     @Override
-    public void setPlayerDeathCount(int deathCount) {
+    public void setPlayerDeathCount( int deathCount ) {
         playerDeathCount = deathCount;
     }
-
+    
     @Override
-    public void addAdditionalSaveData(CompoundTag compoundTag) {
-        super.addAdditionalSaveData(compoundTag);
-
-        if (this.getPlayerTargetUUID() != null) {
-            compoundTag.putUUID(PLAYER_UUID_KEY, this.getPlayerTargetUUID());
+    public void addAdditionalSaveData( CompoundTag compoundTag ) {
+        super.addAdditionalSaveData( compoundTag );
+        
+        if( this.getPlayerTargetUUID() != null ) {
+            compoundTag.putUUID( PLAYER_UUID_KEY, this.getPlayerTargetUUID() );
         }
     }
-
+    
     @Override
-    public void readAdditionalSaveData(CompoundTag compoundTag) {
-        super.readAdditionalSaveData(compoundTag);
-
-        if (compoundTag.hasUUID(PLAYER_UUID_KEY)) {
-            this.setPlayerTargetUUID(compoundTag.getUUID(PLAYER_UUID_KEY));
+    public void readAdditionalSaveData( CompoundTag compoundTag ) {
+        super.readAdditionalSaveData( compoundTag );
+        
+        if( compoundTag.hasUUID( PLAYER_UUID_KEY ) ) {
+            this.setPlayerTargetUUID( compoundTag.getUUID( PLAYER_UUID_KEY ) );
         }
     }
 }

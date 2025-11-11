@@ -10,40 +10,40 @@ import net.minecraft.server.level.ServerPlayer;
 // TODO - Currently does nothing other than displaying an event message.
 //        Perhaps other mechanics or mobs can be introduced in the future.
 public final class AcidRainEvent extends AbstractEvent {
-
-    public AcidRainEvent(EventType<?> type) {
-        super(type);
+    
+    public AcidRainEvent( EventType<?> type ) {
+        super( type );
     }
-
+    
     @Override
-    public void onStart(MinecraftServer server, ServerPlayer player) {
+    public void onStart( MinecraftServer server, ServerPlayer player ) {
     }
-
+    
     @Override
-    public void update(ServerLevel level, ServerPlayer player, PlayerDifficultyManager difficultyManager) {
-
+    public void update( ServerLevel level, ServerPlayer player, PlayerDifficultyManager difficultyManager ) {
+    
     }
-
+    
     @Override
-    public boolean shouldContinueRunning(ServerLevel level, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager) {
-        return difficultyManager.isRainingAcid(level);
+    public boolean shouldContinueRunning( ServerLevel level, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager ) {
+        return difficultyManager.isRainingAcid( level );
     }
-
+    
     @Override
-    public void onEnd(MinecraftServer server, ServerPlayer player) {
+    public void onEnd( MinecraftServer server, ServerPlayer player ) {
     }
-
+    
     @Override
-    public void stop(ServerLevel level, ServerPlayer player) {
-
+    public void stop( ServerLevel level, ServerPlayer player ) {
+    
     }
-
+    
     @Override
-    public void writeAdditional(CompoundTag data) {
-
+    public void writeAdditional( CompoundTag data ) {
+    
     }
-
+    
     @Override
-    public void read(CompoundTag data, ServerPlayer player, ServerLevel level) {
+    public void read( CompoundTag data, ServerPlayer player, ServerLevel level ) {
     }
 }

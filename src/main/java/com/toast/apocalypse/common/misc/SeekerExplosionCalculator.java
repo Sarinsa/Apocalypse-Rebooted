@@ -10,17 +10,17 @@ import net.minecraft.world.level.material.FluidState;
 import java.util.Optional;
 
 public class SeekerExplosionCalculator extends ExplosionDamageCalculator {
-
+    
     // Explode blocks even if surrounded by a fluid
     @Override
-    public Optional<Float> getBlockExplosionResistance(Explosion explosion, BlockGetter level, BlockPos pos, BlockState state, FluidState fluidState) {
+    public Optional<Float> getBlockExplosionResistance( Explosion explosion, BlockGetter level, BlockPos pos, BlockState state, FluidState fluidState ) {
         return state.isAir()
                 ? Optional.empty()
-                : Optional.of(state.getExplosionResistance(level, pos, explosion));
+                : Optional.of( state.getExplosionResistance( level, pos, explosion ) );
     }
-
+    
     @Override
-    public boolean shouldBlockExplode(Explosion explosion, BlockGetter level, BlockPos pos, BlockState state, float radius) {
+    public boolean shouldBlockExplode( Explosion explosion, BlockGetter level, BlockPos pos, BlockState state, float radius ) {
         return state.getFluidState().isEmpty();
     }
 }

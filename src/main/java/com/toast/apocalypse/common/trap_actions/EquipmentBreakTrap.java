@@ -15,42 +15,42 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class EquipmentBreakTrap extends BaseTrapAction {
-
-    private static final ResourceLocation ICON = Apocalypse.resourceLoc("textures/trap_icons/equipment_break.png");
+    
+    private static final ResourceLocation ICON = Apocalypse.resourceLoc( "textures/trap_icons/equipment_break.png" );
     private static final String DESCRIPTION_KEY = "apocalypse.trap_type.apocalypse.equipment_break.description";
-
+    
     public EquipmentBreakTrap() {
     }
-
+    
     @Override
-    public void execute(Level level, BlockPos pos, Direction facing, AABB areaOfEffect) {
-        List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, areaOfEffect);
-
-        if (!entities.isEmpty()) {
-            for (LivingEntity livingEntity : entities) {
-                for (EquipmentSlot slot : EquipmentSlot.values()) {
-                    if (slot.getType() == EquipmentSlot.Type.ARMOR) {
-
-                        if (livingEntity.getItemBySlot(slot).isDamageableItem()) {
-                            livingEntity.getItemBySlot(slot).hurtAndBreak(100000, livingEntity, (entity) -> entity.broadcastBreakEvent(slot));
+    public void execute( Level level, BlockPos pos, Direction facing, AABB areaOfEffect ) {
+        List<LivingEntity> entities = level.getEntitiesOfClass( LivingEntity.class, areaOfEffect );
+        
+        if( !entities.isEmpty() ) {
+            for( LivingEntity livingEntity : entities ) {
+                for( EquipmentSlot slot : EquipmentSlot.values() ) {
+                    if( slot.getType() == EquipmentSlot.Type.ARMOR ) {
+                        
+                        if( livingEntity.getItemBySlot( slot ).isDamageableItem() ) {
+                            livingEntity.getItemBySlot( slot ).hurtAndBreak( 100000, livingEntity, ( entity ) -> entity.broadcastBreakEvent( slot ) );
                         }
                     }
                 }
             }
         }
     }
-
+    
     @Override
     public int getEffectRadius() {
         return ApocalypseConfig.MISC.TRAP_PROPERTIES.armorShatterRange.get();
     }
-
+    
     @NotNull
     @Override
     public ResourceLocation iconLocation() {
         return ICON;
     }
-
+    
     @Override
     public String getDescriptionKey() {
         return DESCRIPTION_KEY;

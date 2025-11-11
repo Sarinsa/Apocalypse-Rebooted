@@ -6,7 +6,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 import java.util.function.Supplier;
 
 public class ModRegistries {
-
+    
     /**
      * Created during {@link net.minecraftforge.registries.NewRegistryEvent}.
      */

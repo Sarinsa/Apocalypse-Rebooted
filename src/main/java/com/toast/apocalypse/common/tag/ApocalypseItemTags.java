@@ -7,22 +7,22 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 
 public class ApocalypseItemTags {
-
-    public static final TagKey<Item> COOKIES = forgeTag("cookies");
-
-
-    private static TagKey<Item> modTag(String name) {
-        return create(Apocalypse.resourceLoc(name));
+    
+    public static final TagKey<Item> COOKIES = forgeTag( "cookies" );
+    
+    
+    private static TagKey<Item> modTag( String name ) {
+        return create( Apocalypse.resourceLoc( name ) );
     }
-
-    private static TagKey<Item> forgeTag(String name) {
-        return create(new ResourceLocation("forge", name));
+    
+    private static TagKey<Item> forgeTag( String name ) {
+        return create( new ResourceLocation( "forge", name ) );
     }
-
-    private static TagKey<Item> create(ResourceLocation id) {
-        return ItemTags.create(id);
+    
+    private static TagKey<Item> create( ResourceLocation id ) {
+        return ItemTags.create( id );
     }
-
+    
     // Utility class, instantiation redundant
-    private ApocalypseItemTags() {}
+    private ApocalypseItemTags() { }
 }

@@ -9,12 +9,12 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class CapabilityAttachListener {
-
+    
     @SubscribeEvent
-    public void onEntityCapabilityAttach(AttachCapabilitiesEvent<Entity> event) {
-        if (event.getObject() instanceof Player) {
-            event.addCapability(Apocalypse.resourceLoc("difficulty"), new DifficultyCapProvider());
-            event.addCapability(Apocalypse.resourceLoc("mob_wiki"), new MobWikiCapProvider());
+    public void onEntityCapabilityAttach( AttachCapabilitiesEvent<Entity> event ) {
+        if( event.getObject() instanceof Player ) {
+            event.addCapability( Apocalypse.resourceLoc( "difficulty" ), new DifficultyCapProvider() );
+            event.addCapability( Apocalypse.resourceLoc( "mob_wiki" ), new MobWikiCapProvider() );
         }
     }
 }

@@ -17,50 +17,50 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 public class GhostTrap extends BaseTrapAction {
-
+    
     private static final String DESCRIPTION_KEY = "apocalypse.trap_type.apocalypse.ghost_freeze.description";
-    private static final ResourceLocation ICON = Apocalypse.resourceLoc("textures/trap_icons/ghost_freeze.png");
-
-
+    private static final ResourceLocation ICON = Apocalypse.resourceLoc( "textures/trap_icons/ghost_freeze.png" );
+    
+    
     public GhostTrap() {
     }
-
+    
     @Override
-    public void execute(Level level, BlockPos pos, Direction facing, AABB areaOfEffect) {
-        if (!level.isClientSide) {
+    public void execute( Level level, BlockPos pos, Direction facing, AABB areaOfEffect ) {
+        if( !level.isClientSide ) {
             ((ServerLevel) level).sendParticles(
                     ParticleTypes.SNOWFLAKE,
                     (pos.getX() + 0.5D) + ((facing.getStepX() / 2.0) * 1.1),
                     (pos.getY() + 0.5D) + ((facing.getStepY() / 2.0) * 1.1),
                     (pos.getZ() + 0.5D) + ((facing.getStepZ() / 2.0) * 1.1),
                     15,
-                    Mth.randomBetween(level.random, -1.0F, 1.0F) * 0.08F,
-                    Mth.randomBetween(level.random, -1.0F, 1.0F) * 0.08F,
-                    Mth.randomBetween(level.random, -1.0F, 1.0F) * 0.08F,
+                    Mth.randomBetween( level.random, -1.0F, 1.0F ) * 0.08F,
+                    Mth.randomBetween( level.random, -1.0F, 1.0F ) * 0.08F,
+                    Mth.randomBetween( level.random, -1.0F, 1.0F ) * 0.08F,
                     0.1D
             );
         }
-        List<Ghost> nearbyGhosts = level.getEntitiesOfClass(Ghost.class, areaOfEffect);
-
-        if (!nearbyGhosts.isEmpty()) {
-            for (Ghost ghost : nearbyGhosts) {
-                if (!ghost.isFrozen())
-                    ghost.freeze(200);
+        List<Ghost> nearbyGhosts = level.getEntitiesOfClass( Ghost.class, areaOfEffect );
+        
+        if( !nearbyGhosts.isEmpty() ) {
+            for( Ghost ghost : nearbyGhosts ) {
+                if( !ghost.isFrozen() )
+                    ghost.freeze( 200 );
             }
         }
     }
-
+    
     @Override
     public int getEffectRadius() {
         return ApocalypseConfig.MISC.TRAP_PROPERTIES.ghostFreezeRange.get();
     }
-
+    
     @Override
     @Nonnull
     public ResourceLocation iconLocation() {
         return ICON;
     }
-
+    
     @Override
     public String getDescriptionKey() {
         return DESCRIPTION_KEY;

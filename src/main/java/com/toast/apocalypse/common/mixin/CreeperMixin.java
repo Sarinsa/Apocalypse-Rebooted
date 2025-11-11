@@ -13,13 +13,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(Creeper.class)
+@Mixin( Creeper.class )
 public abstract class CreeperMixin extends Monster implements PowerableMob {
-
-    protected CreeperMixin(EntityType<? extends Creeper> entityType, Level level) {
-        super(entityType, level);
+    
+    protected CreeperMixin( EntityType<? extends Creeper> entityType, Level level ) {
+        super( entityType, level );
     }
-
+    
     /**
      * A somewhat wonky solution to preventing
      * Creepers from spawning lingering effect
@@ -32,7 +32,7 @@ public abstract class CreeperMixin extends Monster implements PowerableMob {
                     target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z"
             )
     )
-    public void onSpawnLingeringCloud(CallbackInfo ci, @Local(ordinal = 0) AreaEffectCloud effectCloud) {
-        CommonMixinHooks.capLingeringCloudEffectDurations(effectCloud);
+    public void onSpawnLingeringCloud( CallbackInfo ci, @Local( ordinal = 0 ) AreaEffectCloud effectCloud ) {
+        CommonMixinHooks.capLingeringCloudEffectDurations( effectCloud );
     }
 }

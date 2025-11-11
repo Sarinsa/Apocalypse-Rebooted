@@ -7,12 +7,12 @@ import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class VillagerTradeListener {
-
+    
     @SubscribeEvent
-    public void onTrade(VillagerTradesEvent event) {
-        if (event.getType() == VillagerProfession.CLERIC) {
-            event.getTrades().get(2).add(new VillagerTrades.EmeraldForItems(ApocalypseItems.FRAGMENTED_SOUL.get(), 2, 10, 10));
-            event.getTrades().get(5).add(new VillagerTrades.ItemsForEmeralds(ApocalypseItems.LUNAR_CLOCK.get(), 34, 1, 30));
+    public void onTrade( VillagerTradesEvent event ) {
+        if( event.getType() == VillagerProfession.CLERIC ) {
+            event.getTrades().get( 2 ).add( new VillagerTrades.EmeraldForItems( ApocalypseItems.FRAGMENTED_SOUL.get(), 2, 10, 10 ) );
+            event.getTrades().get( 5 ).add( new VillagerTrades.ItemsForEmeralds( ApocalypseItems.LUNAR_CLOCK.get(), 34, 1, 30 ) );
         }
     }
 }

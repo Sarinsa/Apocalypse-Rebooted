@@ -11,25 +11,25 @@ import net.minecraftforge.common.data.GlobalLootModifierProvider;
 import java.util.Arrays;
 
 public class ApocalypseLootModProvider extends GlobalLootModifierProvider {
-
-    public ApocalypseLootModProvider(DataGenerator gen) {
-        super(gen.getPackOutput(), Apocalypse.MODID);
+    
+    public ApocalypseLootModProvider( DataGenerator gen ) {
+        super( gen.getPackOutput(), Apocalypse.MODID );
     }
-
+    
     @Override
     protected void start() {
-        add("fatherly_toast", new SimpleAddLootModifier(
-                new LootItemCondition[]{},
+        add( "fatherly_toast", new SimpleAddLootModifier(
+                new LootItemCondition[] {},
                 ApocalypseItems.FATHERLY_TOAST.get(),
                 0.3D,
                 1,
                 6,
                 Arrays.asList(
-                        new ResourceLocation("chests/simple_dungeon"),
-                        new ResourceLocation("chests/desert_pyramid"),
-                        new ResourceLocation("chests/jungle_temple"),
-                        new ResourceLocation("chests/abandoned_mineshaft")
-                ))
+                        ResourceLocation.withDefaultNamespace( "chests/simple_dungeon" ),
+                        ResourceLocation.withDefaultNamespace( "chests/desert_pyramid" ),
+                        ResourceLocation.withDefaultNamespace( "chests/jungle_temple" ),
+                        ResourceLocation.withDefaultNamespace( "chests/abandoned_mineshaft" )
+                ) )
         );
     }
 }

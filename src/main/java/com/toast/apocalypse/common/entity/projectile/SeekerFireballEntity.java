@@ -30,139 +30,139 @@ import net.minecraftforge.network.NetworkHooks;
 import javax.annotation.Nullable;
 
 public class SeekerFireballEntity extends Fireball {
-
+    
     private boolean sawTarget = false;
     private boolean reflected = false;
     private int explosionStrength = 1;
-
-    public SeekerFireballEntity(EntityType<? extends Fireball> entityType, Level level) {
-        super(entityType, level);
+    
+    public SeekerFireballEntity( EntityType<? extends Fireball> entityType, Level level ) {
+        super( entityType, level );
     }
-
-    public SeekerFireballEntity(Level level, Seeker seeker, boolean sawTarget, double x, double y, double z) {
-        super(ApocalypseEntities.SEEKER_FIREBALL.get(), seeker, x, y, z, level);
+    
+    public SeekerFireballEntity( Level level, Seeker seeker, boolean sawTarget, double x, double y, double z ) {
+        super( ApocalypseEntities.SEEKER_FIREBALL.get(), seeker, x, y, z, level );
         this.sawTarget = sawTarget;
         this.explosionStrength = seeker.getExplosionPower();
     }
-
+    
     /**
      * Helper method for creating the seeker fireball
      * explosion. A custom ExplosionContext is used in order
      * to explode blocks even if they are surrounded by a fluid.
      */
-    public static void seekerExplosion(Level level, @Nullable Entity entity, DamageSource damageSource, double x, double y, double z, float explosionPower, boolean canDestroy) {
-        level.explode(entity, damageSource, new SeekerExplosionCalculator(), x, y, z, explosionPower, canDestroy, Level.ExplosionInteraction.MOB);
+    public static void seekerExplosion( Level level, @Nullable Entity entity, DamageSource damageSource, double x, double y, double z, float explosionPower, boolean canDestroy ) {
+        level.explode( entity, damageSource, new SeekerExplosionCalculator(), x, y, z, explosionPower, canDestroy, Level.ExplosionInteraction.MOB );
     }
-
+    
     @Override
-    protected void onHitEntity(EntityHitResult result) {
+    protected void onHitEntity( EntityHitResult result ) {
         Entity entity = result.getEntity();
         Level level = entity.level();
-
-        if (entity instanceof Seeker) {
-            boolean canDestroy = level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) || ForgeEventFactory.getMobGriefingEvent(level, this);
-
-            if (!level.isClientSide) {
-                entity.hurt(damageSources().fireball(this, getOwner()), 2.0F);
-                level.explode(null, getX(), getY(), getZ(), 2.0F, canDestroy, Level.ExplosionInteraction.MOB);
+        
+        if( entity instanceof Seeker ) {
+            boolean canDestroy = level.getGameRules().getBoolean( GameRules.RULE_MOBGRIEFING ) || ForgeEventFactory.getMobGriefingEvent( level, this );
+            
+            if( !level.isClientSide ) {
+                entity.hurt( damageSources().fireball( this, getOwner() ), 2.0F );
+                level.explode( null, getX(), getY(), getZ(), 2.0F, canDestroy, Level.ExplosionInteraction.MOB );
                 discard();
             }
         }
-        else if (!entity.fireImmune()) {
+        else if( !entity.fireImmune() ) {
             Entity owner = getOwner();
             int remainingFireTicks = entity.getRemainingFireTicks();
-            entity.setSecondsOnFire(5);
-            boolean flag = entity.hurt(damageSources().fireball(this, owner), 5.0F);
-
-            if (!flag) {
-                entity.setRemainingFireTicks(remainingFireTicks);
+            entity.setSecondsOnFire( 5 );
+            boolean flag = entity.hurt( damageSources().fireball( this, owner ), 5.0F );
+            
+            if( !flag ) {
+                entity.setRemainingFireTicks( remainingFireTicks );
             }
-            else if (owner instanceof LivingEntity livingEntity) {
-                this.doEnchantDamageEffects(livingEntity, entity);
+            else if( owner instanceof LivingEntity livingEntity ) {
+                this.doEnchantDamageEffects( livingEntity, entity );
             }
         }
     }
-
+    
     @Override
-    protected void onHitBlock(BlockHitResult result) {
+    protected void onHitBlock( BlockHitResult result ) {
         Direction direction = result.getDirection();
         LivingEntity owner = null;
-
-        if (getOwner() instanceof LivingEntity livingEntity) {
+        
+        if( getOwner() instanceof LivingEntity livingEntity ) {
             owner = livingEntity;
         }
-        boolean canDestroy = level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) || ForgeEventFactory.getMobGriefingEvent(level(), this);
-
-        if (!level().isClientSide) {
-            if (sawTarget) {
-                if (!(owner instanceof Mob) || canDestroy) {
-                    BlockPos firePos = result.getBlockPos().relative(direction);
-
-                    if (level().isEmptyBlock(firePos)) {
-                        level().setBlockAndUpdate(firePos, FireBlock.getState(level(), firePos));
-                        level().playSound(null, blockPosition(), ApocalypseSounds.SEEKER_FIREBALL_IGNITE.get(), SoundSource.MASTER, 2.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F);
+        boolean canDestroy = level().getGameRules().getBoolean( GameRules.RULE_MOBGRIEFING ) || ForgeEventFactory.getMobGriefingEvent( level(), this );
+        
+        if( !level().isClientSide ) {
+            if( sawTarget ) {
+                if( !(owner instanceof Mob) || canDestroy ) {
+                    BlockPos firePos = result.getBlockPos().relative( direction );
+                    
+                    if( level().isEmptyBlock( firePos ) ) {
+                        level().setBlockAndUpdate( firePos, FireBlock.getState( level(), firePos ) );
+                        level().playSound( null, blockPosition(), ApocalypseSounds.SEEKER_FIREBALL_IGNITE.get(), SoundSource.MASTER, 2.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F );
                     }
                 }
             }
             else {
-                seekerExplosion(level(), owner, damageSources().fireball(this, getOwner()), getX(), getY(), getZ(), (float) explosionStrength, canDestroy);
+                seekerExplosion( level(), owner, damageSources().fireball( this, getOwner() ), getX(), getY(), getZ(), (float) explosionStrength, canDestroy );
             }
         }
     }
-
+    
     @Override
-    protected void onHit(HitResult result) {
-        super.onHit(result);
-
-        if (!level().isClientSide) {
+    protected void onHit( HitResult result ) {
+        super.onHit( result );
+        
+        if( !level().isClientSide ) {
             discard();
         }
     }
-
+    
     @Override
-    public boolean hurt(DamageSource damageSource, float damage) {
-        if (isInvulnerableTo(damageSource))
+    public boolean hurt( DamageSource damageSource, float damage ) {
+        if( isInvulnerableTo( damageSource ) )
             return false;
-
+        
         markHurt();
-
-        if (damageSource.getEntity() != null) {
+        
+        if( damageSource.getEntity() != null ) {
             Entity entity = damageSource.getEntity();
             Vec3 vec = entity.getLookAngle();
-            setDeltaMovement(vec);
+            setDeltaMovement( vec );
             xPower = vec.x * 0.1D;
             yPower = vec.y * 0.1D;
             zPower = vec.z * 0.1D;
-            setOwner(entity);
+            setOwner( entity );
             return true;
         }
         return false;
     }
-
+    
     @Override
-    public void addAdditionalSaveData(CompoundTag compoundTag) {
-        super.addAdditionalSaveData(compoundTag);
-        compoundTag.putInt("ExplosionPower", this.explosionStrength);
-        compoundTag.putBoolean("SawTarget", this.sawTarget);
-        compoundTag.putBoolean("Reflected", this.reflected);
+    public void addAdditionalSaveData( CompoundTag compoundTag ) {
+        super.addAdditionalSaveData( compoundTag );
+        compoundTag.putInt( "ExplosionPower", this.explosionStrength );
+        compoundTag.putBoolean( "SawTarget", this.sawTarget );
+        compoundTag.putBoolean( "Reflected", this.reflected );
     }
-
+    
     @Override
-    public void readAdditionalSaveData(CompoundTag compoundTag) {
-        super.readAdditionalSaveData(compoundTag);
-
-        if (compoundTag.contains("ExplosionPower", Tag.TAG_ANY_NUMERIC))
-            this.explosionStrength = compoundTag.getInt("ExplosionPower");
-
-        if (compoundTag.contains("SawTarget", Tag.TAG_BYTE))
-            this.sawTarget = compoundTag.getBoolean("SawTarget");
-
-        if (compoundTag.contains("Reflected", Tag.TAG_BYTE))
-            this.reflected = compoundTag.getBoolean("Reflected");
+    public void readAdditionalSaveData( CompoundTag compoundTag ) {
+        super.readAdditionalSaveData( compoundTag );
+        
+        if( compoundTag.contains( "ExplosionPower", Tag.TAG_ANY_NUMERIC ) )
+            this.explosionStrength = compoundTag.getInt( "ExplosionPower" );
+        
+        if( compoundTag.contains( "SawTarget", Tag.TAG_BYTE ) )
+            this.sawTarget = compoundTag.getBoolean( "SawTarget" );
+        
+        if( compoundTag.contains( "Reflected", Tag.TAG_BYTE ) )
+            this.reflected = compoundTag.getBoolean( "Reflected" );
     }
-
+    
     @Override
     public Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
+        return NetworkHooks.getEntitySpawningPacket( this );
     }
 }

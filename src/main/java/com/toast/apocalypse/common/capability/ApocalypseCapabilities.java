@@ -7,7 +7,7 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 
 public class ApocalypseCapabilities {
-
-    public static final Capability<IDifficultyCapability> DIFFICULTY_CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
-    public static final Capability<IMobWikiCapability> MOB_WIKI_CAPABILITY = CapabilityManager.get(new CapabilityToken<>(){});
+    
+    public static final Capability<IDifficultyCapability> DIFFICULTY_CAPABILITY = CapabilityManager.get( new CapabilityToken<>() { } );
+    public static final Capability<IMobWikiCapability> MOB_WIKI_CAPABILITY = CapabilityManager.get( new CapabilityToken<>() { } );
 }

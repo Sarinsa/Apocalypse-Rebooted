@@ -20,36 +20,36 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class BucketHelmetItem extends ArmorItem {
-
-    public static final String TEXTURE = Apocalypse.resourceLoc("textures/models/armor/bucket_helm.png").toString();
-
+    
+    public static final String TEXTURE = Apocalypse.resourceLoc( "textures/models/armor/bucket_helm.png" ).toString();
+    
     public BucketHelmetItem() {
-        super(ArmorMaterials.IRON, Type.HELMET, new Item.Properties().defaultDurability(0));
+        super( ArmorMaterials.IRON, Type.HELMET, new Item.Properties().defaultDurability( 0 ) );
     }
-
+    
     @Override
     @Nullable
-    public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
+    public String getArmorTexture( ItemStack stack, Entity entity, EquipmentSlot slot, String type ) {
         return TEXTURE;
     }
-
+    
     @Override
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(new IClientItemExtensions() {
+    public void initializeClient( Consumer<IClientItemExtensions> consumer ) {
+        consumer.accept( new IClientItemExtensions() {
             @Override
-            public @NotNull HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
-                return equipmentSlot == EquipmentSlot.HEAD ? ClientUtil.BUCKET_HELMET_MODEL.copyProps(original) : original;
+            public @NotNull HumanoidModel<?> getHumanoidArmorModel( LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original ) {
+                return equipmentSlot == EquipmentSlot.HEAD ? ClientUtil.BUCKET_HELMET_MODEL.copyProps( original ) : original;
             }
-
+            
             @Override
-            public void renderHelmetOverlay(ItemStack stack, Player player, int width, int height, float partialTick) {
-                ClientUtil.renderBucketHelmOverlay(width, height);
+            public void renderHelmetOverlay( ItemStack stack, Player player, int width, int height, float partialTick ) {
+                ClientUtil.renderBucketHelmOverlay( width, height );
             }
-        });
+        } );
     }
-
+    
     @Override
-    public void appendHoverText(ItemStack itemStack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable(References.BUCKET_HELM_DESC).withStyle(ChatFormatting.GRAY));
+    public void appendHoverText( ItemStack itemStack, Level level, List<Component> tooltip, TooltipFlag flag ) {
+        tooltip.add( Component.translatable( References.BUCKET_HELM_DESC ).withStyle( ChatFormatting.GRAY ) );
     }
 }

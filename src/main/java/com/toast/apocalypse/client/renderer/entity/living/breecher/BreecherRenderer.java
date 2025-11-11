@@ -7,15 +7,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.monster.Creeper;
 
 public class BreecherRenderer extends CreeperRenderer {
-
-    private static final ResourceLocation TEXTURE = Apocalypse.resourceLoc("textures/entity/breecher/breecher.png");
-
-    public BreecherRenderer(EntityRendererProvider.Context context) {
-        super(context);
+    
+    private static final ResourceLocation TEXTURE = Apocalypse.resourceLoc( "textures/entity/breecher/breecher.png" );
+    
+    public BreecherRenderer( EntityRendererProvider.Context context ) {
+        super( context );
     }
-
+    
     @Override
-    public ResourceLocation getTextureLocation(Creeper breecher) {
+    public ResourceLocation getTextureLocation( Creeper breecher ) {
         return TEXTURE;
     }
 }

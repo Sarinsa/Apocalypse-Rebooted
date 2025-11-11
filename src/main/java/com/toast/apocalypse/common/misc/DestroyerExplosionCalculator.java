@@ -6,31 +6,27 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ExplosionDamageCalculator;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.fluids.IFluidBlock;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 /** Used for explosions caused by the destroyer */
 public class DestroyerExplosionCalculator extends ExplosionDamageCalculator {
-
-
+    
+    
     @Override
-    public Optional<Float> getBlockExplosionResistance(Explosion explosion, BlockGetter level, BlockPos pos, BlockState state, FluidState fluidState) {
+    public Optional<Float> getBlockExplosionResistance( Explosion explosion, BlockGetter level, BlockPos pos, BlockState state, FluidState fluidState ) {
         return (state.isAir()
                 ? Optional.empty()
-                : Optional.of(Math.min(0.8F, state.getExplosionResistance(level, pos, explosion))));
+                : Optional.of( Math.min( 0.8F, state.getExplosionResistance( level, pos, explosion ) ) ));
     }
-
+    
     @Override
-    public boolean shouldBlockExplode(Explosion explosion, BlockGetter level, BlockPos pos, BlockState state, float radius) {
-        return !ApocalypseConfig.MISC.OTHER.destroyerProofBlocks.matches(state)
+    public boolean shouldBlockExplode( Explosion explosion, BlockGetter level, BlockPos pos, BlockState state, float radius ) {
+        return !ApocalypseConfig.MISC.OTHER.destroyerProofBlocks.matches( state )
                 && !(state.getBlock() instanceof LiquidBlock)
                 && !(state.getBlock() instanceof IFluidBlock);
     }

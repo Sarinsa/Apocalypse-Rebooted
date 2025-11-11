@@ -9,41 +9,41 @@ import net.minecraftforge.network.NetworkEvent;
 import java.util.function.Supplier;
 
 public class S2CUpdateEntityVelocity {
-
+    
     public final double xMotion;
     public final double yMotion;
     public final double zMotion;
-
+    
     public final int entityId;
-
-    public S2CUpdateEntityVelocity(Entity entity, Vec3 velocity) {
-        this(velocity.x, velocity.y, velocity.z, entity.getId());
+    
+    public S2CUpdateEntityVelocity( Entity entity, Vec3 velocity ) {
+        this( velocity.x, velocity.y, velocity.z, entity.getId() );
     }
-
-    public S2CUpdateEntityVelocity(double xMotion, double yMotion, double zMotion, int entityId) {
+    
+    public S2CUpdateEntityVelocity( double xMotion, double yMotion, double zMotion, int entityId ) {
         this.xMotion = xMotion;
         this.yMotion = yMotion;
         this.zMotion = zMotion;
         this.entityId = entityId;
     }
-
-    public static void handle(S2CUpdateEntityVelocity message, Supplier<NetworkEvent.Context> contextSupplier) {
+    
+    public static void handle( S2CUpdateEntityVelocity message, Supplier<NetworkEvent.Context> contextSupplier ) {
         NetworkEvent.Context context = contextSupplier.get();
-
-        if (context.getDirection().getReceptionSide().isClient()) {
-            context.enqueueWork(() -> ClientWork.handleEntityVelocityUpdate(message));
+        
+        if( context.getDirection().getReceptionSide().isClient() ) {
+            context.enqueueWork( () -> ClientWork.handleEntityVelocityUpdate( message ) );
         }
-        context.setPacketHandled(true);
+        context.setPacketHandled( true );
     }
-
-    public static S2CUpdateEntityVelocity decode(FriendlyByteBuf buffer) {
-        return new S2CUpdateEntityVelocity(buffer.readDouble(), buffer.readDouble(), buffer.readDouble(), buffer.readInt());
+    
+    public static S2CUpdateEntityVelocity decode( FriendlyByteBuf buffer ) {
+        return new S2CUpdateEntityVelocity( buffer.readDouble(), buffer.readDouble(), buffer.readDouble(), buffer.readInt() );
     }
-
-    public static void encode(S2CUpdateEntityVelocity message, FriendlyByteBuf buffer) {
-        buffer.writeDouble(message.xMotion);
-        buffer.writeDouble(message.yMotion);
-        buffer.writeDouble(message.zMotion);
-        buffer.writeInt(message.entityId);
+    
+    public static void encode( S2CUpdateEntityVelocity message, FriendlyByteBuf buffer ) {
+        buffer.writeDouble( message.xMotion );
+        buffer.writeDouble( message.yMotion );
+        buffer.writeDouble( message.zMotion );
+        buffer.writeInt( message.entityId );
     }
 }

@@ -11,23 +11,23 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DifficultyCapProvider implements ICapabilitySerializable<CompoundTag> {
-
+    
     public static final NonNullSupplier<IDifficultyCapability> SUPPLIER = DifficultyCapability::new;
-    private final LazyOptional<IDifficultyCapability> optional = LazyOptional.of(SUPPLIER);
-
-
+    private final LazyOptional<IDifficultyCapability> optional = LazyOptional.of( SUPPLIER );
+    
+    
     @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        return ApocalypseCapabilities.DIFFICULTY_CAPABILITY.orEmpty(cap, optional);
+    public @NotNull <T> LazyOptional<T> getCapability( @NotNull Capability<T> cap, @Nullable Direction side ) {
+        return ApocalypseCapabilities.DIFFICULTY_CAPABILITY.orEmpty( cap, optional );
     }
-
+    
     @Override
     public CompoundTag serializeNBT() {
-        return ApocalypseCapabilities.DIFFICULTY_CAPABILITY.orEmpty(ApocalypseCapabilities.DIFFICULTY_CAPABILITY, optional).orElse(SUPPLIER.get()).serializeNBT();
+        return ApocalypseCapabilities.DIFFICULTY_CAPABILITY.orEmpty( ApocalypseCapabilities.DIFFICULTY_CAPABILITY, optional ).orElse( SUPPLIER.get() ).serializeNBT();
     }
-
+    
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
-        ApocalypseCapabilities.DIFFICULTY_CAPABILITY.orEmpty(ApocalypseCapabilities.DIFFICULTY_CAPABILITY, optional).orElse(SUPPLIER.get()).deserializeNBT(nbt);
+    public void deserializeNBT( CompoundTag nbt ) {
+        ApocalypseCapabilities.DIFFICULTY_CAPABILITY.orEmpty( ApocalypseCapabilities.DIFFICULTY_CAPABILITY, optional ).orElse( SUPPLIER.get() ).deserializeNBT( nbt );
     }
 }

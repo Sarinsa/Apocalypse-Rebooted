@@ -13,23 +13,23 @@ import javax.annotation.Nullable;
 
 
 public class MobWikiCapProvider implements ICapabilitySerializable<CompoundTag> {
-
+    
     public static final NonNullSupplier<IMobWikiCapability> SUPPLIER = MobWikiCapability::new;
-    private final LazyOptional<IMobWikiCapability> optional = LazyOptional.of(SUPPLIER);
-
+    private final LazyOptional<IMobWikiCapability> optional = LazyOptional.of( SUPPLIER );
+    
     @Nonnull
     @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
+    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable Direction side ) {
         return cap == ApocalypseCapabilities.MOB_WIKI_CAPABILITY ? optional.cast() : LazyOptional.empty();
     }
-
+    
     @Override
     public CompoundTag serializeNBT() {
-        return ApocalypseCapabilities.MOB_WIKI_CAPABILITY.orEmpty(ApocalypseCapabilities.MOB_WIKI_CAPABILITY, optional).orElse(SUPPLIER.get()).serializeNBT();
+        return ApocalypseCapabilities.MOB_WIKI_CAPABILITY.orEmpty( ApocalypseCapabilities.MOB_WIKI_CAPABILITY, optional ).orElse( SUPPLIER.get() ).serializeNBT();
     }
-
+    
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
-        ApocalypseCapabilities.MOB_WIKI_CAPABILITY.orEmpty(ApocalypseCapabilities.MOB_WIKI_CAPABILITY, optional).orElse(SUPPLIER.get()).deserializeNBT(nbt);
+    public void deserializeNBT( CompoundTag nbt ) {
+        ApocalypseCapabilities.MOB_WIKI_CAPABILITY.orEmpty( ApocalypseCapabilities.MOB_WIKI_CAPABILITY, optional ).orElse( SUPPLIER.get() ).deserializeNBT( nbt );
     }
 }

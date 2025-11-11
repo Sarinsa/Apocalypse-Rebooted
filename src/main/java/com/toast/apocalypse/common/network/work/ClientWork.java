@@ -30,135 +30,135 @@ import static com.toast.apocalypse.common.network.message.S2CSimpleClientTask.*;
  * than the client itself (which should be the case).
  */
 public class ClientWork {
-
-
-    public static void handleDifficultyUpdate(S2CUpdatePlayerDifficulty message) {
+    
+    
+    public static void handleDifficultyUpdate( S2CUpdatePlayerDifficulty message ) {
         LocalPlayer player = Minecraft.getInstance().player;
-
-        if (player != null) {
-            player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyCapProvider.SUPPLIER.get()).setDifficulty(message.difficulty);
+        
+        if( player != null ) {
+            player.getCapability( ApocalypseCapabilities.DIFFICULTY_CAPABILITY ).orElse( DifficultyCapProvider.SUPPLIER.get() ).setDifficulty( message.difficulty );
         }
     }
-
-
-    public static void handleDifficultyRateUpdate(S2CUpdatePlayerDifficultyRate message) {
+    
+    
+    public static void handleDifficultyRateUpdate( S2CUpdatePlayerDifficultyRate message ) {
         LocalPlayer player = Minecraft.getInstance().player;
-
-        if (player != null) {
-            player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyCapProvider.SUPPLIER.get()).setDifficultyMult(message.multiplier);
+        
+        if( player != null ) {
+            player.getCapability( ApocalypseCapabilities.DIFFICULTY_CAPABILITY ).orElse( DifficultyCapProvider.SUPPLIER.get() ).setDifficultyMult( message.multiplier );
         }
     }
-
-
-    public static void handleMaxDifficultyUpdate(S2CUpdatePlayerMaxDifficulty message) {
+    
+    
+    public static void handleMaxDifficultyUpdate( S2CUpdatePlayerMaxDifficulty message ) {
         LocalPlayer player = Minecraft.getInstance().player;
-
-        if (player != null) {
+        
+        if( player != null ) {
             long maxDifficulty = message.maxDifficulty;
-            player.getCapability(ApocalypseCapabilities.DIFFICULTY_CAPABILITY).orElse(DifficultyCapProvider.SUPPLIER.get()).setMaxDifficulty(maxDifficulty);
+            player.getCapability( ApocalypseCapabilities.DIFFICULTY_CAPABILITY ).orElse( DifficultyCapProvider.SUPPLIER.get() ).setMaxDifficulty( maxDifficulty );
             DifficultyOverlayRenderHandler.COLOR_CHANGE = maxDifficulty > -1 ? maxDifficulty : References.DEFAULT_COLOR_CHANGE;
         }
     }
-
-
-    public static void handleEntityVelocityUpdate(S2CUpdateEntityVelocity message) {
+    
+    
+    public static void handleEntityVelocityUpdate( S2CUpdateEntityVelocity message ) {
         Level level = Minecraft.getInstance().level;
-
-        if (level != null) {
-            Entity entity = level.getEntity(message.entityId);
-
-            if (entity != null) {
-                entity.setDeltaMovement(message.xMotion, message.yMotion, message.zMotion);
+        
+        if( level != null ) {
+            Entity entity = level.getEntity( message.entityId );
+            
+            if( entity != null ) {
+                entity.setDeltaMovement( message.xMotion, message.yMotion, message.zMotion );
             }
         }
     }
-
-
-    public static void handleMobWikiIndexUpdate(S2CUpdateMobWikiIndexes message) {
+    
+    
+    public static void handleMobWikiIndexUpdate( S2CUpdateMobWikiIndexes message ) {
         LocalPlayer player = Minecraft.getInstance().player;
-
-        if (player != null) {
+        
+        if( player != null ) {
             int[] unlockedIndexes = message.indexes;
-            player.getCapability(ApocalypseCapabilities.MOB_WIKI_CAPABILITY).orElse(MobWikiCapProvider.SUPPLIER.get()).setEntries(unlockedIndexes);
+            player.getCapability( ApocalypseCapabilities.MOB_WIKI_CAPABILITY ).orElse( MobWikiCapProvider.SUPPLIER.get() ).setEntries( unlockedIndexes );
         }
     }
-
-
-    public static void handleOpenMobWikiScreen(S2COpenMobWikiScreen message) {
+    
+    
+    public static void handleOpenMobWikiScreen( S2COpenMobWikiScreen message ) {
         LocalPlayer player = Minecraft.getInstance().player;
-
-        if (player != null && player.getUUID().equals(message.uuid))
+        
+        if( player != null && player.getUUID().equals( message.uuid ) )
             return;
-
-        Minecraft.getInstance().setScreen(new MobWikiScreen());
+        
+        Minecraft.getInstance().setScreen( new MobWikiScreen() );
     }
-
-
-    public static void handleOpenGrumpInventory(S2COpenGrumpInventory message) {
+    
+    
+    public static void handleOpenGrumpInventory( S2COpenGrumpInventory message ) {
         LocalPlayer player = Minecraft.getInstance().player;
-
-        if (player == null || !(player.getUUID().equals(message.uuid)))
+        
+        if( player == null || !(player.getUUID().equals( message.uuid )) )
             return;
-
+        
         ClientLevel level = Minecraft.getInstance().level;
-
-        if (level == null)
+        
+        if( level == null )
             return;
-
-        Entity entity = level.getEntity(message.entityID);
-
-        if (!(entity instanceof Grump grump))
+        
+        Entity entity = level.getEntity( message.entityID );
+        
+        if( !(entity instanceof Grump grump) )
             return;
-
+        
         Inventory playerInventory = Minecraft.getInstance().player.getInventory();
-
-        GrumpInventoryContainer container = new GrumpInventoryContainer(message.containerId, playerInventory, grump.getInventory(), grump);
+        
+        GrumpInventoryContainer container = new GrumpInventoryContainer( message.containerId, playerInventory, grump.getInventory(), grump );
         Minecraft.getInstance().player.containerMenu = container;
-        Minecraft.getInstance().setScreen(new GrumpInventoryScreen(container, playerInventory, grump));
+        Minecraft.getInstance().setScreen( new GrumpInventoryScreen( container, playerInventory, grump ) );
     }
-
-
-    public static void handleSimpleClientTaskRequest(S2CSimpleClientTask message) {
-        switch (message.actionId) {
+    
+    
+    public static void handleSimpleClientTaskRequest( S2CSimpleClientTask message ) {
+        switch( message.actionId ) {
             case SET_ACID_RAIN: {
-                ClientUtil.setIsRainingAcid(true);
+                ClientUtil.setIsRainingAcid( true );
                 break;
             }
             case REMOVE_ACID_RAIN: {
-                ClientUtil.setIsRainingAcid(false);
+                ClientUtil.setIsRainingAcid( false );
                 break;
             }
             case ENABLE_ACID_SNOW: {
-                ClientUtil.setAcidSnowEnabled(true);
+                ClientUtil.setAcidSnowEnabled( true );
                 break;
             }
             case DISABLE_ACID_SNOW: {
-                ClientUtil.setAcidSnowEnabled(false);
+                ClientUtil.setAcidSnowEnabled( false );
                 break;
             }
         }
     }
-
-
-    public static void handleDynTrapUpdate(S2CDynTrapUpdate message) {
+    
+    
+    public static void handleDynTrapUpdate( S2CDynTrapUpdate message ) {
         BlockPos pos = message.pos;
         ClientLevel level = Minecraft.getInstance().level;
-
-        if (level == null) return;
-
-        if (level.getExistingBlockEntity(pos) instanceof DynamicTrapBlockEntity trap) {
-            if (message.id.isEmpty()) {
-                trap.setCurrentTrap(null);
+        
+        if( level == null ) return;
+        
+        if( level.getExistingBlockEntity( pos ) instanceof DynamicTrapBlockEntity trap ) {
+            if( message.id.isEmpty() ) {
+                trap.setCurrentTrap( null );
                 return;
             }
-            ResourceLocation id = ResourceLocation.tryParse(message.id);
-
-            if (id == null)
+            ResourceLocation id = ResourceLocation.tryParse( message.id );
+            
+            if( id == null )
                 return;
-
-            if (ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsKey(id)) {
-                trap.setCurrentTrap(ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue(id));
-                trap.setCurrentTrapRadius(message.trapRadius);
+            
+            if( ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsKey( id ) ) {
+                trap.setCurrentTrap( ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue( id ) );
+                trap.setCurrentTrapRadius( message.trapRadius );
             }
         }
     }

@@ -1,14 +1,14 @@
 package com.toast.apocalypse.common.util;
 
 public class References {
-
+    
     //
     // NUMERIC CONSTANTS
     //
     public static final long DAY_LENGTH = 24000L;
     public static final long MAX_DIFFICULTY_HARD_LIMIT = 100000L * DAY_LENGTH;
     public static final long DEFAULT_COLOR_CHANGE = 240L * DAY_LENGTH;
-
+    
     //
     // TRANSLATION KEYS
     //
@@ -16,9 +16,9 @@ public class References {
     public static final String FATHERLY_TOAST_LEVEL = "apocalypse.item.desc.fatherly_toast.level";
     public static final String BUCKET_HELM_DESC = "apocalypse.item_desc.bucket_helm";
     public static final String LUNAR_ARMOR_DESC = "apocalypse.item_desc.lunar_armor";
-
+    
     public static final String TRY_SLEEP_FULL_MOON = "title.bed.apocalypse.full_moon";
-
+    
     public static final String SLEEP_PENALTY = "event.apocalypse.sleep_penalty";
     public static final String FULL_MOON = "event.apocalypse.full_moon";
     public static final String THUNDERSTORM = "event.apocalypse.thunderstorm";
@@ -26,32 +26,32 @@ public class References {
     public static final String CALL_OF_THE_SHADOWS_0 = "event.apocalypse.call_of_the_shadows.first_warn";
     public static final String CALL_OF_THE_SHADOWS_1 = "event.apocalypse.call_of_the_shadows.second_warn";
     public static final String CALL_OF_THE_SHADOWS_2 = "event.apocalypse.call_of_the_shadows.creature_summoned";
-
+    
     public static final String COMMAND_INVALID_DIFFICULTY_VALUE = "apocalypse.command.argument.difficulty.invalid_value";
     public static final String COMMAND_INVALID_MAX_DIFFICULTY_VALUE = "apocalypse.command.argument.max_difficulty.invalid_value";
     public static final String DIFFICULTY_SET_SINGLE = "apocalypse.command.difficulty.set_message.single";
     public static final String DIFFICULTY_SET_MULTIPLE = "apocalypse.command.difficulty.set_message.multiple";
     public static final String MAX_DIFFICULTY_SET_SINGLE = "apocalypse.command.difficulty.max_message.single";
     public static final String MAX_DIFFICULTY_SET_MULTIPLE = "apocalypse.command.difficulty.max_message.multiple";
-
+    
     public static final String MAX_DIFFICULTY_CONFIG_FIELD = "apocalypse.screen.text_field.create_world_config.max_difficulty";
     public static final String GRACE_PERIOD_CONFIG_FIELD = "apocalypse.screen.text_field.create_world_config.grace_period";
     public static final String MAX_DIFFICULTY_CONFIG_FIELD_DESC = "apocalypse.screen.text_field.desc.create_world_config.max_difficulty";
     public static final String GRACE_PERIOD_CONFIG_FIELD_DESC = "apocalypse.screen.text_field.desc.create_world_config.grace_period";
-
+    
     public static final String FULL_MOON_MOB_BOOK = "apocalypse.screen.full_moon_mob_book.title";
-
+    
     public static final String DIFFICULTY = "apocalypse.hud.difficulty";
     public static final String DIFFICULTY_RATE = "apocalypse.hud.rate";
-
+    
     public static final String DYNAMIC_TRAP_CONTAINER = "container.apocalypse.dynamic_trap";
-
-
+    
+    
     //
     // JEI
     //
     public static final String TRAP_CATEGORY_TITLE = "jei.recipe_category.apocalypse.title";
-
+    
     //
     // MOB WIKI
     //

@@ -14,40 +14,40 @@ import java.util.List;
 import static com.toast.apocalypse.common.core.config.ApocalypseConfig.MOB_BUFFING;
 
 public final class MobPotionHandler {
-
-
+    
+    
     /**
      * Attempts to pick a potion/mob effect from the config and
      * apply to the given entity.<br>
      * Called from {@link EntityEventListener#onFinalizeSpawn(MobSpawnEvent.FinalizeSpawn)}
      *
      * @param livingEntity The entity to find a potion effect for.
-     * @param difficulty The raw difficulty of the nearest player.
-     * @param fullMoon True if it is both nighttime and a full moon in the level the entity is in.
-     * @param random The RNG of the level object the entity is in.
+     * @param difficulty   The raw difficulty of the nearest player.
+     * @param fullMoon     True if it is both nighttime and a full moon in the level the entity is in.
+     * @param random       The RNG of the level object the entity is in.
      */
-    public static void handlePotions(LivingEntity livingEntity, long difficulty, boolean fullMoon, RandomSource random) {
-        if (MOB_BUFFING.POTION_EFFECTS.entityBlacklist.contains(livingEntity)) return;
-
-        if (MOB_BUFFING.POTION_EFFECTS.potionEffectList.isEmpty()) return;
-
+    public static void handlePotions( LivingEntity livingEntity, long difficulty, boolean fullMoon, RandomSource random ) {
+        if( MOB_BUFFING.POTION_EFFECTS.entityBlacklist.contains( livingEntity ) ) return;
+        
+        if( MOB_BUFFING.POTION_EFFECTS.potionEffectList.isEmpty() ) return;
+        
         final double effectiveDifficulty = (double) (difficulty / References.DAY_LENGTH) / MOB_BUFFING.POTION_EFFECTS.potionEffectDifficultySpan.get();
         double bonus = MOB_BUFFING.POTION_EFFECTS.potionEffectChance.get() * effectiveDifficulty;
-
+        
         final double maxPotionChance = MOB_BUFFING.POTION_EFFECTS.potionEffectMaxChance.get();
-
-        if (maxPotionChance >= 0.0 && bonus > maxPotionChance) {
+        
+        if( maxPotionChance >= 0.0 && bonus > maxPotionChance ) {
             bonus = maxPotionChance;
         }
-        if (fullMoon) {
+        if( fullMoon ) {
             bonus += MOB_BUFFING.POTION_EFFECTS.potionEffectLunarChance.get();
         }
-        if (random.nextDouble() <= bonus) {
-            final List<MobEffect> availableEffects = MOB_BUFFING.POTION_EFFECTS.potionEffectList.getAllUntil(difficulty);
-            MobEffect mobEffect = DataStructureUtils.getRandomListValue(random, availableEffects);
-
-            if (mobEffect != null) {
-                livingEntity.addEffect(new MobEffectInstance(mobEffect, -1));
+        if( random.nextDouble() <= bonus ) {
+            final List<MobEffect> availableEffects = MOB_BUFFING.POTION_EFFECTS.potionEffectList.getAllUntil( difficulty );
+            MobEffect mobEffect = DataStructureUtils.getRandomListValue( random, availableEffects );
+            
+            if( mobEffect != null ) {
+                livingEntity.addEffect( new MobEffectInstance( mobEffect, -1 ) );
             }
         }
     }

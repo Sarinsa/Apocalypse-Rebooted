@@ -11,17 +11,17 @@ import java.lang.annotation.Target;
  * must be annotated, or it
  * will go unnoticed!
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Retention( RetentionPolicy.RUNTIME )
+@Target( ElementType.TYPE )
 public @interface ApocalypsePlugin {
-
+    
     /**
      * @return Your mod's modid or an empty String
-     *         if this plugin does not depend on
-     *         a mod being loaded.
-     *         <br><br>
-     *         This is used to make sure the plugin is not
-     *         loaded if the mod that adds it fails to load.
+     * if this plugin does not depend on
+     * a mod being loaded.
+     * <br><br>
+     * This is used to make sure the plugin is not
+     * loaded if the mod that adds it fails to load.
      */
     String modid() default "";
 }

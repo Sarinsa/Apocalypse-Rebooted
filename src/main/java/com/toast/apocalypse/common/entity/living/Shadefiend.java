@@ -36,62 +36,62 @@ import net.minecraftforge.fluids.FluidType;
 import java.util.EnumSet;
 
 public class Shadefiend extends FlyingMob implements Enemy {
-
-    protected static final EntityDataAccessor<Boolean> IS_IN_LIGHT = SynchedEntityData.defineId(Shadefiend.class, EntityDataSerializers.BOOLEAN);
-
-
-    public Shadefiend(EntityType<? extends Shadefiend> type, Level level) {
-        super(type, level);
-        moveControl = new ShadefiendMoveControl(this);
-        lookControl = new ShadefiendLookControl(this);
+    
+    protected static final EntityDataAccessor<Boolean> IS_IN_LIGHT = SynchedEntityData.defineId( Shadefiend.class, EntityDataSerializers.BOOLEAN );
+    
+    
+    public Shadefiend( EntityType<? extends Shadefiend> type, Level level ) {
+        super( type, level );
+        moveControl = new ShadefiendMoveControl( this );
+        lookControl = new ShadefiendLookControl( this );
         xpReward = 1;
     }
-
-    public static boolean checkShadefiendSpawnRules(EntityType<? extends Shadefiend> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
+    
+    public static boolean checkShadefiendSpawnRules( EntityType<? extends Shadefiend> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random ) {
         return level.getDifficulty() != Difficulty.PEACEFUL;
     }
-
+    
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
-                .add(Attributes.MOVEMENT_SPEED, 0.35D)
-                .add(Attributes.MAX_HEALTH, 15.0D)
-                .add(Attributes.ATTACK_DAMAGE, 4.0D);
+                .add( Attributes.MOVEMENT_SPEED, 0.35D )
+                .add( Attributes.MAX_HEALTH, 15.0D )
+                .add( Attributes.ATTACK_DAMAGE, 4.0D );
     }
-
+    
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        entityData.define(IS_IN_LIGHT, false);
+        entityData.define( IS_IN_LIGHT, false );
     }
-
+    
     @Override
     protected void registerGoals() {
         // Only be active when we have a target player, looks more creepy from a distance
-        goalSelector.addGoal(0, new Shadefiend.MeleeAttackGoal(this));
-        targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Player.class, true));
+        goalSelector.addGoal( 0, new Shadefiend.MeleeAttackGoal( this ) );
+        targetSelector.addGoal( 0, new NearestAttackableTargetGoal<>( this, Player.class, true ) );
     }
-
+    
     @Override
     protected boolean shouldDespawnInPeaceful() {
         return true;
     }
-
+    
     public boolean isInLight() {
-        return entityData.get(IS_IN_LIGHT);
+        return entityData.get( IS_IN_LIGHT );
     }
-
+    
     @Override
     public void tick() {
         super.tick();
-
-        if (level().isClientSide) {
+        
+        if( level().isClientSide ) {
             boolean hasTarget = getTarget() != null;
             float flapTickOffset = getId() * 3;
-
-            float f = Mth.cos((flapTickOffset + tickCount) * 7.448451F * ((float) Math.PI / 180F) + (float) Math.PI);
-            float f1 = Mth.cos((flapTickOffset + tickCount + 1) * 7.448451F * ((float) Math.PI / 180F) + (float) Math.PI);
-
-            if (hasTarget && f > 0.0F && f1 <= 0.0F) {
+            
+            float f = Mth.cos( (flapTickOffset + tickCount) * 7.448451F * ((float) Math.PI / 180F) + (float) Math.PI );
+            float f1 = Mth.cos( (flapTickOffset + tickCount + 1) * 7.448451F * ((float) Math.PI / 180F) + (float) Math.PI );
+            
+            if( hasTarget && f > 0.0F && f1 <= 0.0F ) {
                 level().playLocalSound(
                         getX(), getY(), getZ(),
                         ApocalypseSounds.SHADEFIEND_FLAP.get(),
@@ -101,10 +101,10 @@ public class Shadefiend extends FlyingMob implements Enemy {
                         false
                 );
             }
-            float xOffset = Mth.cos(getYRot() * ((float) Math.PI / 180F)) * (1.3F + 0.21F);
-            float zOffset = Mth.sin(getYRot() * ((float) Math.PI / 180F)) * (1.3F + 0.21F);
+            float xOffset = Mth.cos( getYRot() * ((float) Math.PI / 180F) ) * (1.3F + 0.21F);
+            float zOffset = Mth.sin( getYRot() * ((float) Math.PI / 180F) ) * (1.3F + 0.21F);
             float yOffset = hasTarget ? (0.3F + f * 0.45F) * 1.2F : 0.3F;
-
+            
             level().addParticle(
                     ParticleTypes.SMOKE,
                     getX() + (double) xOffset,
@@ -112,45 +112,45 @@ public class Shadefiend extends FlyingMob implements Enemy {
                     getZ() + (double) zOffset,
                     0.0D, 0.0D, 0.0D
             );
-            level().addParticle(ParticleTypes.SMOKE,
+            level().addParticle( ParticleTypes.SMOKE,
                     getX() - (double) xOffset,
                     getY() + (double) yOffset,
                     getZ() - (double) zOffset,
                     0.0D, 0.0D, 0.0D
             );
         }
-        boolean inHarmfulLight = (level().getBrightness(LightLayer.BLOCK, blockPosition()) > getLightLevelLimit(LightLayer.BLOCK))
-                || (level().isDay() && level().getBrightness(LightLayer.SKY, blockPosition()) > getLightLevelLimit(LightLayer.SKY));
-        if (!level().isClientSide) {
-            entityData.set(IS_IN_LIGHT, inHarmfulLight);
+        boolean inHarmfulLight = (level().getBrightness( LightLayer.BLOCK, blockPosition() ) > getLightLevelLimit( LightLayer.BLOCK ))
+                || (level().isDay() && level().getBrightness( LightLayer.SKY, blockPosition() ) > getLightLevelLimit( LightLayer.SKY ));
+        if( !level().isClientSide ) {
+            entityData.set( IS_IN_LIGHT, inHarmfulLight );
         }
-
-        if (inHarmfulLight)  {
-            hurt(ApocalypseDamageSources.of(level(), ApocalypseDamageSources.LIGHT_INTOLERANCE), 2);
+        
+        if( inHarmfulLight ) {
+            hurt( ApocalypseDamageSources.of( level(), ApocalypseDamageSources.LIGHT_INTOLERANCE ), 2 );
         }
     }
-
+    
     /** Returns the max brightness for the specified light layer that the shadefiend can tolerate. */
-    private int getLightLevelLimit(LightLayer lightLayer) {
-        if (lightLayer == LightLayer.SKY) {
+    private int getLightLevelLimit( LightLayer lightLayer ) {
+        if( lightLayer == LightLayer.SKY ) {
             return ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.skyLightLevel.get();
         }
         else {
             return level().isDay() ? 0 : ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.blockLightLevel.get();
         }
     }
-
+    
     @Override
-    public boolean doHurtTarget(Entity target) {
-        if (super.doHurtTarget(target)) {
-            if (target instanceof LivingEntity livingEntity) {
+    public boolean doHurtTarget( Entity target ) {
+        if( super.doHurtTarget( target ) ) {
+            if( target instanceof LivingEntity livingEntity ) {
                 int effectDuration = 40;
-
-                if (level().getDifficulty() == Difficulty.HARD) {
+                
+                if( level().getDifficulty() == Difficulty.HARD ) {
                     effectDuration = 80;
                 }
-                livingEntity.addEffect(new MobEffectInstance(MobEffects.DARKNESS, effectDuration, 0), this);
-                livingEntity.addEffect(new MobEffectInstance(CrustObjects.vulnerability(), effectDuration, 0), this);
+                livingEntity.addEffect( new MobEffectInstance( MobEffects.DARKNESS, effectDuration, 0 ), this );
+                livingEntity.addEffect( new MobEffectInstance( CrustObjects.vulnerability(), effectDuration, 0 ), this );
             }
             return true;
         }
@@ -158,93 +158,93 @@ public class Shadefiend extends FlyingMob implements Enemy {
             return false;
         }
     }
-
+    
     @Override
-    public boolean canDrownInFluidType(FluidType type) {
+    public boolean canDrownInFluidType( FluidType type ) {
         return false;
     }
-
+    
     @Override
-    protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
+    protected float getStandingEyeHeight( Pose pose, EntityDimensions dimensions ) {
         return dimensions.height * 0.35F;
     }
-
+    
     @Override
     protected BodyRotationControl createBodyControl() {
-        return new ShadefiendBodyRotationControl(this);
+        return new ShadefiendBodyRotationControl( this );
     }
-
+    
     @Override
     public SoundSource getSoundSource() {
         return SoundSource.HOSTILE;
     }
-
+    
     @Override
     public void playAmbientSound() {
-        if (getTarget() != null) {
+        if( getTarget() != null ) {
             super.playAmbientSound();
         }
     }
-
+    
     @Override
     protected SoundEvent getAmbientSound() {
         return ApocalypseSounds.SHADEFIEND_IDLE.get();
     }
-
+    
     @Override
-    protected SoundEvent getHurtSound(DamageSource damageSource) {
+    protected SoundEvent getHurtSound( DamageSource damageSource ) {
         return ApocalypseSounds.SHADEFIEND_HURT.get();
     }
-
+    
     @Override
     protected SoundEvent getDeathSound() {
         return ApocalypseSounds.SHADEFIEND_DEATH.get();
     }
-
+    
     class ShadefiendBodyRotationControl extends BodyRotationControl {
-        public ShadefiendBodyRotationControl(Mob mob) {
-            super(mob);
+        public ShadefiendBodyRotationControl( Mob mob ) {
+            super( mob );
         }
-
+        
         @Override
         public void clientTick() {
             Shadefiend.this.yHeadRot = Shadefiend.this.yBodyRot;
             Shadefiend.this.yBodyRot = Shadefiend.this.getYRot();
         }
     }
-
+    
     static class ShadefiendLookControl extends LookControl {
-
-        public ShadefiendLookControl(Mob mob) {
-            super(mob);
+        
+        public ShadefiendLookControl( Mob mob ) {
+            super( mob );
         }
-
+        
         @Override
         public void tick() {
         }
     }
-
+    
     static class ShadefiendMoveControl extends SimpleFlyingMoveController {
-
-        public ShadefiendMoveControl(FlyingMob mob) {
-            super(mob);
+        
+        public ShadefiendMoveControl( FlyingMob mob ) {
+            super( mob );
         }
-
+        
         @Override
         public void tick() {
-            if (operation == Operation.MOVE_TO) {
-                if (floatDuration-- <= 0) {
-                    floatDuration += mob.getRandom().nextInt(5) + 2;
+            if( operation == Operation.MOVE_TO ) {
+                if( floatDuration-- <= 0 ) {
+                    floatDuration += mob.getRandom().nextInt( 5 ) + 2;
                     Vec3 moveVec = new Vec3(
                             wantedX - mob.getX(),
                             wantedY - mob.getY(),
                             wantedZ - mob.getZ() );
                     final int distance = Mth.ceil( moveVec.length() );
                     moveVec = moveVec.normalize();
-
-                    if (!isNearWanted()) {
-                        if (mob.getRandom().nextBoolean() || canReach(moveVec, distance)) {
-                            mob.setDeltaMovement(mob.getDeltaMovement().add(moveVec.scale(getScaledMoveSpeed())));
+                    
+                    if( !isNearWanted() ) {
+                        if( mob.getRandom().nextBoolean() || canReach( moveVec, distance ) ) {
+                            mob.setDeltaMovement( mob.getDeltaMovement().add( moveVec.scale( getScaledMoveSpeed() ) ) );
                         }
                     }
                     else {
@@ -252,102 +252,102 @@ public class Shadefiend extends FlyingMob implements Enemy {
                     }
                 }
             }
-            if (mob.getTarget() != null) {
+            if( mob.getTarget() != null ) {
                 updateRotations();
             }
         }
-
+        
         private boolean isNearWanted() {
             return hasWanted() && mob.distanceToSqr(
-                            getWantedX(),
-                            getWantedY(),
-                            getWantedZ()) < 1.0;
+                    getWantedX(),
+                    getWantedY(),
+                    getWantedZ() ) < 1.0;
         }
-
+        
         private void updateRotations() {
             double x = wantedX - mob.getX();
             double y = wantedY - mob.getY();
             double z = wantedZ - mob.getZ();
-            double xzSqrRoot = Math.sqrt(x * x + z * z);
-
-            if (Math.abs(xzSqrRoot) > (double) 1.0E-5F) {
-                double offset = 1.0D - Math.abs(y * (double) 0.7F) / xzSqrRoot;
+            double xzSqrRoot = Math.sqrt( x * x + z * z );
+            
+            if( Math.abs( xzSqrRoot ) > (double) 1.0E-5F ) {
+                double offset = 1.0D - Math.abs( y * (double) 0.7F ) / xzSqrRoot;
                 x *= offset;
                 z *= offset;
-                xzSqrRoot = Math.sqrt(x * x + z * z);
-                float horizontalAngle = (float) Mth.atan2(z, x);
-                float yDegrees = Mth.wrapDegrees(mob.getYRot() + 90.0F);
-                float xzDegrees = Mth.wrapDegrees(horizontalAngle * (180F / (float) Math.PI));
-                mob.setYRot(Mth.approachDegrees(yDegrees, xzDegrees, 4.0F) - 90.0F);
+                xzSqrRoot = Math.sqrt( x * x + z * z );
+                float horizontalAngle = (float) Mth.atan2( z, x );
+                float yDegrees = Mth.wrapDegrees( mob.getYRot() + 90.0F );
+                float xzDegrees = Mth.wrapDegrees( horizontalAngle * (180F / (float) Math.PI) );
+                mob.setYRot( Mth.approachDegrees( yDegrees, xzDegrees, 4.0F ) - 90.0F );
                 mob.yBodyRot = mob.getYRot();
-
-                float xRot = (float)(-(Mth.atan2(-y, xzSqrRoot) * (double)(180F / (float) Math.PI)));
-                mob.setXRot(xRot);
+                
+                float xRot = (float) (-(Mth.atan2( -y, xzSqrRoot ) * (double) (180F / (float) Math.PI)));
+                mob.setXRot( xRot );
             }
         }
     }
-
+    
     private static class MeleeAttackGoal extends Goal {
-
+        
         final Shadefiend shadefiend;
-
-        public MeleeAttackGoal(Shadefiend shadefiend) {
-            setFlags(EnumSet.of(Flag.MOVE));
+        
+        public MeleeAttackGoal( Shadefiend shadefiend ) {
+            setFlags( EnumSet.of( Flag.MOVE ) );
             this.shadefiend = shadefiend;
         }
-
-        private void setWantedPosition(LivingEntity target) {
-            Vec3 vec3 = target.getEyePosition(1.0F).add(0.0D, -(shadefiend.getBbHeight() / 2), 0.0D);
-            shadefiend.moveControl.setWantedPosition(vec3.x, vec3.y, vec3.z, 1.0D);
+        
+        private void setWantedPosition( LivingEntity target ) {
+            Vec3 vec3 = target.getEyePosition( 1.0F ).add( 0.0D, -(shadefiend.getBbHeight() / 2), 0.0D );
+            shadefiend.moveControl.setWantedPosition( vec3.x, vec3.y, vec3.z, 1.0D );
         }
-
+        
         @Override
         public boolean canUse() {
             LivingEntity target = shadefiend.getTarget();
-            return shadefiend.isAlive() && target != null && shadefiend.hasLineOfSight(target);
+            return shadefiend.isAlive() && target != null && shadefiend.hasLineOfSight( target );
         }
-
+        
         @Override
         public boolean canContinueToUse() {
             LivingEntity target = shadefiend.getTarget();
-
-            if (shadefiend.isAlive() && !shadefiend.isVehicle() && target != null && target.isAlive()) {
+            
+            if( shadefiend.isAlive() && !shadefiend.isVehicle() && target != null && target.isAlive() ) {
                 return ((SimpleFlyingMoveController) shadefiend.moveControl).canReachCurrentWanted();
             }
             return false;
         }
-
+        
         @Override
         public void start() {
-            shadefiend.setAggressive(true);
+            shadefiend.setAggressive( true );
             LivingEntity target = shadefiend.getTarget();
-
-            if (target != null) {
-                setWantedPosition(target);
+            
+            if( target != null ) {
+                setWantedPosition( target );
             }
         }
-
+        
         @Override
         public boolean requiresUpdateEveryTick() {
             return true;
         }
-
+        
         @Override
         public void stop() {
-            shadefiend.setAggressive(false);
-            shadefiend.setTarget(null);
+            shadefiend.setAggressive( false );
+            shadefiend.setTarget( null );
         }
-
+        
         @Override
-        @SuppressWarnings("ConstantConditions")
+        @SuppressWarnings( "ConstantConditions" )
         public void tick() {
             LivingEntity target = shadefiend.getTarget();
-
+            
             // Just in case
-            if (target == null) return;
-
-            if (shadefiend.getBoundingBox().inflate(0.3F).intersects(target.getBoundingBox())) {
-                shadefiend.doHurtTarget(target);
+            if( target == null ) return;
+            
+            if( shadefiend.getBoundingBox().inflate( 0.3F ).intersects( target.getBoundingBox() ) ) {
+                shadefiend.doHurtTarget( target );
                 shadefiend.level().playSound(
                         null,
                         shadefiend.blockPosition(),
@@ -358,8 +358,8 @@ public class Shadefiend extends FlyingMob implements Enemy {
                 );
             }
             else {
-                if ((shadefiend.tickCount & 20) == 0) {
-                    setWantedPosition(target);
+                if( (shadefiend.tickCount & 20) == 0 ) {
+                    setWantedPosition( target );
                 }
             }
         }

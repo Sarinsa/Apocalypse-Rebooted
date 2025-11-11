@@ -3,45 +3,44 @@ package com.toast.apocalypse.common.core.mod_event.events;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
-
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
 public final class ThunderstormEvent extends AbstractEvent {
-
-    public ThunderstormEvent(EventType<?> type) {
-        super(type);
+    
+    public ThunderstormEvent( EventType<?> type ) {
+        super( type );
     }
-
+    
     @Override
-    public void onStart(MinecraftServer server, ServerPlayer player) {
-
+    public void onStart( MinecraftServer server, ServerPlayer player ) {
+    
     }
-
+    
     @Override
-    public void update(ServerLevel level, ServerPlayer player, PlayerDifficultyManager difficultyManager) {
-
+    public void update( ServerLevel level, ServerPlayer player, PlayerDifficultyManager difficultyManager ) {
+    
     }
-
+    
     @Override
-    public boolean shouldContinueRunning(ServerLevel level, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager) {
+    public boolean shouldContinueRunning( ServerLevel level, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager ) {
         return ApocalypseConfig.THUNDERSTORM.GENERAL.enabled.get() && level.isThundering();
     }
-
+    
     @Override
-    public void onEnd(MinecraftServer server, ServerPlayer player) {
-
+    public void onEnd( MinecraftServer server, ServerPlayer player ) {
+    
     }
-
+    
     @Override
-    public void stop(ServerLevel level, ServerPlayer player) {
-
+    public void stop( ServerLevel level, ServerPlayer player ) {
+    
     }
-
+    
     @Override
-    public void writeAdditional(CompoundTag data) {
-
+    public void writeAdditional( CompoundTag data ) {
+    
     }
 }

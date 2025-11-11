@@ -18,25 +18,25 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.concurrent.CompletableFuture;
 
-@Mod.EventBusSubscriber(modid = Apocalypse.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber( modid = Apocalypse.MODID, bus = Mod.EventBusSubscriber.Bus.MOD )
 public class DataGatherer {
-
+    
     @SubscribeEvent
-    public static void onGatherData(GatherDataEvent event) {
+    public static void onGatherData( GatherDataEvent event ) {
         DataGenerator dataGenerator = event.getGenerator();
         ExistingFileHelper fileHelper = event.getExistingFileHelper();
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
-
-        if (event.includeServer()) {
-            dataGenerator.addProvider(true, new ApocalypseRecipeProvider(dataGenerator));
-            dataGenerator.addProvider(true, new ApocalypseLootTableProvider(dataGenerator));
-            dataGenerator.addProvider(true, new ApocalypseAdvancementProvider(dataGenerator, lookupProvider, fileHelper));
-            BlockTagsProvider blockTagProvider = new ApocalypseBlockTagProvider(dataGenerator, lookupProvider, fileHelper);
-            dataGenerator.addProvider(true, blockTagProvider);
-            dataGenerator.addProvider(true, new ApocalypseItemTagProvider(dataGenerator, lookupProvider, blockTagProvider.contentsGetter(), fileHelper));
-            dataGenerator.addProvider(true, new ApocalypseEntityTagProvider(dataGenerator, lookupProvider, fileHelper));
-            dataGenerator.addProvider(true, new ApocalypseDamageTagProvider(dataGenerator, lookupProvider, fileHelper));
-            dataGenerator.addProvider(true, new ApocalypseLootModProvider(dataGenerator));
+        
+        if( event.includeServer() ) {
+            dataGenerator.addProvider( true, new ApocalypseRecipeProvider( dataGenerator ) );
+            dataGenerator.addProvider( true, new ApocalypseLootTableProvider( dataGenerator ) );
+            dataGenerator.addProvider( true, new ApocalypseAdvancementProvider( dataGenerator, lookupProvider, fileHelper ) );
+            BlockTagsProvider blockTagProvider = new ApocalypseBlockTagProvider( dataGenerator, lookupProvider, fileHelper );
+            dataGenerator.addProvider( true, blockTagProvider );
+            dataGenerator.addProvider( true, new ApocalypseItemTagProvider( dataGenerator, lookupProvider, blockTagProvider.contentsGetter(), fileHelper ) );
+            dataGenerator.addProvider( true, new ApocalypseEntityTagProvider( dataGenerator, lookupProvider, fileHelper ) );
+            dataGenerator.addProvider( true, new ApocalypseDamageTagProvider( dataGenerator, lookupProvider, fileHelper ) );
+            dataGenerator.addProvider( true, new ApocalypseLootModProvider( dataGenerator ) );
         }
     }
 }

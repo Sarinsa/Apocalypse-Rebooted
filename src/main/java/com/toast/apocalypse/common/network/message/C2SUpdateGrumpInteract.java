@@ -10,37 +10,37 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 public class C2SUpdateGrumpInteract {
-
+    
     public final UUID uuid;
     public final Vec3 lookVec;
-
-    public C2SUpdateGrumpInteract(UUID uuid, Vec3 lookVec) {
+    
+    public C2SUpdateGrumpInteract( UUID uuid, Vec3 lookVec ) {
         this.uuid = uuid;
         this.lookVec = lookVec;
     }
-
-    public static void handle(C2SUpdateGrumpInteract message, Supplier<NetworkEvent.Context> contextSupplier) {
+    
+    public static void handle( C2SUpdateGrumpInteract message, Supplier<NetworkEvent.Context> contextSupplier ) {
         NetworkEvent.Context context = contextSupplier.get();
-
-        if (context.getDirection().getReceptionSide().isServer()) {
-            context.enqueueWork(() -> ServerWork.handleUpdateGrumpInteract(message));
+        
+        if( context.getDirection().getReceptionSide().isServer() ) {
+            context.enqueueWork( () -> ServerWork.handleUpdateGrumpInteract( message ) );
         }
-        context.setPacketHandled(true);
+        context.setPacketHandled( true );
     }
-
-    public static C2SUpdateGrumpInteract decode(FriendlyByteBuf buffer) {
+    
+    public static C2SUpdateGrumpInteract decode( FriendlyByteBuf buffer ) {
         UUID uuid = buffer.readUUID();
         Vector3f lookVec = buffer.readVector3f();
-
-        return new C2SUpdateGrumpInteract(uuid, new Vec3(lookVec.x, lookVec.y, lookVec.z));
+        
+        return new C2SUpdateGrumpInteract( uuid, new Vec3( lookVec.x, lookVec.y, lookVec.z ) );
     }
-
-    public static void encode(C2SUpdateGrumpInteract message, FriendlyByteBuf buffer) {
-        buffer.writeUUID(message.uuid);
-        buffer.writeVector3f(new Vector3f(
+    
+    public static void encode( C2SUpdateGrumpInteract message, FriendlyByteBuf buffer ) {
+        buffer.writeUUID( message.uuid );
+        buffer.writeVector3f( new Vector3f(
                 (float) message.lookVec.x,
                 (float) message.lookVec.y,
-                (float) message.lookVec.z)
+                (float) message.lookVec.z )
         );
     }
 }

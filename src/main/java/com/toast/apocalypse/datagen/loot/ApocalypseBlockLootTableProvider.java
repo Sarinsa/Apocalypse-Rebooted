@@ -2,7 +2,6 @@ package com.toast.apocalypse.datagen.loot;
 
 import com.toast.apocalypse.common.core.register.ApocalypseBlocks;
 import net.minecraft.data.loot.BlockLootSubProvider;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -13,32 +12,32 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ApocalypseBlockLootTableProvider extends BlockLootSubProvider {
-
+    
     private final Set<Block> knownBlocks = new HashSet<>();
-
-    protected ApocalypseBlockLootTableProvider(Set<Item> set, FeatureFlagSet flagSet) {
-        super(set, flagSet);
+    
+    protected ApocalypseBlockLootTableProvider( Set<Item> set, FeatureFlagSet flagSet ) {
+        super( set, flagSet );
     }
-
+    
     @Override
     protected Iterable<Block> getKnownBlocks() {
         return this.knownBlocks;
     }
-
+    
     @Override
-    protected void add(Block block, LootTable.Builder table) {
-        super.add(block, table);
-        this.knownBlocks.add(block);
+    protected void add( Block block, LootTable.Builder table ) {
+        super.add( block, table );
+        this.knownBlocks.add( block );
     }
-
+    
     @Override
     protected void generate() {
-        dropSelf(ApocalypseBlocks.LUNAR_PHASE_SENSOR.get());
-        dropSelf(ApocalypseBlocks.MIDNIGHT_STEEL_BLOCK.get());
-        dropSelf(ApocalypseBlocks.DYNAMIC_TRAP.get());
-        add(ApocalypseBlocks.DEAD_GRASS.get(), noDrop());
-        add(ApocalypseBlocks.DEAD_PLANT.get(), noDrop());
-        dropOther(ApocalypseBlocks.WET_TORCH.get(), Blocks.TORCH);
-        dropOther(ApocalypseBlocks.WET_WALL_TORCH.get(), Blocks.TORCH);
+        dropSelf( ApocalypseBlocks.LUNAR_PHASE_SENSOR.get() );
+        dropSelf( ApocalypseBlocks.MIDNIGHT_STEEL_BLOCK.get() );
+        dropSelf( ApocalypseBlocks.DYNAMIC_TRAP.get() );
+        add( ApocalypseBlocks.DEAD_GRASS.get(), noDrop() );
+        add( ApocalypseBlocks.DEAD_PLANT.get(), noDrop() );
+        dropOther( ApocalypseBlocks.WET_TORCH.get(), Blocks.TORCH );
+        dropOther( ApocalypseBlocks.WET_WALL_TORCH.get(), Blocks.TORCH );
     }
 }

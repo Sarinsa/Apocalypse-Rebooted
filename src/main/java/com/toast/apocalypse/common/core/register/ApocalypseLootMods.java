@@ -11,14 +11,14 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.function.Supplier;
 
 public class ApocalypseLootMods {
-
-    public static final DeferredRegister<Codec<? extends IGlobalLootModifier>> LOOT_MODIFIERS = DeferredRegister.create(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, Apocalypse.MODID);
-
-
-    public static final RegistryObject<Codec<SimpleAddLootModifier>> SIMPLE_ADD_LOOT_MOD = register("simple_add_loot_mod", SimpleAddLootModifier.CODEC);
-
-
-    private static <T extends Codec<? extends IGlobalLootModifier>> RegistryObject<T> register(String name, Supplier<T> supplier) {
-        return LOOT_MODIFIERS.register(name, supplier);
+    
+    public static final DeferredRegister<Codec<? extends IGlobalLootModifier>> LOOT_MODIFIERS = DeferredRegister.create( ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, Apocalypse.MODID );
+    
+    
+    public static final RegistryObject<Codec<SimpleAddLootModifier>> SIMPLE_ADD_LOOT_MOD = register( "simple_add_loot_mod", SimpleAddLootModifier.CODEC );
+    
+    
+    private static <T extends Codec<? extends IGlobalLootModifier>> RegistryObject<T> register( String name, Supplier<T> supplier ) {
+        return LOOT_MODIFIERS.register( name, supplier );
     }
 }

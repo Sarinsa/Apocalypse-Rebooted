@@ -9,10 +9,10 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 public class ApocalypseContainers {
-
-    public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, Apocalypse.MODID);
-
-    private static <T extends AbstractContainerMenu> RegistryObject<MenuType<T>> register(String name, MenuType.MenuSupplier<T> factory) {
-        return MENU_TYPES.register(name, () -> new MenuType<>(factory, FeatureFlagSet.of()));
+    
+    public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create( ForgeRegistries.MENU_TYPES, Apocalypse.MODID );
+    
+    private static <T extends AbstractContainerMenu> RegistryObject<MenuType<T>> register( String name, MenuType.MenuSupplier<T> factory ) {
+        return MENU_TYPES.register( name, () -> new MenuType<>( factory, FeatureFlagSet.of() ) );
     }
 }

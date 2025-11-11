@@ -36,159 +36,159 @@ import javax.annotation.Nullable;
 /**
  * This is a fishhook projectile that can be fired by monsters to pull targets closer.<br>
  * Players are able to block this projectile with a shield, negating its effects.
- *
+ * <p>
  * Essentially a copy-paste of {@link net.minecraft.world.entity.projectile.FishingHook}
  */
 public class MonsterFishHook extends Projectile implements IEntityAdditionalSpawnData {
-
-    private static final EntityDataAccessor<Integer> DATA_HOOKED_ENTITY = SynchedEntityData.defineId(MonsterFishHook.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Boolean> LAUNCHED_BY_RIDER = SynchedEntityData.defineId(MonsterFishHook.class, EntityDataSerializers.BOOLEAN);
+    
+    private static final EntityDataAccessor<Integer> DATA_HOOKED_ENTITY = SynchedEntityData.defineId( MonsterFishHook.class, EntityDataSerializers.INT );
+    private static final EntityDataAccessor<Boolean> LAUNCHED_BY_RIDER = SynchedEntityData.defineId( MonsterFishHook.class, EntityDataSerializers.BOOLEAN );
     private int life;
     private Entity hookedIn;
     private State currentState = State.FLYING;
-
-    public MonsterFishHook(EntityType<? extends MonsterFishHook> entityType, Level level) {
-        super(entityType, level);
+    
+    public MonsterFishHook( EntityType<? extends MonsterFishHook> entityType, Level level ) {
+        super( entityType, level );
     }
-
-    private MonsterFishHook(Level level, Mob mob) {
-        super(ApocalypseEntities.MONSTER_FISH_HOOK.get(), level);
-        this.setOwner(mob);
+    
+    private MonsterFishHook( Level level, Mob mob ) {
+        super( ApocalypseEntities.MONSTER_FISH_HOOK.get(), level );
+        this.setOwner( mob );
         this.noCulling = true;
     }
-
-    public MonsterFishHook(Mob mob, LivingEntity target, Level level) {
-        this(level, mob);
-
-        final Vec3 lookVec = mob.getViewVector(1.0F).scale(mob.getBbWidth());
-        this.setPos(mob.getX() + lookVec.x, mob.getEyeY() - 0.1, mob.getZ() + lookVec.z);
-
+    
+    public MonsterFishHook( Mob mob, LivingEntity target, Level level ) {
+        this( level, mob );
+        
+        final Vec3 lookVec = mob.getViewVector( 1.0F ).scale( mob.getBbWidth() );
+        this.setPos( mob.getX() + lookVec.x, mob.getEyeY() - 0.1, mob.getZ() + lookVec.z );
+        
         final double dX = target.getX() - getX();
         final double dY = target.getY( 0.3333 ) - getY();
         final double dZ = target.getZ() - getZ();
-        final double dH = Mth.sqrt((float) (dX * dX + dZ * dZ));
-        this.shoot(dX, dY + dH * 0.2, dZ, 1.3F, 0);
+        final double dH = Mth.sqrt( (float) (dX * dX + dZ * dZ) );
+        this.shoot( dX, dY + dH * 0.2, dZ, 1.3F, 0 );
     }
-
-    public MonsterFishHook(Vec3 riderLookVec, Mob mob, Level level) {
-        this(level, mob);
-        getEntityData().set(LAUNCHED_BY_RIDER, true);
-
-        final Vec3 vec = mob.getEyePosition().add(riderLookVec.x * 10, riderLookVec.y * 10, riderLookVec.z * 10);
-        this.setPos(mob.getX() + riderLookVec.x, mob.getEyeY() - 0.1, mob.getZ() + riderLookVec.z);
-
+    
+    public MonsterFishHook( Vec3 riderLookVec, Mob mob, Level level ) {
+        this( level, mob );
+        getEntityData().set( LAUNCHED_BY_RIDER, true );
+        
+        final Vec3 vec = mob.getEyePosition().add( riderLookVec.x * 10, riderLookVec.y * 10, riderLookVec.z * 10 );
+        this.setPos( mob.getX() + riderLookVec.x, mob.getEyeY() - 0.1, mob.getZ() + riderLookVec.z );
+        
         final double dX = vec.x() - getX();
         final double dY = vec.y() - getY();
         final double dZ = vec.z() - getZ();
-        final double dH = Mth.sqrt((float) (dX * dX + dZ * dZ));
-        this.shoot(dX, dY + dH * 0.2, dZ, 1.3F, 0);
+        final double dH = Mth.sqrt( (float) (dX * dX + dZ * dZ) );
+        this.shoot( dX, dY + dH * 0.2, dZ, 1.3F, 0 );
     }
-
+    
     @Override
     protected void defineSynchedData() {
-        getEntityData().define(DATA_HOOKED_ENTITY, 0);
-        getEntityData().define(LAUNCHED_BY_RIDER, false);
+        getEntityData().define( DATA_HOOKED_ENTITY, 0 );
+        getEntityData().define( LAUNCHED_BY_RIDER, false );
     }
-
+    
     @Override
-    public void onSyncedDataUpdated(EntityDataAccessor<?> dataParameter) {
-        if (DATA_HOOKED_ENTITY.equals(dataParameter)) {
-            int i = this.getEntityData().get(DATA_HOOKED_ENTITY);
-            this.hookedIn = i > 0 ? level().getEntity(i - 1) : null;
+    public void onSyncedDataUpdated( EntityDataAccessor<?> dataParameter ) {
+        if( DATA_HOOKED_ENTITY.equals( dataParameter ) ) {
+            int i = this.getEntityData().get( DATA_HOOKED_ENTITY );
+            this.hookedIn = i > 0 ? level().getEntity( i - 1 ) : null;
         }
-        super.onSyncedDataUpdated(dataParameter);
+        super.onSyncedDataUpdated( dataParameter );
     }
-
+    
     @Override
-    public boolean shouldRenderAtSqrDistance(double distance) {
+    public boolean shouldRenderAtSqrDistance( double distance ) {
         return distance < 4096.0D;
     }
-
+    
     @Override
-    public void lerpTo(double parameter, double mappings, double would, float be, float nice, int to, boolean have) {
+    public void lerpTo( double parameter, double mappings, double would, float be, float nice, int to, boolean have ) {
     }
-
+    
     @Override
     public void tick() {
         super.tick();
         LivingEntity livingEntity = this.getLivingOwner();
-
+        
         // Remove self if owner is null
-        if (livingEntity == null) {
+        if( livingEntity == null ) {
             discard();
         }
-        else if (!shouldStopFishing(livingEntity)) {
+        else if( !shouldStopFishing( livingEntity ) ) {
             // Remove hook after a while, unless launched by a rider.
-            if (!getEntityData().get(LAUNCHED_BY_RIDER)) {
+            if( !getEntityData().get( LAUNCHED_BY_RIDER ) ) {
                 ++life;
-                if (life >= 120) {
+                if( life >= 120 ) {
                     discard();
                     return;
                 }
             }
             float fluidHeight = 0.0F;
             BlockPos pos = blockPosition();
-            FluidState fluidState = level().getFluidState(pos);
-
-            if (fluidState.getFluidType() == ForgeMod.WATER_TYPE.get()) {
-                fluidHeight = fluidState.getHeight(level(), pos);
+            FluidState fluidState = level().getFluidState( pos );
+            
+            if( fluidState.getFluidType() == ForgeMod.WATER_TYPE.get() ) {
+                fluidHeight = fluidState.getHeight( level(), pos );
             }
-
-            if (currentState == State.FLYING) {
-                if (hookedIn != null) {
-                    setDeltaMovement(Vec3.ZERO);
+            
+            if( currentState == State.FLYING ) {
+                if( hookedIn != null ) {
+                    setDeltaMovement( Vec3.ZERO );
                     currentState = State.HOOKED_IN_ENTITY;
                     return;
                 }
-
-                if (fluidHeight > 0.0F) {
-                    setDeltaMovement(getDeltaMovement().multiply(0.3D, 0.2D, 0.3D));
+                
+                if( fluidHeight > 0.0F ) {
+                    setDeltaMovement( getDeltaMovement().multiply( 0.3D, 0.2D, 0.3D ) );
                     currentState = State.BOBBING;
                     return;
                 }
                 checkCollision();
             }
             else {
-                if (currentState == State.HOOKED_IN_ENTITY) {
-                    if (hookedIn != null) {
-                        if (!hookedIn.isAlive()) {
+                if( currentState == State.HOOKED_IN_ENTITY ) {
+                    if( hookedIn != null ) {
+                        if( !hookedIn.isAlive() ) {
                             hookedIn = null;
                             currentState = State.FLYING;
                         }
                         else {
-                            setPos(hookedIn.getX(), hookedIn.getY(0.8D), hookedIn.getZ());
+                            setPos( hookedIn.getX(), hookedIn.getY( 0.8D ), hookedIn.getZ() );
                         }
                     }
                     return;
                 }
-
-                if (currentState == State.BOBBING) {
+                
+                if( currentState == State.BOBBING ) {
                     Vec3 vec3 = getDeltaMovement();
                     double d0 = getY() + vec3.y - pos.getY() - (double) fluidHeight;
-
-                    if (Math.abs(d0) < 0.01D) {
-                        d0 += Math.signum(d0) * 0.1D;
+                    
+                    if( Math.abs( d0 ) < 0.01D ) {
+                        d0 += Math.signum( d0 ) * 0.1D;
                     }
-                    setDeltaMovement(vec3.x * 0.9D, vec3.y - d0 * (double) random.nextFloat() * 0.2D, vec3.z * 0.9D);
+                    setDeltaMovement( vec3.x * 0.9D, vec3.y - d0 * (double) random.nextFloat() * 0.2D, vec3.z * 0.9D );
                 }
             }
-
-            if (fluidState.getFluidType() != ForgeMod.WATER_TYPE.get()) {
-                setDeltaMovement(getDeltaMovement().add(0.0D, -0.03D, 0.0D));
+            
+            if( fluidState.getFluidType() != ForgeMod.WATER_TYPE.get() ) {
+                setDeltaMovement( getDeltaMovement().add( 0.0D, -0.03D, 0.0D ) );
             }
-            move(MoverType.SELF, getDeltaMovement());
+            move( MoverType.SELF, getDeltaMovement() );
             updateRotation();
-
-            if (currentState == State.FLYING && (onGround() || horizontalCollision)) {
-                setDeltaMovement(Vec3.ZERO);
+            
+            if( currentState == State.FLYING && (onGround() || horizontalCollision) ) {
+                setDeltaMovement( Vec3.ZERO );
             }
-            setDeltaMovement(getDeltaMovement().scale(0.92D));
+            setDeltaMovement( getDeltaMovement().scale( 0.92D ) );
             reapplyPosition();
         }
     }
-
-    private boolean shouldStopFishing(LivingEntity owner) {
-        if (!owner.isAlive() || !(distanceToSqr(owner) > 1024.0D)) {
+    
+    private boolean shouldStopFishing( LivingEntity owner ) {
+        if( !owner.isAlive() || !(distanceToSqr( owner ) > 1024.0D) ) {
             return false;
         }
         else {
@@ -196,29 +196,29 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
             return true;
         }
     }
-
+    
     private void checkCollision() {
-        HitResult hitResult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
-        this.onHit(hitResult);
+        HitResult hitResult = ProjectileUtil.getHitResultOnMoveVector( this, this::canHitEntity );
+        this.onHit( hitResult );
     }
-
+    
     @Override
-    protected boolean canHitEntity(Entity entity) {
-        return super.canHitEntity(entity) || entity.isAlive() && entity instanceof ItemEntity;
+    protected boolean canHitEntity( Entity entity ) {
+        return super.canHitEntity( entity ) || entity.isAlive() && entity instanceof ItemEntity;
     }
-
+    
     @Override
-    protected void onHitEntity(EntityHitResult hitResult) {
-        super.onHitEntity(hitResult);
-
-        if (!level().isClientSide) {
+    protected void onHitEntity( EntityHitResult hitResult ) {
+        super.onHitEntity( hitResult );
+        
+        if( !level().isClientSide ) {
             Entity entity = hitResult.getEntity();
-
-            if (entity instanceof Player player) {
-                if (isBlocked(player)) {
-                    if (getLivingOwner() instanceof Grump grump) {
+            
+            if( entity instanceof Player player ) {
+                if( isBlocked( player ) ) {
+                    if( getLivingOwner() instanceof Grump grump ) {
                         grump.hookBlocked();
-                        level().broadcastEntityEvent(player, (byte) 29);
+                        level().broadcastEntityEvent( player, (byte) 29 );
                     }
                     discard();
                     return;
@@ -228,106 +228,106 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
             setHookedEntity();
         }
     }
-
-    private boolean isBlocked(Player player) {
-        if (player.isBlocking()) {
+    
+    private boolean isBlocked( Player player ) {
+        if( player.isBlocking() ) {
             Vec3 hookPos = position();
-
-            Vec3 playerView = player.getViewVector(1.0F);
-            Vec3 vec3 = hookPos.vectorTo(player.position()).normalize();
-            vec3 = new Vec3(vec3.x, 0.0D, vec3.z);
-            return vec3.dot(playerView) < 0.0D;
+            
+            Vec3 playerView = player.getViewVector( 1.0F );
+            Vec3 vec3 = hookPos.vectorTo( player.position() ).normalize();
+            vec3 = new Vec3( vec3.x, 0.0D, vec3.z );
+            return vec3.dot( playerView ) < 0.0D;
         }
         return false;
     }
-
+    
     @Override
-    protected void onHitBlock(BlockHitResult hitResult) {
-        super.onHitBlock(hitResult);
-        setDeltaMovement(getDeltaMovement().normalize().scale(hitResult.distanceTo(this)));
+    protected void onHitBlock( BlockHitResult hitResult ) {
+        super.onHitBlock( hitResult );
+        setDeltaMovement( getDeltaMovement().normalize().scale( hitResult.distanceTo( this ) ) );
     }
-
+    
     private void setHookedEntity() {
-        getEntityData().set(DATA_HOOKED_ENTITY, hookedIn.getId() + 1);
+        getEntityData().set( DATA_HOOKED_ENTITY, hookedIn.getId() + 1 );
     }
-
+    
     @Override
-    public void addAdditionalSaveData(CompoundTag compoundTag) {
+    public void addAdditionalSaveData( CompoundTag compoundTag ) {
         // Nothing to write.
     }
-
+    
     @Override
-    public void readAdditionalSaveData(CompoundTag compoundTag) {
+    public void readAdditionalSaveData( CompoundTag compoundTag ) {
         // Nothing to read.
     }
-
+    
     @Override
-    public void handleEntityEvent(byte event) {
-        if (event == 31 && level().isClientSide && hookedIn instanceof LocalPlayer) {
+    public void handleEntityEvent( byte event ) {
+        if( event == 31 && level().isClientSide && hookedIn instanceof LocalPlayer ) {
             bringInHookedEntity();
         }
-        super.handleEntityEvent(event);
+        super.handleEntityEvent( event );
     }
-
+    
     public void bringInHookedEntity() {
         LivingEntity livingEntity = getLivingOwner();
-
-        if (livingEntity != null) {
-            level().playSound(null, livingEntity.blockPosition(), ApocalypseSounds.MONSTER_HOOK_RETRIEVE.get(), SoundSource.NEUTRAL, 0.6F, 0.4F / (level().random.nextFloat() * 0.4F + 0.8F));
+        
+        if( livingEntity != null ) {
+            level().playSound( null, livingEntity.blockPosition(), ApocalypseSounds.MONSTER_HOOK_RETRIEVE.get(), SoundSource.NEUTRAL, 0.6F, 0.4F / (level().random.nextFloat() * 0.4F + 0.8F) );
             Entity entity = hookedIn;
-
+            
             double xMotion = livingEntity.getX() - getX();
             double yMotion = livingEntity.getY() - getY();
             double zMotion = livingEntity.getZ() - getZ();
-
-            double v = Math.sqrt(xMotion * xMotion + yMotion * yMotion + zMotion * zMotion);
+            
+            double v = Math.sqrt( xMotion * xMotion + yMotion * yMotion + zMotion * zMotion );
             double multiplier = 0.3;
-
-            Vec3 velocity = new Vec3(xMotion * multiplier, yMotion * (multiplier / 2) + Math.sqrt(v) * 0.1, zMotion * multiplier);
-
-            if (entity instanceof ServerPlayer serverPlayer) {
-                NetworkHelper.sendEntityVelocityUpdate(serverPlayer, serverPlayer, velocity);
+            
+            Vec3 velocity = new Vec3( xMotion * multiplier, yMotion * (multiplier / 2) + Math.sqrt( v ) * 0.1, zMotion * multiplier );
+            
+            if( entity instanceof ServerPlayer serverPlayer ) {
+                NetworkHelper.sendEntityVelocityUpdate( serverPlayer, serverPlayer, velocity );
             }
-            entity.setDeltaMovement(velocity);
+            entity.setDeltaMovement( velocity );
         }
     }
-
+    
     @Override
     protected Entity.MovementEmission getMovementEmission() {
         return Entity.MovementEmission.NONE;
     }
-
+    
     @Nullable
     public LivingEntity getLivingOwner() {
         Entity entity = this.getOwner();
         return entity instanceof LivingEntity ? (LivingEntity) entity : null;
     }
-
+    
     @Nullable
     public Entity getHookedIn() {
         return this.hookedIn;
     }
-
+    
     @Override
     public boolean canChangeDimensions() {
         return false;
     }
-
+    
     @Override
     public Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
+        return NetworkHooks.getEntitySpawningPacket( this );
     }
-
+    
     @Override
-    public void writeSpawnData(FriendlyByteBuf buffer) {
-        buffer.writeInt(getOwner() == null ? getId() : getOwner().getId());
+    public void writeSpawnData( FriendlyByteBuf buffer ) {
+        buffer.writeInt( getOwner() == null ? getId() : getOwner().getId() );
     }
-
+    
     @Override
-    public void readSpawnData(FriendlyByteBuf additionalData) {
-        this.setOwner(level().getEntity(additionalData.readInt()));
+    public void readSpawnData( FriendlyByteBuf additionalData ) {
+        this.setOwner( level().getEntity( additionalData.readInt() ) );
     }
-
+    
     enum State {
         FLYING,
         HOOKED_IN_ENTITY,

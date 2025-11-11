@@ -11,9 +11,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(NaturalSpawner.class)
+@Mixin( NaturalSpawner.class )
 public abstract class NaturalSpawnerMixin {
-
+    
     /**
      * The purpose of this injector is to omit the block state check when the natural spawner looks
      * for a valid position to spawn a mob ({@link net.minecraftforge.common.extensions.IForgeBlockState#isValidSpawn(LevelReader, BlockPos, SpawnPlacements.Type, EntityType)})
@@ -26,11 +26,11 @@ public abstract class NaturalSpawnerMixin {
             method = "isSpawnPositionOk",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/SpawnPlacements$Type;canSpawnAt(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/EntityType;)Z"),
+                    target = "Lnet/minecraft/world/entity/SpawnPlacements$Type;canSpawnAt(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/EntityType;)Z" ),
             cancellable = true
     )
-    private static void onIsSpawnPositionOk(SpawnPlacements.Type type, LevelReader levelReader,
-                                         BlockPos pos, EntityType<?> entityType, CallbackInfoReturnable<Boolean> cir) {
-        CommonMixinHooks.onCanSpawnAtBody(type, levelReader, pos, entityType, cir);
+    private static void onIsSpawnPositionOk( SpawnPlacements.Type type, LevelReader levelReader,
+                                             BlockPos pos, EntityType<?> entityType, CallbackInfoReturnable<Boolean> cir ) {
+        CommonMixinHooks.onCanSpawnAtBody( type, levelReader, pos, entityType, cir );
     }
 }

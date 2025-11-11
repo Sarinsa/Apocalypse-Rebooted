@@ -5,16 +5,16 @@ package com.toast.apocalypse.api.plugin;
  * methods for retrieving various helpers and whatnot.
  */
 public interface IApocalypseApi {
-
+    
     /**
      * @return The RegistryHelper instance
-     *         parsed by Apocalypse
+     * parsed by Apocalypse
      */
     RegistryHelper getRegistryHelper();
-
+    
     /**
      * @return The DifficultyDataProvider instance
-     *         parsed by Apocalypse.
+     * parsed by Apocalypse.
      */
     DifficultyProvider getDifficultyProvider();
 }

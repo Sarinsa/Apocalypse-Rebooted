@@ -31,50 +31,50 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 public class Fearwolf extends Monster implements Enemy {
-
-    private static final EntityDataAccessor<Boolean> CLOAKED = SynchedEntityData.defineId(Fearwolf.class, EntityDataSerializers.BOOLEAN);
+    
+    private static final EntityDataAccessor<Boolean> CLOAKED = SynchedEntityData.defineId( Fearwolf.class, EntityDataSerializers.BOOLEAN );
     private boolean runAway;
-
-
-    public Fearwolf(EntityType<? extends Monster> entityType, Level level) {
-        super(entityType, level);
+    
+    
+    public Fearwolf( EntityType<? extends Monster> entityType, Level level ) {
+        super( entityType, level );
     }
-
+    
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(2, new FearwolfRunAwayGoal(this, 1.0D));
-        this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 0.85D, true));
-        this.goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(this, 0.6D));
-        this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 8.0F));
-        this.goalSelector.addGoal(5, new RandomLookAroundGoal(this));
-        this.targetSelector.addGoal(1, (new HurtByTargetGoal(this)).setAlertOthers());
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+        this.goalSelector.addGoal( 1, new FloatGoal( this ) );
+        this.goalSelector.addGoal( 2, new FearwolfRunAwayGoal( this, 1.0D ) );
+        this.goalSelector.addGoal( 2, new MeleeAttackGoal( this, 0.85D, true ) );
+        this.goalSelector.addGoal( 3, new WaterAvoidingRandomStrollGoal( this, 0.6D ) );
+        this.goalSelector.addGoal( 4, new LookAtPlayerGoal( this, Player.class, 8.0F ) );
+        this.goalSelector.addGoal( 5, new RandomLookAroundGoal( this ) );
+        this.targetSelector.addGoal( 1, (new HurtByTargetGoal( this )).setAlertOthers() );
+        this.targetSelector.addGoal( 2, new NearestAttackableTargetGoal<>( this, Player.class, true ) );
     }
-
-    public static boolean checkFearwolfSpawnRules(EntityType<? extends Fearwolf> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
-        return level.getDifficulty() != Difficulty.PEACEFUL && level.getBlockState(pos.below()).is(BlockTags.ANIMALS_SPAWNABLE_ON) && level.getEntitiesOfClass(Player.class, new AABB(pos).inflate(40.0D)).isEmpty();
+    
+    public static boolean checkFearwolfSpawnRules( EntityType<? extends Fearwolf> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random ) {
+        return level.getDifficulty() != Difficulty.PEACEFUL && level.getBlockState( pos.below() ).is( BlockTags.ANIMALS_SPAWNABLE_ON ) && level.getEntitiesOfClass( Player.class, new AABB( pos ).inflate( 40.0D ) ).isEmpty();
     }
-
+    
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
-                .add(Attributes.MOVEMENT_SPEED, 0.35D)
-                .add(Attributes.MAX_HEALTH, 10.0D)
-                .add(Attributes.ATTACK_DAMAGE, 2.0D);
+                .add( Attributes.MOVEMENT_SPEED, 0.35D )
+                .add( Attributes.MAX_HEALTH, 10.0D )
+                .add( Attributes.ATTACK_DAMAGE, 2.0D );
     }
-
+    
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(CLOAKED, false);
+        this.entityData.define( CLOAKED, false );
     }
-
+    
     @Override
-    public boolean doHurtTarget(Entity entity) {
-        if (super.doHurtTarget(entity)) {
-            if (entity instanceof Player player) {
+    public boolean doHurtTarget( Entity entity ) {
+        if( super.doHurtTarget( entity ) ) {
+            if( entity instanceof Player player ) {
                 int duration = this.level().getDifficulty() == Difficulty.HARD ? 80 : 40;
-                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, duration));
+                player.addEffect( new MobEffectInstance( MobEffects.MOVEMENT_SLOWDOWN, duration ) );
             }
             return true;
         }
@@ -82,58 +82,58 @@ public class Fearwolf extends Monster implements Enemy {
             return false;
         }
     }
-
+    
     @Override
-    public boolean hurt(DamageSource source, float damage) {
-        if (super.hurt(source, damage)) {
-            if (source.getEntity() instanceof Player) {
-                setRunningAway(true);
+    public boolean hurt( DamageSource source, float damage ) {
+        if( super.hurt( source, damage ) ) {
+            if( source.getEntity() instanceof Player ) {
+                setRunningAway( true );
             }
             return true;
         }
         return false;
     }
-
+    
     @Override
-    protected void playStepSound(BlockPos pos, BlockState state) {
-        playSound(ApocalypseSounds.FEARWOLF_STEP.get(), 0.15F, 1.0F);
+    protected void playStepSound( BlockPos pos, BlockState state ) {
+        playSound( ApocalypseSounds.FEARWOLF_STEP.get(), 0.15F, 1.0F );
     }
-
+    
     public boolean runningAway() {
         return runAway;
     }
-
-    public void setRunningAway(boolean runningAway) {
+    
+    public void setRunningAway( boolean runningAway ) {
         runAway = runningAway;
     }
-
+    
     @Override
     protected SoundEvent getAmbientSound() {
         return ApocalypseSounds.FEARWOLF_IDLE.get();
     }
-
+    
     @Override
-    protected SoundEvent getHurtSound(DamageSource damageSource) {
+    protected SoundEvent getHurtSound( DamageSource damageSource ) {
         return ApocalypseSounds.FEARWOLF_HURT.get();
     }
-
+    
     @Override
     protected SoundEvent getDeathSound() {
         return ApocalypseSounds.FEARWOLF_DEATH.get();
     }
-
+    
     @Override
     protected float getSoundVolume() {
         return 0.4F;
     }
-
+    
     @Override
     public float getVoicePitch() {
         return (random.nextFloat() - random.nextFloat()) * 0.2F + 0.8F;
     }
-
+    
     @Override
     public int getExperienceReward() {
-        return 3 + level().random.nextInt(5);
+        return 3 + level().random.nextInt( 5 );
     }
 }

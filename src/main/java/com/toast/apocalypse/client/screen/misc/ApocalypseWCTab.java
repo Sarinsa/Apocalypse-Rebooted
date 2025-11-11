@@ -14,63 +14,61 @@ import net.minecraft.network.chat.Component;
  * Additional World Creation screen tab from Apocalypse.
  */
 public class ApocalypseWCTab extends GridLayoutTab {
-
+    
     private static final String TITLE = "apocalypse.createWorld.tab.more.title";
-
+    
     private final DoubleConfigTextField maxDifficultyField;
     private final DoubleConfigTextField gracePeriodField;
-    private final InfoPoint maxDifficultyInfoPoint;
-    private final InfoPoint gracePeriodInfoPoint;
-
-
+    
+    
     public ApocalypseWCTab() {
-        super(Component.translatable(TITLE));
+        super( Component.translatable( TITLE ) );
         GridLayout.RowHelper rowHelper = layout
-                .columnSpacing(10)
-                .rowSpacing(30)
-                .createRowHelper(2);
-
-        maxDifficultyField = rowHelper.addChild(new DoubleConfigTextField(
+                .columnSpacing( 10 )
+                .rowSpacing( 30 )
+                .createRowHelper( 2 );
+        
+        maxDifficultyField = rowHelper.addChild( new DoubleConfigTextField(
                 Minecraft.getInstance().font,
                 ServerConfigHelper.DESIRED_DEFAULT_MAX_DIFFICULTY,
                 0.0D,
                 (double) (References.MAX_DIFFICULTY_HARD_LIMIT / References.DAY_LENGTH),
                 0,
                 0,
-                Component.translatable(References.MAX_DIFFICULTY_CONFIG_FIELD),
-                null)
+                Component.translatable( References.MAX_DIFFICULTY_CONFIG_FIELD ),
+                null )
         );
-        maxDifficultyInfoPoint = rowHelper.addChild(new InfoPoint(
+        rowHelper.addChild( new InfoPoint(
                 0,
                 0,
-                Tooltip.create(Component.translatable(References.MAX_DIFFICULTY_CONFIG_FIELD_DESC)))
+                Tooltip.create( Component.translatable( References.MAX_DIFFICULTY_CONFIG_FIELD_DESC ) ) )
         );
-        gracePeriodField = rowHelper.addChild(new DoubleConfigTextField(
+        gracePeriodField = rowHelper.addChild( new DoubleConfigTextField(
                 Minecraft.getInstance().font,
                 ServerConfigHelper.DESIRED_DEFAULT_GRACE_PERIOD,
                 0.0D,
                 (double) (References.MAX_DIFFICULTY_HARD_LIMIT / References.DAY_LENGTH),
                 0,
                 0,
-                Component.translatable(References.GRACE_PERIOD_CONFIG_FIELD),
-                null)
+                Component.translatable( References.GRACE_PERIOD_CONFIG_FIELD ),
+                null )
         );
-        gracePeriodInfoPoint = rowHelper.addChild(new InfoPoint(
+        rowHelper.addChild( new InfoPoint(
                 0,
                 0,
-                Tooltip.create(Component.translatable(References.GRACE_PERIOD_CONFIG_FIELD_DESC)))
+                Tooltip.create( Component.translatable( References.GRACE_PERIOD_CONFIG_FIELD_DESC ) ) )
         );
-
-        maxDifficultyField.setResponder((parent)
-                -> ServerConfigHelper.updateModServerConfigValues(maxDifficultyField.getDoubleValue(), gracePeriodField.getDoubleValue()));
-        gracePeriodField.setResponder((parent)
-                -> ServerConfigHelper.updateModServerConfigValues(maxDifficultyField.getDoubleValue(), gracePeriodField.getDoubleValue()));
+        
+        maxDifficultyField.setResponder( ( parent )
+                -> ServerConfigHelper.updateModServerConfigValues( maxDifficultyField.getDoubleValue(), gracePeriodField.getDoubleValue() ) );
+        gracePeriodField.setResponder( ( parent )
+                -> ServerConfigHelper.updateModServerConfigValues( maxDifficultyField.getDoubleValue(), gracePeriodField.getDoubleValue() ) );
     }
-
+    
     @Override
     public void tick() {
         super.tick();
-
+        
         maxDifficultyField.tick();
         gracePeriodField.tick();
     }
