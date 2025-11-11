@@ -8,7 +8,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 public class PassedGracePeriodTrigger extends SimpleCriterionTrigger<PassedGracePeriodTrigger.TriggerInstance> {
     
-    private static final ResourceLocation ID = Apocalypse.resourceLoc( "passed_grace_period" );
+    private static final ResourceLocation ID = Apocalypse.rl( "passed_grace_period" );
     
     public ResourceLocation getId() {
         return ID;

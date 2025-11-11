@@ -11,11 +11,11 @@ public class ApocalypseEntityTags {
     public static final TagKey<EntityType<?>> FLYING_ENTITIES = modTag( "flying_entities" );
     
     private static TagKey<EntityType<?>> modTag( String name ) {
-        return create( Apocalypse.resourceLoc( name ) );
+        return create( Apocalypse.rl( name ) );
     }
     
     private static TagKey<EntityType<?>> forgeTag( String name ) {
-        return create( new ResourceLocation( "forge", name ) );
+        return create( ResourceLocation.fromNamespaceAndPath( "forge", name ) );
     }
     
     private static TagKey<EntityType<?>> create( ResourceLocation id ) {

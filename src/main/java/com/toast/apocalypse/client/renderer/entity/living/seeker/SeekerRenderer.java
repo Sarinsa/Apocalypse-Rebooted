@@ -12,9 +12,9 @@ import net.minecraft.resources.ResourceLocation;
 public class SeekerRenderer<T extends Seeker> extends MobRenderer<T, GhastModel<T>> {
     
     private static final ResourceLocation[] TEXTURES = {
-            Apocalypse.resourceLoc( "textures/entity/seeker/seeker.png" ),
-            Apocalypse.resourceLoc( "textures/entity/seeker/seeker_fire.png" ),
-            Apocalypse.resourceLoc( "textures/entity/seeker/seeker_alert.png" )
+            Apocalypse.rl( "textures/entity/seeker/seeker.png" ),
+            Apocalypse.rl( "textures/entity/seeker/seeker_fire.png" ),
+            Apocalypse.rl( "textures/entity/seeker/seeker_alert.png" )
     };
     
     public SeekerRenderer( EntityRendererProvider.Context context ) {

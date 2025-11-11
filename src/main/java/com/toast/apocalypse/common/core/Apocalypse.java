@@ -24,7 +24,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -67,7 +66,7 @@ public class Apocalypse {
     // - Enable our mixins again before build!!!!
     
     
-    public Apocalypse() {
+    public Apocalypse( FMLJavaModLoadingContext context ) {
         INSTANCE = this;
         
         // Static init stuff
@@ -77,7 +76,7 @@ public class Apocalypse {
         
         ConfigManager.create( "Apocalypse Rebooted", Apocalypse.MODID );
         
-        IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        IEventBus eventBus = context.getModEventBus();
         
         // Misc events
         eventBus.addListener( ApocalypseTrapActions::onRegistryCreate );
@@ -116,7 +115,6 @@ public class Apocalypse {
         MinecraftForge.EVENT_BUS.addListener( ApocalypseItems::onMissingMappings );
         
         // Config stuff
-        ModLoadingContext context = ModLoadingContext.get();
         context.registerConfig( ModConfig.Type.SERVER, ApocalypseServerConfig.SERVER_SPEC );
     }
     
@@ -171,8 +169,8 @@ public class Apocalypse {
     
     }
     
-    public static ResourceLocation resourceLoc( String path ) {
-        return new ResourceLocation( MODID, path );
+    public static ResourceLocation rl( String path ) {
+        return ResourceLocation.fromNamespaceAndPath( MODID, path );
     }
     
     public PlayerDifficultyManager getDifficultyManager() {

@@ -147,7 +147,7 @@ public class ApocalypseRecipeProvider extends RecipeProvider {
             String ingredientName = Objects.requireNonNull( itemName( ingredient ) );
             builder.unlockedBy( "has_" + ingredientName, has( ingredient ) );
         }
-        builder.save( consumer, Apocalypse.resourceLoc( recipeName ) );
+        builder.save( consumer, Apocalypse.rl( recipeName ) );
     }
     
     @Nullable

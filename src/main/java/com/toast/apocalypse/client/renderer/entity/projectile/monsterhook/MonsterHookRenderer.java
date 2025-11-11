@@ -24,7 +24,7 @@ import org.joml.Matrix4f;
 /** Copied from SpecialMobs 'SpecialFishingBobberRenderer' */
 public class MonsterHookRenderer extends EntityRenderer<MonsterFishHook> {
     
-    private static final ResourceLocation TEXTURE = Apocalypse.resourceLoc( "textures/entity/projectile/monster_hook.png" );
+    private static final ResourceLocation TEXTURE = Apocalypse.rl( "textures/entity/projectile/monster_hook.png" );
     private static final RenderType RENDER_TYPE = RenderType.entityCutout( TEXTURE );
     
     

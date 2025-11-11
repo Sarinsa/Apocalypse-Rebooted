@@ -10,7 +10,9 @@ import com.toast.apocalypse.common.menus.DynamicTrapMenu;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.recipe.TrapRecipe;
 import com.toast.apocalypse.common.util.References;
-import fathertoast.crust.api.util.IBlockEntityBBProvider;
+import fathertoast.crust.api.util.BoxShape;
+import fathertoast.crust.api.util.IBlockEntityDebugShapeProvider;
+import fathertoast.crust.api.util.IDebugShape;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -38,9 +40,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements IBlockEntityBBProvider {
-    
-    private static final List<AABB> EMPTY = List.of();
+public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements IBlockEntityDebugShapeProvider {
     
     private NonNullList<ItemStack> items = NonNullList.withSize( 9, ItemStack.EMPTY );
     
@@ -143,8 +143,8 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
     
     @SuppressWarnings( "ConstantConditions" )
     public void activateTrap() {
-        if( getCurrentTrap() != null ) {
-            getCurrentTrap().execute( level, getBlockPos(), getBlockState().getValue( DynamicTrapBlock.FACING ), getBoundingBoxes().get( 0 ) );
+        if( getCurrentTrap() != null && getCurrentTrapRadius() > 0 ) {
+            getCurrentTrap().execute( level, getBlockPos(), getBlockState().getValue( DynamicTrapBlock.FACING ), getBoundingBox() );
             setCurrentTrap( null );
             
             if( !getLevel().isClientSide ) {
@@ -328,9 +328,9 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
         }
     }
     
-    @Override
-    public @Nullable List<AABB> getBoundingBoxes() {
-        if( getCurrentTrapRadius() < 0 ) return EMPTY;
+    @Nullable
+    public AABB getBoundingBox() {
+        if( getCurrentTrapRadius() < 0 ) return null;
         
         final int effectRadius = currentTrapRadius;
         final Direction dir = getBlockState().getValue( DynamicTrapBlock.FACING );
@@ -362,6 +362,13 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
                 break;
             }
         }
-        return List.of( box );
+        return box;
+    }
+    
+    // TODO - Wait for crust update
+    @Override
+    @Nullable
+    public List<IDebugShape> getDebugShapes() {
+        return getCurrentTrapRadius() > 0 ? List.of( new BoxShape( getBoundingBox() ) ) : null;
     }
 }

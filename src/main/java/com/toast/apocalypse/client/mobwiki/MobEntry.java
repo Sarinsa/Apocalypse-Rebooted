@@ -20,7 +20,7 @@ public final class MobEntry {
                 ? new MutableComponent[] { Component.empty() }
                 : mobDescription;
         
-        this.mobTexture = mobTexture == null ? new ResourceLocation( "" ) : mobTexture;
+        this.mobTexture = mobTexture == null ? ResourceLocation.parse( "" ) : mobTexture;
         this.mobType = mobType == null ? MobType.NORMAL : mobType;
     }
     
@@ -91,7 +91,7 @@ public final class MobEntry {
         NORMAL( "normal" );
         
         MobType( String textureName ) {
-            this.textureLoc = Apocalypse.resourceLoc( "textures/mobwiki/mobtype/" + textureName + ".png" );
+            this.textureLoc = Apocalypse.rl( "textures/mobwiki/mobtype/" + textureName + ".png" );
         }
         
         private final ResourceLocation textureLoc;

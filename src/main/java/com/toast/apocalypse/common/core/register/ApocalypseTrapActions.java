@@ -13,7 +13,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 public class ApocalypseTrapActions {
     
-    public static final DeferredRegister<BaseTrapAction> TRAP_ACTIONS = DeferredRegister.create( ResourceKey.createRegistryKey( Apocalypse.resourceLoc( "trap_actions" ) ), Apocalypse.MODID );
+    public static final DeferredRegister<BaseTrapAction> TRAP_ACTIONS = DeferredRegister.create( ResourceKey.createRegistryKey( Apocalypse.rl( "trap_actions" ) ), Apocalypse.MODID );
     
     
     public static final RegistryObject<GhostTrap> GHOST_FREEZE = TRAP_ACTIONS.register( "ghost_freeze", GhostTrap::new );
@@ -22,7 +22,7 @@ public class ApocalypseTrapActions {
     
     public static void onRegistryCreate( NewRegistryEvent event ) {
         RegistryBuilder<BaseTrapAction> builder = new RegistryBuilder<>();
-        builder.setName( Apocalypse.resourceLoc( "trap_actions" ) );
+        builder.setName( Apocalypse.rl( "trap_actions" ) );
         ModRegistries.TRAP_ACTIONS_REGISTRY = event.create( builder );
     }
 }

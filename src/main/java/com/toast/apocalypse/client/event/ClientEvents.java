@@ -12,7 +12,7 @@ public class ClientEvents {
     
     
     /** The location of the Apocalypse world config button icon */
-    private static final ResourceLocation GHOSTLY_ICON = Apocalypse.resourceLoc( "textures/gui/button/ghostly.png" );
+    private static final ResourceLocation GHOSTLY_ICON = Apocalypse.rl( "textures/gui/button/ghostly.png" );
     /** The Minecraft client instance. **/
     private final Minecraft minecraft;
     

@@ -18,7 +18,7 @@ import java.util.List;
 
 public class DynamicTrapMenuScreen extends AbstractContainerScreen<DynamicTrapMenu> implements MenuAccess<DynamicTrapMenu> {
     
-    private static final ResourceLocation texture = Apocalypse.resourceLoc( "textures/gui/container/dynamic_trap.png" );
+    private static final ResourceLocation texture = Apocalypse.rl( "textures/gui/container/dynamic_trap.png" );
     
     
     public DynamicTrapMenuScreen( DynamicTrapMenu menu, Inventory inventory, Component title ) {

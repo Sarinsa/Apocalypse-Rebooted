@@ -14,7 +14,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 /** Renders the solid, fullbright eyes of the ghost */
 public class GhostEyesLayer<T extends Ghost> extends RenderLayer<T, GhostModel<T>> {
     
-    private static final RenderType EYES = RenderType.entityCutout( Apocalypse.resourceLoc( "textures/entity/ghost/ghost_eyes.png" ) );
+    private static final RenderType EYES = RenderType.entityCutout( Apocalypse.rl( "textures/entity/ghost/ghost_eyes.png" ) );
     
     public GhostEyesLayer( RenderLayerParent<T, GhostModel<T>> parent ) {
         super( parent );

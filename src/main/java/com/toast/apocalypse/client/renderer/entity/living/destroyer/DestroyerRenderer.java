@@ -12,8 +12,8 @@ import net.minecraft.resources.ResourceLocation;
 public class DestroyerRenderer<T extends Destroyer> extends MobRenderer<T, GhastModel<T>> {
     
     private static final ResourceLocation[] TEXTURES = {
-            Apocalypse.resourceLoc( "textures/entity/destroyer/destroyer.png" ),
-            Apocalypse.resourceLoc( "textures/entity/destroyer/destroyer_fire.png" )
+            Apocalypse.rl( "textures/entity/destroyer/destroyer.png" ),
+            Apocalypse.rl( "textures/entity/destroyer/destroyer_fire.png" )
     };
     
     public DestroyerRenderer( EntityRendererProvider.Context context ) {

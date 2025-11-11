@@ -32,7 +32,7 @@ import java.util.List;
 public class ApocalypseJei implements IModPlugin {
     
     
-    private static final ResourceLocation ID = Apocalypse.resourceLoc( "apocalypse_jei" );
+    private static final ResourceLocation ID = Apocalypse.rl( "apocalypse_jei" );
     
     public static final RecipeType<TrapRecipe> TRAP_ASSEMBLING =
             RecipeType.create( Apocalypse.MODID, "trap_assembling", TrapRecipe.class );

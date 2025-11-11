@@ -16,7 +16,7 @@ import java.util.List;
 
 public class EquipmentBreakTrap extends BaseTrapAction {
     
-    private static final ResourceLocation ICON = Apocalypse.resourceLoc( "textures/trap_icons/equipment_break.png" );
+    private static final ResourceLocation ICON = Apocalypse.rl( "textures/trap_icons/equipment_break.png" );
     private static final String DESCRIPTION_KEY = "apocalypse.trap_type.apocalypse.equipment_break.description";
     
     public EquipmentBreakTrap() {

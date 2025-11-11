@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class FearwolfRenderer<T extends Fearwolf> extends MobRenderer<T, FearwolfModel<T>> {
     
-    private static final ResourceLocation TEXTURE = Apocalypse.resourceLoc( "textures/entity/fearwolf/fearwolf.png" );
+    private static final ResourceLocation TEXTURE = Apocalypse.rl( "textures/entity/fearwolf/fearwolf.png" );
     
     public FearwolfRenderer( EntityRendererProvider.Context context ) {
         super( context, new FearwolfModel<>( context.bakeLayer( ApocalypseModelLayers.FEARWOLF ) ), 1.3F );

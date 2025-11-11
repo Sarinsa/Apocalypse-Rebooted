@@ -14,8 +14,8 @@ import net.minecraft.resources.ResourceLocation;
 
 public class MobWikiScreen extends Screen {
     
-    private static final ResourceLocation ADDITIONAL_PAGE = Apocalypse.resourceLoc( "textures/gui/mobwiki/text_page.png" );
-    private static final ResourceLocation FIRST_PAGE = Apocalypse.resourceLoc( "textures/gui/mobwiki/illustration_page.png" );
+    private static final ResourceLocation ADDITIONAL_PAGE = Apocalypse.rl( "textures/gui/mobwiki/text_page.png" );
+    private static final ResourceLocation FIRST_PAGE = Apocalypse.rl( "textures/gui/mobwiki/illustration_page.png" );
     
     private MobEntry currentEntry = MobEntries.EMPTY;
     private int currentPage = 0;

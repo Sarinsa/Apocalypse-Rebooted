@@ -15,9 +15,9 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 /** Renders the seeker's fullbright eyes */
 public class SeekerEyesLayer<T extends Seeker> extends RenderLayer<T, GhastModel<T>> {
     
-    private static final RenderType EYES = RenderType.entityCutout( Apocalypse.resourceLoc( "textures/entity/seeker/seeker_eyes.png" ) );
-    private static final RenderType EYES_FIRE = RenderType.entityCutout( Apocalypse.resourceLoc( "textures/entity/seeker/seeker_eyes_fire.png" ) );
-    private static final RenderType EYES_ALERT = RenderType.entityCutout( Apocalypse.resourceLoc( "textures/entity/seeker/seeker_eyes_alert.png" ) );
+    private static final RenderType EYES = RenderType.entityCutout( Apocalypse.rl( "textures/entity/seeker/seeker_eyes.png" ) );
+    private static final RenderType EYES_FIRE = RenderType.entityCutout( Apocalypse.rl( "textures/entity/seeker/seeker_eyes_fire.png" ) );
+    private static final RenderType EYES_ALERT = RenderType.entityCutout( Apocalypse.rl( "textures/entity/seeker/seeker_eyes_alert.png" ) );
     
     
     public SeekerEyesLayer( RenderLayerParent<T, GhastModel<T>> entityRenderer ) {

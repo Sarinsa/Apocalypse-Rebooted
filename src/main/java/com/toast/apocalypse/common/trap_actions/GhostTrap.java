@@ -19,7 +19,7 @@ import java.util.List;
 public class GhostTrap extends BaseTrapAction {
     
     private static final String DESCRIPTION_KEY = "apocalypse.trap_type.apocalypse.ghost_freeze.description";
-    private static final ResourceLocation ICON = Apocalypse.resourceLoc( "textures/trap_icons/ghost_freeze.png" );
+    private static final ResourceLocation ICON = Apocalypse.rl( "textures/trap_icons/ghost_freeze.png" );
     
     
     public GhostTrap() {

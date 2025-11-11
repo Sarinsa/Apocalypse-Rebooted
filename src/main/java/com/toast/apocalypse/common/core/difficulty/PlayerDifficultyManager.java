@@ -569,7 +569,7 @@ public final class PlayerDifficultyManager {
     /** Contains miscellaneous info about a world. */
     public static class WorldInfo {
         
-        protected static final String saveDataId = Apocalypse.resourceLoc( "world_info" ).toString();
+        protected static final String saveDataId = Apocalypse.rl( "world_info" ).toString();
         
         private final ServerLevel level;
         private final WorldInfoSavedData savedData;

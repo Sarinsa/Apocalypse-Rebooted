@@ -12,11 +12,11 @@ public class ApocalypseItemTags {
     
     
     private static TagKey<Item> modTag( String name ) {
-        return create( Apocalypse.resourceLoc( name ) );
+        return create( Apocalypse.rl( name ) );
     }
     
     private static TagKey<Item> forgeTag( String name ) {
-        return create( new ResourceLocation( "forge", name ) );
+        return create( ResourceLocation.fromNamespaceAndPath( "forge", name ) );
     }
     
     private static TagKey<Item> create( ResourceLocation id ) {

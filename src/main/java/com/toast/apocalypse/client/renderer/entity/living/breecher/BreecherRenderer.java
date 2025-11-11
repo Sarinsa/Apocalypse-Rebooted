@@ -8,7 +8,7 @@ import net.minecraft.world.entity.monster.Creeper;
 
 public class BreecherRenderer extends CreeperRenderer {
     
-    private static final ResourceLocation TEXTURE = Apocalypse.resourceLoc( "textures/entity/breecher/breecher.png" );
+    private static final ResourceLocation TEXTURE = Apocalypse.rl( "textures/entity/breecher/breecher.png" );
     
     public BreecherRenderer( EntityRendererProvider.Context context ) {
         super( context );

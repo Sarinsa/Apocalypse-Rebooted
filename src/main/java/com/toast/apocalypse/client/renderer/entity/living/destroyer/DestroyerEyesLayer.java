@@ -17,8 +17,8 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
  */
 public class DestroyerEyesLayer<T extends Destroyer> extends RenderLayer<T, GhastModel<T>> {
     
-    private static final RenderType EYES = RenderType.entityCutout( Apocalypse.resourceLoc( "textures/entity/destroyer/destroyer_eyes.png" ) );
-    private static final RenderType EYES_FIRE = RenderType.entityCutout( Apocalypse.resourceLoc( "textures/entity/destroyer/destroyer_eyes_fire.png" ) );
+    private static final RenderType EYES = RenderType.entityCutout( Apocalypse.rl( "textures/entity/destroyer/destroyer_eyes.png" ) );
+    private static final RenderType EYES_FIRE = RenderType.entityCutout( Apocalypse.rl( "textures/entity/destroyer/destroyer_eyes_fire.png" ) );
     
     
     public DestroyerEyesLayer( RenderLayerParent<T, GhastModel<T>> parent ) {

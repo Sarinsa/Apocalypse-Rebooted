@@ -15,7 +15,7 @@ import org.joml.Vector3f;
 
 public class ClientUtil {
     
-    private static final ResourceLocation BUCKET_HELM_OVERLAY_TEXTURE = Apocalypse.resourceLoc( "textures/misc/bucket_blur.png" );
+    private static final ResourceLocation BUCKET_HELM_OVERLAY_TEXTURE = Apocalypse.rl( "textures/misc/bucket_blur.png" );
     public static BucketHelmetModel BUCKET_HELMET_MODEL;
     
     // Unused (will probably remain unused, very sad)

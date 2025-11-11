@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
 
 public class GhostRenderer<T extends Ghost> extends MobRenderer<T, GhostModel<T>> {
     
-    protected static final ResourceLocation GHOST_TEXTURE = Apocalypse.resourceLoc( "textures/entity/ghost/ghost.png" );
+    protected static final ResourceLocation GHOST_TEXTURE = Apocalypse.rl( "textures/entity/ghost/ghost.png" );
     
     public GhostRenderer( EntityRendererProvider.Context context ) {
         super( context, new GhostModel<>( context.bakeLayer( ApocalypseModelLayers.GHOST ) ), 0.0F );

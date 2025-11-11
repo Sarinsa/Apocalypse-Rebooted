@@ -14,7 +14,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 /** Renders the fearwolf's fullbright eyes */
 public class FearwolfEyesLayer<T extends Fearwolf> extends RenderLayer<T, FearwolfModel<T>> {
     
-    private static final RenderType EYES = RenderType.entityCutout( Apocalypse.resourceLoc( "textures/entity/fearwolf/fearwolf_eyes.png" ) );
+    private static final RenderType EYES = RenderType.entityCutout( Apocalypse.rl( "textures/entity/fearwolf/fearwolf_eyes.png" ) );
     
     public FearwolfEyesLayer( RenderLayerParent<T, FearwolfModel<T>> parent ) {
         super( parent );

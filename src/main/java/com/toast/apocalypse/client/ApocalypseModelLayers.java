@@ -22,7 +22,7 @@ public class ApocalypseModelLayers {
     }
     
     private static ModelLayerLocation create( String path, String layerName ) {
-        return new ModelLayerLocation( Apocalypse.resourceLoc( path ), layerName );
+        return new ModelLayerLocation( Apocalypse.rl( path ), layerName );
     }
     
     private ApocalypseModelLayers() { }

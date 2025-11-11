@@ -12,7 +12,7 @@ import net.minecraft.world.level.storage.loot.LootContext;
 
 public class TamedGrumpTrigger extends SimpleCriterionTrigger<TamedGrumpTrigger.TriggerInstance> {
     
-    private static final ResourceLocation ID = Apocalypse.resourceLoc( "tame_grump" );
+    private static final ResourceLocation ID = Apocalypse.rl( "tame_grump" );
     
     @Override
     public ResourceLocation getId() {

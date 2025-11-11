@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class ShadefiendRenderer extends MobRenderer<Shadefiend, ShadefiendModel> {
     
-    private static final ResourceLocation TEXTURE = Apocalypse.resourceLoc( "textures/entity/shadefiend/shadefiend.png" );
+    private static final ResourceLocation TEXTURE = Apocalypse.rl( "textures/entity/shadefiend/shadefiend.png" );
     
     public ShadefiendRenderer( EntityRendererProvider.Context context ) {
         super( context, new ShadefiendModel( context.bakeLayer( ApocalypseModelLayers.SHADEFIEND ) ), 0.75F );

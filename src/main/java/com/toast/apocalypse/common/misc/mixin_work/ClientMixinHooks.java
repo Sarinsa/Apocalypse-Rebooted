@@ -15,8 +15,8 @@ import net.minecraft.world.level.material.FluidState;
 
 public class ClientMixinHooks {
     
-    private static final ResourceLocation ACID_RAIN_TEXTURE = Apocalypse.resourceLoc( "textures/environment/acid_rain.png" );
-    private static final ResourceLocation ACID_SNOW_TEXTURE = Apocalypse.resourceLoc( "textures/environment/acid_snow.png" );
+    private static final ResourceLocation ACID_RAIN_TEXTURE = Apocalypse.rl( "textures/environment/acid_rain.png" );
+    private static final ResourceLocation ACID_SNOW_TEXTURE = Apocalypse.rl( "textures/environment/acid_snow.png" );
     
     
     public static ResourceLocation getRenderSnowAndRainTexture( ResourceLocation originalTexture, Biome.Precipitation precipitation ) {

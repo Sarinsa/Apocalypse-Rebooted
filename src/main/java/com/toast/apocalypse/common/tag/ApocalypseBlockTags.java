@@ -9,11 +9,11 @@ import net.minecraft.world.level.block.Block;
 public class ApocalypseBlockTags {
     
     private static TagKey<Block> modTag( String name ) {
-        return create( Apocalypse.resourceLoc( name ) );
+        return create( Apocalypse.rl( name ) );
     }
     
     private static TagKey<Block> forgeTag( String name ) {
-        return create( new ResourceLocation( "forge", name ) );
+        return create( ResourceLocation.fromNamespaceAndPath( "forge", name ) );
     }
     
     private static TagKey<Block> create( ResourceLocation id ) {

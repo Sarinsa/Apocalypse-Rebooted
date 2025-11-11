@@ -12,7 +12,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 public class GrumpInventoryScreen extends AbstractContainerScreen<GrumpInventoryContainer> {
     
-    private static final ResourceLocation TEXTURE = Apocalypse.resourceLoc( "textures/gui/container/grump.png" );
+    private static final ResourceLocation TEXTURE = Apocalypse.rl( "textures/gui/container/grump.png" );
     private final Grump grump;
     private float xMouse;
     private float yMouse;

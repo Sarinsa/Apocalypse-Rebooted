@@ -12,21 +12,21 @@ import net.minecraft.world.item.Items;
 public class GrumpRenderer<T extends Grump> extends MobRenderer<T, GhastModel<T>> {
     
     private static final ResourceLocation[] GRUMP_TEXTURES = new ResourceLocation[] {
-            Apocalypse.resourceLoc( "textures/entity/grump/grump.png" ),
-            Apocalypse.resourceLoc( "textures/entity/grump/saddled_grump.png" )
+            Apocalypse.rl( "textures/entity/grump/grump.png" ),
+            Apocalypse.rl( "textures/entity/grump/saddled_grump.png" )
     };
     
     private static final ResourceLocation[] TAMED_GRUMP_TEXTURES = new ResourceLocation[] {
-            Apocalypse.resourceLoc( "textures/entity/grump/chill_grump.png" ),
-            Apocalypse.resourceLoc( "textures/entity/grump/saddled_chill_grump.png" )
+            Apocalypse.rl( "textures/entity/grump/chill_grump.png" ),
+            Apocalypse.rl( "textures/entity/grump/saddled_chill_grump.png" )
     };
     
     private static final ResourceLocation[] POUTING_GRUMP_TEXTURES = new ResourceLocation[] {
-            Apocalypse.resourceLoc( "textures/entity/grump/pouting_grump.png" ),
-            Apocalypse.resourceLoc( "textures/entity/grump/saddled_pouting_grump.png" )
+            Apocalypse.rl( "textures/entity/grump/pouting_grump.png" ),
+            Apocalypse.rl( "textures/entity/grump/saddled_pouting_grump.png" )
     };
     
-    private static final ResourceLocation ENRAGED = Apocalypse.resourceLoc( "textures/entity/grump/uh_oh_angry.png" );
+    private static final ResourceLocation ENRAGED = Apocalypse.rl( "textures/entity/grump/uh_oh_angry.png" );
     
     
     public GrumpRenderer( EntityRendererProvider.Context context ) {

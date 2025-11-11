@@ -15,7 +15,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 
 public class GhostFrozenLayer<T extends Ghost> extends RenderLayer<T, GhostModel<T>> {
     
-    private static final RenderType RENDER_TYPE = ApocalypseRenderTypes.entityCutoutNoCullBlend( Apocalypse.resourceLoc( "textures/entity/ghost/ghost.png" ), RenderStateShard.TransparencyStateShard.ADDITIVE_TRANSPARENCY );
+    private static final RenderType RENDER_TYPE = ApocalypseRenderTypes.entityCutoutNoCullBlend( Apocalypse.rl( "textures/entity/ghost/ghost.png" ), RenderStateShard.TransparencyStateShard.ADDITIVE_TRANSPARENCY );
     
     public GhostFrozenLayer( RenderLayerParent<T, GhostModel<T>> parent ) {
         super( parent );

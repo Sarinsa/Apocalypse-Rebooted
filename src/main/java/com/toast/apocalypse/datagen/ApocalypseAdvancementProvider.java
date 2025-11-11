@@ -32,10 +32,10 @@ public class ApocalypseAdvancementProvider extends ForgeAdvancementProvider {
                     .display( ApocalypseItems.FRAGMENTED_SOUL.get(),
                             Component.translatable( title( "root" ) ),
                             Component.translatable( desc( "root" ) ),
-                            Apocalypse.resourceLoc( "textures/gui/advancements/backgrounds/night_sky.png" ),
+                            Apocalypse.rl( "textures/gui/advancements/backgrounds/night_sky.png" ),
                             FrameType.TASK, true, true, false )
                     .addCriterion( "pass_grace_period", PassedGracePeriodTrigger.TriggerInstance.gracePeriodPassed() )
-                    .save( saver, Apocalypse.resourceLoc( "root" ), existingFileHelper );
+                    .save( saver, Apocalypse.rl( "root" ), existingFileHelper );
             
             Advancement toasty = Advancement.Builder.advancement()
                     .parent( root )
@@ -45,7 +45,7 @@ public class ApocalypseAdvancementProvider extends ForgeAdvancementProvider {
                             null,
                             FrameType.CHALLENGE, true, true, true )
                     .addCriterion( "obtain_fatherly_toast", InventoryChangeTrigger.TriggerInstance.hasItems( ApocalypseItems.FATHERLY_TOAST.get() ) )
-                    .save( saver, Apocalypse.resourceLoc( "toasty" ), existingFileHelper );
+                    .save( saver, Apocalypse.rl( "toasty" ), existingFileHelper );
             
             Advancement lessGrumpy = Advancement.Builder.advancement()
                     .parent( toasty )
@@ -55,7 +55,7 @@ public class ApocalypseAdvancementProvider extends ForgeAdvancementProvider {
                             null,
                             FrameType.TASK, true, true, true )
                     .addCriterion( "tame_grump", TamedGrumpTrigger.TriggerInstance.tamedGrump() )
-                    .save( saver, Apocalypse.resourceLoc( "less_grumpy" ), existingFileHelper );
+                    .save( saver, Apocalypse.rl( "less_grumpy" ), existingFileHelper );
             
             Advancement lunarium = Advancement.Builder.advancement()
                     .parent( root )
@@ -65,7 +65,7 @@ public class ApocalypseAdvancementProvider extends ForgeAdvancementProvider {
                             null,
                             FrameType.TASK, true, true, true )
                     .addCriterion( "obtain_lunarium", InventoryChangeTrigger.TriggerInstance.hasItems( ApocalypseItems.MIDNIGHT_STEEL_INGOT.get() ) )
-                    .save( saver, Apocalypse.resourceLoc( "lunarium" ), existingFileHelper );
+                    .save( saver, Apocalypse.rl( "lunarium" ), existingFileHelper );
         }
         
         private static String title( String advancementName ) {

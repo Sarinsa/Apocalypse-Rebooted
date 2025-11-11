@@ -13,8 +13,8 @@ public class CapabilityAttachListener {
     @SubscribeEvent
     public void onEntityCapabilityAttach( AttachCapabilitiesEvent<Entity> event ) {
         if( event.getObject() instanceof Player ) {
-            event.addCapability( Apocalypse.resourceLoc( "difficulty" ), new DifficultyCapProvider() );
-            event.addCapability( Apocalypse.resourceLoc( "mob_wiki" ), new MobWikiCapProvider() );
+            event.addCapability( Apocalypse.rl( "difficulty" ), new DifficultyCapProvider() );
+            event.addCapability( Apocalypse.rl( "mob_wiki" ), new MobWikiCapProvider() );
         }
     }
 }

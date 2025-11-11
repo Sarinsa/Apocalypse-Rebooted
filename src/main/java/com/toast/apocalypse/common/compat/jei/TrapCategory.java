@@ -25,8 +25,8 @@ public class TrapCategory extends BaseRecipeCategory<TrapRecipe> {
     
     
     private static final Component TITLE = Component.translatable( References.TRAP_CATEGORY_TITLE );
-    private static final ResourceLocation GUI_TEXTURE = Apocalypse.resourceLoc( "textures/gui/container/dynamic_trap.png" );
-    private static final ResourceLocation RESULT_SLOT = Apocalypse.resourceLoc( "textures/gui/container/components/trap_result_slot.png" );
+    private static final ResourceLocation GUI_TEXTURE = Apocalypse.rl( "textures/gui/container/dynamic_trap.png" );
+    private static final ResourceLocation RESULT_SLOT = Apocalypse.rl( "textures/gui/container/components/trap_result_slot.png" );
     
     private final IDrawable background;
     private final IDrawable icon;
