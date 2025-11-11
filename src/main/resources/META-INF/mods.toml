@@ -1,42 +1,42 @@
-modLoader="javafml"
-loaderVersion="[47,)"
-license="MIT License"
-issueTrackerURL="https://github.com/Sarinsa/Apocalypse-Rebooted/issues"
+modLoader = "javafml"
+loaderVersion = "[47,)"
+license = "MIT License"
+issueTrackerURL = "https://github.com/Sarinsa/Apocalypse-Rebooted/issues"
 
 [[mods]]
-    modId="apocalypse"
-    version="${file.jarVersion}"
-    displayName="Apocalypse Rebooted"
-    updateJSONURL="https://raw.githubusercontent.com/Sarinsa/Apocalypse-Rebooted/1.20.X/version_check.json"
-    logoFile="logo.png"
-    credits="Sarinsa (Maintenance and porting), Frenderman (Artwork), Evo (Artwork), SoyTutta (Artwork)"
-    authors="FatherToast (Original author and brainstormer)"
-    description="The longer you stay in the world, the more powerful the monsters get. It may start raining acid, thunderstorms causes strange things to happen, and full moon nights empowers monsters and summons deadly foes that will do anything in their power to hunt you down. Good luck!"
+modId = "apocalypse"
+version = "${file.jarVersion}"
+displayName = "Apocalypse Rebooted"
+updateJSONURL = "https://raw.githubusercontent.com/Sarinsa/Apocalypse-Rebooted/1.20.X/version_check.json"
+logoFile = "logo.png"
+credits = "Sarinsa (Maintenance and porting), Frenderman (Artwork), Evo (Artwork), SoyTutta (Artwork)"
+authors = "FatherToast (Original author and brainstormer)"
+description = "The longer you stay in the world, the more powerful the monsters get. It may start raining acid, thunderstorms causes strange things to happen, and full moon nights empowers monsters and summons deadly foes that will do anything in their power to hunt you down. Good luck!"
 
 [[dependencies.apocalypse]]
-    modId="forge"
-    mandatory=true
-    versionRange="[47,)"
-    ordering="NONE"
-    side="BOTH"
+modId = "forge"
+mandatory = true
+versionRange = "[47.4.0,)"
+ordering = "NONE"
+side = "BOTH"
 
 [[dependencies.apocalypse]]
-    modId="minecraft"
-    mandatory=true
-    versionRange="[1.20.1,]"
-    ordering="NONE"
-    side="BOTH"
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.20.1,]"
+ordering = "NONE"
+side = "BOTH"
 
 [[dependencies.apocalypse]]
-    modId = "crust"
-    mandatory = true
-    versionRange = "[4.7.14,)"
-    ordering = "AFTER"
-    side = "BOTH"
+modId = "crust"
+mandatory = true
+versionRange = "[4.8.14,)"
+ordering = "AFTER"
+side = "BOTH"
 
 [[dependencies.apocalypse]]
-    modId = "ryoamiclights"
-    mandatory = false
-    versionRange = "[0.2.3,)"
-    ordering = "NONE"
-    side = "BOTH"
+modId = "ryoamiclights"
+mandatory = false
+versionRange = "[0.2.3,)"
+ordering = "NONE"
+side = "BOTH"
