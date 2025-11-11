@@ -78,8 +78,7 @@ public final class DarknessEvent extends AbstractEvent {
     @Override
     public boolean shouldContinueRunning( ServerLevel level, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager ) {
         if( stage == Stage.RESET || player.isCreative() || player.isSpectator() ) return false;
-        
-        return isLowBrightnessAt( level, player.blockPosition() );
+        return isLowBrightnessAt( level, player.blockPosition().atY( (int) Math.floor( player.getEyeY() ) ) );
     }
     
     @Override

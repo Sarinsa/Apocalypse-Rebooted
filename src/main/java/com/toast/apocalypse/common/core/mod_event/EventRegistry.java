@@ -33,7 +33,7 @@ public class EventRegistry {
             ( serverLevel, player, difficulty, difficultyManager ) -> {
                 if( player.isCreative() || player.isSpectator() || !ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.enabled.get() )
                     return false;
-                return DarknessEvent.isLowBrightnessAt( serverLevel, player.blockPosition() );
+                return DarknessEvent.isLowBrightnessAt( serverLevel, player.blockPosition().atY( (int) Math.floor( player.getEyeHeight() ) ) );
             } );
     
     
