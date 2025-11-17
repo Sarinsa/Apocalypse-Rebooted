@@ -30,7 +30,7 @@ side = "BOTH"
 [[dependencies.apocalypse]]
 modId = "crust"
 mandatory = true
-versionRange = "[4.8.14,)"
+versionRange = "[4.9.15,)"
 ordering = "AFTER"
 side = "BOTH"
 

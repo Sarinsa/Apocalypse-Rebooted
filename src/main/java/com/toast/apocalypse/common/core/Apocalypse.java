@@ -61,11 +61,6 @@ public class Apocalypse {
     private final PacketHandler packetHandler = new PacketHandler();
     
     
-    // TODO LIST
-    //
-    // - Enable our mixins again before build!!!!
-    
-    
     public Apocalypse( FMLJavaModLoadingContext context ) {
         INSTANCE = this;
         

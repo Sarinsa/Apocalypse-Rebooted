@@ -200,7 +200,7 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
         if( super.doHurtTarget( entity ) ) {
             if( entity instanceof Player player ) {
                 int duration = level().getDifficulty() == Difficulty.HARD ? 100 : 60;
-                player.addEffect( new MobEffectInstance( CrustObjects.weight(), duration, 1 ) );
+                player.addEffect( new MobEffectInstance( CrustObjects.Effects.WEIGHT.get(), duration, 1 ) );
             }
             return true;
         }

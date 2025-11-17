@@ -150,7 +150,7 @@ public class Shadefiend extends FlyingMob implements Enemy {
                     effectDuration = 80;
                 }
                 livingEntity.addEffect( new MobEffectInstance( MobEffects.DARKNESS, effectDuration, 0 ), this );
-                livingEntity.addEffect( new MobEffectInstance( CrustObjects.vulnerability(), effectDuration, 0 ), this );
+                livingEntity.addEffect( new MobEffectInstance( CrustObjects.Effects.VULNERABILITY.get(), effectDuration, 0 ), this );
             }
             return true;
         }
