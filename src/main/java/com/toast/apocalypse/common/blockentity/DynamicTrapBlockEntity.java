@@ -11,8 +11,8 @@ import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.recipe.TrapRecipe;
 import com.toast.apocalypse.common.util.References;
 import fathertoast.crust.api.util.BoxShape;
-import fathertoast.crust.api.util.IBlockEntityDebugShapeProvider;
 import fathertoast.crust.api.util.IDebugShape;
+import fathertoast.crust.api.util.IDebugShapeProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -40,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements IBlockEntityDebugShapeProvider {
+public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements IDebugShapeProvider {
     
     private NonNullList<ItemStack> items = NonNullList.withSize( 9, ItemStack.EMPTY );
     
@@ -144,7 +144,7 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
     @SuppressWarnings( "ConstantConditions" )
     public void activateTrap() {
         if( getCurrentTrap() != null && getCurrentTrapRadius() > 0 ) {
-            getCurrentTrap().execute( level, getBlockPos(), getBlockState().getValue( DynamicTrapBlock.FACING ), getBoundingBox() );
+            getCurrentTrap().execute( level, getBlockPos(), getBlockState().getValue( DynamicTrapBlock.FACING ), getBoundingBox( true ) );
             setCurrentTrap( null );
             
             if( !getLevel().isClientSide ) {
@@ -328,47 +328,54 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
         }
     }
     
+    /**
+     * @return The effective area of this trap.
+     * Calculates the AABB if it doesn't exist yet.
+     */
     @Nullable
-    public AABB getBoundingBox() {
-        if( getCurrentTrapRadius() < 0 ) return null;
+    public AABB getBoundingBox( boolean moveToPos ) {
+        final int trapRadius = getCurrentTrapRadius();
         
-        final int effectRadius = currentTrapRadius;
+        if( trapRadius < 1 ) return null;
+        
         final Direction dir = getBlockState().getValue( DynamicTrapBlock.FACING );
-        AABB box = new AABB( getBlockPos() ).inflate( effectRadius );
+        AABB box = moveToPos
+                ? new AABB( getBlockPos() ).inflate( currentTrapRadius )
+                : new AABB( 0, 0, 0, 1, 1, 1 ).inflate( currentTrapRadius );
         
         switch( dir ) {
             case UP: {
-                box = box.move( 0.0D, (effectRadius + 1), 0.0D );
+                box = box.move( 0.0D, (trapRadius + 1), 0.0D );
                 break;
             }
             case DOWN: {
-                box = box.move( 0.0D, -(effectRadius + 1), 0.0D );
+                box = box.move( 0.0D, -(trapRadius + 1), 0.0D );
                 break;
             }
             case NORTH: {
-                box = box.move( 0.0D, 0.0D, -(effectRadius + 1) );
+                box = box.move( 0.0D, 0.0D, -(trapRadius + 1) );
                 break;
             }
             case EAST: {
-                box = box.move( (effectRadius + 1), 0.0D, 0.0D );
+                box = box.move( (trapRadius + 1), 0.0D, 0.0D );
                 break;
             }
             case SOUTH: {
-                box = box.move( 0.0D, 0.0D, (effectRadius + 1) );
+                box = box.move( 0.0D, 0.0D, (trapRadius + 1) );
                 break;
             }
             case WEST: {
-                box = box.move( -(effectRadius + 1), 0.0D, 0.0D );
+                box = box.move( -(trapRadius + 1), 0.0D, 0.0D );
                 break;
             }
         }
         return box;
     }
     
-    // TODO - Wait for crust update
     @Override
     @Nullable
     public List<IDebugShape> getDebugShapes() {
-        return getCurrentTrapRadius() > 0 ? List.of( new BoxShape( getBoundingBox() ) ) : null;
+        AABB boundingBox = getBoundingBox( false );
+        return boundingBox == null ? IDebugShapeProvider.NO_SHAPES : List.of( new BoxShape( boundingBox ).withRGB( 0x00FF00 ) );
     }
 }

@@ -1,6 +1,5 @@
 package com.toast.apocalypse.common.inventory.container;
 
-import com.toast.apocalypse.api.misc.MethodsReturnNonnullByDefault;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.entity.living.Grump;
 import net.minecraft.world.Container;
@@ -13,7 +12,6 @@ import net.minecraft.world.item.Items;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-@MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class GrumpInventoryContainer extends AbstractContainerMenu {
     
