@@ -91,16 +91,18 @@ public class SeekerFireballEntity extends Fireball {
         if( getOwner() instanceof LivingEntity livingEntity ) {
             owner = livingEntity;
         }
-        boolean canDestroy = level().getGameRules().getBoolean( GameRules.RULE_MOBGRIEFING ) || ForgeEventFactory.getMobGriefingEvent( level(), this );
+        // noinspection resource
+        final Level level = level();
+        final boolean canDestroy = level.getGameRules().getBoolean( GameRules.RULE_MOBGRIEFING ) || ForgeEventFactory.getMobGriefingEvent( level(), this );
         
-        if( !level().isClientSide ) {
+        if( !level.isClientSide ) {
             if( sawTarget ) {
                 if( !(owner instanceof Mob) || canDestroy ) {
                     BlockPos firePos = result.getBlockPos().relative( direction );
                     
-                    if( level().isEmptyBlock( firePos ) ) {
-                        level().setBlockAndUpdate( firePos, FireBlock.getState( level(), firePos ) );
-                        level().playSound( null, blockPosition(), ApocalypseSounds.SEEKER_FIREBALL_IGNITE.get(), SoundSource.MASTER, 2.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F );
+                    if( level.isEmptyBlock( firePos ) ) {
+                        level.setBlockAndUpdate( firePos, FireBlock.getState( level(), firePos ) );
+                        level.playSound( null, blockPosition(), ApocalypseSounds.SEEKER_FIREBALL_IGNITE.get(), SoundSource.MASTER, 2.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F );
                     }
                 }
             }
@@ -114,6 +116,7 @@ public class SeekerFireballEntity extends Fireball {
     protected void onHit( HitResult result ) {
         super.onHit( result );
         
+        // noinspection resource
         if( !level().isClientSide ) {
             discard();
         }

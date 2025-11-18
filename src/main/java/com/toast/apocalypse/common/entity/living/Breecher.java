@@ -96,6 +96,7 @@ public class Breecher extends Creeper implements IFullMoonMob {
     public boolean canSeeDirectly( Entity entity ) {
         Vec3 vector3d = new Vec3( this.getX(), this.getEyeY(), this.getZ() );
         Vec3 vector3d1 = new Vec3( entity.getX(), entity.getEyeY(), entity.getZ() );
+        // noinspection resource
         return level().clip( new ClipContext( vector3d, vector3d1, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this ) ).getType() == HitResult.Type.MISS;
     }
     
@@ -103,6 +104,7 @@ public class Breecher extends Creeper implements IFullMoonMob {
     public void aiStep() {
         super.aiStep();
         
+        // noinspection resource
         if( !level().isClientSide ) {
             ServerLevel serverLevel = (ServerLevel) level();
             

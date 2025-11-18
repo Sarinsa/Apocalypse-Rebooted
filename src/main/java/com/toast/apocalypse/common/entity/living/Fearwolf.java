@@ -73,7 +73,8 @@ public class Fearwolf extends Monster implements Enemy {
     public boolean doHurtTarget( Entity entity ) {
         if( super.doHurtTarget( entity ) ) {
             if( entity instanceof Player player ) {
-                int duration = this.level().getDifficulty() == Difficulty.HARD ? 80 : 40;
+                // noinspection resource
+                int duration = level().getDifficulty() == Difficulty.HARD ? 80 : 40;
                 player.addEffect( new MobEffectInstance( MobEffects.MOVEMENT_SLOWDOWN, duration ) );
             }
             return true;
@@ -134,6 +135,7 @@ public class Fearwolf extends Monster implements Enemy {
     
     @Override
     public int getExperienceReward() {
-        return 3 + level().random.nextInt( 5 );
+        // noinspection resource
+        return level().random.nextInt( 5 ) + 3;
     }
 }

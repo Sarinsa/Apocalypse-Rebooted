@@ -26,6 +26,7 @@ public class MoonMobPlayerTargetGoal<T extends Mob & IFullMoonMob> extends Targe
         if( playerTargetUUID == null )
             return false;
         
+        // noinspection resource
         Player player = moonMob.level().getPlayerByUUID( playerTargetUUID );
         
         if( player == null )
@@ -50,6 +51,7 @@ public class MoonMobPlayerTargetGoal<T extends Mob & IFullMoonMob> extends Targe
     @SuppressWarnings( "ConstantConditions" )
     public void start() {
         LivingEntity target = moonMob.getTarget();
+        // noinspection resource
         Player playerTarget = moonMob.level().getPlayerByUUID( moonMob.getPlayerTargetUUID() );
         
         moonMob.setTarget( playerTarget != null ? playerTarget : target );

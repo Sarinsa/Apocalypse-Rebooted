@@ -12,14 +12,15 @@ import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
 
 public class ApocalypseEntityTagProvider extends EntityTypeTagsProvider {
-
-    public ApocalypseEntityTagProvider(DataGenerator dataGenerator, CompletableFuture<HolderLookup.Provider> lookupProvider, @Nullable ExistingFileHelper fileHelper) {
-        super(dataGenerator.getPackOutput(), lookupProvider, Apocalypse.MODID, fileHelper);
+    
+    public ApocalypseEntityTagProvider( DataGenerator dataGenerator, CompletableFuture<HolderLookup.Provider> lookupProvider,
+                                        @Nullable ExistingFileHelper fileHelper ) {
+        super( dataGenerator.getPackOutput(), lookupProvider, Apocalypse.MODID, fileHelper );
     }
-
+    
     @Override
-    protected void addTags(HolderLookup.Provider lookupProvider) {
-        tag(ApocalypseEntityTags.FLYING_ENTITIES).add(
+    protected void addTags( HolderLookup.Provider lookupProvider ) {
+        tag( ApocalypseEntityTags.FLYING_ENTITIES ).add(
                 ApocalypseEntities.DESTROYER.get(),
                 ApocalypseEntities.SEEKER.get(),
                 ApocalypseEntities.GHOST.get(),

@@ -14,7 +14,6 @@ import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
-import javax.annotation.Nonnull;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -28,9 +27,8 @@ public class ApocalypseEntityLootTableProvider extends EntityLootSubProvider {
     }
     
     @Override
-    @Nonnull
     protected Stream<EntityType<?>> getKnownEntityTypes() {
-        return this.knownEntities.stream();
+        return knownEntities.stream();
     }
     
     @Override

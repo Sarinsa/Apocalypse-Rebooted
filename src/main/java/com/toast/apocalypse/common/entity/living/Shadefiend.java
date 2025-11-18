@@ -35,6 +35,7 @@ import net.minecraftforge.fluids.FluidType;
 
 import java.util.EnumSet;
 
+@SuppressWarnings( "resource" )
 public class Shadefiend extends FlyingMob implements Enemy {
     
     protected static final EntityDataAccessor<Boolean> IS_IN_LIGHT = SynchedEntityData.defineId( Shadefiend.class, EntityDataSerializers.BOOLEAN );

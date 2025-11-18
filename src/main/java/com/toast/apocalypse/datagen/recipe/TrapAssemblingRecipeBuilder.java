@@ -18,6 +18,7 @@ import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class TrapAssemblingRecipeBuilder implements RecipeBuilder {
@@ -77,12 +78,14 @@ public class TrapAssemblingRecipeBuilder implements RecipeBuilder {
     // Does nothing
     @Override
     public RecipeBuilder group( @Nullable String s ) {
+        // noinspection ConstantConditions
         return null;
     }
     
     // Does nothing
     @Override
     public Item getResult() {
+        // noinspection ConstantConditions
         return null;
     }
     
@@ -115,7 +118,7 @@ public class TrapAssemblingRecipeBuilder implements RecipeBuilder {
             this.preparationTime = preparationTime;
             this.ingredients = ingredients;
             
-            if( ingredients.size() < 1 || ingredients.size() > 9 )
+            if( ingredients.isEmpty() || ingredients.size() > 9 )
                 throw new IllegalArgumentException( "Trap assembling recipe had less than 1 or more than 9 ingredients. This is not allowed." );
         }
         
@@ -128,7 +131,7 @@ public class TrapAssemblingRecipeBuilder implements RecipeBuilder {
             
             jsonObject.add( "ingredients", jsonarray );
             JsonObject jsonobject = new JsonObject();
-            jsonobject.addProperty( "trap_type", ModRegistries.TRAP_ACTIONS_REGISTRY.get().getKey( result ).toString() );
+            jsonobject.addProperty( "trap_type", Objects.requireNonNull( ModRegistries.TRAP_ACTIONS_REGISTRY.get().getKey( result ) ).toString() );
             
             if( preparationTime < 0 )
                 throw new IllegalArgumentException( "Preparation time can not be negative" );

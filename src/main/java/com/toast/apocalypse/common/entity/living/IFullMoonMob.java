@@ -60,6 +60,7 @@ public interface IFullMoonMob {
     @Nullable
     static <E extends LivingEntity & IFullMoonMob> Player getEventTarget( E moonMob ) {
         if( moonMob.getPlayerTargetUUID() != null ) {
+            // noinspection resource
             return moonMob.level().getPlayerByUUID( moonMob.getPlayerTargetUUID() );
         }
         return null;

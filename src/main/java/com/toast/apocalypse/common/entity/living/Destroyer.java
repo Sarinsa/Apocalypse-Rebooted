@@ -94,6 +94,7 @@ public class Destroyer extends AbstractFullMoonGhast {
      * has been attacked by their siege target player
      * since it spawned.
      */
+    @SuppressWarnings( "BooleanMethodIsAlwaysInverted" )
     public boolean attackedBySiegeTarget() {
         return entityData.get( ATTACKED_BY_PT );
     }
@@ -179,6 +180,7 @@ public class Destroyer extends AbstractFullMoonGhast {
     
     @Override
     @Nullable
+    @SuppressWarnings( "deprecation" )
     public SpawnGroupData finalizeSpawn( ServerLevelAccessor serverLevel, DifficultyInstance difficultyInstance, MobSpawnType spawnType, @Nullable SpawnGroupData data, @Nullable CompoundTag compoundTag ) {
         data = super.finalizeSpawn( serverLevel, difficultyInstance, spawnType, data, compoundTag );
         
@@ -375,7 +377,10 @@ public class Destroyer extends AbstractFullMoonGhast {
                 return false;
             
             if( IFullMoonMob.getEventTarget( destroyer ) instanceof ServerPlayer targetPlayer && !destroyer.attackedBySiegeTarget() ) {
-                if( targetPlayer.getRespawnPosition() != null && (targetPlayer.getRespawnDimension().equals( destroyer.level().dimension() )) && isPlayerSpawnValid( targetPlayer.getRespawnPosition(), destroyer.level() ) ) {
+                // noinspection resource
+                if( targetPlayer.getRespawnPosition() != null &&
+                        (targetPlayer.getRespawnDimension().equals( destroyer.level().dimension() ))
+                        && isPlayerSpawnValid( targetPlayer.getRespawnPosition(), destroyer.level() ) ) {
                     respawnPos = targetPlayer.getRespawnPosition();
                     return true;
                 }
@@ -389,6 +394,7 @@ public class Destroyer extends AbstractFullMoonGhast {
                 return false;
             
             if( IFullMoonMob.getEventTarget( destroyer ) instanceof ServerPlayer targetPlayer && !destroyer.attackedBySiegeTarget() ) {
+                // noinspection resource
                 if( respawnPos != null && (targetPlayer.getRespawnDimension().equals( destroyer.level().dimension() )) ) {
                     return isPlayerSpawnValid( respawnPos, destroyer.level() );
                 }
@@ -467,7 +473,10 @@ public class Destroyer extends AbstractFullMoonGhast {
             else if( destroyer.getTarget() instanceof ServerPlayer serverPlayer ) {
                 double x, z;
                 
-                if( !destroyer.attackedBySiegeTarget() && destroyer.isTargetingSpawnPoint && serverPlayer.getRespawnPosition() != null && (serverPlayer.getRespawnDimension().equals( destroyer.level().dimension() )) && isPlayerSpawnValid( serverPlayer.getRespawnPosition(), destroyer.level() ) ) {
+                // noinspection resource
+                if( !destroyer.attackedBySiegeTarget() && destroyer.isTargetingSpawnPoint
+                        && serverPlayer.getRespawnPosition() != null && (serverPlayer.getRespawnDimension().equals( destroyer.level().dimension() ))
+                        && isPlayerSpawnValid( serverPlayer.getRespawnPosition(), destroyer.level() ) ) {
                     BlockPos respawnPos = serverPlayer.getRespawnPosition();
                     x = respawnPos.getX() - destroyer.getX();
                     z = respawnPos.getZ() - destroyer.getZ();

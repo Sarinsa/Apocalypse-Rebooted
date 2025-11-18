@@ -7,26 +7,21 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
- * Fired when a Seeker attempts to alert nearby entities of its target player.<br>
- * <br>
- * <p>
- * This event is fired from {@link Seeker.AlertOtherMonstersGoal#start()}<br>
- * <br>
- * <p>
+ * Fired when a Seeker attempts to alert nearby entities of its target player.
+ * <br><br>
+ * This event is fired from {@link Seeker.AlertOtherMonstersGoal#start()}
+ * <br><br>
  * {@link #seeker} is the Seeker entity that is trying to alert an entity.<br>
  * {@link #toAlert} is a List of mob entities the Seeker is trying to alert.<br>
  * {@link #target} is the Seeker's current target, usually a player.<br>
- * {@link #level} is the Seeker's World object.<br>
- * <br>
- * <p>
- * This event is not {@link Cancelable}<br>
- * <br>
- * The {@link #toAlert} List is modifiable, and mobs can be both added and removed.<br>
- * <br>
+ * {@link #level} is the Seeker's World object.
+ * <br><br>
+ * This event is not {@link Cancelable}
+ * <br><br>
+ * The {@link #toAlert} List is modifiable, and mobs can be both added and removed.
  */
 public final class SeekerAlertEvent extends Event {
     
@@ -35,7 +30,7 @@ public final class SeekerAlertEvent extends Event {
     private final LivingEntity target;
     private final Level level;
     
-    public SeekerAlertEvent( Level level, @Nonnull Mob seeker, @Nonnull List<? extends Mob> toAlert, @Nonnull LivingEntity target ) {
+    public SeekerAlertEvent( Level level, Mob seeker, List<? extends Mob> toAlert, LivingEntity target ) {
         this.seeker = seeker;
         this.toAlert = toAlert;
         this.target = target;

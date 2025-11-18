@@ -32,6 +32,7 @@ public class MobHurtByTargetGoal extends TargetGoal {
         LivingEntity lastHurtByMob = mob.getLastHurtByMob();
         
         if( timeLastHurt != timestamp && lastHurtByMob != null ) {
+            // noinspection resource
             if( lastHurtByMob.getType() == EntityType.PLAYER && mob.level().getGameRules().getBoolean( GameRules.RULE_UNIVERSAL_ANGER ) ) {
                 return false;
             }
@@ -70,18 +71,23 @@ public class MobHurtByTargetGoal extends TargetGoal {
     protected void alertOthers() {
         double followDistance = getFollowDistance();
         AABB aabb = AABB.unitCubeFromLowerCorner( mob.position() ).inflate( followDistance, 10.0D, followDistance );
+        // noinspection resource
         List<? extends Mob> list = mob.level().getEntitiesOfClass( mob.getClass(), aabb, EntitySelector.NO_SPECTATORS );
         Iterator<? extends Mob> iterator = list.iterator();
         
         while( true ) {
-            Mob mob;
+            Mob toAlert;
             while( true ) {
                 if( !iterator.hasNext() ) {
                     return;
                 }
                 
-                mob = iterator.next();
-                if( this.mob != mob && mob.getTarget() == null && (!(this.mob instanceof TamableAnimal) || ((TamableAnimal) this.mob).getOwner() == ((TamableAnimal) mob).getOwner()) && !mob.isAlliedTo( this.mob.getLastHurtByMob() ) ) {
+                toAlert = iterator.next();
+                final LivingEntity lastHurtBy = toAlert.getLastHurtByMob();
+                
+                if( mob != toAlert && toAlert.getTarget() == null
+                        && (!(mob instanceof TamableAnimal) || ((TamableAnimal) mob).getOwner() == ((TamableAnimal) toAlert).getOwner())
+                        && (lastHurtBy != null && !toAlert.isAlliedTo( lastHurtBy )) ) {
                     if( toIgnoreAlert == null ) {
                         break;
                     }
@@ -89,7 +95,7 @@ public class MobHurtByTargetGoal extends TargetGoal {
                     boolean flag = false;
                     
                     for( Class<?> clazz : toIgnoreAlert ) {
-                        if( mob.getClass() == clazz ) {
+                        if( toAlert.getClass() == clazz ) {
                             flag = true;
                             break;
                         }
@@ -100,11 +106,11 @@ public class MobHurtByTargetGoal extends TargetGoal {
                     }
                 }
             }
-            alertOther( mob, mob.getLastHurtByMob() );
+            alertOther( toAlert, toAlert.getLastHurtByMob() );
         }
     }
     
-    protected void alertOther( Mob mob, LivingEntity livingEntity ) {
+    protected void alertOther( Mob mob, @Nullable LivingEntity livingEntity ) {
         mob.setTarget( livingEntity );
     }
 }

@@ -57,10 +57,14 @@ public class DestroyerFireballEntity extends Fireball {
     
     @Override
     protected void onHit( HitResult result ) {
+        // noinspection resource
+        final Level level = level();
+        
         if( result.getType() == HitResult.Type.ENTITY ) {
-            EntityHitResult entityResult = (EntityHitResult) result;
-            Entity entity = entityResult.getEntity();
-            DamageSource directImpact = level().damageSources().fireball( this, getOwner() );
+            final EntityHitResult entityResult = (EntityHitResult) result;
+            final Entity entity = entityResult.getEntity();
+            final DamageSource directImpact = level.damageSources().fireball( this, getOwner() );
+            
             entity.hurt( directImpact, 4.0F );
             
             if( entity instanceof LivingEntity livingEntity ) {
@@ -91,8 +95,8 @@ public class DestroyerFireballEntity extends Fireball {
                 }
             }
         }
-        if( !level().isClientSide ) {
-            destroyerExplosion( level(), this, level().damageSources().fireball( this, getOwner() ), getX(), getY(), getZ(), explosionPower );
+        if( !level.isClientSide ) {
+            destroyerExplosion( level(), this, level.damageSources().fireball( this, getOwner() ), getX(), getY(), getZ(), explosionPower );
             discard();
         }
     }
@@ -106,7 +110,10 @@ public class DestroyerFireballEntity extends Fireball {
             // BlockRayTraceResult, but just in case some other mod
             // wants to use the dummy info that would be parsed, lets not.
             // Did that explanation make sense? Probably not.
+            
+            // noinspection resource
             if( !level().isClientSide ) {
+                // noinspection resource
                 destroyerExplosion( level(), this, level().damageSources().fireball( this, getOwner() ), getX(), getY(), getZ(), explosionPower );
                 discard();
             }
@@ -124,6 +131,7 @@ public class DestroyerFireballEntity extends Fireball {
             // Deflect fireball and set fuse time
             Entity entity = damageSource.getEntity();
             Vec3 vec = entity.getLookAngle();
+            // noinspection resource
             entity.level().playSound( null, blockPosition(), ApocalypseSounds.DESTROYER_FIREBALL_DEFLECT.get(), SoundSource.NEUTRAL, 0.8F, 1.0F );
             fuseTime = 10;
             setDeltaMovement( vec );

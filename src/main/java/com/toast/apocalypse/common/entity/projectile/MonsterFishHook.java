@@ -4,6 +4,7 @@ import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.entity.living.Grump;
 import com.toast.apocalypse.common.network.NetworkHelper;
+import fathertoast.crust.api.lib.EntityEventHelper;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -94,6 +95,7 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
     public void onSyncedDataUpdated( EntityDataAccessor<?> dataParameter ) {
         if( DATA_HOOKED_ENTITY.equals( dataParameter ) ) {
             int i = this.getEntityData().get( DATA_HOOKED_ENTITY );
+            // noinspection resource
             this.hookedIn = i > 0 ? level().getEntity( i - 1 ) : null;
         }
         super.onSyncedDataUpdated( dataParameter );
@@ -128,6 +130,7 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
             }
             float fluidHeight = 0.0F;
             BlockPos pos = blockPosition();
+            // noinspection resource
             FluidState fluidState = level().getFluidState( pos );
             
             if( fluidState.getFluidType() == ForgeMod.WATER_TYPE.get() ) {
@@ -211,6 +214,7 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
     protected void onHitEntity( EntityHitResult hitResult ) {
         super.onHitEntity( hitResult );
         
+        // noinspection resource
         if( !level().isClientSide ) {
             Entity entity = hitResult.getEntity();
             
@@ -218,7 +222,7 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
                 if( isBlocked( player ) ) {
                     if( getLivingOwner() instanceof Grump grump ) {
                         grump.hookBlocked();
-                        level().broadcastEntityEvent( player, (byte) 29 );
+                        EntityEventHelper.SHIELD_BLOCK_SOUND.broadcast( player );
                     }
                     discard();
                     return;
@@ -263,6 +267,7 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
     
     @Override
     public void handleEntityEvent( byte event ) {
+        // noinspection resource
         if( event == 31 && level().isClientSide && hookedIn instanceof LocalPlayer ) {
             bringInHookedEntity();
         }
@@ -273,6 +278,7 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
         LivingEntity livingEntity = getLivingOwner();
         
         if( livingEntity != null ) {
+            // noinspection resource
             level().playSound( null, livingEntity.blockPosition(), ApocalypseSounds.MONSTER_HOOK_RETRIEVE.get(), SoundSource.NEUTRAL, 0.6F, 0.4F / (level().random.nextFloat() * 0.4F + 0.8F) );
             Entity entity = hookedIn;
             
@@ -325,6 +331,7 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
     
     @Override
     public void readSpawnData( FriendlyByteBuf additionalData ) {
+        // noinspection resource
         this.setOwner( level().getEntity( additionalData.readInt() ) );
     }
     

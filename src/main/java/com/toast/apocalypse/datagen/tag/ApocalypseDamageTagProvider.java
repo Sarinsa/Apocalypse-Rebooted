@@ -10,13 +10,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.concurrent.CompletableFuture;
 
 public class ApocalypseDamageTagProvider extends DamageTypeTagsProvider {
-
-    public ApocalypseDamageTagProvider(DataGenerator dataGenerator, CompletableFuture<HolderLookup.Provider> provider, @Nullable ExistingFileHelper fileHelper) {
-        super(dataGenerator.getPackOutput(), provider, Apocalypse.MODID, fileHelper);
+    
+    public ApocalypseDamageTagProvider( DataGenerator dataGenerator, CompletableFuture<HolderLookup.Provider> provider, @Nullable ExistingFileHelper fileHelper ) {
+        super( dataGenerator.getPackOutput(), provider, Apocalypse.MODID, fileHelper );
     }
-
+    
     @Override
-    protected void addTags(HolderLookup.Provider provider) {
-
+    protected void addTags( HolderLookup.Provider provider ) {
+    
     }
 }

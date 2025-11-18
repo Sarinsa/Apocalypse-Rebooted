@@ -51,7 +51,10 @@ import java.util.UUID;
  * The ghost will also occasionally maneuver away if damaged, phasing
  * through walls and disorienting the target.
  */
+@SuppressWarnings( "resource" )
 public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
+    
+    public static final byte FREEZE_SOUND_ID = (byte) 7;
     
     /**
      * Used to determine if the ghost should be frozen in place
@@ -254,11 +257,8 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
         this.entityData.set( IS_FROZEN, true );
         this.freezeTime = freezeTime;
         
-        if( level() != null && !level().isClientSide ) {
-            level().broadcastEntityEvent( this, (byte) 7 );
-        }
         if( !level().isClientSide ) {
-            playSound( ApocalypseSounds.GHOST_FREEZE.get(), 1.0F, 1.0F - (random.nextFloat() / 5) );
+            level().broadcastEntityEvent( this, FREEZE_SOUND_ID );
         }
     }
     
@@ -290,6 +290,7 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
     }
     
     @Override
+    @Nullable
     protected SoundEvent getAmbientSound() {
         return isFrozen() ? null : ApocalypseSounds.GHOST_IDLE.get();
     }
@@ -544,10 +545,6 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
                 double d3 = x * x + y * y + z * z;
                 return d3 < 1.0D || d3 > 3600.0D;
             }
-        }
-        
-        @Override
-        public void stop() {
         }
         
         @Override

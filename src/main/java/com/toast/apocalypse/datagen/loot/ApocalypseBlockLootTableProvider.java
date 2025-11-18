@@ -21,7 +21,7 @@ public class ApocalypseBlockLootTableProvider extends BlockLootSubProvider {
     
     @Override
     protected Iterable<Block> getKnownBlocks() {
-        return this.knownBlocks;
+        return knownBlocks;
     }
     
     @Override

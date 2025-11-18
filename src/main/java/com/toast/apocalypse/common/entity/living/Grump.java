@@ -31,6 +31,7 @@ import net.minecraft.world.*;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -77,6 +78,7 @@ import java.util.UUID;
  * Despite being a fearsome close range enemy, it can be befriended with some Fatherly Toast, making it a useful
  * companion.
  */
+@SuppressWarnings( "resource" )
 public class Grump extends AbstractFullMoonGhast implements ContainerListener {
     
     protected static final EntityDataAccessor<Optional<UUID>> OWNER_UUID = SynchedEntityData.defineId( Grump.class, EntityDataSerializers.OPTIONAL_UUID );
@@ -440,16 +442,23 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
     
     public void setEnraged( boolean enraged, boolean playEffects ) {
         entityData.set( ENRAGED, enraged );
+        final AttributeInstance FLYING_SPEED = getAttribute( Attributes.FLYING_SPEED );
+        final AttributeInstance ATTACK_KNOCKBACK = getAttribute( Attributes.ATTACK_KNOCKBACK );
+        
+        // This should never happen
+        if( FLYING_SPEED == null || ATTACK_KNOCKBACK == null )
+            return;
         
         if( enraged ) {
-            if( !getAttribute( Attributes.FLYING_SPEED ).hasModifier( RAGE_SPEED ) )
-                getAttribute( Attributes.FLYING_SPEED ).addTransientModifier( RAGE_SPEED );
-            if( !getAttribute( Attributes.ATTACK_KNOCKBACK ).hasModifier( RAGE_KNOCKBACK ) )
-                getAttribute( Attributes.ATTACK_KNOCKBACK ).addTransientModifier( RAGE_KNOCKBACK );
+            if( !FLYING_SPEED.hasModifier( RAGE_SPEED ) )
+                FLYING_SPEED.addTransientModifier( RAGE_SPEED );
+            
+            if( !ATTACK_KNOCKBACK.hasModifier( RAGE_KNOCKBACK ) )
+                ATTACK_KNOCKBACK.addTransientModifier( RAGE_KNOCKBACK );
         }
         else {
-            getAttribute( Attributes.FLYING_SPEED ).removeModifier( RAGE_SPEED );
-            getAttribute( Attributes.ATTACK_KNOCKBACK ).removeModifier( RAGE_KNOCKBACK );
+            FLYING_SPEED.removeModifier( RAGE_SPEED );
+            ATTACK_KNOCKBACK.removeModifier( RAGE_KNOCKBACK );
         }
         
         if( playEffects ) {
@@ -589,6 +598,7 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
     }
     
     @Nullable
+    @SuppressWarnings( "deprecation" )
     public SpawnGroupData finalizeSpawn( ServerLevelAccessor level, DifficultyInstance difficultyInstance, MobSpawnType spawnType, @Nullable SpawnGroupData spawnData, @Nullable CompoundTag compoundTag ) {
         spawnData = super.finalizeSpawn( level, difficultyInstance, spawnType, spawnData, compoundTag );
         populateDefaultEquipmentSlots( level.getRandom(), difficultyInstance );
@@ -873,6 +883,7 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
             
             if( canAttack ) {
                 if( grump.hasOwner() )
+                    // noinspection ConstantConditions
                     return !target.getUUID().equals( grump.getOwnerUUID() );
             }
             return canAttack;
@@ -909,11 +920,6 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
                 double d3 = x * x + y * y + z * z;
                 return d3 < 1.0D || d3 > 3600.0D;
             }
-        }
-        
-        @Override
-        public void stop() {
-        
         }
         
         @Override

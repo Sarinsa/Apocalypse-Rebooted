@@ -17,30 +17,30 @@ import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
 
 public class ApocalypseItemTagProvider extends ItemTagsProvider {
-
-    public ApocalypseItemTagProvider(DataGenerator dataGenerator, CompletableFuture<HolderLookup.Provider> lookupProvider, CompletableFuture<TagsProvider.TagLookup<Block>> blockTagsProvider, @Nullable ExistingFileHelper existingFileHelper) {
-        super(dataGenerator.getPackOutput(), lookupProvider, blockTagsProvider, Apocalypse.MODID, existingFileHelper);
+    
+    public ApocalypseItemTagProvider( DataGenerator dataGenerator, CompletableFuture<HolderLookup.Provider> lookupProvider, CompletableFuture<TagsProvider.TagLookup<Block>> blockTagsProvider, @Nullable ExistingFileHelper existingFileHelper ) {
+        super( dataGenerator.getPackOutput(), lookupProvider, blockTagsProvider, Apocalypse.MODID, existingFileHelper );
     }
-
+    
     @Override
-    protected void addTags(HolderLookup.Provider lookupProvider) {
-        tag(ApocalypseItemTags.COOKIES)
-                .add(Items.COOKIE);
-
-        tag(Tags.Items.INGOTS)
-                .add(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get());
-
-        tag(ItemTags.BEACON_PAYMENT_ITEMS)
-                .add(ApocalypseItems.MIDNIGHT_STEEL_INGOT.get());
-
-        tag(Tags.Items.ARMORS_HELMETS)
-                .add(ApocalypseItems.BUCKET_HELM.get())
-                .add(ApocalypseItems.MIDNIGHT_STEEL_HELMET.get());
-        tag(Tags.Items.ARMORS_CHESTPLATES)
-                .add(ApocalypseItems.MIDNIGHT_STEEL_CHESTPLTAE.get());
-        tag(Tags.Items.ARMORS_LEGGINGS)
-                .add(ApocalypseItems.MIDNIGHT_STEEL_LEGGINGS.get());
-        tag(Tags.Items.ARMORS_BOOTS)
-                .add(ApocalypseItems.MIDNIGHT_STEEL_BOOTS.get());
+    protected void addTags( HolderLookup.Provider lookupProvider ) {
+        tag( ApocalypseItemTags.COOKIES )
+                .add( Items.COOKIE );
+        
+        tag( Tags.Items.INGOTS )
+                .add( ApocalypseItems.MIDNIGHT_STEEL_INGOT.get() );
+        
+        tag( ItemTags.BEACON_PAYMENT_ITEMS )
+                .add( ApocalypseItems.MIDNIGHT_STEEL_INGOT.get() );
+        
+        tag( Tags.Items.ARMORS_HELMETS )
+                .add( ApocalypseItems.BUCKET_HELM.get() )
+                .add( ApocalypseItems.MIDNIGHT_STEEL_HELMET.get() );
+        tag( Tags.Items.ARMORS_CHESTPLATES )
+                .add( ApocalypseItems.MIDNIGHT_STEEL_CHESTPLTAE.get() );
+        tag( Tags.Items.ARMORS_LEGGINGS )
+                .add( ApocalypseItems.MIDNIGHT_STEEL_LEGGINGS.get() );
+        tag( Tags.Items.ARMORS_BOOTS )
+                .add( ApocalypseItems.MIDNIGHT_STEEL_BOOTS.get() );
     }
 }

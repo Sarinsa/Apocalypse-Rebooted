@@ -52,6 +52,7 @@ public class FearwolfRunAwayGoal extends Goal {
     
     @Override
     public void start() {
+        // noinspection resource
         if( !fearwolf.level().isClientSide ) {
             ServerLevel level = (ServerLevel) fearwolf.level();
             spawnSmoke( level, fearwolf );

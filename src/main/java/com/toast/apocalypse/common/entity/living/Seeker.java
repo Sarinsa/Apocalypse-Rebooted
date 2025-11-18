@@ -170,6 +170,7 @@ public class Seeker extends AbstractFullMoonGhast {
     
     @Override
     @Nullable
+    @SuppressWarnings( "deprecation" )
     public SpawnGroupData finalizeSpawn( ServerLevelAccessor serverLevel, DifficultyInstance difficultyInstance, MobSpawnType spawnType, @Nullable SpawnGroupData data, @Nullable CompoundTag compoundTag ) {
         data = super.finalizeSpawn( serverLevel, difficultyInstance, spawnType, data, compoundTag );
         
@@ -306,7 +307,7 @@ public class Seeker extends AbstractFullMoonGhast {
             double x = seeker.getX() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
             double y = seeker.getY() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 6.0F);
             double z = seeker.getZ() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
-            this.seeker.getMoveControl().setWantedPosition( x, y, z, 1.0D );
+            seeker.getMoveControl().setWantedPosition( x, y, z, 1.0D );
         }
         
         @Override

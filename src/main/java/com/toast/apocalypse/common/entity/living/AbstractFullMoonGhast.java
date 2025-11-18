@@ -4,7 +4,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -58,17 +57,13 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
     
     @Override
     protected SoundEvent getAmbientSound() {
+        // noinspection ConstantConditions
         return null;
     }
     
     @Override
-    public SoundSource getSoundSource() {
-        return SoundSource.HOSTILE;
-    }
-    
-    @Override
     protected float getSoundVolume() {
-        // Louder than vanilla ghast; help players realize they might be getting fireballed from afar.
+        // Louder than vanilla ghast; help players realize they might be getting blasted with fireballs from afar.
         return 12.0F;
     }
     
@@ -79,6 +74,7 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
     public boolean canSeeDirectly( Entity entity ) {
         Vec3 vector3d = new Vec3( this.getX(), this.getEyeY(), this.getZ() );
         Vec3 vector3d1 = new Vec3( entity.getX(), entity.getEyeY(), entity.getZ() );
+        // noinspection resource
         return level().clip( new ClipContext( vector3d, vector3d1, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this ) ).getType() == HitResult.Type.MISS;
     }
     
@@ -107,6 +103,7 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
     public void aiStep() {
         super.aiStep();
         
+        // noinspection resource
         if( !level().isClientSide ) {
             ServerLevel serverLevel = (ServerLevel) level();
             
@@ -136,15 +133,16 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
         }
     }
     
+    @SuppressWarnings( "SameParameterValue" )
     protected boolean canReachDist( double x, double y, double z, int dist ) {
         Vec3 vector3d = new Vec3( x - getX(), y - getY(), z - getZ() );
         vector3d = vector3d.normalize();
-        
         AABB aabb = getBoundingBox().inflate( 0.5F );
         
         for( int i = 0; i < dist; i++ ) {
             aabb = aabb.move( vector3d );
             
+            // noinspection resource
             if( !level().noCollision( this, aabb ) ) {
                 return false;
             }
