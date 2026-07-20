@@ -79,7 +79,7 @@ import java.util.UUID;
  * companion.
  */
 @SuppressWarnings( "resource" )
-public class Grump extends AbstractFullMoonGhast implements ContainerListener {
+public class Grump extends AbstractFullMoonGhast implements OwnableEntity, ContainerListener {
     
     protected static final EntityDataAccessor<Optional<UUID>> OWNER_UUID = SynchedEntityData.defineId( Grump.class, EntityDataSerializers.OPTIONAL_UUID );
     protected static final EntityDataAccessor<Boolean> ENRAGED = SynchedEntityData.defineId( Grump.class, EntityDataSerializers.BOOLEAN );
@@ -471,23 +471,13 @@ public class Grump extends AbstractFullMoonGhast implements ContainerListener {
     }
     
     @Nullable
+    @Override // OwnableEntity
     public UUID getOwnerUUID() {
         return entityData.get( OWNER_UUID ).orElse( null );
     }
     
     public boolean hasOwner() {
         return getOwnerUUID() != null;
-    }
-    
-    @Nullable
-    public LivingEntity getOwner() {
-        try {
-            UUID uuid = getOwnerUUID();
-            return uuid == null ? null : level().getPlayerByUUID( uuid );
-        }
-        catch( IllegalArgumentException exception ) {
-            return null;
-        }
     }
     
     @SuppressWarnings( "BooleanMethodIsAlwaysInverted" )
