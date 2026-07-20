@@ -13,7 +13,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -37,7 +36,7 @@ public class BucketHelmetItem extends ArmorItem {
     public void initializeClient( Consumer<IClientItemExtensions> consumer ) {
         consumer.accept( new IClientItemExtensions() {
             @Override
-            public @NotNull HumanoidModel<?> getHumanoidArmorModel( LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original ) {
+            public HumanoidModel<?> getHumanoidArmorModel( LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original ) {
                 return equipmentSlot == EquipmentSlot.HEAD ? ClientUtil.BUCKET_HELMET_MODEL.copyProps( original ) : original;
             }
             
@@ -49,7 +48,7 @@ public class BucketHelmetItem extends ArmorItem {
     }
     
     @Override
-    public void appendHoverText( ItemStack itemStack, Level level, List<Component> tooltip, TooltipFlag flag ) {
+    public void appendHoverText( ItemStack itemStack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag ) {
         tooltip.add( Component.translatable( References.BUCKET_HELM_DESC ).withStyle( ChatFormatting.GRAY ) );
     }
 }

@@ -100,6 +100,7 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
                 }
                 
                 if( ++trap.preparationTime >= trap.maxPreparationTime ) {
+                    // noinspection ConstantConditions
                     trap.setCurrentTrap( trap.currentRecipe.getResultTrap() );
                     trap.currentRecipe = null;
                     trap.preparationTime = 0;
@@ -308,10 +309,11 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
     @Override
     public CompoundTag getUpdateTag() {
         CompoundTag compoundTag = new CompoundTag();
+        BaseTrapAction currentTrap = getCurrentTrap();
         
-        if( getCurrentTrap() != null ) {
-            if( ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsValue( getCurrentTrap() ) ) {
-                compoundTag.putString( "CurrentTrap", ModRegistries.TRAP_ACTIONS_REGISTRY.get().getKey( getCurrentTrap() ).toString() );
+        if( currentTrap != null ) {
+            if( ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsValue( currentTrap ) ) {
+                compoundTag.putString( "CurrentTrap", ModRegistries.TRAP_ACTIONS_REGISTRY.get().getKey( currentTrap ).toString() );
             }
         }
         return compoundTag;
@@ -330,7 +332,6 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
     
     /**
      * @return The effective area of this trap.
-     * Calculates the AABB if it doesn't exist yet.
      */
     @Nullable
     public AABB getBoundingBox( boolean moveToPos ) {

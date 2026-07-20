@@ -20,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,7 +88,7 @@ public class LunarArmorItem extends ArmorItem {
     }
     
     @Override
-    public void appendHoverText( ItemStack itemStack, Level level, List<Component> tooltip, TooltipFlag flag ) {
+    public void appendHoverText( ItemStack itemStack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag ) {
         tooltip.add( Component.translatable( References.LUNAR_ARMOR_DESC ).withStyle( ChatFormatting.GRAY ) );
         tooltip.add( Component.literal( "" ) );
     }

@@ -15,7 +15,7 @@ public class LunarPhaseSensorBlockEntity extends BlockEntity {
     }
     
     public static void tick( Level level, BlockPos pos, BlockState state, LunarPhaseSensorBlockEntity blockEntity ) {
-        if( level != null && !level.isClientSide && level.getGameTime() % 20L == 0L ) {
+        if( !level.isClientSide && level.getGameTime() % 20L == 0L ) {
             Block block = state.getBlock();
             
             if( block instanceof LunarPhaseSensorBlock ) {

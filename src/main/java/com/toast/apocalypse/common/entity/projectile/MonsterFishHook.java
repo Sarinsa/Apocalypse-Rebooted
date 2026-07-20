@@ -54,35 +54,38 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
     
     private MonsterFishHook( Level level, Mob mob ) {
         super( ApocalypseEntities.MONSTER_FISH_HOOK.get(), level );
-        this.setOwner( mob );
-        this.noCulling = true;
+        setOwner( mob );
+        noCulling = true;
     }
     
     public MonsterFishHook( Mob mob, LivingEntity target, Level level ) {
         this( level, mob );
         
         final Vec3 lookVec = mob.getViewVector( 1.0F ).scale( mob.getBbWidth() );
-        this.setPos( mob.getX() + lookVec.x, mob.getEyeY() - 0.1, mob.getZ() + lookVec.z );
+        setPos( mob.getX() + lookVec.x, mob.getEyeY() - 0.1, mob.getZ() + lookVec.z );
         
         final double dX = target.getX() - getX();
         final double dY = target.getY( 0.3333 ) - getY();
         final double dZ = target.getZ() - getZ();
         final double dH = Mth.sqrt( (float) (dX * dX + dZ * dZ) );
-        this.shoot( dX, dY + dH * 0.2, dZ, 1.3F, 0 );
+        
+        shoot( dX, dY + dH * 0.2, dZ, 1.3F, 0 );
     }
     
     public MonsterFishHook( Vec3 riderLookVec, Mob mob, Level level ) {
         this( level, mob );
+        
         getEntityData().set( LAUNCHED_BY_RIDER, true );
         
         final Vec3 vec = mob.getEyePosition().add( riderLookVec.x * 10, riderLookVec.y * 10, riderLookVec.z * 10 );
-        this.setPos( mob.getX() + riderLookVec.x, mob.getEyeY() - 0.1, mob.getZ() + riderLookVec.z );
+        setPos( mob.getX() + riderLookVec.x, mob.getEyeY() - 0.1, mob.getZ() + riderLookVec.z );
         
         final double dX = vec.x() - getX();
         final double dY = vec.y() - getY();
         final double dZ = vec.z() - getZ();
         final double dH = Mth.sqrt( (float) (dX * dX + dZ * dZ) );
-        this.shoot( dX, dY + dH * 0.2, dZ, 1.3F, 0 );
+        
+        shoot( dX, dY + dH * 0.2, dZ, 1.3F, 0 );
     }
     
     @Override
@@ -94,9 +97,9 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
     @Override
     public void onSyncedDataUpdated( EntityDataAccessor<?> dataParameter ) {
         if( DATA_HOOKED_ENTITY.equals( dataParameter ) ) {
-            int i = this.getEntityData().get( DATA_HOOKED_ENTITY );
+            int hookedId = getEntityData().get( DATA_HOOKED_ENTITY );
             // noinspection resource
-            this.hookedIn = i > 0 ? level().getEntity( i - 1 ) : null;
+            hookedIn = hookedId > 0 ? level().getEntity( hookedId - 1 ) : null;
         }
         super.onSyncedDataUpdated( dataParameter );
     }
