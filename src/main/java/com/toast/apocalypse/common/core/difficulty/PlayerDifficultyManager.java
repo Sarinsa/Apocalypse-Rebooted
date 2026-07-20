@@ -41,7 +41,6 @@ import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,8 +53,8 @@ import java.util.UUID;
  */
 public final class PlayerDifficultyManager {
     
-    /** The tag key for Apocalypse event data. */
-    private static final String EVENT_DATA_LIST_KEY = "ApocalypseRBOOTDEventData";
+    /** The NBT key for Apocalypse event data. */
+    private static final String KEY_EVENT_DATA_LIST = "ApocalypseRBOOTDEventData";
     
     /** Number of ticks per update. */
     public static final int TICKS_PER_UPDATE = 5;
@@ -95,11 +94,12 @@ public final class PlayerDifficultyManager {
     private boolean serverStopped = false;
     
     
-    public PlayerDifficultyManager() {
-    }
+    public PlayerDifficultyManager() { }
     
-    public static long queryDayTime( long dayTime ) {
-        return dayTime % References.DAY_LENGTH;
+    
+    /** @return The current time of day in the given level. */
+    public static long queryDayTime( Level level ) {
+        return level.getDayTime() % References.DAY_LENGTH;
     }
     
     /**
@@ -159,35 +159,36 @@ public final class PlayerDifficultyManager {
      */
     public boolean isFullMoonNight() {
         if( server == null ) return false;
-        
-        ServerLevel world = server.overworld();
-        long dayTime = queryDayTime( world.getDayTime() );
-        
+        long dayTime = queryDayTime( server.overworld() );
         return isFullMoon() && dayTime > 13000L && dayTime < 23500L;
     }
     
+    /** @return True if it is currently raining acid in the given level. */
     public boolean isRainingAcid( ServerLevel world ) {
         return worldInfo.get( world ).isRainingAcid();
     }
     
-    /** Fetch the server instance and update integrated server mod server config. */
+    /** Called when the server is about to start. */
     @SubscribeEvent
     public void onServerAboutToStart( ServerAboutToStartEvent event ) {
         server = event.getServer();
         if( !server.isDedicatedServer() ) {
+            // Update integrated server mod server config
             ServerConfigHelper.updateModServerConfig();
         }
     }
     
+    /** Called when the server has finished loading and is ready for playing. */
     @SubscribeEvent
     public void onServerStarted( ServerStartedEvent event ) {
         serverStopped = false;
         event.getServer().getAllLevels().forEach( ( world ) -> worldInfo.put( world, new WorldInfo( world ) ) );
     }
     
-    /** Clean up references and save player event data */
+    /** Called when the server is stopping. */
     @SubscribeEvent
     public void onServerStopping( ServerStoppingEvent event ) {
+        // Clean up references and save player event data
         for( ServerPlayer player : server.getPlayerList().getPlayers() ) {
             saveEventData( player );
         }
@@ -195,10 +196,10 @@ public final class PlayerDifficultyManager {
         serverStopped = true;
     }
     
+    /** Called when a player logs into the server. */
     @SubscribeEvent( priority = EventPriority.HIGH )
     public void onPlayerLoggedIn( PlayerEvent.PlayerLoggedInEvent event ) {
-        if( !event.getEntity().level().isClientSide ) {
-            ServerPlayer player = (ServerPlayer) event.getEntity();
+        if( event.getEntity() instanceof ServerPlayer player ) {
             ServerLevel playerLevel = player.serverLevel();
             
             // Load event data
@@ -216,6 +217,7 @@ public final class PlayerDifficultyManager {
         }
     }
     
+    /** Called when a player has logged out of the server. */
     @SubscribeEvent( priority = EventPriority.HIGH )
     public void onPlayerLoggedOut( PlayerEvent.PlayerLoggedOutEvent event ) {
         // Don't bother saving event data
@@ -223,8 +225,7 @@ public final class PlayerDifficultyManager {
         // as it will have been taken care of already.
         if( serverStopped ) return;
         
-        if( !event.getEntity().level().isClientSide ) {
-            ServerPlayer player = (ServerPlayer) event.getEntity();
+        if( event.getEntity() instanceof ServerPlayer player ) {
             saveEventData( player );
             
             for( AbstractEvent abstractEvent : playerEvents.get( player.getUUID() ).values() ) {
@@ -270,8 +271,8 @@ public final class PlayerDifficultyManager {
     @SubscribeEvent( priority = EventPriority.HIGH )
     public void onServerTick( TickEvent.ServerTickEvent event ) {
         if( event.phase == TickEvent.Phase.END ) {
-            MinecraftServer server = this.server;
-            ServerLevel overworld = server.overworld();
+            final MinecraftServer server = this.server;
+            final ServerLevel overworld = server.overworld();
             
             // Update lunar armor modifier index.
             calculateLunarArmorIndex( server );
@@ -282,6 +283,7 @@ public final class PlayerDifficultyManager {
                 if( server.overworld().getGameTime() > 0L ) {
                     // Update player difficulty and event
                     for( ServerPlayer player : server.getPlayerList().getPlayers() ) {
+                        // noinspection resource
                         if( player.level().isLoaded( BlockPos.containing( player.position() ) ) ) {
                             updatePlayerDifficulty( player );
                             
@@ -293,7 +295,7 @@ public final class PlayerDifficultyManager {
                     
                     // Update world info
                     if( !worldInfo.isEmpty() ) {
-                        WorldInfo overworldInfo = worldInfo.get( overworld );
+                        final WorldInfo overworldInfo = worldInfo.get( overworld );
                         
                         if( overworldInfo != null ) {
                             if( overworld.isRaining() ) {
@@ -306,30 +308,9 @@ public final class PlayerDifficultyManager {
                                 overworldInfo.setRainingAcid( false );
                             }
                         }
-                        
-                        // Currently only triggering acid rain in the overworld
-                        /*
-                        for (ServerLevel level : server.getAllLevels()) {
-                            WorldInfo info = worldInfo.get(level);
-
-                            if (info == null)
-                                continue;
-
-                            if (level.isRaining()) {
-                                if (!info.justStartedRaining()) {
-                                    info.setJustStartedRaining(true, level.random);
-                                }
-                            } else {
-                                info.setJustStartedRaining(false, level.random);
-                                info.setRainingAcid(false);
-                            }
-                        }
-
-                         */
                     }
                 }
             }
-            
             // Save event data
             if( ++timeSave >= TICKS_PER_SAVE ) {
                 timeSave = 0;
@@ -338,7 +319,6 @@ public final class PlayerDifficultyManager {
                     saveEventData( player );
                 }
             }
-            
             // Check if players have passed their grace
             // period and grant the base achievement if so.
             if( ++timeAdvCheck >= TICKS_PER_ADV_CHECK ) {
@@ -383,6 +363,7 @@ public final class PlayerDifficultyManager {
                     }
                 }
                 if( playSound ) {
+                    // noinspection resource
                     serverPlayer.level().playSound(
                             null,
                             serverPlayer.blockPosition(),
@@ -460,7 +441,7 @@ public final class PlayerDifficultyManager {
         
         // Check for events to start
         for( EventType<?> type : EventRegistry.EVENTS.values() ) {
-            if( !events.keySet().contains( type ) ) {
+            if( !events.containsKey( type ) ) {
                 IEventPredicate startPredicate = type.getStartPredicate();
                 
                 if( startPredicate != null && startPredicate.test( level, player, scaledDifficulty, this ) ) {
@@ -476,7 +457,7 @@ public final class PlayerDifficultyManager {
      * @param player    The player to start the event for.
      * @param eventType The event type for the event to start.
      */
-    public void startEvent( ServerPlayer player, @Nonnull EventType<?> eventType ) {
+    public void startEvent( ServerPlayer player, EventType<?> eventType ) {
         AbstractEvent newEvent = eventType.createEvent();
         newEvent.onStart( server, player );
         playerEvents.get( player.getUUID() ).put( eventType, newEvent );
@@ -514,10 +495,10 @@ public final class PlayerDifficultyManager {
     
     /** Loads the given player's event data. */
     public void loadEventData( ServerPlayer player ) {
-        CompoundTag persistentData = player.getPersistentData();
+        final CompoundTag persistentData = player.getPersistentData();
         
-        if( persistentData.contains( EVENT_DATA_LIST_KEY, Tag.TAG_LIST ) ) {
-            ListTag listTag = persistentData.getList( EVENT_DATA_LIST_KEY, Tag.TAG_COMPOUND );
+        if( persistentData.contains( KEY_EVENT_DATA_LIST, Tag.TAG_LIST ) ) {
+            ListTag listTag = persistentData.getList( KEY_EVENT_DATA_LIST, Tag.TAG_COMPOUND );
             
             for( Tag tag : listTag ) {
                 try {
@@ -535,6 +516,7 @@ public final class PlayerDifficultyManager {
                 }
                 catch( Exception e ) {
                     Apocalypse.LOGGER.error( "Failed to load mod event data for player with UUID {}.", player.getUUID() );
+                    // noinspection CallToPrintStackTrace
                     e.printStackTrace();
                 }
             }
@@ -554,10 +536,11 @@ public final class PlayerDifficultyManager {
                 abstractEvent.write( tag );
                 listTag.add( tag );
             }
-            persistentData.put( EVENT_DATA_LIST_KEY, listTag );
+            persistentData.put( KEY_EVENT_DATA_LIST, listTag );
         }
         catch( Exception e ) {
             Apocalypse.LOGGER.info( "Failed to save player event data for player with UUID {}", player.getUUID() );
+            // noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -625,8 +608,8 @@ public final class PlayerDifficultyManager {
             
             private final WorldInfo worldInfo;
             
-            public WorldInfoSavedData( WorldInfo worldInfo ) {
-                this.worldInfo = worldInfo;
+            public WorldInfoSavedData( WorldInfo info ) {
+                worldInfo = info;
             }
             
             @Override

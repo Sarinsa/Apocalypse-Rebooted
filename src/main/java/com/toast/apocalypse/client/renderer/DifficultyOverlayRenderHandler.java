@@ -20,49 +20,42 @@ public class DifficultyOverlayRenderHandler {
     public static final int[] COLORS = {
             0xFFFFFF, 0x88FFFF, 0x88FF88, 0xFFFF88, 0xFFBB88, 0xFF8888
     };
+    /** The amount of difficulty levels to pass before changing color. */
+    public static long COLOR_THRESHOLD;
     
-    // Rendering properties for quick access.
-    public static long COLOR_CHANGE;
     
-    
-    /** Renders the in-game difficulty counter for Apocalypse. */
+    /** Renders the client player's current Apocalypse difficulty level. */
     public static void renderDifficulty( ForgeGui gui, GuiGraphics guiGraphics, int width, int height ) {
-        LocalPlayer player = gui.getMinecraft().player;
+        final LocalPlayer player = gui.getMinecraft().player;
+        if( player == null ) return;
         
         // Check if we should render in creative mode
         if( player.isCreative() && !CLIENT_CONFIG.DIFFICULTY.renderDifficultyInCreative.get() )
             return;
         
         // Check if keybind only is enabled
-        if( CLIENT_CONFIG.DIFFICULTY.keybindOnly.get() && !ApocalypseKeyBindings.TOGGLE_DIFFICULTY.isDown() ) {
+        if( CLIENT_CONFIG.DIFFICULTY.keybindOnly.get() && !ApocalypseKeyBindings.TOGGLE_DIFFICULTY.isDown() )
             return;
-        }
         
         final long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty( player );
         
         // Don't bother rendering the difficulty
         // when it will constantly be at 0 or if
-        // the player is dead.
+        // the player is dead
         if( maxDifficulty == 0L || player.isDeadOrDying() )
             return;
         
-        Font font = gui.getFont();
-        
-        // Calculate difficulty level in days with one decimal.
+        // Format difficulty level text
         int color = COLORS[0];
         long difficulty = CapabilityHelper.getPlayerDifficulty( player );
-        int partialDifficulty = difficulty <= 0 ? 0 : (int) (difficulty % 24000L / 2400);
+        int partialDifficulty = difficulty <= 0 ? 0 : (int) (difficulty % References.DAY_LENGTH / 2400);
         
         // Determine what color to use for the text (scales with difficulty)
-        if( COLOR_CHANGE >= 0L && difficulty >= 0L ) {
-            if( difficulty >= COLOR_CHANGE ) {
-                color = COLORS[COLORS.length - 1];
-            }
-            else {
-                color = COLORS[(int) (difficulty / (double) COLOR_CHANGE * COLORS.length)];
-            }
+        if( COLOR_THRESHOLD >= 0L && difficulty >= 0L ) {
+            int colorIndex = Math.min( (int) (difficulty / (double) COLOR_THRESHOLD * COLORS.length), COLORS.length - 1 );
+            color = COLORS[colorIndex];
         }
-        difficulty /= 24000L;
+        difficulty /= References.DAY_LENGTH;
         String parsedDifficulty = difficulty > 0L ? (difficulty + "." + partialDifficulty) : "0.0";
         String difficultyInfo = Component.translatable( References.DIFFICULTY, parsedDifficulty ).getString();
         
@@ -74,6 +67,7 @@ public class DifficultyOverlayRenderHandler {
         }
         final CrustAnchor xAnchor = CLIENT_CONFIG.DIFFICULTY.difficultyRenderXAnchor.get();
         final CrustAnchor yAnchor = CLIENT_CONFIG.DIFFICULTY.difficultyRenderYAnchor.get();
+        final Font font = gui.getFont();
         
         int x = getXRenderPos(
                 xAnchor,
@@ -96,6 +90,7 @@ public class DifficultyOverlayRenderHandler {
         RenderSystem.setShaderColor( 1.0F, 1.0F, 1.0F, 1.0F );
     }
     
+    /** @return The GUI X-position to draw the difficulty level at. */
     private static int getXRenderPos( CrustAnchor anchor, int guiWidth, int stringWidth, int xOffset ) {
         if( anchor == null ) return 0;
         
@@ -112,6 +107,7 @@ public class DifficultyOverlayRenderHandler {
         }
     }
     
+    /** @return The GUI Y-position to draw the difficulty level at. */
     private static int getYRenderPos( CrustAnchor anchor, int guiHeight, int stringHeight, int yOffset ) {
         if( anchor == null ) return 0;
         

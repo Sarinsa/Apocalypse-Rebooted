@@ -56,7 +56,7 @@ public class ClientWork {
         if( player != null ) {
             long maxDifficulty = message.maxDifficulty;
             player.getCapability( ApocalypseCapabilities.DIFFICULTY_CAPABILITY ).orElse( DifficultyCapProvider.SUPPLIER.get() ).setMaxDifficulty( maxDifficulty );
-            DifficultyOverlayRenderHandler.COLOR_CHANGE = maxDifficulty > -1 ? maxDifficulty : References.DEFAULT_COLOR_CHANGE;
+            DifficultyOverlayRenderHandler.COLOR_THRESHOLD = maxDifficulty > -1 ? maxDifficulty : References.DEFAULT_COLOR_CHANGE;
         }
     }
     
