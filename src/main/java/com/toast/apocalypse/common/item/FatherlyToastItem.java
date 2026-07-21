@@ -1,8 +1,9 @@
 package com.toast.apocalypse.common.item;
 
 import com.toast.apocalypse.common.util.References;
+import fathertoast.crust.api.lib.NBTHelper;
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -16,6 +17,9 @@ import java.util.List;
 
 public class FatherlyToastItem extends Item {
     
+    public static final String KEY_TOAST_LEVEL = "ToastLevel";
+    
+    
     public FatherlyToastItem() {
         super( new Item.Properties()
                 .fireResistant()
@@ -25,11 +29,11 @@ public class FatherlyToastItem extends Item {
     
     @Override
     public ItemStack finishUsingItem( ItemStack itemStack, Level world, LivingEntity livingEntity ) {
-        if( this.isEdible() ) {
+        if( isEdible() ) {
             if( livingEntity instanceof Player player && !player.getAbilities().instabuild ) {
                 // Setting creative players on fire just makes the fire
                 // extinguish instantly, which is weird to look at.
-                livingEntity.setSecondsOnFire( 1000 );
+                livingEntity.setSecondsOnFire( 1_000 );
             }
             return livingEntity.eat( world, itemStack );
         }
@@ -40,10 +44,15 @@ public class FatherlyToastItem extends Item {
     @Override
     public void appendHoverText( ItemStack itemStack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag ) {
         tooltip.add( Component.translatable( References.FATHERLY_TOAST_DESC ).withStyle( ChatFormatting.GRAY ) );
+        
         tooltip.add( Component.literal( "" ) );
         
-        if( itemStack.hasTag() && itemStack.getTag().contains( "ToastLevel", Tag.TAG_INT ) ) {
-            tooltip.add( Component.translatable( References.FATHERLY_TOAST_LEVEL, itemStack.getTag().getInt( "ToastLevel" ) ).withStyle( ChatFormatting.GRAY ) );
+        if( itemStack.hasTag() ) {
+            final CompoundTag tag = itemStack.getTag();
+            
+            if( NBTHelper.containsNumber( tag, KEY_TOAST_LEVEL ) ) {
+                tooltip.add( Component.translatable( References.FATHERLY_TOAST_LEVEL, tag.getInt( KEY_TOAST_LEVEL ) ).withStyle( ChatFormatting.GRAY ) );
+            }
         }
     }
 }
