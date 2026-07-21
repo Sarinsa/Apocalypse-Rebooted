@@ -202,6 +202,7 @@ public class Shadefiend extends FlyingMob implements Enemy {
         return ApocalypseSounds.SHADEFIEND_DEATH.get();
     }
     
+    
     class ShadefiendBodyRotationControl extends BodyRotationControl {
         public ShadefiendBodyRotationControl( Mob mob ) {
             super( mob );
@@ -221,8 +222,7 @@ public class Shadefiend extends FlyingMob implements Enemy {
         }
         
         @Override
-        public void tick() {
-        }
+        public void tick() { }
     }
     
     static class ShadefiendMoveControl extends SimpleFlyingMoveController {
@@ -290,38 +290,42 @@ public class Shadefiend extends FlyingMob implements Enemy {
     
     private static class MeleeAttackGoal extends Goal {
         
-        final Shadefiend shadefiend;
+        private final Shadefiend mob;
+        
+        private int ticksUntilNextAttack;
+        
         
         public MeleeAttackGoal( Shadefiend shadefiend ) {
             setFlags( EnumSet.of( Flag.MOVE ) );
-            this.shadefiend = shadefiend;
+            mob = shadefiend;
         }
         
         private void setWantedPosition( LivingEntity target ) {
-            Vec3 vec3 = target.getEyePosition( 1.0F ).add( 0.0D, -(shadefiend.getBbHeight() / 2), 0.0D );
-            shadefiend.moveControl.setWantedPosition( vec3.x, vec3.y, vec3.z, 1.0D );
+            Vec3 vec3 = target.getEyePosition( 1.0F ).add( 0.0D, -(mob.getBbHeight() / 2), 0.0D );
+            mob.moveControl.setWantedPosition( vec3.x, vec3.y, vec3.z, 1.0D );
         }
         
         @Override
         public boolean canUse() {
-            LivingEntity target = shadefiend.getTarget();
-            return shadefiend.isAlive() && target != null && shadefiend.hasLineOfSight( target );
+            LivingEntity target = mob.getTarget();
+            return mob.isAlive() && target != null && mob.hasLineOfSight( target );
         }
         
         @Override
         public boolean canContinueToUse() {
-            LivingEntity target = shadefiend.getTarget();
+            LivingEntity target = mob.getTarget();
             
-            if( shadefiend.isAlive() && !shadefiend.isVehicle() && target != null && target.isAlive() ) {
-                return ((SimpleFlyingMoveController) shadefiend.moveControl).canReachCurrentWanted();
+            if( mob.isAlive() && !mob.isVehicle() && target != null && target.isAlive() ) {
+                return mob.hasLineOfSight( target ) || ((SimpleFlyingMoveController) mob.moveControl).canReachCurrentWanted();
             }
             return false;
         }
         
         @Override
         public void start() {
-            shadefiend.setAggressive( true );
-            LivingEntity target = shadefiend.getTarget();
+            ticksUntilNextAttack = 0;
+            mob.setAggressive( true );
+            LivingEntity target = mob.getTarget();
             
             if( target != null ) {
                 setWantedPosition( target );
@@ -335,34 +339,40 @@ public class Shadefiend extends FlyingMob implements Enemy {
         
         @Override
         public void stop() {
-            shadefiend.setAggressive( false );
-            shadefiend.setTarget( null );
+            mob.setAggressive( false );
+            mob.setTarget( null );
         }
         
         @Override
         @SuppressWarnings( "ConstantConditions" )
         public void tick() {
-            LivingEntity target = shadefiend.getTarget();
+            LivingEntity target = mob.getTarget();
             
-            // Just in case
             if( target == null ) return;
+            if( ticksUntilNextAttack > 0 ) --ticksUntilNextAttack;
             
-            if( shadefiend.getBoundingBox().inflate( 0.3F ).intersects( target.getBoundingBox() ) ) {
-                shadefiend.doHurtTarget( target );
-                shadefiend.level().playSound(
+            if( canAttackReachTarget( target ) && ticksUntilNextAttack <= 0 ) {
+                mob.doHurtTarget( target );
+                mob.level().playSound(
                         null,
-                        shadefiend.blockPosition(),
+                        mob.blockPosition(),
                         ApocalypseSounds.SHADEFIEND_BITE.get(),
-                        shadefiend.getSoundSource(),
-                        shadefiend.getSoundVolume(),
-                        (shadefiend.random.nextFloat() - shadefiend.random.nextFloat()) * 0.2F + 1.0F
+                        mob.getSoundSource(),
+                        mob.getSoundVolume(),
+                        (mob.random.nextFloat() - mob.random.nextFloat()) * 0.2F + 1.0F
                 );
+                ticksUntilNextAttack = 20;
             }
-            else {
-                if( (shadefiend.tickCount & 20) == 0 ) {
-                    setWantedPosition( target );
-                }
+            
+            if( mob.tickCount % 10 == 0 ) {
+                setWantedPosition( target );
             }
+        }
+        
+        /** @return True if the shadefiend has line of sight to the target and the target is within attack range. */
+        private boolean canAttackReachTarget( LivingEntity target ) {
+            return mob.getBoundingBox().inflate( 0.4F ).intersects( target.getBoundingBox() )
+                    && mob.hasLineOfSight( target );
         }
     }
 }
