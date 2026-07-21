@@ -333,7 +333,8 @@ public final class PlayerDifficultyManager {
     
     /**
      * Calculates the Lunar Armor attribute modifier index and also writes it
-     * to the NBT of any Lunar Armor pieces the players have equipped.<br><br>
+     * to the NBT of any Lunar Armor pieces the players have equipped.
+     * <br><br>
      * Used in {@link LunarArmorItem} to decide which armor attribute modifiers to use.
      */
     private void calculateLunarArmorIndex( MinecraftServer server ) {

@@ -11,7 +11,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.function.Supplier;
 
-public enum ApocalypseArmorMaterials implements ArmorMaterial {
+public enum ModArmorMaterials implements ArmorMaterial {
     
     MIDNIGHT_STEEL(
             new int[] { 165, 240, 225, 195 },
@@ -25,9 +25,9 @@ public enum ApocalypseArmorMaterials implements ArmorMaterial {
     );
     
     
-    ApocalypseArmorMaterials( int[] durability, int[] defense, int enchantmentValue,
-                              Supplier<SoundEvent> equipSound, Supplier<Ingredient> repairIngredient,
-                              String name, float toughness, float knockbackResistance ) {
+    ModArmorMaterials( int[] durability, int[] defense, int enchantmentValue,
+                       Supplier<SoundEvent> equipSound, Supplier<Ingredient> repairIngredient,
+                       String name, float toughness, float knockbackResistance ) {
         
         this.durability = durability;
         this.defense = defense;
@@ -100,6 +100,6 @@ public enum ApocalypseArmorMaterials implements ArmorMaterial {
     }
     
     private static String name( String name ) {
-        return Apocalypse.MODID + ":" + name;
+        return Apocalypse.rl( name ).toString();
     }
 }

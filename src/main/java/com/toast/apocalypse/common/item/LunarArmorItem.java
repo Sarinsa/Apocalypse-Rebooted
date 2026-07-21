@@ -26,12 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.toast.apocalypse.common.item.ApocalypseArmorMaterials.MIDNIGHT_STEEL;
+import static com.toast.apocalypse.common.item.ModArmorMaterials.MIDNIGHT_STEEL;
 
 public class LunarArmorItem extends ArmorItem {
     
-    public static final String MOD_DATA_KEY = "ApocalypseModData";
-    public static final String LUNAR_INDEX_KEY = "LunarArmorIndex";
+    public static final String KEY_MOD_DATA = "ApocalypseModData";
+    public static final String KEY_LUNAR_INDEX = "LunarArmorIndex";
     
     public static final int MIN_INDEX = -1;
     public static final int MIN_SPORADIC_INDEX = 1;
@@ -64,17 +64,18 @@ public class LunarArmorItem extends ArmorItem {
         
         int index = 0;
         
-        if( stack.getTag() != null && stack.getTag().contains( MOD_DATA_KEY, Tag.TAG_COMPOUND ) ) {
-            CompoundTag modData = stack.getTag().getCompound( MOD_DATA_KEY );
+        if( stack.getTag() != null && stack.getTag().contains( KEY_MOD_DATA, Tag.TAG_COMPOUND ) ) {
+            CompoundTag modData = stack.getTag().getCompound( KEY_MOD_DATA );
             
-            if( modData.contains( LUNAR_INDEX_KEY, Tag.TAG_INT ) ) {
-                index = Mth.clamp( modData.getInt( LUNAR_INDEX_KEY ), MIN_INDEX, MAX_INDEX );
+            if( modData.contains( KEY_LUNAR_INDEX, Tag.TAG_INT ) ) {
+                index = Mth.clamp( modData.getInt( KEY_LUNAR_INDEX ), MIN_INDEX, MAX_INDEX );
             }
         }
-        return getAttributeModifiers( index );
+        return getModifiersForIndex( index );
     }
     
-    public Multimap<Attribute, AttributeModifier> getAttributeModifiers( int index ) {
+    /** @return A map of attribute modifiers associated with the specified index. */
+    public Multimap<Attribute, AttributeModifier> getModifiersForIndex( int index ) {
         return switch( index ) {
             case -1 -> NEW_MOON_MODIFIERS;
             case 0 -> defaultModifiers;
@@ -90,47 +91,51 @@ public class LunarArmorItem extends ArmorItem {
     @Override
     public void appendHoverText( ItemStack itemStack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag ) {
         tooltip.add( Component.translatable( References.LUNAR_ARMOR_DESC ).withStyle( ChatFormatting.GRAY ) );
-        tooltip.add( Component.literal( "" ) );
     }
     
     @Override
     public void onInventoryTick( ItemStack stack, Level level, Player player, int slotIndex, int selectedIndex ) {
+        super.onInventoryTick( stack, level, player, slotIndex, selectedIndex );
         writeIndexToNBT( stack, level );
     }
     
     /**
      * Builds the sporadic full moon attribute modifiers.<br><br>
-     * Returned in {@link #getAttributeModifiers(int)} when index is
+     * Returned in {@link #getModifiersForIndex(int)} when index is
      * greater than 0.
      */
     private void createFullMoonModifiers( ArmorItem.Type type ) {
-        for( int i = MIN_SPORADIC_INDEX; i < MAX_INDEX + 1; i++ ) {
+        for( int index = MIN_SPORADIC_INDEX; index < MAX_INDEX + 1; index++ ) {
             ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
             UUID uuid = ARMOR_MODIFIER_UUID_PER_TYPE.get( type );
             
-            double defense = Math.max( 0.5, (double) (MIDNIGHT_STEEL.getDefenseForType( type ) / 2) * (double) (i / 2) );
+            double defense = Math.max( 0.5, (double) (MIDNIGHT_STEEL.getDefenseForType( type ) / 2) * (double) (index / 2) );
             double toughness = MIDNIGHT_STEEL.getToughness();
             double knockbackRes = MIDNIGHT_STEEL.getKnockbackResistance();
             
-            builder.put( Attributes.ARMOR,
-                    new AttributeModifier( uuid, "Armor modifier", defense, AttributeModifier.Operation.ADDITION ) );
-            builder.put( Attributes.ARMOR_TOUGHNESS,
-                    new AttributeModifier( uuid, "Armor toughness", toughness, AttributeModifier.Operation.ADDITION ) );
+            builder.put( Attributes.ARMOR, new AttributeModifier( uuid, "Armor modifier", defense, AttributeModifier.Operation.ADDITION ) );
+            builder.put( Attributes.ARMOR_TOUGHNESS, new AttributeModifier( uuid, "Armor toughness", toughness, AttributeModifier.Operation.ADDITION ) );
             
             if( MIDNIGHT_STEEL.getKnockbackResistance() > 0 ) {
                 builder.put( Attributes.KNOCKBACK_RESISTANCE,
                         new AttributeModifier( uuid, "Armor knockback resistance", knockbackRes, AttributeModifier.Operation.ADDITION ) );
             }
-            FULL_MOON_MODIFIERS.put( i, builder.build() );
+            FULL_MOON_MODIFIERS.put( index, builder.build() );
         }
     }
     
+    /**
+     * Writes the current "lunar modifier index" to the specified item stack.
+     * The modifier index is calculated periodically by Apocalypse's difficulty manager on server tick.
+     *
+     * @see com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager#calculateLunarArmorIndex
+     */
     public static void writeIndexToNBT( ItemStack itemStack, Level level ) {
-        if( !level.isClientSide ) {
-            CompoundTag compoundTag = itemStack.getOrCreateTag();
-            CompoundTag modData = new CompoundTag();
-            modData.putInt( LunarArmorItem.LUNAR_INDEX_KEY, Apocalypse.INSTANCE.getDifficultyManager().getLunarArmorModIndex() );
-            compoundTag.put( LunarArmorItem.MOD_DATA_KEY, modData );
-        }
+        if( level.isClientSide ) return;
+        
+        CompoundTag compoundTag = itemStack.getOrCreateTag();
+        CompoundTag modData = new CompoundTag();
+        modData.putInt( LunarArmorItem.KEY_LUNAR_INDEX, Apocalypse.INSTANCE.getDifficultyManager().getLunarArmorModIndex() );
+        compoundTag.put( LunarArmorItem.KEY_MOD_DATA, modData );
     }
 }
