@@ -109,6 +109,9 @@ dependencies {
     implementation "curse.maven:crust-873570:${crust_api_version}"
     runtimeOnly "curse.maven:crust-873570:${crust_src_version}"
 
+    // Misc toast mods to include at runtime
+    runtimeOnly fg.deobf("curse.maven:specialmobs-59968:${sm_version}")
+
     // Jade
     implementation fg.deobf("curse.maven:jade-324717:${jade_version}")
 
@@ -143,14 +146,14 @@ dependencies {
 jar {
     manifest {
         attributes([
-            "Specification-Title": "Apocalypse",
-            "Specification-Vendor": "Sarinsa",
-            "Specification-Version": "1", // We are version 1 of ourselves
-            "Implementation-Title": project.name,
-            "Implementation-Version": "${version}",
-            "Implementation-Vendor" :"Sarinsa",
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-            "MixinConfigs": "apocalypse.mixins.json"
+                "Specification-Title"     : "Apocalypse",
+                "Specification-Vendor"    : "Sarinsa",
+                "Specification-Version"   : "1", // We are version 1 of ourselves
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : "${version}",
+                "Implementation-Vendor"   : "Sarinsa",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "MixinConfigs"            : "apocalypse.mixins.json"
         ])
     }
 }
@@ -195,8 +198,7 @@ task updateVersionCheck {
             println("Version check json not present, strange! Generating new file...")
             jsonFile.createNewFile()
             println("The newly generated file is empty, cause I am lazy. Lets fill it out manually!")
-        }
-        else {
+        } else {
             def parsedJson = new JsonSlurper().parse(jsonFile)
             Map<String, String> versions = parsedJson.promos
 
