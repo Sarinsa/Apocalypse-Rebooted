@@ -38,7 +38,11 @@ import java.util.EnumSet;
 @SuppressWarnings( "resource" )
 public class Shadefiend extends FlyingMob implements Enemy {
     
+    /** Set to true when the Shadefiend is in a space with a harmful light level. */
     protected static final EntityDataAccessor<Boolean> IS_IN_LIGHT = SynchedEntityData.defineId( Shadefiend.class, EntityDataSerializers.BOOLEAN );
+    
+    /** A tick counter for keeping track of how long this Shadefiend has gone without a target. */
+    private int ticksExistedWithoutTarget;
     
     
     public Shadefiend( EntityType<? extends Shadefiend> type, Level level ) {
@@ -131,7 +135,7 @@ public class Shadefiend extends FlyingMob implements Enemy {
         }
     }
     
-    /** Returns the max brightness for the specified light layer that the shadefiend can tolerate. */
+    /** Returns the max brightness for the specified light layer that the Shadefiend can tolerate. */
     private int getLightLevelLimit( LightLayer lightLayer ) {
         if( lightLayer == LightLayer.SKY ) {
             return ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.skyLightLevel.get();
