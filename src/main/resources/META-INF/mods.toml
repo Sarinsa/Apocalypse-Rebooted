@@ -11,7 +11,11 @@ updateJSONURL = "https://raw.githubusercontent.com/Sarinsa/Apocalypse-Rebooted/1
 logoFile = "logo.png"
 credits = "Sarinsa, Frenderman, Evo, SoyTutta"
 authors = "FatherToast"
-description = "The longer you stay in the world, the more powerful the monsters get. It may start raining acid, thunderstorms causes strange things to happen, and full moon nights empowers monsters and summons deadly foes that will do anything in their power to hunt you down. Good luck!"
+description = '''
+The longer you stay in the world, the more powerful the monsters get.
+
+It may start raining acid, thunderstorms causes strange things to happen, and full moon nights empowers monsters and summons deadly foes that will do anything in their power to hunt you down. Good luck!"
+'''
 
 [[dependencies.apocalypse]]
 modId = "forge"
