@@ -87,34 +87,10 @@ public class NetworkHelper {
     
     /**
      * Sends a message from the server to client
-     * to update unlocked mob wiki indexes.
-     */
-    public static void sendMobWikiIndexUpdate( @Nonnull ServerPlayer player, int[] unlockedIndexes ) {
-        PacketHandler.sendToClient( new S2CUpdateMobWikiIndexes( unlockedIndexes ), player );
-    }
-    
-    /**
-     * Currently unused
-     */
-    public static void sendMobWikiIndexUpdate( @Nonnull ServerPlayer player ) {
-        PacketHandler.sendToClient( new S2CUpdateMobWikiIndexes( CapabilityHelper.getMobWikiIndexes( player ) ), player );
-    }
-    
-    /**
-     * Sends a message from the server to client
-     * to open the mob wiki screen.
-     */
-    public static void openMobWikiScreen( @Nonnull ServerPlayer player ) {
-        PacketHandler.sendToClient( new S2COpenMobWikiScreen( player.getUUID() ), player );
-    }
-    
-    /**
-     * Sends a message from the server to client
      * to update the trap type that is currently inside the given dynamic trap.
      */
     public static void sendDynTrapUpdate( @Nonnull ServerLevel level, DynamicTrapBlockEntity trap ) {
-        if( trap == null )
-            return;
+        if( trap == null ) return;
         
         String id = trap.getCurrentTrap() == null
                 ? ""

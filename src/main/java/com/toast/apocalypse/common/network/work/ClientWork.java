@@ -4,11 +4,9 @@ import com.toast.apocalypse.api.register.ModRegistries;
 import com.toast.apocalypse.client.ClientUtil;
 import com.toast.apocalypse.client.renderer.DifficultyOverlayRenderHandler;
 import com.toast.apocalypse.client.screen.GrumpInventoryScreen;
-import com.toast.apocalypse.client.screen.MobWikiScreen;
 import com.toast.apocalypse.common.blockentity.DynamicTrapBlockEntity;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.capability.difficulty.DifficultyCapProvider;
-import com.toast.apocalypse.common.capability.mobwiki.MobWikiCapProvider;
 import com.toast.apocalypse.common.entity.living.Grump;
 import com.toast.apocalypse.common.inventory.container.GrumpInventoryContainer;
 import com.toast.apocalypse.common.network.message.*;
@@ -71,26 +69,6 @@ public class ClientWork {
                 entity.setDeltaMovement( message.xMotion, message.yMotion, message.zMotion );
             }
         }
-    }
-    
-    
-    public static void handleMobWikiIndexUpdate( S2CUpdateMobWikiIndexes message ) {
-        LocalPlayer player = Minecraft.getInstance().player;
-        
-        if( player != null ) {
-            int[] unlockedIndexes = message.indexes;
-            player.getCapability( ApocalypseCapabilities.MOB_WIKI_CAPABILITY ).orElse( MobWikiCapProvider.SUPPLIER.get() ).setEntries( unlockedIndexes );
-        }
-    }
-    
-    
-    public static void handleOpenMobWikiScreen( S2COpenMobWikiScreen message ) {
-        LocalPlayer player = Minecraft.getInstance().player;
-        
-        if( player != null && player.getUUID().equals( message.uuid ) )
-            return;
-        
-        Minecraft.getInstance().setScreen( new MobWikiScreen() );
     }
     
     

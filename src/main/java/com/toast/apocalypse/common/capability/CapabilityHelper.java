@@ -1,7 +1,6 @@
 package com.toast.apocalypse.common.capability;
 
 import com.toast.apocalypse.common.capability.difficulty.DifficultyCapProvider;
-import com.toast.apocalypse.common.capability.mobwiki.MobWikiCapProvider;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -52,28 +51,5 @@ public class CapabilityHelper {
     
     public static double getPlayerDifficultyMult( @Nonnull Player player ) {
         return player.getCapability( ApocalypseCapabilities.DIFFICULTY_CAPABILITY ).orElse( DifficultyCapProvider.SUPPLIER.get() ).getDifficultyMult();
-    }
-    
-    //
-    // MOB WIKI
-    //
-    public static void addMobWikiIndex( @Nonnull ServerPlayer player, int mobIndex ) {
-        player.getCapability( ApocalypseCapabilities.MOB_WIKI_CAPABILITY ).ifPresent( ( capability ) ->
-        {
-            capability.addEntry( mobIndex );
-            NetworkHelper.sendMobWikiIndexUpdate( player, capability.getEntries() );
-        } );
-    }
-    
-    /** Currently unused. */
-    public static void setMobWikiIndexes( @Nonnull ServerPlayer player, int[] entries ) {
-        player.getCapability( ApocalypseCapabilities.MOB_WIKI_CAPABILITY ).ifPresent( ( capability ) -> {
-            capability.setEntries( entries );
-            NetworkHelper.sendMobWikiIndexUpdate( player );
-        } );
-    }
-    
-    public static int[] getMobWikiIndexes( @Nonnull ServerPlayer player ) {
-        return player.getCapability( ApocalypseCapabilities.MOB_WIKI_CAPABILITY ).orElse( MobWikiCapProvider.SUPPLIER.get() ).getEntries();
     }
 }

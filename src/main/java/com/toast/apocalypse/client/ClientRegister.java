@@ -3,7 +3,6 @@ package com.toast.apocalypse.client;
 import com.toast.apocalypse.client.config.ClientConfig;
 import com.toast.apocalypse.client.event.ClientEvents;
 import com.toast.apocalypse.client.event.KeyInputListener;
-import com.toast.apocalypse.client.mobwiki.MobEntries;
 import com.toast.apocalypse.client.particle.LunarDespawnSmokeParticle;
 import com.toast.apocalypse.client.renderer.DifficultyOverlayRenderHandler;
 import com.toast.apocalypse.client.renderer.entity.living.breecher.BreecherRenderer;
@@ -78,7 +77,6 @@ public class ClientRegister {
         modBus.addListener( ClientUtil::onAddLayer );
         
         registerMenuScreens();
-        MobEntries.init();
         
         event.enqueueWork( ItemModelProps::register );
     }
