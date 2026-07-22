@@ -20,15 +20,8 @@ public interface IDifficultyAccessor {
     /**
      * @return A list containing the numerical IDs of the given player's
      * currently running apocalypse events.
-     * <strong>(Server side only)</strong><br><br>
-     * <p>
-     * 0: Lunar Siege
-     * <br><br>
-     * 1: Thunderstorm
-     * <br><br>
-     * 2: Acid rain
-     * <br><br>
-     * 3: Call of The Shadows
+     * <strong>(Server side only)</strong>
+     * @see com.toast.apocalypse.api.event.ApocalypseEvent.EventIds Overview of valid Apocalypse event IDs.
      */
     List<Integer> getEventIds( ServerPlayer player );
 }

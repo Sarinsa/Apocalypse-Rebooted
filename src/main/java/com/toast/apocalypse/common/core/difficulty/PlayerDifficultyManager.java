@@ -10,6 +10,7 @@ import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.core.mod_event.IEventPredicate;
 import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
 import com.toast.apocalypse.common.core.register.ApocalypseSounds;
+import com.toast.apocalypse.common.event.ApocalypseEventFactory;
 import com.toast.apocalypse.common.item.LunarArmorItem;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.network.message.S2CSimpleClientTask;
@@ -429,8 +430,14 @@ public final class PlayerDifficultyManager {
         // stop any events that should no longer run.
         events.values().removeIf( ( abstractEvent ) -> {
             if( !abstractEvent.shouldContinueRunning( level, player, scaledDifficulty, this ) ) {
-                abstractEvent.onEnd( server, player );
-                return true;
+                // Allow listeners to prevent the event from ending
+                if( ApocalypseEventFactory.fireApocalypseStopEvent( player, abstractEvent.getType().getId() ) ) {
+                    return false;
+                }
+                else {
+                    abstractEvent.onEnd( server, player );
+                    return true;
+                }
             }
             return false;
         } );
@@ -459,6 +466,9 @@ public final class PlayerDifficultyManager {
      * @param eventType The event type for the event to start.
      */
     public void startEvent( ServerPlayer player, EventType<?> eventType ) {
+        boolean canceled = ApocalypseEventFactory.fireApocalypseStartEvent( player, eventType.getId() );
+        if( canceled ) return;
+        
         AbstractEvent newEvent = eventType.createEvent();
         newEvent.onStart( server, player );
         playerEvents.get( player.getUUID() ).put( eventType, newEvent );

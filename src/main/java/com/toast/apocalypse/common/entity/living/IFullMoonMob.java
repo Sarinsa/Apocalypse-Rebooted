@@ -90,7 +90,7 @@ public interface IFullMoonMob {
         if( player == null )
             return false;
         
-        AbstractEvent event = Apocalypse.INSTANCE.getDifficultyManager().getEvent( player, EventRegistry.FULL_MOON );
+        AbstractEvent event = Apocalypse.INSTANCE.getDifficultyManager().getEvent( player, EventRegistry.LUNAR_SIEGE );
         
         if( event != null ) {
             final int deathCount = event.getPlayerDeathCount();
