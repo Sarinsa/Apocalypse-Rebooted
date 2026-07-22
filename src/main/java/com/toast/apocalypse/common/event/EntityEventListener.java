@@ -1,6 +1,5 @@
 package com.toast.apocalypse.common.event;
 
-import com.toast.apocalypse.api.event.SeekerAlertEvent;
 import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
@@ -17,7 +16,10 @@ import fathertoast.crust.api.lib.EnvironmentHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Monster;
@@ -43,13 +45,6 @@ public class EntityEventListener {
     /** A map containing an entity instance per entity type in the registry. */
     protected static final Map<EntityType<?>, Entity> ENTITY_FOR_TYPE = new HashMap<>();
     
-    // TODO - Remove after debugging
-    @SubscribeEvent
-    public void onSeekerAlert( SeekerAlertEvent event ) {
-        if( event.getTarget().getItemBySlot( EquipmentSlot.HEAD ).getItem() == Items.CARVED_PUMPKIN ) {
-            event.setCanceled( true );
-        }
-    }
     
     /** Cancel full moon monsters despawning during full moons. */
     @SubscribeEvent( priority = EventPriority.LOW )
