@@ -45,9 +45,9 @@ public class FatherlyToastItem extends Item {
     public void appendHoverText( ItemStack itemStack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag ) {
         tooltip.add( Component.translatable( References.FATHERLY_TOAST_DESC ).withStyle( ChatFormatting.GRAY ) );
         
-        tooltip.add( Component.literal( "" ) );
-        
         if( itemStack.hasTag() ) {
+            tooltip.add( Component.literal( "" ) );
+            
             final CompoundTag tag = itemStack.getTag();
             
             if( NBTHelper.containsNumber( tag, KEY_TOAST_LEVEL ) ) {
