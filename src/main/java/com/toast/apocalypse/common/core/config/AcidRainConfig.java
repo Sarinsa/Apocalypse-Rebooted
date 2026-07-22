@@ -1,8 +1,8 @@
 package com.toast.apocalypse.common.core.config;
 
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.common.core.config.field.BlockTransformListField;
 import com.toast.apocalypse.common.core.config.value.BlockTransformList;
-import com.toast.apocalypse.common.core.register.ApocalypseBlocks;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import fathertoast.crust.api.config.common.AbstractConfigCategory;
 import fathertoast.crust.api.config.common.AbstractConfigFile;
@@ -122,14 +122,13 @@ public class AcidRainConfig extends AbstractConfigFile {
         
         private static BlockTransformList defaultTransformList() {
             return new BlockTransformList(
-                    
                     // Grass, plants, crops and small flowers
                     new BlockTransformList.Entry( Blocks.GRASS_BLOCK, null, BlockTransformList.StateProperties.Builder
                             .builder( Blocks.DIRT )
                             .build(),
                             false ),
                     new BlockTransformList.Entry( Blocks.GRASS, null, BlockTransformList.StateProperties.Builder
-                            .builder( ApocalypseBlocks.DEAD_GRASS.get() )
+                            .builder( ApocalypseObjects.Blocks.DEAD_GRASS.get() )
                             .build(),
                             false ),
                     new BlockTransformList.Entry( Blocks.TALL_GRASS, null, BlockTransformList.StateProperties.Builder
@@ -137,11 +136,11 @@ public class AcidRainConfig extends AbstractConfigFile {
                             .build(),
                             false ),
                     new BlockTransformList.Entry( null, BlockTags.SMALL_FLOWERS, BlockTransformList.StateProperties.Builder
-                            .builder( ApocalypseBlocks.DEAD_PLANT.get() )
+                            .builder( ApocalypseObjects.Blocks.DEAD_PLANT.get() )
                             .build(),
                             false ),
                     new BlockTransformList.Entry( Blocks.FERN, null, BlockTransformList.StateProperties.Builder
-                            .builder( ApocalypseBlocks.DEAD_PLANT.get() )
+                            .builder( ApocalypseObjects.Blocks.DEAD_PLANT.get() )
                             .build(),
                             false ),
                     new BlockTransformList.Entry( Blocks.LARGE_FERN, null, BlockTransformList.StateProperties.Builder
@@ -157,7 +156,7 @@ public class AcidRainConfig extends AbstractConfigFile {
                             .build(),
                             false ),
                     new BlockTransformList.Entry( null, BlockTags.CROPS, BlockTransformList.StateProperties.Builder
-                            .builder( ApocalypseBlocks.DEAD_PLANT.get() )
+                            .builder( ApocalypseObjects.Blocks.DEAD_PLANT.get() )
                             .build(),
                             false ),
                     new BlockTransformList.Entry( Blocks.SWEET_BERRY_BUSH, null, BlockTransformList.StateProperties.Builder

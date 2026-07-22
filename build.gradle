@@ -109,9 +109,9 @@ dependencies {
     implementation "curse.maven:crust-873570:${crust_api_version}"
     runtimeOnly "curse.maven:crust-873570:${crust_src_version}"
 
-    // Misc toast mods to include at runtime
-    runtimeOnly fg.deobf("curse.maven:specialmobs-59968:${sm_version}")
-    runtimeOnly fg.deobf("curse.maven:naturalabsorption-224296:${na_version}")
+    // Misc toast mods to include at runtime // TODO wait for these to update
+    // runtimeOnly fg.deobf("curse.maven:specialmobs-59968:${sm_version}")
+    // runtimeOnly fg.deobf("curse.maven:naturalabsorption-224296:${na_version}")
 
     // Jade
     implementation fg.deobf("curse.maven:jade-324717:${jade_version}")

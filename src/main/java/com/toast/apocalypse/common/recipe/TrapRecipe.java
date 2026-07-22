@@ -4,8 +4,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
-import com.toast.apocalypse.api.BaseTrapAction;
-import com.toast.apocalypse.api.register.ModRegistries;
+import com.toast.apocalypse.api.AbstractTrap;
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.common.blockentity.DynamicTrapBlockEntity;
 import com.toast.apocalypse.common.core.register.ApocalypseRecipeSerializers;
 import com.toast.apocalypse.common.core.register.ApocalypseRecipeTypes;
@@ -34,11 +34,11 @@ public final class TrapRecipe implements Recipe<DynamicTrapBlockEntity> {
     private static final int MAX_INGREDIENTS = 9;
     
     private final ResourceLocation id;
-    private final BaseTrapAction resultTrap;
+    private final AbstractTrap resultTrap;
     private final int preparationTime;
     private final NonNullList<Ingredient> ingredients;
     
-    public TrapRecipe( ResourceLocation id, BaseTrapAction resultTrap, int preparationTime, NonNullList<Ingredient> ingredients ) {
+    public TrapRecipe( ResourceLocation id, AbstractTrap resultTrap, int preparationTime, NonNullList<Ingredient> ingredients ) {
         Objects.requireNonNull( id );
         Objects.requireNonNull( resultTrap );
         
@@ -103,7 +103,7 @@ public final class TrapRecipe implements Recipe<DynamicTrapBlockEntity> {
     }
     
     @Nonnull
-    public BaseTrapAction getResultTrap() {
+    public AbstractTrap getResultTrap() {
         return resultTrap;
     }
     
@@ -146,11 +146,11 @@ public final class TrapRecipe implements Recipe<DynamicTrapBlockEntity> {
             if( ingredients.size() > MAX_INGREDIENTS ) {
                 throw new JsonParseException( "Too many ingredients for trap assembling recipe. The maximum is 9" );
             }
-            if( trapId == null || !ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsKey( trapId ) ) {
+            if( trapId == null || !ApocalypseObjects.TRAP_ACTIONS_REGISTRY.get().containsKey( trapId ) ) {
                 throw new JsonParseException( "No valid result trap type found for assembling recipe. ID is either malformed or doesn't exist in the registry." );
             }
             else {
-                return new TrapRecipe( id, ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue( trapId ), preparationTime, ingredients );
+                return new TrapRecipe( id, ApocalypseObjects.TRAP_ACTIONS_REGISTRY.get().getValue( trapId ), preparationTime, ingredients );
             }
         }
         
@@ -182,7 +182,7 @@ public final class TrapRecipe implements Recipe<DynamicTrapBlockEntity> {
                 for( int j = 0; j < ingredientsCount; ++j ) {
                     ingredients.set( j, Ingredient.fromNetwork( byteBuf ) );
                 }
-                return new TrapRecipe( id, ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue( trapId ), preparationTime, ingredients );
+                return new TrapRecipe( id, ApocalypseObjects.TRAP_ACTIONS_REGISTRY.get().getValue( trapId ), preparationTime, ingredients );
             }
             catch( Exception e ) {
                 e.printStackTrace();
@@ -192,7 +192,7 @@ public final class TrapRecipe implements Recipe<DynamicTrapBlockEntity> {
         
         @Override
         public void toNetwork( FriendlyByteBuf byteBuf, TrapRecipe trapRecipe ) {
-            byteBuf.writeResourceLocation( ModRegistries.TRAP_ACTIONS_REGISTRY.get().getKey( trapRecipe.getResultTrap() ) );
+            byteBuf.writeResourceLocation( ApocalypseObjects.TRAP_ACTIONS_REGISTRY.get().getKey( trapRecipe.getResultTrap() ) );
             byteBuf.writeInt( trapRecipe.preparationTime );
             byteBuf.writeInt( trapRecipe.ingredients.size() );
             

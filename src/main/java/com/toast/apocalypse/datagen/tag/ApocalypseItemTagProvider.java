@@ -1,7 +1,7 @@
 package com.toast.apocalypse.datagen.tag;
 
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.tag.ApocalypseItemTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 public class ApocalypseItemTagProvider extends ItemTagsProvider {
     
     public ApocalypseItemTagProvider( DataGenerator dataGenerator, CompletableFuture<HolderLookup.Provider> lookupProvider, CompletableFuture<TagsProvider.TagLookup<Block>> blockTagsProvider, @Nullable ExistingFileHelper existingFileHelper ) {
-        super( dataGenerator.getPackOutput(), lookupProvider, blockTagsProvider, Apocalypse.MODID, existingFileHelper );
+        super( dataGenerator.getPackOutput(), lookupProvider, blockTagsProvider, Apocalypse.MOD_ID, existingFileHelper );
     }
     
     @Override
@@ -28,19 +28,22 @@ public class ApocalypseItemTagProvider extends ItemTagsProvider {
                 .add( Items.COOKIE );
         
         tag( Tags.Items.INGOTS )
-                .add( ApocalypseItems.MIDNIGHT_STEEL_INGOT.get() );
+                .add( ApocalypseObjects.Items.MIDNIGHT_STEEL_INGOT.get() );
         
         tag( ItemTags.BEACON_PAYMENT_ITEMS )
-                .add( ApocalypseItems.MIDNIGHT_STEEL_INGOT.get() );
+                .add( ApocalypseObjects.Items.MIDNIGHT_STEEL_INGOT.get() );
         
         tag( Tags.Items.ARMORS_HELMETS )
-                .add( ApocalypseItems.BUCKET_HELM.get() )
-                .add( ApocalypseItems.MIDNIGHT_STEEL_HELMET.get() );
+                .add( ApocalypseObjects.Items.BUCKET_HELM.get() )
+                .add( ApocalypseObjects.Items.MIDNIGHT_STEEL_HELMET.get() );
+        
         tag( Tags.Items.ARMORS_CHESTPLATES )
-                .add( ApocalypseItems.MIDNIGHT_STEEL_CHESTPLTAE.get() );
+                .add( ApocalypseObjects.Items.MIDNIGHT_STEEL_CHESTPLTAE.get() );
+        
         tag( Tags.Items.ARMORS_LEGGINGS )
-                .add( ApocalypseItems.MIDNIGHT_STEEL_LEGGINGS.get() );
+                .add( ApocalypseObjects.Items.MIDNIGHT_STEEL_LEGGINGS.get() );
+        
         tag( Tags.Items.ARMORS_BOOTS )
-                .add( ApocalypseItems.MIDNIGHT_STEEL_BOOTS.get() );
+                .add( ApocalypseObjects.Items.MIDNIGHT_STEEL_BOOTS.get() );
     }
 }

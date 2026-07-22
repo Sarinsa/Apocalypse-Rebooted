@@ -159,7 +159,7 @@ public class Breecher extends Creeper implements IFullMoonMob {
         super.addAdditionalSaveData( compoundTag );
         
         if( this.getPlayerTargetUUID() != null ) {
-            compoundTag.putUUID( PLAYER_UUID_KEY, this.getPlayerTargetUUID() );
+            compoundTag.putUUID( KEY_PLAYER_UUID, this.getPlayerTargetUUID() );
         }
     }
     
@@ -167,8 +167,8 @@ public class Breecher extends Creeper implements IFullMoonMob {
     public void readAdditionalSaveData( CompoundTag compoundTag ) {
         super.readAdditionalSaveData( compoundTag );
         
-        if( compoundTag.hasUUID( PLAYER_UUID_KEY ) ) {
-            this.setPlayerTargetUUID( compoundTag.getUUID( PLAYER_UUID_KEY ) );
+        if( compoundTag.hasUUID( KEY_PLAYER_UUID ) ) {
+            this.setPlayerTargetUUID( compoundTag.getUUID( KEY_PLAYER_UUID ) );
         }
     }
 }

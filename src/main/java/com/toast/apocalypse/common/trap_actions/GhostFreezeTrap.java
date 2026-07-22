@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.trap_actions;
 
-import com.toast.apocalypse.api.BaseTrapAction;
+import com.toast.apocalypse.api.AbstractTrap;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.Ghost;
@@ -13,17 +13,15 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
-public class GhostTrap extends BaseTrapAction {
+public class GhostFreezeTrap extends AbstractTrap {
     
     private static final String DESCRIPTION_KEY = "apocalypse.trap_type.apocalypse.ghost_freeze.description";
     private static final ResourceLocation ICON = Apocalypse.rl( "textures/trap_icons/ghost_freeze.png" );
     
     
-    public GhostTrap() {
-    }
+    public GhostFreezeTrap() { }
     
     @Override
     public void execute( Level level, BlockPos pos, Direction facing, AABB areaOfEffect ) {
@@ -56,8 +54,7 @@ public class GhostTrap extends BaseTrapAction {
     }
     
     @Override
-    @Nonnull
-    public ResourceLocation iconLocation() {
+    public ResourceLocation getIcon() {
         return ICON;
     }
     

@@ -7,7 +7,7 @@ import net.minecraftforge.common.data.LanguageProvider;
 public class ApocalypseLangProvider extends LanguageProvider {
     
     public ApocalypseLangProvider( DataGenerator gen ) {
-        super( gen.getPackOutput(), Apocalypse.MODID, "en_us" );
+        super( gen.getPackOutput(), Apocalypse.MOD_ID, "en_us" );
     }
     
     @Override

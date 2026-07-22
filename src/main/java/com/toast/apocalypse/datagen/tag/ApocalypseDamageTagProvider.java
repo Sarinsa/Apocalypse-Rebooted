@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 public class ApocalypseDamageTagProvider extends DamageTypeTagsProvider {
     
     public ApocalypseDamageTagProvider( DataGenerator dataGenerator, CompletableFuture<HolderLookup.Provider> provider, @Nullable ExistingFileHelper fileHelper ) {
-        super( dataGenerator.getPackOutput(), provider, Apocalypse.MODID, fileHelper );
+        super( dataGenerator.getPackOutput(), provider, Apocalypse.MOD_ID, fileHelper );
     }
     
     @Override

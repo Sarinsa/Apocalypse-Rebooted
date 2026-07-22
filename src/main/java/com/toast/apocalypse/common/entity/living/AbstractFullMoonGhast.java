@@ -119,8 +119,8 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
         super.addAdditionalSaveData( compoundTag );
         
         if( this.getPlayerTargetUUID() != null ) {
-            compoundTag.putUUID( PLAYER_UUID_KEY, getPlayerTargetUUID() );
-            compoundTag.putInt( EVENT_DTH_COUNT_KEY, getPlayerDeathCount() );
+            compoundTag.putUUID( KEY_PLAYER_UUID, getPlayerTargetUUID() );
+            compoundTag.putInt( KEY_TARGET_DEATH_COUNT, getPlayerDeathCount() );
         }
     }
     
@@ -128,8 +128,8 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
     public void readAdditionalSaveData( CompoundTag compoundTag ) {
         super.readAdditionalSaveData( compoundTag );
         
-        if( compoundTag.hasUUID( PLAYER_UUID_KEY ) ) {
-            setPlayerTargetUUID( compoundTag.getUUID( PLAYER_UUID_KEY ) );
+        if( compoundTag.hasUUID( KEY_PLAYER_UUID ) ) {
+            setPlayerTargetUUID( compoundTag.getUUID( KEY_PLAYER_UUID ) );
         }
     }
     

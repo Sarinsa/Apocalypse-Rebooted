@@ -1,6 +1,6 @@
 package com.toast.apocalypse.client.screen;
 
-import com.toast.apocalypse.api.BaseTrapAction;
+import com.toast.apocalypse.api.AbstractTrap;
 import com.toast.apocalypse.common.blockentity.DynamicTrapBlockEntity;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.menus.DynamicTrapMenu;
@@ -48,10 +48,10 @@ public class DynamicTrapMenuScreen extends AbstractContainerScreen<DynamicTrapMe
                 
                 if( trap.getCurrentTrap() != null ) {
                     if( hoveringOverSlotAt( leftPos + 141, topPos + 35, mouseX, mouseY ) ) {
-                        BaseTrapAction trapType = trap.getCurrentTrap();
+                        AbstractTrap trapType = trap.getCurrentTrap();
                         List<Component> components = new ArrayList<>();
                         
-                        components.add( Component.translatable( trapType.getNameTranslationKey( trapType ) ) );
+                        components.add( Component.translatable( trapType.getTranslationKey() ) );
                         
                         if( trapType.getDescriptionKey() != null ) {
                             components.add( Component.literal( "" ) );
@@ -85,7 +85,7 @@ public class DynamicTrapMenuScreen extends AbstractContainerScreen<DynamicTrapMe
                     && Minecraft.getInstance().level.getExistingBlockEntity( menu.getTrapPos() ) instanceof DynamicTrapBlockEntity trap ) {
                 
                 if( trap.getCurrentTrap() != null ) {
-                    ResourceLocation trapIcon = trap.getCurrentTrap().iconLocation();
+                    ResourceLocation trapIcon = trap.getCurrentTrap().getIcon();
                     guiGraphics.blit( trapIcon, leftPos + 142, topPos + 35, 0, 0, 15, 15, 16, 16 );
                 }
             }

@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.block;
 
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.register.ApocalypseBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -33,7 +33,7 @@ public class WetWallTorchBlock extends WallTorchBlock {
     
     @Override
     public ItemStack getCloneItemStack( BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player ) {
-        return new ItemStack( ApocalypseBlocks.WET_TORCH.get() );
+        return new ItemStack( ApocalypseObjects.Blocks.WET_TORCH.get() );
     }
     
     @Override

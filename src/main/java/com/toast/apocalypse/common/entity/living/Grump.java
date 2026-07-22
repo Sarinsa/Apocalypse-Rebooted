@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
-import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
@@ -71,10 +71,11 @@ import java.util.UUID;
  * This is a full moon mob that is meant to be a high threat to players that are not in a safe area from them.
  * Grumps fly, have a pulling attack, and have a melee attack that can't be reduced below 2 damage and applies a
  * short gravity effect. The pull attack/hook attack can be blocked with a shield, but blocking the hook twice or more
- * will enrage the grump, granting it a speed and attack knockback bonus.<br><br>
+ * will enrage the grump, granting it a speed and attack knockback bonus.
+ * <br><br>
  * Unlike most full moon mobs, this one has no means of breaking through defenses and therefore relies on the
  * player being vulnerable to attack - whether by will or by other mobs breaking through to the player.
- * <p>
+ * <br><br>
  * Despite being a fearsome close range enemy, it can be befriended with some Fatherly Toast, making it a useful
  * companion.
  */
@@ -90,23 +91,22 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
     private static final AttributeModifier RAGE_KNOCKBACK = new AttributeModifier( "ApocalypseGrumpRAGE_KNOCKBACK", 3.0D, AttributeModifier.Operation.ADDITION );
     
     
-    /** The current fishhook entity launched by the grump. */
+    /** The current fishhook entity launched by the Grump. */
     private MonsterFishHook fishHook;
-    private final SimpleFlyingMoveController moveHelperController;
-    
-    protected final SimpleContainer inventory = new SimpleContainer( 1 );
-    
+    /** The Grump's inventory. */
+    private final SimpleContainer inventory = new SimpleContainer( 1 );
+    /** The amount of fishhooks this Grump has launched that have been blocked with a shield. */
     private int hookBlockedCount = 0;
     
     
     public Grump( EntityType<? extends Ghast> entityType, Level level ) {
         super( entityType, level );
-        moveHelperController = new SimpleFlyingMoveController( this );
-        moveControl = moveHelperController;
+        moveControl = new SimpleFlyingMoveController( this );
         xpReward = 3;
         inventory.addListener( this );
         updateContainerEquipment();
     }
+    
     
     public static AttributeSupplier.Builder createGrumpAttributes() {
         return Mob.createMobAttributes()
@@ -116,6 +116,11 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
                 .add( ForgeMod.SWIM_SPEED.get(), 1.1D )
                 .add( Attributes.FOLLOW_RANGE, 4096.0D );
     }
+    
+    public static boolean checkGrumpSpawnRules( EntityType<? extends Grump> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random ) {
+        return level.getDifficulty() != Difficulty.PEACEFUL && Mob.checkMobSpawnRules( entityType, level, spawnType, pos, random );
+    }
+    
     
     @Override
     protected void defineSynchedData() {
@@ -181,26 +186,22 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
         return false; // Not pushed by fluids
     }
     
-    public static boolean checkGrumpSpawnRules( EntityType<? extends Grump> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random ) {
-        return level.getDifficulty() != Difficulty.PEACEFUL && Mob.checkMobSpawnRules( entityType, level, spawnType, pos, random );
-    }
-    
-    /** Limit arrow damage to max 1 if the Grump is wearing a Bucket Helmet. */
     @Override
     public boolean hurt( DamageSource damageSource, float damage ) {
+        // Limit arrow damage to max 1 if the Grump is wearing a Bucket Helmet
         if( damageSource.getDirectEntity() instanceof AbstractArrow ) {
-            if( getItemBySlot( EquipmentSlot.HEAD ).getItem() == ApocalypseItems.BUCKET_HELM.get() ) {
+            if( getItemBySlot( EquipmentSlot.HEAD ).getItem() == ApocalypseObjects.Items.BUCKET_HELM.get() ) {
                 damage = Math.min( damage, 1.0F );
             }
         }
         return super.hurt( damageSource, damage );
     }
     
-    /** Apply Heavy effect on players on melee attack. */
     @Override
     public boolean doHurtTarget( Entity entity ) {
         if( super.doHurtTarget( entity ) ) {
             if( entity instanceof Player player ) {
+                // Apply Heavy effect on players on melee attack
                 int duration = level().getDifficulty() == Difficulty.HARD ? 100 : 60;
                 player.addEffect( new MobEffectInstance( CrustObjects.Effects.WEIGHT.get(), duration, 1 ) );
             }
@@ -211,12 +212,10 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
         }
     }
     
-    /** Do not despawn if Grump has an owner. */
     @Override
     public void checkDespawn() {
-        if( hasOwner() )
-            return;
-        
+        // Do not despawn if Grump has an owner.
+        if( hasOwner() ) return;
         super.checkDespawn();
     }
     
@@ -224,10 +223,16 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
     public void aiStep() {
         super.aiStep();
         
-        if( isEnraged() ) {
-            if( level().isClientSide ) {
-                level().addParticle( random.nextBoolean() ? ParticleTypes.SMOKE : ParticleTypes.CLOUD, getRandomX( 0.5D ), getY() + getBbHeight(), getRandomZ( 0.5D ), 0.0D, 0.0D, 0.0D );
-            }
+        if( isEnraged() && level().isClientSide ) {
+            level().addParticle(
+                    random.nextBoolean() ? ParticleTypes.SMOKE : ParticleTypes.CLOUD,
+                    getRandomX( 0.5D ),
+                    getY() + getBbHeight(),
+                    getRandomZ( 0.5D ),
+                    0.0D,
+                    0.0D,
+                    0.0D
+            );
         }
     }
     
@@ -235,19 +240,17 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
     public InteractionResult mobInteract( Player player, InteractionHand hand ) {
         ItemStack itemStack = player.getItemInHand( hand );
         
-        if( itemStack.getItem() == ApocalypseItems.FATHERLY_TOAST.get() && !hasOwner() ) {
+        if( itemStack.getItem() == ApocalypseObjects.Items.FATHERLY_TOAST.get() && !hasOwner() ) {
             if( !level().isClientSide ) {
                 if( level().getRandom().nextInt( 4 ) == 0 ) {
-                    tame( player, itemStack );
-                    return InteractionResult.SUCCESS;
+                    tame( player );
                 }
                 else {
-                    usePlayerItem( player, itemStack );
                     level().broadcastEntityEvent( this, (byte) 6 );
-                    return InteractionResult.CONSUME;
                 }
+                usePlayerItem( player, itemStack );
             }
-            return InteractionResult.CONSUME;
+            return InteractionResult.sidedSuccess( level().isClientSide );
         }
         else if( itemStack.is( ApocalypseItemTags.COOKIES ) ) {
             if( getHealth() < getMaxHealth() ) {
@@ -264,8 +267,8 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
                 }
                 else {
                     if( getPassengers().isEmpty() ) {
-                        if( getHeadItem().getItem() == ApocalypseItems.BUCKET_HELM.get() ) {
-                            Block.popResource( level(), blockPosition(), getHeadItem() );
+                        if( getItemOnHead().getItem() == ApocalypseObjects.Items.BUCKET_HELM.get() ) {
+                            Block.popResource( level(), blockPosition(), getItemOnHead() );
                             inventory.setItem( 0, ItemStack.EMPTY );
                             return InteractionResult.SUCCESS;
                         }
@@ -277,90 +280,6 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
             }
         }
         return super.mobInteract( player, hand );
-    }
-    
-    protected void usePlayerItem( Player player, ItemStack itemStack ) {
-        if( !player.getAbilities().instabuild ) {
-            itemStack.shrink( 1 );
-        }
-    }
-    
-    private void tame( Player player, ItemStack itemStack ) {
-        usePlayerItem( player, itemStack );
-        setOwnerUUID( player.getUUID() );
-        setEnraged( false, false );
-        ApocalypseTriggers.TAMED_GRUMP.trigger( (ServerPlayer) player, this );
-        setTarget( null );
-        setPlayerTargetUUID( null );
-        // Stop potential weird movement happening
-        // if a movement goal is running.
-        moveHelperController.setAction( MoveControl.Operation.WAIT );
-        level().broadcastEntityEvent( this, (byte) 7 );
-    }
-    
-    /**
-     * Opens the Grump inventory and container for the given player.<br>
-     * <br>
-     * Requested from client when the player is riding<br>
-     * a Grump and presses the inventory key binding.
-     */
-    public void openContainerForPlayer( ServerPlayer player ) {
-        if( player.containerMenu != player.inventoryMenu ) {
-            player.closeContainer();
-        }
-        player.nextContainerCounter();
-        AbstractContainerMenu container = new GrumpInventoryContainer( player.containerCounter, player.getInventory(), inventory, this );
-        NetworkHelper.openGrumpInventory( player, container.containerId, this );
-        player.containerMenu = container;
-        player.initMenu( container );
-        
-        MinecraftForge.EVENT_BUS.post( new PlayerContainerEvent.Open( player, player.containerMenu ) );
-    }
-    
-    public SimpleContainer getInventory() {
-        return inventory;
-    }
-    
-    public ItemStack getHeadItem() {
-        return entityData.get( HEAD_ITEM );
-    }
-    
-    public void setHeadItem( @Nullable ItemStack itemStack ) {
-        entityData.set( HEAD_ITEM, itemStack == null ? ItemStack.EMPTY : itemStack );
-        setItemSlot( EquipmentSlot.HEAD, itemStack == null ? ItemStack.EMPTY : itemStack );
-    }
-    
-    protected void updateContainerEquipment() {
-        if( !level().isClientSide ) {
-            setHeadItem( inventory.getItem( 0 ) );
-            setDropChance( EquipmentSlot.HEAD, 0.0F );
-        }
-    }
-    
-    /**
-     * @param type Determines which particles should be displayed when the grump is fed.<br>
-     *             <br>
-     *             0 = Smoke<br>
-     *             1 = Happy (Green star things)<br>
-     *             2 = Heart
-     */
-    protected void performEatEffects( int type ) {
-        ParticleOptions particleType;
-        
-        if( type == 0 ) {
-            particleType = ParticleTypes.SMOKE;
-        }
-        else {
-            particleType = ParticleTypes.HEART;
-        }
-        for( int i = 0; i < 7; ++i ) {
-            double x = random.nextGaussian() * 0.02D;
-            double y = random.nextGaussian() * 0.02D;
-            double z = random.nextGaussian() * 0.02D;
-            level().addParticle( particleType, getRandomX( 1.0D ), getRandomY() + 0.5D, getRandomZ( 1.0D ), x, y, z );
-        }
-        Vec3 pos = position();
-        level().playLocalSound( pos.x(), pos.y(), pos.z(), ApocalypseSounds.GRUMP_EAT.get(), SoundSource.NEUTRAL, 0.8F, 1.0F + (random.nextFloat() - random.nextFloat()) * 0.4F, false );
     }
     
     @Override
@@ -383,7 +302,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
     
     @Nullable
     public LivingEntity getControllingPassenger() {
-        if( getHeadItem().getItem() == Items.SADDLE ) {
+        if( getItemOnHead().getItem() == Items.SADDLE ) {
             Entity entity = getFirstPassenger();
             
             if( entity instanceof LivingEntity ) {
@@ -430,116 +349,6 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
         }
     }
     
-    public void hookBlocked() {
-        if( ++hookBlockedCount >= 2 ) {
-            setEnraged( true, true );
-        }
-    }
-    
-    public boolean isEnraged() {
-        return entityData.get( ENRAGED );
-    }
-    
-    public void setEnraged( boolean enraged, boolean playEffects ) {
-        entityData.set( ENRAGED, enraged );
-        final AttributeInstance FLYING_SPEED = getAttribute( Attributes.FLYING_SPEED );
-        final AttributeInstance ATTACK_KNOCKBACK = getAttribute( Attributes.ATTACK_KNOCKBACK );
-        
-        // This should never happen
-        if( FLYING_SPEED == null || ATTACK_KNOCKBACK == null )
-            return;
-        
-        if( enraged ) {
-            if( !FLYING_SPEED.hasModifier( RAGE_SPEED ) )
-                FLYING_SPEED.addTransientModifier( RAGE_SPEED );
-            
-            if( !ATTACK_KNOCKBACK.hasModifier( RAGE_KNOCKBACK ) )
-                ATTACK_KNOCKBACK.addTransientModifier( RAGE_KNOCKBACK );
-        }
-        else {
-            FLYING_SPEED.removeModifier( RAGE_SPEED );
-            ATTACK_KNOCKBACK.removeModifier( RAGE_KNOCKBACK );
-        }
-        
-        if( playEffects ) {
-            playSound( ApocalypseSounds.GRUMP_RAGE.get() );
-        }
-    }
-    
-    public void setOwnerUUID( UUID uuid ) {
-        entityData.set( OWNER_UUID, Optional.of( uuid ) );
-    }
-    
-    @Nullable
-    @Override // OwnableEntity
-    public UUID getOwnerUUID() {
-        return entityData.get( OWNER_UUID ).orElse( null );
-    }
-    
-    public boolean hasOwner() {
-        return getOwnerUUID() != null;
-    }
-    
-    @SuppressWarnings( "BooleanMethodIsAlwaysInverted" )
-    public boolean shouldStandBy() {
-        return entityData.get( STAND_BY );
-    }
-    
-    public void setStandBy( boolean standBy ) {
-        entityData.set( STAND_BY, standBy );
-    }
-    
-    public boolean hasExistingHook() {
-        return fishHook != null && fishHook.isAlive();
-    }
-    
-    /**
-     * Makes the Grump launch a fishhook.<br>
-     * If riderLook is not null, assume we are launching a hook on behalf
-     * of the player riding the Grump.
-     */
-    public void spawnFishHook( @Nullable LivingEntity target, @Nullable Vec3 riderLook ) {
-        if( !level().isClientSide ) {
-            Level level = level();
-            MonsterFishHook fishHook = null;
-            
-            if( riderLook != null ) {
-                if( getControllingPassenger() != null ) {
-                    fishHook = new MonsterFishHook( riderLook, this, level );
-                }
-            }
-            else if( target != null ) {
-                fishHook = new MonsterFishHook( this, target, level );
-            }
-            
-            if( fishHook != null ) {
-                level.addFreshEntity( fishHook );
-                this.fishHook = fishHook;
-                
-                level.playSound(
-                        null,
-                        blockPosition(),
-                        ApocalypseSounds.GRUMP_LAUNCH_HOOK.get(),
-                        SoundSource.NEUTRAL,
-                        0.6F,
-                        0.4F / (level.random.nextFloat() * 0.4F + 0.8F)
-                );
-            }
-        }
-    }
-    
-    @Nullable
-    public MonsterFishHook getFishHook() {
-        return fishHook;
-    }
-    
-    public void removeFishHook() {
-        if( this.fishHook != null ) {
-            fishHook.discard();
-            fishHook = null;
-        }
-    }
-    
     @SuppressWarnings( "ConstantConditions" )
     @Override
     public void addAdditionalSaveData( CompoundTag compoundTag ) {
@@ -565,7 +374,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
         if( compoundTag.contains( "HeadItem", compoundTag.getId() ) ) {
             ItemStack headItem = ItemStack.of( compoundTag.getCompound( "HeadItem" ) );
             inventory.setItem( 0, headItem );
-            setHeadItem( headItem );
+            setItemOnHead( headItem );
         }
         UUID uuid;
         
@@ -604,22 +413,251 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
             return;
         
         if( random.nextDouble() <= chance ) {
-            setHeadItem( new ItemStack( ApocalypseItems.BUCKET_HELM.get() ) );
+            setItemOnHead( new ItemStack( ApocalypseObjects.Items.BUCKET_HELM.get() ) );
         }
     }
     
     @Override
     public void containerChanged( Container container ) {
         ItemStack itemStack = container.getItem( 0 );
-        setHeadItem( itemStack );
+        setItemOnHead( itemStack );
         
-        if( itemStack.getItem() == ApocalypseItems.BUCKET_HELM.get() ) {
+        if( itemStack.getItem() == ApocalypseObjects.Items.BUCKET_HELM.get() ) {
             getPassengers().forEach( Entity::stopRiding );
         }
-        else if( tickCount > 20 && itemStack.getItem() == Items.SADDLE || itemStack.getItem() == ApocalypseItems.BUCKET_HELM.get() ) {
+        else if( tickCount > 20 && itemStack.getItem() == Items.SADDLE || itemStack.getItem() == ApocalypseObjects.Items.BUCKET_HELM.get() ) {
             playSound( ApocalypseSounds.GRUMP_EQUIP_SADDLE.get(), 0.5F, 1.0F );
         }
     }
+    
+    /** @return This Grump's move control cast to {@link SimpleFlyingMoveController}. */
+    private SimpleFlyingMoveController getFlyingMoveControl() {
+        return (SimpleFlyingMoveController) moveControl;
+    }
+    
+    /** Convenience method for shrinking an item stack in a player's inventory. */
+    protected void usePlayerItem( Player player, ItemStack itemStack ) {
+        if( !player.getAbilities().instabuild ) {
+            itemStack.shrink( 1 );
+        }
+    }
+    
+    /** Tames this Grump, setting the specified player as its owner. */
+    private void tame( Player player ) {
+        setOwnerUUID( player.getUUID() );
+        setEnraged( false, false );
+        ApocalypseTriggers.TAMED_GRUMP.trigger( (ServerPlayer) player, this );
+        
+        setTarget( null );
+        setPlayerTargetUUID( null );
+        // Stop potential weird movement happening
+        // if a movement goal is running.
+        getFlyingMoveControl().setAction( MoveControl.Operation.WAIT );
+        level().broadcastEntityEvent( this, (byte) 7 );
+    }
+    
+    /**
+     * Opens the Grump inventory and container for the given player.
+     * <br><br>
+     * Requested from client when the player is riding
+     * a Grump and presses the inventory key binding.
+     */
+    public void openContainerForPlayer( ServerPlayer player ) {
+        if( player.containerMenu != player.inventoryMenu ) {
+            player.closeContainer();
+        }
+        player.nextContainerCounter();
+        AbstractContainerMenu container = new GrumpInventoryContainer( player.containerCounter, player.getInventory(), inventory, this );
+        NetworkHelper.openGrumpInventory( player, container.containerId, this );
+        player.containerMenu = container;
+        player.initMenu( container );
+        
+        MinecraftForge.EVENT_BUS.post( new PlayerContainerEvent.Open( player, player.containerMenu ) );
+    }
+    
+    /** @return This Grump's inventory. */
+    public SimpleContainer getInventory() {
+        return inventory;
+    }
+    
+    /** @return The item stack equipped on this Grump's head. */
+    public ItemStack getItemOnHead() {
+        return entityData.get( HEAD_ITEM );
+    }
+    
+    /** Sets the currently equipped item stack on this Grump's head. */
+    public void setItemOnHead( @Nullable ItemStack itemStack ) {
+        entityData.set( HEAD_ITEM, itemStack == null ? ItemStack.EMPTY : itemStack );
+        setItemSlot( EquipmentSlot.HEAD, itemStack == null ? ItemStack.EMPTY : itemStack );
+    }
+    
+    /** Updates the Grump's equipment based on what is in its inventory. */
+    protected void updateContainerEquipment() {
+        if( !level().isClientSide ) {
+            setItemOnHead( inventory.getItem( 0 ) );
+            setDropChance( EquipmentSlot.HEAD, 0.0F );
+        }
+    }
+    
+    /**
+     * @param type Determines which particles should be displayed when the grump is fed.
+     *             <br><br>
+     *             0 = Smoke<br>
+     *             1 = Happy (Green star things)<br>
+     *             2 = Heart
+     */
+    protected void performEatEffects( int type ) {
+        ParticleOptions particleType;
+        
+        if( type == 0 ) {
+            particleType = ParticleTypes.SMOKE;
+        }
+        else {
+            particleType = ParticleTypes.HEART;
+        }
+        for( int i = 0; i < 7; ++i ) {
+            double x = random.nextGaussian() * 0.02D;
+            double y = random.nextGaussian() * 0.02D;
+            double z = random.nextGaussian() * 0.02D;
+            level().addParticle( particleType, getRandomX( 1.0D ), getRandomY() + 0.5D, getRandomZ( 1.0D ), x, y, z );
+        }
+        Vec3 pos = position();
+        level().playLocalSound( pos.x(), pos.y(), pos.z(), ApocalypseSounds.GRUMP_EAT.get(), SoundSource.NEUTRAL, 0.8F, 1.0F + (random.nextFloat() - random.nextFloat()) * 0.4F, false );
+    }
+    
+    /**
+     * Increments the count of hooks blocked with a shield.
+     * If X or more hooks have been blocked, the grump enters #RageMode.
+     */
+    public void hookBlocked() {
+        if( ++hookBlockedCount >= 2 ) {
+            setEnraged( true, true );
+        }
+    }
+    
+    /** @return True if this Grump is enraged. */
+    public boolean isEnraged() {
+        return entityData.get( ENRAGED );
+    }
+    
+    /**
+     * Sets the "enraged" flag for this Grump.
+     *
+     * @param enraged     True if the Grump should be set to be enraged.
+     * @param playEffects True if the rage sfx should be played.
+     */
+    public void setEnraged( boolean enraged, boolean playEffects ) {
+        entityData.set( ENRAGED, enraged );
+        final AttributeInstance flyingSpeed = getAttribute( Attributes.FLYING_SPEED );
+        final AttributeInstance attackKnockback = getAttribute( Attributes.ATTACK_KNOCKBACK );
+        
+        // This should never happen
+        if( flyingSpeed == null || attackKnockback == null )
+            return;
+        
+        if( enraged ) {
+            if( !flyingSpeed.hasModifier( RAGE_SPEED ) )
+                flyingSpeed.addTransientModifier( RAGE_SPEED );
+            
+            if( !attackKnockback.hasModifier( RAGE_KNOCKBACK ) )
+                attackKnockback.addTransientModifier( RAGE_KNOCKBACK );
+        }
+        else {
+            flyingSpeed.removeModifier( RAGE_SPEED );
+            attackKnockback.removeModifier( RAGE_KNOCKBACK );
+        }
+        
+        if( playEffects ) {
+            playSound( ApocalypseSounds.GRUMP_RAGE.get() );
+        }
+    }
+    
+    /** Sets the UUID of this Grump's owner. */
+    public void setOwnerUUID( UUID uuid ) {
+        entityData.set( OWNER_UUID, Optional.of( uuid ) );
+    }
+    
+    /** @return True if this Grump has an owner. */
+    public boolean hasOwner() {
+        return getOwnerUUID() != null;
+    }
+    
+    /** @return The UUID of this Grump's owner. Can be null. */
+    @Nullable
+    @Override // OwnableEntity
+    public UUID getOwnerUUID() {
+        return entityData.get( OWNER_UUID ).orElse( null );
+    }
+    
+    /**
+     * @return True if this Grump is in stand-by mode.
+     * When in stand-by mode, Grumps can not move or teleport to their owner.
+     */
+    @SuppressWarnings( "BooleanMethodIsAlwaysInverted" )
+    public boolean shouldStandBy() {
+        return entityData.get( STAND_BY );
+    }
+    
+    /** Sets the stand-by flag for this Grump. */
+    public void setStandBy( boolean standBy ) {
+        entityData.set( STAND_BY, standBy );
+    }
+    
+    /** @return True if this Grump currently has a fishhook entity associated with. */
+    public boolean hasExistingHook() {
+        return fishHook != null && fishHook.isAlive();
+    }
+    
+    /**
+     * Makes the Grump launch a fishhook.
+     * <br><br>
+     * If {@code riderLook} is not null, assume we are launching a hook on behalf
+     * of a player riding the Grump.
+     */
+    public void spawnFishHook( @Nullable LivingEntity target, @Nullable Vec3 riderLook ) {
+        if( !level().isClientSide ) {
+            Level level = level();
+            MonsterFishHook fishHook = null;
+            
+            if( riderLook != null ) {
+                if( getControllingPassenger() != null ) {
+                    fishHook = new MonsterFishHook( riderLook, this, level );
+                }
+            }
+            else if( target != null ) {
+                fishHook = new MonsterFishHook( this, target, level );
+            }
+            
+            if( fishHook != null ) {
+                level.addFreshEntity( fishHook );
+                this.fishHook = fishHook;
+                
+                level.playSound(
+                        null,
+                        blockPosition(),
+                        ApocalypseSounds.GRUMP_LAUNCH_HOOK.get(),
+                        SoundSource.NEUTRAL,
+                        0.6F,
+                        0.4F / (level.random.nextFloat() * 0.4F + 0.8F)
+                );
+            }
+        }
+    }
+    
+    /** @return This Grump's current fishhook entity, or null if one doesn't exist. */
+    @Nullable
+    public MonsterFishHook getFishHook() {
+        return fishHook;
+    }
+    
+    /** Discards this Grump's current fishhook entity, if it exists. */
+    public void removeFishHook() {
+        if( fishHook != null ) {
+            fishHook.discard();
+            fishHook = null;
+        }
+    }
+    
     
     private static class MeleeAttackGoal extends Goal {
         
@@ -646,7 +684,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
             LivingEntity target = grump.getTarget();
             
             if( grump.isAlive() && !grump.isVehicle() && target != null && target.isAlive() ) {
-                return grump.moveHelperController.canReachCurrentWanted();
+                return grump.getFlyingMoveControl().canReachCurrentWanted();
             }
             return false;
         }
@@ -667,7 +705,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
         
         @Override
         public void stop() {
-            grump.moveHelperController.setAction( MoveControl.Operation.WAIT );
+            grump.getFlyingMoveControl().setAction( MoveControl.Operation.WAIT );
         }
         
         @Override
@@ -880,7 +918,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
         }
     }
     
-    /** Copied from ghast */
+    /** A modified copy-paste of {@link Ghast.RandomFloatAroundGoal}. */
     static class RandomFlyGoal extends Goal {
         
         private final Grump grump;
@@ -892,12 +930,9 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
         
         @Override
         public boolean canUse() {
-            if( grump.hasOwner() || grump.isVehicle() )
-                return false;
+            if( grump.hasOwner() || grump.isVehicle() ) return false;
+            if( grump.getTarget() != null ) return false;
             
-            if( grump.getTarget() != null ) {
-                return false;
-            }
             MoveControl moveControl = grump.getMoveControl();
             
             if( !moveControl.hasWanted() ) {
@@ -927,7 +962,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
         }
     }
     
-    /** Mostly copy-pasted from {@link net.minecraft.world.entity.ai.goal.FollowOwnerGoal} */
+    /** A modified copy-paste of {@link net.minecraft.world.entity.ai.goal.FollowOwnerGoal} */
     @SuppressWarnings( "ConstantConditions" )
     static class FollowOwnerGoal extends Goal {
         
@@ -956,7 +991,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
         @Override
         public boolean canContinueToUse() {
             if( owner != null && owner.isAlive() && !grump.shouldStandBy() && !grump.isVehicle() && grump.distanceToSqr( owner ) > 40.0D ) {
-                return grump.moveHelperController.canReachCurrentWanted();
+                return grump.getFlyingMoveControl().canReachCurrentWanted();
             }
             return false;
         }
@@ -968,7 +1003,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
         
         @Override
         public void stop() {
-            grump.moveHelperController.setAction( MoveControl.Operation.WAIT );
+            grump.getFlyingMoveControl().setAction( MoveControl.Operation.WAIT );
         }
         
         @Override
@@ -979,22 +1014,21 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
             setWantedToOwner();
         }
         
+        /** Attempts to teleport the Grump to a clear spot close to its owner. */
         private void teleportToOwner() {
-            BlockPos blockpos = grump.getOwner().blockPosition();
+            BlockPos pos = grump.getOwner().blockPosition();
             
             for( int i = 0; i < 10; ++i ) {
                 int x = randomIntInclusive( -3, 3 );
                 int y = randomIntInclusive( -1, 1 );
                 int z = randomIntInclusive( -3, 3 );
                 
-                boolean teleported = maybeTeleportTo( blockpos.getX() + x, blockpos.getY() + y, blockpos.getZ() + z );
-                
-                if( teleported ) {
-                    return;
-                }
+                boolean teleported = maybeTeleportTo( pos.getX() + x, pos.getY() + y, pos.getZ() + z );
+                if( teleported ) return;
             }
         }
         
+        /** @return True if this AI's owner successfully teleported to the specified coordinates. */
         private boolean maybeTeleportTo( int x, int y, int z ) {
             if( Math.abs( (double) x - owner.getX() ) < 2.0D && Math.abs( (double) z - owner.getZ() ) < 2.0D ) {
                 return false;
@@ -1009,6 +1043,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
             }
         }
         
+        /** @return True if this AI's owner can teleport to the specified block position. */
         private boolean canTeleportTo( BlockPos pos ) {
             BlockPathTypes pathType = WalkNodeEvaluator.getBlockPathTypeStatic( grump.level(), pos.mutable() );
             
@@ -1020,6 +1055,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
             }
         }
         
+        /** @return A random integer between the specified min and max bound. */
         private int randomIntInclusive( int minBound, int maxBound ) {
             return grump.getRandom().nextInt( maxBound - minBound + 1 ) + minBound;
         }
@@ -1043,6 +1079,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
             return true;
         }
         
+        @Override
         public void tick() {
             if( grump.getTarget() == null ) {
                 Vec3 vec3 = grump.getDeltaMovement();
@@ -1074,6 +1111,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
             return true;
         }
         
+        @Override
         public boolean canUse() {
             if( !grump.hasOwner() || grump.getTarget() != null )
                 return false;

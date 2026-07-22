@@ -1,8 +1,8 @@
 package com.toast.apocalypse.common.misc.mixin_work;
 
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
-import com.toast.apocalypse.common.core.register.ApocalypseBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.biome.Biome;
@@ -94,10 +94,10 @@ public class ServerMixinHooks {
         BlockState stateAtPos = serverLevel.getBlockState( pos );
         
         if( stateAtPos.is( Blocks.TORCH ) ) {
-            serverLevel.setBlockAndUpdate( pos, ApocalypseBlocks.WET_TORCH.get().defaultBlockState() );
+            serverLevel.setBlockAndUpdate( pos, ApocalypseObjects.Blocks.WET_TORCH.get().defaultBlockState() );
         }
         else if( stateAtPos.is( Blocks.WALL_TORCH ) ) {
-            BlockState wallTorch = ApocalypseBlocks.WET_WALL_TORCH.get().defaultBlockState();
+            BlockState wallTorch = ApocalypseObjects.Blocks.WET_WALL_TORCH.get().defaultBlockState();
             
             try {
                 wallTorch = wallTorch.setValue( WallTorchBlock.FACING, stateAtPos.getValue( WallTorchBlock.FACING ) );

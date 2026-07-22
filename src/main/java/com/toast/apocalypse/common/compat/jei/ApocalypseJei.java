@@ -1,8 +1,8 @@
 package com.toast.apocalypse.common.compat.jei;
 
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.client.screen.DynamicTrapMenuScreen;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.register.ApocalypseBlocks;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.core.register.ApocalypseMenus;
 import com.toast.apocalypse.common.core.register.ApocalypseRecipeTypes;
@@ -35,7 +35,7 @@ public class ApocalypseJei implements IModPlugin {
     private static final ResourceLocation ID = Apocalypse.rl( "apocalypse_jei" );
     
     public static final RecipeType<TrapRecipe> TRAP_ASSEMBLING =
-            RecipeType.create( Apocalypse.MODID, "trap_assembling", TrapRecipe.class );
+            RecipeType.create( Apocalypse.MOD_ID, "trap_assembling", TrapRecipe.class );
     
     
     @Override
@@ -64,7 +64,7 @@ public class ApocalypseJei implements IModPlugin {
     
     @Override
     public void registerRecipeCatalysts( IRecipeCatalystRegistration registration ) {
-        registration.addRecipeCatalyst( new ItemStack( ApocalypseBlocks.DYNAMIC_TRAP.get() ), TRAP_ASSEMBLING );
+        registration.addRecipeCatalyst( new ItemStack( ApocalypseObjects.Blocks.DYNAMIC_TRAP.get() ), TRAP_ASSEMBLING );
     }
     
     @Override
@@ -81,7 +81,7 @@ public class ApocalypseJei implements IModPlugin {
     private void armorAnvilRecipes( IRecipeRegistration registration ) {
         List<IJeiAnvilRecipe> recipes = new ArrayList<>();
         
-        for( RegistryObject<Item> regObject : ApocalypseItems.ITEMS.getEntries() ) {
+        for( RegistryObject<Item> regObject : ApocalypseItems.REGISTRY.getEntries() ) {
             if( regObject.get() instanceof ArmorItem armorItem ) {
                 Ingredient ingredient = armorItem.getMaterial().getRepairIngredient();
                 ItemStack fullDamagePiece = new ItemStack( armorItem );

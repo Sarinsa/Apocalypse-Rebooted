@@ -356,8 +356,8 @@ public class Seeker extends AbstractFullMoonGhast {
             return timeAlerting < 0;
         }
         
+        // TODO - Make a smarter selection of mobs to alert
         @Override
-        @SuppressWarnings( "all" )
         public void start() {
             LivingEntity target = seeker.getTarget();
             timeAlerting = -60;
@@ -371,13 +371,15 @@ public class Seeker extends AbstractFullMoonGhast {
                     timeAlerting = 0;
                     return;
                 }
-                ApocalypseEventFactory.fireSeekerAlertEvent( seeker.level(), seeker, toAlert, target );
+                boolean canceled = ApocalypseEventFactory.fireSeekerAlertEvent( seeker.level(), seeker, toAlert, target );
+                if( canceled ) return;
                 
                 for( Mob mob : toAlert ) {
                     if( !mob.isRemoved() && mob.isAlive() && mob.getTarget() != target ) {
                         mob.setLastHurtByMob( null );
                         mob.setTarget( target );
                         AttributeInstance attributeInstance = mob.getAttribute( Attributes.FOLLOW_RANGE );
+                        // noinspection ConstantConditions
                         attributeInstance.setBaseValue( Math.max( attributeInstance.getValue(), 60.0D ) );
                     }
                 }

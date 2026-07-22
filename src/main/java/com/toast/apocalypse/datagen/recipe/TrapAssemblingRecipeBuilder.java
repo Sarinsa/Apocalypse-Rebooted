@@ -3,8 +3,8 @@ package com.toast.apocalypse.datagen.recipe;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.toast.apocalypse.api.BaseTrapAction;
-import com.toast.apocalypse.api.register.ModRegistries;
+import com.toast.apocalypse.api.AbstractTrap;
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.common.core.register.ApocalypseRecipeSerializers;
 import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.data.recipes.FinishedRecipe;
@@ -23,16 +23,16 @@ import java.util.function.Consumer;
 
 public class TrapAssemblingRecipeBuilder implements RecipeBuilder {
     
-    private final BaseTrapAction result;
+    private final AbstractTrap result;
     private final int preparationTime;
     private final List<Ingredient> ingredients = Lists.newArrayList();
     
-    public TrapAssemblingRecipeBuilder( BaseTrapAction trap, int preparationTime ) {
+    public TrapAssemblingRecipeBuilder( AbstractTrap trap, int preparationTime ) {
         this.result = trap;
         this.preparationTime = preparationTime;
     }
     
-    public static TrapAssemblingRecipeBuilder trap( BaseTrapAction trap, int preparationTime ) {
+    public static TrapAssemblingRecipeBuilder trap( AbstractTrap trap, int preparationTime ) {
         return new TrapAssemblingRecipeBuilder( trap, preparationTime );
     }
     
@@ -89,7 +89,7 @@ public class TrapAssemblingRecipeBuilder implements RecipeBuilder {
         return null;
     }
     
-    public BaseTrapAction getTrapResult() {
+    public AbstractTrap getTrapResult() {
         return result;
     }
     
@@ -101,18 +101,18 @@ public class TrapAssemblingRecipeBuilder implements RecipeBuilder {
     @SuppressWarnings( "ConstantConditions" )
     @Override
     public void save( Consumer<FinishedRecipe> recipeSaver ) {
-        save( recipeSaver, ModRegistries.TRAP_ACTIONS_REGISTRY.get().getKey( getTrapResult() ) );
+        save( recipeSaver, ApocalypseObjects.TRAP_ACTIONS_REGISTRY.get().getKey( getTrapResult() ) );
     }
     
     
     @SuppressWarnings( "ClassCanBeRecord" )
     public static class Result implements FinishedRecipe {
         private final ResourceLocation id;
-        private final BaseTrapAction result;
+        private final AbstractTrap result;
         private final int preparationTime;
         private final List<Ingredient> ingredients;
         
-        public Result( ResourceLocation id, BaseTrapAction result, int preparationTime, List<Ingredient> ingredients ) {
+        public Result( ResourceLocation id, AbstractTrap result, int preparationTime, List<Ingredient> ingredients ) {
             this.id = id;
             this.result = result;
             this.preparationTime = preparationTime;
@@ -131,7 +131,7 @@ public class TrapAssemblingRecipeBuilder implements RecipeBuilder {
             
             jsonObject.add( "ingredients", jsonarray );
             JsonObject jsonobject = new JsonObject();
-            jsonobject.addProperty( "trap_type", Objects.requireNonNull( ModRegistries.TRAP_ACTIONS_REGISTRY.get().getKey( result ) ).toString() );
+            jsonobject.addProperty( "trap_type", Objects.requireNonNull( ApocalypseObjects.TRAP_ACTIONS_REGISTRY.get().getKey( result ) ).toString() );
             
             if( preparationTime < 0 )
                 throw new IllegalArgumentException( "Preparation time can not be negative" );

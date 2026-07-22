@@ -15,7 +15,7 @@ public class ApocalypseEntityTagProvider extends EntityTypeTagsProvider {
     
     public ApocalypseEntityTagProvider( DataGenerator dataGenerator, CompletableFuture<HolderLookup.Provider> lookupProvider,
                                         @Nullable ExistingFileHelper fileHelper ) {
-        super( dataGenerator.getPackOutput(), lookupProvider, Apocalypse.MODID, fileHelper );
+        super( dataGenerator.getPackOutput(), lookupProvider, Apocalypse.MOD_ID, fileHelper );
     }
     
     @Override

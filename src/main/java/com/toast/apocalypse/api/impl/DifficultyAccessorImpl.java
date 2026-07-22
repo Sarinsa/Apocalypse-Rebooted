@@ -1,7 +1,7 @@
 package com.toast.apocalypse.api.impl;
 
 import com.google.common.collect.ImmutableList;
-import com.toast.apocalypse.api.plugin.DifficultyProvider;
+import com.toast.apocalypse.api.plugin.IDifficultyAccessor;
 import com.toast.apocalypse.common.capability.CapabilityHelper;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.mod_event.EventType;
@@ -11,7 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DifficultyProviderImpl implements DifficultyProvider {
+public final class DifficultyAccessorImpl implements IDifficultyAccessor {
     
     private static final List<Integer> EMPTY_ID_LIST = ImmutableList.of();
     

@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.blockentity;
 
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.common.block.LunarPhaseSensorBlock;
-import com.toast.apocalypse.common.core.register.ApocalypseBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public class LunarPhaseSensorBlockEntity extends BlockEntity {
     
     public LunarPhaseSensorBlockEntity( BlockPos pos, BlockState state ) {
-        super( ApocalypseBlockEntities.LUNAR_PHASE_SENSOR.get(), pos, state );
+        super( ApocalypseObjects.BlockEntities.LUNAR_PHASE_SENSOR.get(), pos, state );
     }
     
     public static void tick( Level level, BlockPos pos, BlockState state, LunarPhaseSensorBlockEntity blockEntity ) {

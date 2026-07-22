@@ -15,7 +15,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 /**
  * Server-only event listener.
  */
-@Mod.EventBusSubscriber( modid = Apocalypse.MODID )
+@Mod.EventBusSubscriber( modid = Apocalypse.MOD_ID )
 public class ServerEventListener {
     
     private static MinecraftServer server;

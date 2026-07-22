@@ -6,22 +6,18 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * An annotation used to detect mod
- * plugins. Your mod plugin class
- * must be annotated, or it
- * will go unnoticed!
+ * An annotation used to detect Apocalypse plugins.
+ * Plugin classes must be annotated, or they will go unnoticed!
  */
 @Retention( RetentionPolicy.RUNTIME )
 @Target( ElementType.TYPE )
 public @interface ApocalypsePlugin {
     
     /**
-     * @return Your mod's modid or an empty String
-     * if this plugin does not depend on
-     * a mod being loaded.
+     * @return The ID of the mod this plugin belongs to.
      * <br><br>
-     * This is used to make sure the plugin is not
-     * loaded if the mod that adds it fails to load.
+     * If this plugin is either a standalone addition or doesn't depend on the mod
+     * it belongs to being loaded in order to function correctly, an empty string should be returned.
      */
-    String modid() default "";
+    String modId() default "";
 }

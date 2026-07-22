@@ -1,7 +1,7 @@
 package com.toast.apocalypse.datagen.tag;
 
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.register.ApocalypseBlocks;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.tags.BlockTags;
@@ -15,27 +15,21 @@ public class ApocalypseBlockTagProvider extends BlockTagsProvider {
     
     public ApocalypseBlockTagProvider( DataGenerator dataGenerator, CompletableFuture<HolderLookup.Provider> lookupProvider,
                                        @Nullable ExistingFileHelper existingFileHelper ) {
-        super( dataGenerator.getPackOutput(), lookupProvider, Apocalypse.MODID, existingFileHelper );
+        super( dataGenerator.getPackOutput(), lookupProvider, Apocalypse.MOD_ID, existingFileHelper );
     }
     
     @Override
     public void addTags( HolderLookup.Provider lookupProvider ) {
         tag( BlockTags.BEACON_BASE_BLOCKS )
-                .add(
-                        ApocalypseBlocks.MIDNIGHT_STEEL_BLOCK.get()
-                );
+                .add( ApocalypseObjects.Blocks.MIDNIGHT_STEEL_BLOCK.get() );
         
         tag( BlockTags.MINEABLE_WITH_PICKAXE )
-                .add(
-                        ApocalypseBlocks.LUNAR_PHASE_SENSOR.get(),
-                        ApocalypseBlocks.MIDNIGHT_STEEL_BLOCK.get(),
-                        ApocalypseBlocks.DYNAMIC_TRAP.get()
-                );
+                .add( ApocalypseObjects.Blocks.LUNAR_PHASE_SENSOR.get(),
+                        ApocalypseObjects.Blocks.MIDNIGHT_STEEL_BLOCK.get(),
+                        ApocalypseObjects.Blocks.DYNAMIC_TRAP.get() );
         
         tag( BlockTags.REPLACEABLE )
-                .add(
-                        ApocalypseBlocks.DEAD_GRASS.get(),
-                        ApocalypseBlocks.DEAD_PLANT.get()
-                );
+                .add( ApocalypseObjects.Blocks.DEAD_GRASS.get(),
+                        ApocalypseObjects.Blocks.DEAD_PLANT.get() );
     }
 }

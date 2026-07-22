@@ -1,26 +1,50 @@
 package com.toast.apocalypse.common.core.register;
 
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.common.blockentity.DynamicTrapBlockEntity;
 import com.toast.apocalypse.common.blockentity.LunarPhaseSensorBlockEntity;
 import com.toast.apocalypse.common.core.Apocalypse;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-import java.util.function.Supplier;
+import java.util.List;
+import java.util.Objects;
 
 public class ApocalypseBlockEntities {
     
-    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create( ForgeRegistries.BLOCK_ENTITY_TYPES, Apocalypse.MODID );
+    public static final DeferredRegister<BlockEntityType<?>> REGISTRY = DeferredRegister.create( ForgeRegistries.BLOCK_ENTITY_TYPES, Apocalypse.MOD_ID );
+    
+    static {
+        register( ApocalypseObjects.BlockEntities.LUNAR_PHASE_SENSOR, LunarPhaseSensorBlockEntity::new, List.of( ApocalypseObjects.Blocks.LUNAR_PHASE_SENSOR ) );
+        register( ApocalypseObjects.BlockEntities.DYNAMIC_TRAP, DynamicTrapBlockEntity::new, List.of( ApocalypseObjects.Blocks.DYNAMIC_TRAP ) );
+    }
     
     
-    public static final RegistryObject<BlockEntityType<LunarPhaseSensorBlockEntity>> LUNAR_PHASE_SENSOR = register( "lunar_phase_sensor", () -> BlockEntityType.Builder.of( LunarPhaseSensorBlockEntity::new, ApocalypseBlocks.LUNAR_PHASE_SENSOR.get() ).build( null ) );
-    public static final RegistryObject<BlockEntityType<DynamicTrapBlockEntity>> DYNAMIC_TRAP = register( "dynamic_trap", () -> BlockEntityType.Builder.of( DynamicTrapBlockEntity::new, ApocalypseBlocks.DYNAMIC_TRAP.get() ).build( null ) );
+    /** Called to register this class. */
+    public static void register( IEventBus bus ) { REGISTRY.register( bus ); }
     
+    /** Registers a block entity type to the deferred register. */
+    @SuppressWarnings( { "SameParameterValue", "ConstantConditions" } )
+    private static void register( RegistryObject<BlockEntityType<?>> regObj, BlockEntityType.BlockEntitySupplier<?> supplier, List<RegistryObject<Block>> block ) {
+        REGISTRY.register( Objects.requireNonNull( regObj.getId() ).getPath(), () -> BlockEntityType.Builder.of( supplier, toBlockArray( block ) ).build( null ) );
+    }
     
-    private static <T extends BlockEntity> RegistryObject<BlockEntityType<T>> register( String name, Supplier<BlockEntityType<T>> tileEntityTypeSupplier ) {
-        return BLOCK_ENTITIES.register( name, tileEntityTypeSupplier );
+    /** Convenience method for returning a list of block registry objects as an array of blocks. */
+    private static Block[] toBlockArray( List<RegistryObject<Block>> blocks ) {
+        // Sanity checks
+        Objects.requireNonNull( blocks );
+        if( blocks.isEmpty() ) {
+            throw new IllegalArgumentException( "Attempted to convert empty list of block registry objects into block array! Boo." );
+        }
+        // Collect in array and return
+        Block[] blockArray = new Block[blocks.size()];
+        for( int i = 0; i < blocks.size(); i++ ) {
+            blockArray[i] = blocks.get( i ).get();
+        }
+        return blockArray;
     }
 }

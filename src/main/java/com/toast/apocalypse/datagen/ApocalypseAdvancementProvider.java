@@ -1,7 +1,7 @@
 package com.toast.apocalypse.datagen;
 
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.triggers.PassedGracePeriodTrigger;
 import com.toast.apocalypse.common.triggers.TamedGrumpTrigger;
 import net.minecraft.advancements.Advancement;
@@ -29,7 +29,7 @@ public class ApocalypseAdvancementProvider extends ForgeAdvancementProvider {
         @Override
         public void generate( HolderLookup.Provider registries, Consumer<Advancement> saver, ExistingFileHelper existingFileHelper ) {
             Advancement root = Advancement.Builder.advancement()
-                    .display( ApocalypseItems.FRAGMENTED_SOUL.get(),
+                    .display( ApocalypseObjects.Items.FRAGMENTED_SOUL.get(),
                             Component.translatable( title( "root" ) ),
                             Component.translatable( desc( "root" ) ),
                             Apocalypse.rl( "textures/gui/advancements/backgrounds/night_sky.png" ),
@@ -39,12 +39,12 @@ public class ApocalypseAdvancementProvider extends ForgeAdvancementProvider {
             
             Advancement toasty = Advancement.Builder.advancement()
                     .parent( root )
-                    .display( ApocalypseItems.FATHERLY_TOAST.get(),
+                    .display( ApocalypseObjects.Items.FATHERLY_TOAST.get(),
                             Component.translatable( title( "toasty" ) ),
                             Component.translatable( desc( "toasty" ) ),
                             null,
                             FrameType.CHALLENGE, true, true, true )
-                    .addCriterion( "obtain_fatherly_toast", InventoryChangeTrigger.TriggerInstance.hasItems( ApocalypseItems.FATHERLY_TOAST.get() ) )
+                    .addCriterion( "obtain_fatherly_toast", InventoryChangeTrigger.TriggerInstance.hasItems( ApocalypseObjects.Items.FATHERLY_TOAST.get() ) )
                     .save( saver, Apocalypse.rl( "toasty" ), existingFileHelper );
             
             Advancement lessGrumpy = Advancement.Builder.advancement()
@@ -59,21 +59,21 @@ public class ApocalypseAdvancementProvider extends ForgeAdvancementProvider {
             
             Advancement lunarium = Advancement.Builder.advancement()
                     .parent( root )
-                    .display( ApocalypseItems.MIDNIGHT_STEEL_INGOT.get(),
+                    .display( ApocalypseObjects.Items.MIDNIGHT_STEEL_INGOT.get(),
                             Component.translatable( title( "lunarium" ) ),
                             Component.translatable( desc( "lunarium" ) ),
                             null,
                             FrameType.TASK, true, true, true )
-                    .addCriterion( "obtain_lunarium", InventoryChangeTrigger.TriggerInstance.hasItems( ApocalypseItems.MIDNIGHT_STEEL_INGOT.get() ) )
+                    .addCriterion( "obtain_lunarium", InventoryChangeTrigger.TriggerInstance.hasItems( ApocalypseObjects.Items.MIDNIGHT_STEEL_INGOT.get() ) )
                     .save( saver, Apocalypse.rl( "lunarium" ), existingFileHelper );
         }
         
         private static String title( String advancementName ) {
-            return Apocalypse.MODID + ".advancements." + advancementName + ".title";
+            return Apocalypse.MOD_ID + ".advancements." + advancementName + ".title";
         }
         
         private static String desc( String advancementName ) {
-            return Apocalypse.MODID + ".advancements." + advancementName + ".description";
+            return Apocalypse.MOD_ID + ".advancements." + advancementName + ".description";
         }
     }
 }

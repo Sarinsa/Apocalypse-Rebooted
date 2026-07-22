@@ -356,7 +356,7 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
         super.addAdditionalSaveData( compoundTag );
         
         if( this.getPlayerTargetUUID() != null ) {
-            compoundTag.putUUID( PLAYER_UUID_KEY, this.getPlayerTargetUUID() );
+            compoundTag.putUUID( KEY_PLAYER_UUID, this.getPlayerTargetUUID() );
         }
         compoundTag.putInt( "FreezeTime", this.freezeTime );
     }
@@ -365,8 +365,8 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
     public void readAdditionalSaveData( CompoundTag compoundTag ) {
         super.readAdditionalSaveData( compoundTag );
         
-        if( compoundTag.hasUUID( PLAYER_UUID_KEY ) ) {
-            this.setPlayerTargetUUID( compoundTag.getUUID( PLAYER_UUID_KEY ) );
+        if( compoundTag.hasUUID( KEY_PLAYER_UUID ) ) {
+            this.setPlayerTargetUUID( compoundTag.getUUID( KEY_PLAYER_UUID ) );
         }
         if( compoundTag.contains( "FreezeTime", Tag.TAG_ANY_NUMERIC ) ) {
             this.freezeTime = compoundTag.getInt( "FreezeTime" );

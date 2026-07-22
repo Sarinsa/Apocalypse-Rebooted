@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.network.work;
 
-import com.toast.apocalypse.api.register.ModRegistries;
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.client.ClientUtil;
 import com.toast.apocalypse.client.renderer.DifficultyOverlayRenderHandler;
 import com.toast.apocalypse.client.screen.GrumpInventoryScreen;
@@ -134,8 +134,8 @@ public class ClientWork {
             if( id == null )
                 return;
             
-            if( ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsKey( id ) ) {
-                trap.setCurrentTrap( ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue( id ) );
+            if( ApocalypseObjects.TRAP_ACTIONS_REGISTRY.get().containsKey( id ) ) {
+                trap.setCurrentTrap( ApocalypseObjects.TRAP_ACTIONS_REGISTRY.get().getValue( id ) );
                 trap.setCurrentTrapRadius( message.trapRadius );
             }
         }

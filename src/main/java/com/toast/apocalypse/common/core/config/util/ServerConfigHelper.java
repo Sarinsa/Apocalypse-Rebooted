@@ -17,7 +17,7 @@ import java.util.EnumMap;
  * Weird and hacky helper for modifying server/world config
  * before world creation on clients.
  */
-@Mod.EventBusSubscriber( bus = Mod.EventBusSubscriber.Bus.FORGE, modid = Apocalypse.MODID, value = Dist.DEDICATED_SERVER )
+@Mod.EventBusSubscriber( bus = Mod.EventBusSubscriber.Bus.FORGE, modid = Apocalypse.MOD_ID, value = Dist.DEDICATED_SERVER )
 public class ServerConfigHelper {
     
     /**
@@ -43,7 +43,7 @@ public class ServerConfigHelper {
      */
     @SuppressWarnings( "unchecked" )
     public static void updateModServerConfig() {
-        final String modid = Apocalypse.MODID;
+        final String modid = Apocalypse.MOD_ID;
         final String configName = ConfigTracker.INSTANCE.getConfigFileName( modid, ModConfig.Type.SERVER );
         
         if( configName != null && !configName.isEmpty() ) {

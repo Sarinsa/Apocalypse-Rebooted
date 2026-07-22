@@ -1,7 +1,6 @@
 package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.common.capability.difficulty.DifficultyCapProvider;
-import com.toast.apocalypse.common.capability.mobwiki.MobWikiCapProvider;
 import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -14,7 +13,6 @@ public class CapabilityAttachListener {
     public void onEntityCapabilityAttach( AttachCapabilitiesEvent<Entity> event ) {
         if( event.getObject() instanceof Player ) {
             event.addCapability( Apocalypse.rl( "difficulty" ), new DifficultyCapProvider() );
-            event.addCapability( Apocalypse.rl( "mob_wiki" ), new MobWikiCapProvider() );
         }
     }
 }

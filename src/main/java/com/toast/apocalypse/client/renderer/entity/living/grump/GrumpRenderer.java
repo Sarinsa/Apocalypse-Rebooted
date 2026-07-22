@@ -44,7 +44,7 @@ public class GrumpRenderer<T extends Grump> extends MobRenderer<T, GhastModel<T>
         if( grump.isEnraged() )
             return ENRAGED;
         
-        boolean saddled = grump.getHeadItem().getItem() == Items.SADDLE;
+        boolean saddled = grump.getItemOnHead().getItem() == Items.SADDLE;
         
         if( grump.getTarget() != null || grump.getOwnerUUID() == null ) {
             return saddled ? GRUMP_TEXTURES[1] : GRUMP_TEXTURES[0];

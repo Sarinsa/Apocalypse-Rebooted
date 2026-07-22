@@ -1,8 +1,8 @@
 package com.toast.apocalypse.common.compat.jei;
 
-import com.toast.apocalypse.api.BaseTrapAction;
+import com.toast.apocalypse.api.AbstractTrap;
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.register.ApocalypseBlocks;
 import com.toast.apocalypse.common.recipe.TrapRecipe;
 import com.toast.apocalypse.common.util.References;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -40,12 +40,12 @@ public class TrapCategory extends BaseRecipeCategory<TrapRecipe> {
     
     public TrapCategory( IJeiHelpers jeiHelpers ) {
         super( jeiHelpers );
-        this.background = guiHelper.createBlankDrawable( width, height );
-        this.icon = guiHelper.createDrawableItemStack( new ItemStack( ApocalypseBlocks.DYNAMIC_TRAP.get() ) );
-        this.slotBackground = guiHelper.getSlotDrawable();
-        this.resultSlotBackground = guiHelper.drawableBuilder( RESULT_SLOT, 0, 0, 32, 32 ).setTextureSize( 32, 32 ).build();
-        this.progressBackground = guiHelper.createDrawable( GUI_TEXTURE, 0, 183, 17, 16 );
-        this.progress = guiHelper.createAnimatedDrawable(
+        background = guiHelper.createBlankDrawable( width, height );
+        icon = guiHelper.createDrawableItemStack( new ItemStack( ApocalypseObjects.Blocks.DYNAMIC_TRAP.get() ) );
+        slotBackground = guiHelper.getSlotDrawable();
+        resultSlotBackground = guiHelper.drawableBuilder( RESULT_SLOT, 0, 0, 32, 32 ).setTextureSize( 32, 32 ).build();
+        progressBackground = guiHelper.createDrawable( GUI_TEXTURE, 0, 183, 17, 16 );
+        progress = guiHelper.createAnimatedDrawable(
                 guiHelper.createDrawable( GUI_TEXTURE, 0, 166, 18, 16 ),
                 100,
                 IDrawableAnimated.StartDirection.LEFT,
@@ -84,7 +84,6 @@ public class TrapCategory extends BaseRecipeCategory<TrapRecipe> {
                 builder.addSlot( RecipeIngredientRole.INPUT, (j * 18) + 1, (i * 18) + 1 )
                         .addIngredients( recipe.getIngredients().get( slotIndex ) )
                         .setBackground( slotBackground, -1, -1 );
-                
                 slotIndex++;
             }
         }
@@ -95,7 +94,7 @@ public class TrapCategory extends BaseRecipeCategory<TrapRecipe> {
         progressBackground.draw( guiGraphics, 64, 19 );
         progress.draw( guiGraphics, 64, 18 );
         resultSlotBackground.draw( guiGraphics, width - (width / 3) - 8, (height / 2) - 16 );
-        guiGraphics.blit( recipe.getResultTrap().iconLocation(), width - (width / 3), (height / 2) - 8, 0, 0, 15, 15, 16, 16 );
+        guiGraphics.blit( recipe.getResultTrap().getIcon(), width - (width / 3), (height / 2) - 8, 0, 0, 15, 15, 16, 16 );
         
         drawPreparationTime( recipe, recipe.getPreparationTime(), guiGraphics, height - 10 );
     }
@@ -103,10 +102,10 @@ public class TrapCategory extends BaseRecipeCategory<TrapRecipe> {
     @Override
     public List<Component> getTooltipStrings( TrapRecipe recipe, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY ) {
         if( hoveringOverSlotAt( width - (width / 3), (height / 2) - 8, mouseX, mouseY ) ) {
-            BaseTrapAction trapAction = recipe.getResultTrap();
+            AbstractTrap trapAction = recipe.getResultTrap();
             
             return List.of(
-                    Component.translatable( trapAction.getNameTranslationKey( trapAction ) ),
+                    Component.translatable( trapAction.getTranslationKey() ),
                     Component.literal( "" ),
                     Component.translatable( trapAction.getDescriptionKey() ).withStyle( ChatFormatting.GRAY ) );
         }

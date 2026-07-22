@@ -16,7 +16,7 @@ import java.util.UUID;
  * Helper class for storing info about mod key binds both
  * client and server side, such as if X key has been pressed, release or is being held.
  */
-@Mod.EventBusSubscriber( modid = Apocalypse.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE )
+@Mod.EventBusSubscriber( modid = Apocalypse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE )
 public class PlayerKeyBindInfo {
     
     private static final Map<UUID, KeyBindInfo> KEYBIND_INFO = new HashMap<>();

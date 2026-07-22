@@ -1,6 +1,6 @@
 package com.toast.apocalypse.datagen.loot;
 
-import com.toast.apocalypse.common.core.register.ApocalypseItems;
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.resources.ResourceLocation;
@@ -17,7 +17,7 @@ public class ApocalypseLootTableProvider extends LootTableProvider {
     
     public ApocalypseLootTableProvider( DataGenerator dataGenerator ) {
         super( dataGenerator.getPackOutput(), Set.of(), List.of(
-                new SubProviderEntry( () -> new ApocalypseBlockLootTableProvider( Set.of( ApocalypseItems.MIDNIGHT_STEEL_INGOT.get() ), FeatureFlags.VANILLA_SET ), LootContextParamSets.BLOCK ),
+                new SubProviderEntry( () -> new ApocalypseBlockLootTableProvider( Set.of( ApocalypseObjects.Items.MIDNIGHT_STEEL_INGOT.get() ), FeatureFlags.VANILLA_SET ), LootContextParamSets.BLOCK ),
                 new SubProviderEntry( () -> new ApocalypseEntityLootTableProvider( FeatureFlags.VANILLA_SET ), LootContextParamSets.ENTITY )
         ) );
     }

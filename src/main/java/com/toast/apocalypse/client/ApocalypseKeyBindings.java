@@ -10,7 +10,7 @@ import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber( modid = Apocalypse.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT )
+@Mod.EventBusSubscriber( modid = Apocalypse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT )
 public class ApocalypseKeyBindings {
     
     public static final KeyMapping TOGGLE_DIFFICULTY = create( "toggleDifficulty", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, InputConstants.KEY_C );

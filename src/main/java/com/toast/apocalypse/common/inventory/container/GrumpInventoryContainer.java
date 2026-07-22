@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.inventory.container;
 
-import com.toast.apocalypse.common.core.register.ApocalypseItems;
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.common.entity.living.Grump;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
@@ -10,9 +10,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
+// TODO - clean up this copy-paste mess
 public class GrumpInventoryContainer extends AbstractContainerMenu {
     
     private final Container grumpInventory;
@@ -29,12 +27,7 @@ public class GrumpInventoryContainer extends AbstractContainerMenu {
         addSlot( new Slot( grumpInventory, 0, 6, 18 ) {
             @Override
             public boolean mayPlace( ItemStack itemStack ) {
-                return itemStack.getItem() == Items.SADDLE || itemStack.getItem() == ApocalypseItems.BUCKET_HELM.get() && !this.hasItem();
-            }
-            
-            @Override
-            public boolean isActive() {
-                return true;
+                return itemStack.getItem() == Items.SADDLE || itemStack.getItem() == ApocalypseObjects.Items.BUCKET_HELM.get() && !this.hasItem();
             }
             
             @Override
@@ -65,7 +58,7 @@ public class GrumpInventoryContainer extends AbstractContainerMenu {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = slots.get( index );
         
-        if( slot != null && slot.hasItem() ) {
+        if( slot.hasItem() ) {
             ItemStack itemstack1 = slot.getItem();
             itemstack = itemstack1.copy();
             int i = grumpInventory.getContainerSize();

@@ -1,12 +1,9 @@
 package com.toast.apocalypse.common.core;
 
-import com.toast.apocalypse.api.impl.ApocalypseAPI;
-import com.toast.apocalypse.api.impl.RegistryHelperImpl;
+import com.toast.apocalypse.api.impl.ApocalypseApiImpl;
 import com.toast.apocalypse.api.plugin.ApocalypsePlugin;
 import com.toast.apocalypse.api.plugin.IApocalypsePlugin;
-import com.toast.apocalypse.api.plugin.RegistryHelper;
 import com.toast.apocalypse.common.command.CommandRegister;
-import com.toast.apocalypse.common.command.argument.ApocalypseArgumentTypes;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.config.ApocalypseServerConfig;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
@@ -33,31 +30,23 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Mod( Apocalypse.MODID )
+@Mod( Apocalypse.MOD_ID )
 public class Apocalypse {
     
-    /** The mod's ID **/
-    public static final String MODID = "apocalypse";
-    
-    /** The mod's display name */
+    /** The mod's ID. **/
+    public static final String MOD_ID = "apocalypse";
+    /** The mod's display name. */
     public static final String MOD_NAME = "Apocalypse Rebooted";
-    
-    /** A logger instance using the modid as prefix/identifier **/
-    public static final Logger LOGGER = LogManager.getLogger( MODID );
-    
-    /** The instance of the mod class */
+    /** A logger instance with this mod's ID as its name. **/
+    public static final Logger LOGGER = LogManager.getLogger( MOD_ID );
+    /** The instance of the mod class. */
     public static Apocalypse INSTANCE;
     
-    /** Difficulty manager instance */
+    /** Difficulty manager instance. */
     private final PlayerDifficultyManager difficultyManager = new PlayerDifficultyManager();
-    
-    /** Registry helper instance */
-    private final RegistryHelperImpl registryHelper = new RegistryHelperImpl();
-    
-    /** Api class instance */
-    private final ApocalypseAPI api = new ApocalypseAPI();
-    
-    /** Packet handler instance */
+    /** API instance. */
+    private final ApocalypseApiImpl api = new ApocalypseApiImpl();
+    /** Packet handler instance. */
     private final PacketHandler packetHandler = new PacketHandler();
     
     
@@ -67,14 +56,13 @@ public class Apocalypse {
         // Static init stuff
         EventRegistry.init();
         ApocalypseTriggers.init();
-        //MobWikiIndexes.init();
         
-        ConfigManager.create( "Apocalypse Rebooted", Apocalypse.MODID );
+        ConfigManager.create( "Apocalypse Rebooted", Apocalypse.MOD_ID );
         
         IEventBus eventBus = context.getModEventBus();
         
         // Misc events
-        eventBus.addListener( ApocalypseTrapActions::onRegistryCreate );
+        eventBus.addListener( ApocalypseTrapTypes::onRegistryCreate );
         eventBus.addListener( ApocalypseEntities::createEntityAttributes );
         eventBus.addListener( ApocalypseEntities::registerEntitySpawnPlacement );
         eventBus.addListener( ApocalypseItems::onCreativeTabPopulate );
@@ -82,6 +70,7 @@ public class Apocalypse {
         eventBus.addListener( this::onLoadComplete );
         eventBus.addListener( this::sendIMCMessages );
         
+        // TODO - Centralize listener methods; having this many listener classes is lame
         // Register event listeners
         MinecraftForge.EVENT_BUS.register( new EntityEventListener() );
         MinecraftForge.EVENT_BUS.register( new PlayerEventListener() );
@@ -91,19 +80,19 @@ public class Apocalypse {
         MinecraftForge.EVENT_BUS.addListener( CommandRegister::registerCommands );
         
         // Register game objects
-        ApocalypseBlocks.BLOCKS.register( eventBus );
-        ApocalypseItems.ITEMS.register( eventBus );
-        ApocalypseSounds.SOUNDS.register( eventBus );
-        ApocalypseMobEffects.EFFECTS.register( eventBus );
-        ApocalypseMenus.MENU_TYPES.register( eventBus );
-        ApocalypseEntities.ENTITIES.register( eventBus );
-        ApocalypseParticles.PARTICLES.register( eventBus );
-        ApocalypseLootMods.LOOT_MODIFIERS.register( eventBus );
-        ApocalypseTrapActions.TRAP_ACTIONS.register( eventBus );
-        ApocalypseRecipeTypes.RECIPE_TYPES.register( eventBus );
-        ApocalypseRecipeSerializers.RECIPE_SERIALIZERS.register( eventBus );
-        ApocalypseBlockEntities.BLOCK_ENTITIES.register( eventBus );
-        ApocalypseArgumentTypes.ARGUMENTS.register( eventBus );
+        ApocalypseBlocks.register( eventBus );
+        ApocalypseItems.register( eventBus );
+        ApocalypseSounds.register( eventBus );
+        ApocalypseMobEffects.register( eventBus );
+        ApocalypseMenus.register( eventBus );
+        ApocalypseEntities.register( eventBus );
+        ApocalypseParticles.register( eventBus );
+        ApocalypseLootMods.register( eventBus );
+        ApocalypseTrapTypes.register( eventBus );
+        ApocalypseRecipeTypes.register( eventBus );
+        ApocalypseRecipeSerializers.register( eventBus );
+        ApocalypseBlockEntities.register( eventBus );
+        ApocalypseArgumentTypes.register( eventBus );
         
         // Missing mapping listeners
         MinecraftForge.EVENT_BUS.addListener( ApocalypseBlocks::onMissingMappings );
@@ -115,10 +104,7 @@ public class Apocalypse {
     
     public void onCommonSetup( FMLCommonSetupEvent event ) {
         packetHandler.registerMessages();
-        
-        event.enqueueWork( () -> {
-            ApocalypseConfig.initialize();
-        } );
+        event.enqueueWork( ApocalypseConfig::initialize );
     }
     
     public void onLoadComplete( FMLLoadCompleteEvent event ) {
@@ -128,6 +114,7 @@ public class Apocalypse {
         } );
     }
     
+    /** Looks for Apocalypse plugins and attempts to load them. */
     private void processPlugins() {
         // Load mod plugins
         ModList.get().getAllScanData().forEach( scanData -> {
@@ -135,48 +122,40 @@ public class Apocalypse {
                 
                 // Look for classes annotated with @ApocalypsePlugin
                 if( annotationData.annotationType().getClassName().equals( ApocalypsePlugin.class.getName() ) ) {
-                    String modid = (String) annotationData.annotationData().getOrDefault( "modid", "" );
+                    String modId = (String) annotationData.annotationData().getOrDefault( "modId", "" );
                     
-                    if( ModList.get().isLoaded( modid ) || modid.isEmpty() ) {
+                    if( ModList.get().isLoaded( modId ) || modId.isEmpty() ) {
                         try {
                             Class<?> pluginClass = Class.forName( annotationData.memberName() );
                             
                             if( IApocalypsePlugin.class.isAssignableFrom( pluginClass ) ) {
                                 IApocalypsePlugin plugin = (IApocalypsePlugin) pluginClass.getConstructor().newInstance();
-                                registryHelper.setCurrentPluginId( plugin.getPluginId() );
                                 plugin.load( getApi() );
                                 LOGGER.info( "Found Apocalypse plugin at {} with plugin ID: {}", annotationData.memberName(), plugin.getPluginId() );
                             }
                         }
                         catch( Exception e ) {
                             LOGGER.error( "Failed to load Apocalypse plugin at {}! Damn dag nabit damnit!", annotationData.memberName() );
+                            // noinspection CallToPrintStackTrace
                             e.printStackTrace();
                         }
                     }
                 }
             } );
         } );
-        // Post setup
-        registryHelper.postSetup();
     }
     
-    public void sendIMCMessages( InterModEnqueueEvent event ) {
-    
-    }
+    public void sendIMCMessages( InterModEnqueueEvent event ) { }
     
     public static ResourceLocation rl( String path ) {
-        return ResourceLocation.fromNamespaceAndPath( MODID, path );
+        return ResourceLocation.fromNamespaceAndPath( MOD_ID, path );
     }
     
     public PlayerDifficultyManager getDifficultyManager() {
         return difficultyManager;
     }
     
-    public RegistryHelper getRegistryHelper() {
-        return registryHelper;
-    }
-    
-    public ApocalypseAPI getApi() {
+    public ApocalypseApiImpl getApi() {
         return api;
     }
 }

@@ -1,6 +1,6 @@
 package com.toast.apocalypse.datagen.loot;
 
-import com.toast.apocalypse.common.core.register.ApocalypseBlocks;
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.Item;
@@ -32,12 +32,14 @@ public class ApocalypseBlockLootTableProvider extends BlockLootSubProvider {
     
     @Override
     protected void generate() {
-        dropSelf( ApocalypseBlocks.LUNAR_PHASE_SENSOR.get() );
-        dropSelf( ApocalypseBlocks.MIDNIGHT_STEEL_BLOCK.get() );
-        dropSelf( ApocalypseBlocks.DYNAMIC_TRAP.get() );
-        add( ApocalypseBlocks.DEAD_GRASS.get(), noDrop() );
-        add( ApocalypseBlocks.DEAD_PLANT.get(), noDrop() );
-        dropOther( ApocalypseBlocks.WET_TORCH.get(), Blocks.TORCH );
-        dropOther( ApocalypseBlocks.WET_WALL_TORCH.get(), Blocks.TORCH );
+        dropSelf( ApocalypseObjects.Blocks.LUNAR_PHASE_SENSOR.get() );
+        dropSelf( ApocalypseObjects.Blocks.MIDNIGHT_STEEL_BLOCK.get() );
+        dropSelf( ApocalypseObjects.Blocks.DYNAMIC_TRAP.get() );
+        
+        add( ApocalypseObjects.Blocks.DEAD_GRASS.get(), noDrop() );
+        add( ApocalypseObjects.Blocks.DEAD_PLANT.get(), noDrop() );
+        
+        dropOther( ApocalypseObjects.Blocks.WET_TORCH.get(), Blocks.TORCH );
+        dropOther( ApocalypseObjects.Blocks.WET_WALL_TORCH.get(), Blocks.TORCH );
     }
 }

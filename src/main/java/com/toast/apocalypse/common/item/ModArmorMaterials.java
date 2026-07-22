@@ -1,8 +1,8 @@
 package com.toast.apocalypse.common.item;
 
 import com.google.common.base.Suppliers;
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.ArmorItem;
@@ -18,7 +18,7 @@ public enum ModArmorMaterials implements ArmorMaterial {
             new int[] { 2, 6, 5, 2 },
             13,
             ApocalypseSounds.ARMOR_EQUIP_LUNAR,
-            () -> Ingredient.of( ApocalypseItems.MIDNIGHT_STEEL_INGOT.get() ),
+            () -> Ingredient.of( ApocalypseObjects.Items.MIDNIGHT_STEEL_INGOT.get() ),
             name( "midnight_steel" ),
             0.0F,
             0.0F
@@ -99,6 +99,7 @@ public enum ModArmorMaterials implements ArmorMaterial {
         return knockbackResistance;
     }
     
+    @SuppressWarnings( "SameParameterValue" )
     private static String name( String name ) {
         return Apocalypse.rl( name ).toString();
     }

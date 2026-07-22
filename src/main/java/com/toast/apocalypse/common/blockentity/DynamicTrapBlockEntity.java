@@ -1,9 +1,8 @@
 package com.toast.apocalypse.common.blockentity;
 
-import com.toast.apocalypse.api.BaseTrapAction;
-import com.toast.apocalypse.api.register.ModRegistries;
+import com.toast.apocalypse.api.AbstractTrap;
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.common.block.DynamicTrapBlock;
-import com.toast.apocalypse.common.core.register.ApocalypseBlockEntities;
 import com.toast.apocalypse.common.core.register.ApocalypseRecipeTypes;
 import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.menus.DynamicTrapMenu;
@@ -40,11 +39,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+// TODO - Cleanup some things here
 public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements IDebugShapeProvider {
     
     private NonNullList<ItemStack> items = NonNullList.withSize( 9, ItemStack.EMPTY );
     
-    private BaseTrapAction currentTrap = null;
+    private AbstractTrap currentTrap = null;
     private int currentTrapRadius = 0;
     
     @Nullable
@@ -81,7 +81,7 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
     
     
     public DynamicTrapBlockEntity( BlockPos pos, BlockState state ) {
-        super( ApocalypseBlockEntities.DYNAMIC_TRAP.get(), pos, state );
+        super( ApocalypseObjects.BlockEntities.DYNAMIC_TRAP.get(), pos, state );
         quickCheck = RecipeManager.createCheck( ApocalypseRecipeTypes.TRAP_ASSEMBLING.get() );
     }
     
@@ -157,13 +157,13 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
         }
     }
     
-    public void setCurrentTrap( @Nullable BaseTrapAction trapAction ) {
+    public void setCurrentTrap( @Nullable AbstractTrap trapAction ) {
         currentTrap = trapAction;
         currentTrapRadius = trapAction == null ? -1 : trapAction.getEffectRadius();
     }
     
     @Nullable
-    public BaseTrapAction getCurrentTrap() {
+    public AbstractTrap getCurrentTrap() {
         return currentTrap;
     }
     
@@ -221,8 +221,8 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
         if( compoundTag.contains( "CurrentTrap", Tag.TAG_STRING ) ) {
             ResourceLocation id = ResourceLocation.tryParse( compoundTag.getString( "CurrentTrap" ) );
             
-            if( ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsKey( id ) ) {
-                setCurrentTrap( ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue( id ) );
+            if( ApocalypseObjects.TRAP_ACTIONS_REGISTRY.get().containsKey( id ) ) {
+                setCurrentTrap( ApocalypseObjects.TRAP_ACTIONS_REGISTRY.get().getValue( id ) );
             }
         }
     }
@@ -236,8 +236,8 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
         compoundTag.putInt( "CraftingTime", preparationTime );
         
         if( getCurrentTrap() != null ) {
-            if( ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsValue( getCurrentTrap() ) ) {
-                compoundTag.putString( "CurrentTrap", ModRegistries.TRAP_ACTIONS_REGISTRY.get().getKey( getCurrentTrap() ).toString() );
+            if( ApocalypseObjects.TRAP_ACTIONS_REGISTRY.get().containsValue( getCurrentTrap() ) ) {
+                compoundTag.putString( "CurrentTrap", ApocalypseObjects.TRAP_ACTIONS_REGISTRY.get().getKey( getCurrentTrap() ).toString() );
             }
         }
     }
@@ -309,11 +309,11 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
     @Override
     public CompoundTag getUpdateTag() {
         CompoundTag compoundTag = new CompoundTag();
-        BaseTrapAction currentTrap = getCurrentTrap();
+        AbstractTrap currentTrap = getCurrentTrap();
         
         if( currentTrap != null ) {
-            if( ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsValue( currentTrap ) ) {
-                compoundTag.putString( "CurrentTrap", ModRegistries.TRAP_ACTIONS_REGISTRY.get().getKey( currentTrap ).toString() );
+            if( ApocalypseObjects.TRAP_ACTIONS_REGISTRY.get().containsValue( currentTrap ) ) {
+                compoundTag.putString( "CurrentTrap", ApocalypseObjects.TRAP_ACTIONS_REGISTRY.get().getKey( currentTrap ).toString() );
             }
         }
         return compoundTag;
@@ -324,8 +324,8 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
         if( tag.contains( "CurrentTrap", Tag.TAG_STRING ) ) {
             ResourceLocation id = ResourceLocation.tryParse( tag.getString( "CurrentTrap" ) );
             
-            if( ModRegistries.TRAP_ACTIONS_REGISTRY.get().containsKey( id ) ) {
-                setCurrentTrap( ModRegistries.TRAP_ACTIONS_REGISTRY.get().getValue( id ) );
+            if( ApocalypseObjects.TRAP_ACTIONS_REGISTRY.get().containsKey( id ) ) {
+                setCurrentTrap( ApocalypseObjects.TRAP_ACTIONS_REGISTRY.get().getValue( id ) );
             }
         }
     }

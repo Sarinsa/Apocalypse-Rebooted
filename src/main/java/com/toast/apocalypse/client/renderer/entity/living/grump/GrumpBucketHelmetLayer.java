@@ -2,9 +2,9 @@ package com.toast.apocalypse.client.renderer.entity.living.grump;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.client.ApocalypseModelLayers;
 import com.toast.apocalypse.client.renderer.model.armor.GrumpBucketHelmetModel;
-import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.entity.living.Grump;
 import com.toast.apocalypse.common.item.BucketHelmetItem;
 import net.minecraft.client.model.GhastModel;
@@ -31,9 +31,9 @@ public class GrumpBucketHelmetLayer<T extends Grump, M extends GhastModel<T>> ex
     
     @Override
     public void render( PoseStack poseStack, MultiBufferSource buffer, int packedLight, T grump, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch ) {
-        ItemStack headStack = grump.getHeadItem();
+        ItemStack headStack = grump.getItemOnHead();
         
-        if( !headStack.isEmpty() && headStack.getItem() == ApocalypseItems.BUCKET_HELM.get() ) {
+        if( !headStack.isEmpty() && headStack.getItem() == ApocalypseObjects.Items.BUCKET_HELM.get() ) {
             VertexConsumer vertexConsumer = ItemRenderer.getArmorFoilBuffer( buffer, RenderType.armorCutoutNoCull( TEXTURE ), false, headStack.hasFoil() );
             bucketModel.renderToBuffer( poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F );
         }

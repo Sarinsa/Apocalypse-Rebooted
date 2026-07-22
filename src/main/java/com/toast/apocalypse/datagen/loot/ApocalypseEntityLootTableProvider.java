@@ -1,7 +1,7 @@
 package com.toast.apocalypse.datagen.loot;
 
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
-import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import net.minecraft.data.loot.EntityLootSubProvider;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
+// TODO - Utilize crust's loot gen API, cause this hurts to look at
 public class ApocalypseEntityLootTableProvider extends EntityLootSubProvider {
     
     private final Set<EntityType<?>> knownEntities = new HashSet<>();
@@ -47,7 +48,7 @@ public class ApocalypseEntityLootTableProvider extends EntityLootSubProvider {
                                 .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 2.0F ) ) ) ) )
                 .withPool( LootPool.lootPool()
                         .setRolls( ConstantValue.exactly( 1 ) )
-                        .add( LootItem.lootTableItem( ApocalypseItems.FRAGMENTED_SOUL.get() )
+                        .add( LootItem.lootTableItem( ApocalypseObjects.Items.FRAGMENTED_SOUL.get() )
                                 .apply( SetItemCountFunction.setCount( UniformGenerator.between( 0.0F, 2.0F ) ) )
                                 .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 1.0F ) ) ) ) ) );
         
@@ -60,7 +61,7 @@ public class ApocalypseEntityLootTableProvider extends EntityLootSubProvider {
                                 .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 2.0F ) ) ) ) )
                 .withPool( LootPool.lootPool()
                         .setRolls( ConstantValue.exactly( 1 ) )
-                        .add( LootItem.lootTableItem( ApocalypseItems.FRAGMENTED_SOUL.get() )
+                        .add( LootItem.lootTableItem( ApocalypseObjects.Items.FRAGMENTED_SOUL.get() )
                                 .apply( SetItemCountFunction.setCount( UniformGenerator.between( 0.0F, 2.0F ) ) )
                                 .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 1.0F ) ) ) ) ) );
         
@@ -73,7 +74,7 @@ public class ApocalypseEntityLootTableProvider extends EntityLootSubProvider {
                                 .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 2.0F ) ) ) ) )
                 .withPool( LootPool.lootPool()
                         .setRolls( ConstantValue.exactly( 1 ) )
-                        .add( LootItem.lootTableItem( ApocalypseItems.FRAGMENTED_SOUL.get() )
+                        .add( LootItem.lootTableItem( ApocalypseObjects.Items.FRAGMENTED_SOUL.get() )
                                 .apply( SetItemCountFunction.setCount( UniformGenerator.between( 0.0F, 2.0F ) ) )
                                 .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 1.0F ) ) ) ) ) );
         
@@ -86,7 +87,7 @@ public class ApocalypseEntityLootTableProvider extends EntityLootSubProvider {
                                 .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 2.0F ) ) ) ) )
                 .withPool( LootPool.lootPool()
                         .setRolls( ConstantValue.exactly( 1 ) )
-                        .add( LootItem.lootTableItem( ApocalypseItems.FRAGMENTED_SOUL.get() )
+                        .add( LootItem.lootTableItem( ApocalypseObjects.Items.FRAGMENTED_SOUL.get() )
                                 .apply( SetItemCountFunction.setCount( UniformGenerator.between( 0.0F, 2.0F ) ) )
                                 .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 1.0F ) ) ) ) ) );
         
@@ -99,7 +100,7 @@ public class ApocalypseEntityLootTableProvider extends EntityLootSubProvider {
                                 .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 2.0F ) ) ) ) )
                 .withPool( LootPool.lootPool()
                         .setRolls( ConstantValue.exactly( 1 ) )
-                        .add( LootItem.lootTableItem( ApocalypseItems.FRAGMENTED_SOUL.get() )
+                        .add( LootItem.lootTableItem( ApocalypseObjects.Items.FRAGMENTED_SOUL.get() )
                                 .apply( SetItemCountFunction.setCount( UniformGenerator.between( 0.0F, 2.0F ) ) )
                                 .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 1.0F ) ) ) ) ) );
         

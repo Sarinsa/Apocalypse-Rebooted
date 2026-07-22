@@ -14,13 +14,15 @@ import net.minecraft.world.entity.player.Player;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-/** Represents a mob type that spawns during full moons */
+// TODO - Move this to API? And definitely rephrase some docs
+
+/** Represents a specialized mob for full moon sieges. */
 public interface IFullMoonMob {
     
     /** Key used for storing the full moon mob's player target UUID to NBT. */
-    String PLAYER_UUID_KEY = "PlayerTargetUUID";
+    String KEY_PLAYER_UUID = "PlayerTargetUUID";
     /** Key used for storing the full moon mob's player death count to NBT. */
-    String EVENT_DTH_COUNT_KEY = "PlayerDeathCount";
+    String KEY_TARGET_DEATH_COUNT = "PlayerDeathCount";
     
     /**
      * @return The UUID of this full moon mob's set
@@ -32,8 +34,9 @@ public interface IFullMoonMob {
     UUID getPlayerTargetUUID();
     
     /**
-     * @return The supposed amount of times this mob's target player has died.<br>
-     * <br>
+     * @return The amount of times this mob's target player has died
+     * since this mob first spawned.
+     * <br><br>
      * When the event starts, we are at 0.
      * When the player dies, the event's internal death count increments by 1,
      * and the full moon mobs that have already spawned will be despawned if it's

@@ -1,20 +1,11 @@
 package com.toast.apocalypse.api.plugin;
 
 /**
- * This is the main interface of the APi, containing all the<br>
- * methods for retrieving various helpers and whatnot.
+ * This is the main interface of the Apocalypse API,
+ * containing various utility methods, getters and accessors.
  */
 public interface IApocalypseApi {
     
-    /**
-     * @return The RegistryHelper instance
-     * parsed by Apocalypse
-     */
-    RegistryHelper getRegistryHelper();
-    
-    /**
-     * @return The DifficultyDataProvider instance
-     * parsed by Apocalypse.
-     */
-    DifficultyProvider getDifficultyProvider();
+    /** @return The {@link IDifficultyAccessor} instance provided by Apocalypse. */
+    IDifficultyAccessor getDifficultyProvider();
 }

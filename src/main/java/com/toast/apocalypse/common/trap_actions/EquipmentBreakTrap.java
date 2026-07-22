@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.trap_actions;
 
-import com.toast.apocalypse.api.BaseTrapAction;
+import com.toast.apocalypse.api.AbstractTrap;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import net.minecraft.core.BlockPos;
@@ -10,17 +10,16 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class EquipmentBreakTrap extends BaseTrapAction {
+public class EquipmentBreakTrap extends AbstractTrap {
     
     private static final ResourceLocation ICON = Apocalypse.rl( "textures/trap_icons/equipment_break.png" );
     private static final String DESCRIPTION_KEY = "apocalypse.trap_type.apocalypse.equipment_break.description";
     
-    public EquipmentBreakTrap() {
-    }
+    
+    public EquipmentBreakTrap() { }
     
     @Override
     public void execute( Level level, BlockPos pos, Direction facing, AABB areaOfEffect ) {
@@ -45,9 +44,8 @@ public class EquipmentBreakTrap extends BaseTrapAction {
         return ApocalypseConfig.MISC.TRAP_PROPERTIES.armorShatterRange.get();
     }
     
-    @NotNull
     @Override
-    public ResourceLocation iconLocation() {
+    public ResourceLocation getIcon() {
         return ICON;
     }
     

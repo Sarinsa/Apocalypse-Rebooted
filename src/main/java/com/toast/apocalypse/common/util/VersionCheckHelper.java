@@ -19,7 +19,7 @@ public class VersionCheckHelper {
     
     
     public static void setUpdateMessage() {
-        Optional<? extends ModContainer> modContainer = ModList.get().getModContainerById( Apocalypse.MODID );
+        Optional<? extends ModContainer> modContainer = ModList.get().getModContainerById( Apocalypse.MOD_ID );
         
         modContainer.ifPresent( ( container ) -> {
             IModInfo modInfo = container.getModInfo();

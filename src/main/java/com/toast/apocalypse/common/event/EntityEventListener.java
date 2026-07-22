@@ -1,5 +1,7 @@
 package com.toast.apocalypse.common.event;
 
+import com.toast.apocalypse.api.event.SeekerAlertEvent;
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.difficulty.MobAttributeHandler;
@@ -7,18 +9,15 @@ import com.toast.apocalypse.common.core.difficulty.MobEquipmentHandler;
 import com.toast.apocalypse.common.core.difficulty.MobPotionHandler;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
-import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
+import com.toast.apocalypse.common.item.FatherlyToastItem;
 import com.toast.apocalypse.common.util.NBTUtil;
 import com.toast.apocalypse.common.util.References;
 import fathertoast.crust.api.lib.EnvironmentHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Monster;
@@ -44,6 +43,13 @@ public class EntityEventListener {
     /** A map containing an entity instance per entity type in the registry. */
     protected static final Map<EntityType<?>, Entity> ENTITY_FOR_TYPE = new HashMap<>();
     
+    // TODO - Remove after debugging
+    @SubscribeEvent
+    public void onSeekerAlert( SeekerAlertEvent event ) {
+        if( event.getTarget().getItemBySlot( EquipmentSlot.HEAD ).getItem() == Items.CARVED_PUMPKIN ) {
+            event.setCanceled( true );
+        }
+    }
     
     /** Cancel full moon monsters despawning during full moons. */
     @SubscribeEvent( priority = EventPriority.LOW )
@@ -108,9 +114,7 @@ public class EntityEventListener {
         }
     }
     
-    /**
-     * Handles equipment and potion effects for mobs.
-     */
+    /** Called when a mob spawn is being finalized. */
     @SubscribeEvent( priority = EventPriority.LOWEST )
     public void onFinalizeSpawn( MobSpawnEvent.FinalizeSpawn event ) {
         if( !EnvironmentHelper.isLoaded( event.getLevel(), BlockPos.containing( event.getX(), event.getY(), event.getZ() ) ) )
@@ -119,9 +123,9 @@ public class EntityEventListener {
         if( NBTUtil.isEntityProcessed( event.getEntity() ) )
             return;
         
-        Mob mob = event.getEntity();
-        ServerLevelAccessor level = event.getLevel();
-        RandomSource random = level.getRandom();
+        final Mob mob = event.getEntity();
+        final ServerLevelAccessor level = event.getLevel();
+        final RandomSource random = level.getRandom();
         final long difficulty = PlayerDifficultyManager.getNearestPlayerDifficulty( level, mob );
         final boolean fullMoon = Apocalypse.INSTANCE.getDifficultyManager().isFullMoonNight();
         
@@ -129,28 +133,21 @@ public class EntityEventListener {
         if( difficulty <= 0L )
             return;
         
-        if( !(mob instanceof Enemy) && ApocalypseConfig.MOB_BUFFING.GENERAL.enemiesOnly.get() )
+        // Make sure we skip buffing non-enemies if "enemiesOnly" is enabled.
+        if( ApocalypseConfig.MOB_BUFFING.GENERAL.enemiesOnly.get() && !(mob instanceof Enemy) )
             return;
         
         MobAttributeHandler.handleAttributes( mob, difficulty, fullMoon );
         MobPotionHandler.handlePotions( mob, difficulty, fullMoon, random );
         MobEquipmentHandler.handleMobEquipment( mob, difficulty, fullMoon, random );
         
-        // Arright, the deed is done! Now lets just mark
-        // the entity as "processed" so that we don't do
-        // all of this again for the same entity the next
-        // time it is loaded into the world.
         NBTUtil.markEntityProcessed( mob );
     }
     
-    /**
-     * Modifying final damage dealt to entities by
-     * the mobs we have that have a minimum
-     * amount of damage they should inflict.
-     */
+    /** Called right before a living entity receives damage. */
     @SubscribeEvent( priority = EventPriority.LOWEST )
     public void onLivingEntityDamaged( LivingDamageEvent event ) {
-        Entity attacker = event.getSource().getEntity();
+        final Entity attacker = event.getSource().getEntity();
         
         if( attacker != null ) {
             float damage = event.getAmount();
@@ -164,24 +161,24 @@ public class EntityEventListener {
         }
     }
     
-    /**
-     * Toast!!!!!!!!
-     */
+    /** Called when an entity is struck by lightning. */
     @SubscribeEvent( priority = EventPriority.LOWEST )
     public void onEntityStruckByLightning( EntityStruckByLightningEvent event ) {
         if( event.getEntity() instanceof ItemEntity itemEntity ) {
-            Item item = itemEntity.getItem().getItem();
+            final Item item = itemEntity.getItem().getItem();
             
             if( item == Items.BREAD ) {
-                Level level = event.getEntity().level();
-                int itemCount = itemEntity.getItem().getCount();
-                ItemStack stack = new ItemStack( ApocalypseItems.FATHERLY_TOAST.get(), itemCount );
-                // Toast level, nice
-                stack.getOrCreateTag().putInt( "ToastLevel", event.getEntity().level().random.nextInt( 99 ) + 1 );
+                final Level level = event.getEntity().level();
+                final ItemStack stack = new ItemStack( ApocalypseObjects.Items.FATHERLY_TOAST.get(), itemEntity.getItem().getCount() );
+                final int toastLevel = level.random.nextInt( 99 ) + 1;
+                
+                stack.getOrCreateTag().putInt( FatherlyToastItem.KEY_TOAST_LEVEL, toastLevel );
                 level.addFreshEntity( new ItemEntity( level, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), stack ) );
                 itemEntity.discard();
             }
-            else if( item == ApocalypseItems.FATHERLY_TOAST.get() )
+            // Fatherly toast needs to be lightning immune so bread
+            // can actually convert instead of just going poof when struck.
+            else if( item == ApocalypseObjects.Items.FATHERLY_TOAST.get() )
                 event.setCanceled( true );
         }
     }

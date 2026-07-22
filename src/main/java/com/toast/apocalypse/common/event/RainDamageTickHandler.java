@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.event;
 
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -22,7 +22,8 @@ import net.minecraftforge.fml.common.Mod;
 import static com.toast.apocalypse.common.core.config.ApocalypseConfig.ACID_RAIN;
 
 // TODO - DON'T FORGET!!!!! Rain damage is currently only applied to entities in the overworld!
-@Mod.EventBusSubscriber( modid = Apocalypse.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE )
+//        And whats more, this thing needs cleanup in general, it looks terrible and horrible, and it looks terrible. It also looks horrible.
+@Mod.EventBusSubscriber( modid = Apocalypse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE )
 public class RainDamageTickHandler {
     
     private static boolean acidSnowEnabled = false;
@@ -67,7 +68,7 @@ public class RainDamageTickHandler {
                     ItemStack headStack = player.getItemBySlot( EquipmentSlot.HEAD );
                     
                     if( !headStack.isEmpty() ) {
-                        if( headStack.getItem() == ApocalypseItems.BUCKET_HELM.get() || headStack.getItem().getMaxDamage( headStack ) <= 0 ) {
+                        if( headStack.getItem() == ApocalypseObjects.Items.BUCKET_HELM.get() || headStack.getItem().getMaxDamage( headStack ) <= 0 ) {
                             continue;
                         }
                         headStack.hurtAndBreak( player.getRandom().nextInt( 2 ), player, ( playerEntity ) -> player.broadcastBreakEvent( EquipmentSlot.HEAD ) );
@@ -95,7 +96,7 @@ public class RainDamageTickHandler {
                         ItemStack headStack = livingEntity.getItemBySlot( EquipmentSlot.HEAD );
                         
                         if( !headStack.isEmpty() ) {
-                            if( headStack.getItem() == ApocalypseItems.BUCKET_HELM.get() || headStack.getItem().getMaxDamage( headStack ) <= 0 ) {
+                            if( headStack.getItem() == ApocalypseObjects.Items.BUCKET_HELM.get() || headStack.getItem().getMaxDamage( headStack ) <= 0 ) {
                                 continue;
                             }
                             headStack.hurtAndBreak( livingEntity.getRandom().nextInt( 2 ), livingEntity, ( playerEntity ) -> livingEntity.broadcastBreakEvent( EquipmentSlot.HEAD ) );

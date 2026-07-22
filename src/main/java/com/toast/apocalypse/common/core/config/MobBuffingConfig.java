@@ -1,11 +1,11 @@
 package com.toast.apocalypse.common.core.config;
 
+import com.toast.apocalypse.api.util.ApocalypseObjects;
 import com.toast.apocalypse.common.core.config.field.DifficultyRegistryEntryListField;
 import com.toast.apocalypse.common.core.config.value.DifficultyRegListEntry;
 import com.toast.apocalypse.common.core.config.value.DifficultyRegistryEntryList;
 import com.toast.apocalypse.common.core.difficulty.MobEquipmentHandler;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
-import com.toast.apocalypse.common.core.register.ApocalypseItems;
 import fathertoast.crust.api.config.common.AbstractConfigCategory;
 import fathertoast.crust.api.config.common.AbstractConfigFile;
 import fathertoast.crust.api.config.common.ConfigManager;
@@ -297,7 +297,7 @@ public class MobBuffingConfig extends AbstractConfigFile {
                             ForgeRegistries.ITEMS.getKey( Items.LEATHER_BOOTS )
                     ),
                     new DifficultyRegListEntry<>( Equipment.this.weaponTierList, 25,
-                            ApocalypseItems.BUCKET_HELM.getId(),
+                            ApocalypseObjects.Items.BUCKET_HELM.getId(),
                             ForgeRegistries.ITEMS.getKey( Items.CHAINMAIL_HELMET ),
                             ForgeRegistries.ITEMS.getKey( Items.CHAINMAIL_CHESTPLATE ),
                             ForgeRegistries.ITEMS.getKey( Items.CHAINMAIL_LEGGINGS ),

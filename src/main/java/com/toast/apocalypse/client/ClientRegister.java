@@ -45,12 +45,12 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-@Mod.EventBusSubscriber( value = Dist.CLIENT, modid = Apocalypse.MODID, bus = Mod.EventBusSubscriber.Bus.MOD )
+@Mod.EventBusSubscriber( value = Dist.CLIENT, modid = Apocalypse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD )
 public class ClientRegister {
     
     // Client config
     public static final ClientConfig CLIENT_CONFIG = new ClientConfig(
-            ConfigManager.getRequired( Apocalypse.MODID ), "client_settings" );
+            ConfigManager.getRequired( Apocalypse.MOD_ID ), "client_settings" );
     
     
     public static final IGuiOverlay DIFFICULTY_OVERLAY = ( forgeGui, guiGraphics, partialTick, screenWidth, screenHeight ) -> {
