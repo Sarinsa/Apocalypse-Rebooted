@@ -18,8 +18,8 @@ public interface IDifficultyAccessor {
     long getMaxPlayerDifficulty( Player player );
     
     /**
-     * @return A list containing the numerical IDs of the given player's
-     * currently running apocalypse events.
+     * @return An immutable view of the numerical IDs of the given player's
+     * currently running Apocalypse events.
      * <strong>(Server side only)</strong>
      * @see com.toast.apocalypse.api.event.ApocalypseEvent.EventIds Overview of valid Apocalypse event IDs.
      */

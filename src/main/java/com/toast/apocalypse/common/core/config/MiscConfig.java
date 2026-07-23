@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.core.config;
 
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import fathertoast.crust.api.config.common.AbstractConfigCategory;
 import fathertoast.crust.api.config.common.AbstractConfigFile;
 import fathertoast.crust.api.config.common.ConfigManager;

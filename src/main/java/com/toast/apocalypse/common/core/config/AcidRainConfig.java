@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.core.config;
 
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.config.field.BlockTransformListField;
 import com.toast.apocalypse.common.core.config.value.BlockTransformList;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;

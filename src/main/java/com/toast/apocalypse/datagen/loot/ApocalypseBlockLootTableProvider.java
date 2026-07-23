@@ -1,6 +1,6 @@
 package com.toast.apocalypse.datagen.loot;
 
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.Item;

@@ -1,6 +1,6 @@
 package com.toast.apocalypse.datagen.loot;
 
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import net.minecraft.data.loot.EntityLootSubProvider;
 import net.minecraft.world.entity.EntityType;

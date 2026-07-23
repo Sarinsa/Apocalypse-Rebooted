@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.misc.mixin_work;
 
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import net.minecraft.core.BlockPos;

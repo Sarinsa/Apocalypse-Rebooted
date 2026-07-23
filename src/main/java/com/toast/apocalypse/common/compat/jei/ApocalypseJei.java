@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.compat.jei;
 
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.client.screen.DynamicTrapMenuScreen;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;

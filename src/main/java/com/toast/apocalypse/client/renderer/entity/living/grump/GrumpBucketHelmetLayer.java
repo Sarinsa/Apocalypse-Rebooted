@@ -2,7 +2,7 @@ package com.toast.apocalypse.client.renderer.entity.living.grump;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.client.ApocalypseModelLayers;
 import com.toast.apocalypse.client.renderer.model.armor.GrumpBucketHelmetModel;
 import com.toast.apocalypse.common.entity.living.Grump;

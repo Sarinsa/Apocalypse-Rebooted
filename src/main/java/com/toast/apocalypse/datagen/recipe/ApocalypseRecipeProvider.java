@@ -1,6 +1,6 @@
 package com.toast.apocalypse.datagen.recipe;
 
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.*;

@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.blockentity;
 
 import com.toast.apocalypse.api.AbstractTrap;
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.block.DynamicTrapBlock;
 import com.toast.apocalypse.common.core.register.ApocalypseRecipeTypes;
 import com.toast.apocalypse.common.core.register.ApocalypseSounds;

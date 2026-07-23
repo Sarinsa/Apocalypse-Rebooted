@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.network.work;
 
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.client.ClientUtil;
 import com.toast.apocalypse.client.renderer.DifficultyOverlayRenderHandler;
 import com.toast.apocalypse.client.screen.GrumpInventoryScreen;

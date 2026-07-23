@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.core.register;
 
 import com.toast.apocalypse.api.AbstractTrap;
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.trap_actions.EquipmentBreakTrap;
 import com.toast.apocalypse.common.trap_actions.GhostFreezeTrap;

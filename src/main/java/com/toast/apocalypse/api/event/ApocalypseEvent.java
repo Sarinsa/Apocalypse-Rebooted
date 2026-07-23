@@ -5,10 +5,10 @@ import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
 /**
- * The base event class for all Apocalypse events, such as lunar sieges,
+ * The base Forge event class for all Apocalypse events, such as lunar sieges,
  * acid rain, thunderstorms etc.
  * <br><br>
- * All Apocalypse events are posted on {@link net.minecraftforge.common.MinecraftForge#EVENT_BUS}
+ * All sub-events are posted on {@link net.minecraftforge.common.MinecraftForge#EVENT_BUS}
  * and are {@link Cancelable}.
  */
 @Cancelable
@@ -56,7 +56,7 @@ public class ApocalypseEvent extends Event {
      * On the <strong>client</strong>, this event is fired AFTER an Apocalypse event has started,
      * and provides no control over the event itself, as Apocalypse events only exist on the server.
      * Canceling this event on the client will in other words do nothing other than stop
-     * other listeners from receiving this event.
+     * other listeners from receiving it.
      */
     public static final class Start extends ApocalypseEvent {
         
@@ -74,7 +74,7 @@ public class ApocalypseEvent extends Event {
      * On the <strong>client</strong>, this event is fired AFTER an Apocalypse event has ended,
      * and provides no control over the event itself, as Apocalypse events only exist on the server.
      * Canceling this event on the client will in other words do nothing other than stop
-     * other listeners from receiving this event.
+     * other listeners from receiving it.
      */
     public static final class Stop extends ApocalypseEvent {
         

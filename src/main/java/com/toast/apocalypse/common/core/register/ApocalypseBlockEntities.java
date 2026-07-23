@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.core.register;
 
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.blockentity.DynamicTrapBlockEntity;
 import com.toast.apocalypse.common.blockentity.LunarPhaseSensorBlockEntity;
 import com.toast.apocalypse.common.core.Apocalypse;

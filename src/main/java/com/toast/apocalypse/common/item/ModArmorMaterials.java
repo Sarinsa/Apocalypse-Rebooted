@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.item;
 
 import com.google.common.base.Suppliers;
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import net.minecraft.sounds.SoundEvent;

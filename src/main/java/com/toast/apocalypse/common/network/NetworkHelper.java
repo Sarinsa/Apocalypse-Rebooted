@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.network;
 
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.blockentity.DynamicTrapBlockEntity;
 import com.toast.apocalypse.common.capability.CapabilityHelper;
 import com.toast.apocalypse.common.entity.living.Grump;

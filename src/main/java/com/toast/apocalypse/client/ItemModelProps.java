@@ -1,6 +1,6 @@
 package com.toast.apocalypse.client;
 
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.world.entity.Entity;

@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.core.config;
 
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.config.field.DifficultyRegistryEntryListField;
 import com.toast.apocalypse.common.core.config.value.DifficultyRegListEntry;
 import com.toast.apocalypse.common.core.config.value.DifficultyRegistryEntryList;

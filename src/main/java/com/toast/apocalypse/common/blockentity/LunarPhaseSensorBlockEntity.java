@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.blockentity;
 
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.block.LunarPhaseSensorBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;

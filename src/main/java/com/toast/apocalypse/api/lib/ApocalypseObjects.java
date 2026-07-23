@@ -1,4 +1,4 @@
-package com.toast.apocalypse.api.util;
+package com.toast.apocalypse.api.lib;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.serialization.Codec;

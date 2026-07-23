@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import com.toast.apocalypse.api.AbstractTrap;
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.blockentity.DynamicTrapBlockEntity;
 import com.toast.apocalypse.common.core.register.ApocalypseRecipeSerializers;
 import com.toast.apocalypse.common.core.register.ApocalypseRecipeTypes;

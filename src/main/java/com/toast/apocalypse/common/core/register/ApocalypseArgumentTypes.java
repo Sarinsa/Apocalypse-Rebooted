@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.core.register;
 
 import com.mojang.brigadier.arguments.ArgumentType;
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.command.argument.DifficultyArgument;
 import com.toast.apocalypse.common.command.argument.MaxDifficultyArgument;
 import com.toast.apocalypse.common.core.Apocalypse;

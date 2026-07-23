@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.inventory.container;
 
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.entity.living.Grump;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;

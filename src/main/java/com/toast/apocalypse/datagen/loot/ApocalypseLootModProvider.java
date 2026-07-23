@@ -1,6 +1,6 @@
 package com.toast.apocalypse.datagen.loot;
 
-import com.toast.apocalypse.api.util.ApocalypseObjects;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.loot_modifier.SimpleAddLootModifier;
 import net.minecraft.data.DataGenerator;
