@@ -2,7 +2,7 @@ package com.toast.apocalypse.common.core.difficulty;
 
 import com.toast.apocalypse.common.core.config.field.DifficultyRegistryEntryListField;
 import com.toast.apocalypse.common.core.config.value.DifficultyRegListEntry;
-import com.toast.apocalypse.common.event.EntityEventListener;
+import com.toast.apocalypse.common.event.GameEventListener;
 import com.toast.apocalypse.common.util.DataStructureUtils;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.util.RandomSource;
@@ -38,7 +38,7 @@ public final class MobEquipmentHandler {
     
     /**
      * Handles Apocalypse equipment for mobs when they spawn, such as weapon and armor.<br>
-     * Called from {@link EntityEventListener#onFinalizeSpawn(MobSpawnEvent.FinalizeSpawn)} (EntityJoinLevelEvent)}
+     * Called from {@link GameEventListener#onFinalizeSpawn(MobSpawnEvent.FinalizeSpawn)} (EntityJoinLevelEvent)}
      *
      * @param entity     The entity to handle equipment for.
      * @param difficulty The raw difficulty of the nearest player.

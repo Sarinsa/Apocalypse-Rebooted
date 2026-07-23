@@ -12,6 +12,7 @@ import com.toast.apocalypse.common.event.ApocalypseEventFactory;
 import com.toast.apocalypse.common.inventory.container.GrumpInventoryContainer;
 import com.toast.apocalypse.common.network.message.*;
 import com.toast.apocalypse.common.util.References;
+import fathertoast.crust.api.util.OnClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -19,15 +20,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.level.Level;
 
 import static com.toast.apocalypse.common.network.message.S2CSimpleClientTask.*;
 
-/**
- * Referencing client only code here should cause no trouble
- * as long as this class isn't loaded by anything else
- * than the client itself (which should be the case).
- */
+@OnClient
 public class ClientWork {
     
     
@@ -56,19 +52,6 @@ public class ClientWork {
             long maxDifficulty = message.maxDifficulty;
             player.getCapability( ApocalypseCapabilities.DIFFICULTY_CAPABILITY ).orElse( DifficultyCapProvider.SUPPLIER.get() ).setMaxDifficulty( maxDifficulty );
             DifficultyOverlayRenderHandler.COLOR_THRESHOLD = maxDifficulty > -1 ? maxDifficulty : References.DEFAULT_COLOR_CHANGE;
-        }
-    }
-    
-    
-    public static void handleEntityVelocityUpdate( S2CUpdateEntityVelocity message ) {
-        Level level = Minecraft.getInstance().level;
-        
-        if( level != null ) {
-            Entity entity = level.getEntity( message.entityId );
-            
-            if( entity != null ) {
-                entity.setDeltaMovement( message.xMotion, message.yMotion, message.zMotion );
-            }
         }
     }
     

@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.core.difficulty;
 
-import com.toast.apocalypse.common.event.EntityEventListener;
+import com.toast.apocalypse.common.event.GameEventListener;
 import com.toast.apocalypse.common.util.DataStructureUtils;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.util.RandomSource;
@@ -19,7 +19,7 @@ public final class MobPotionHandler {
     /**
      * Attempts to pick a potion/mob effect from the config and
      * apply to the given entity.<br>
-     * Called from {@link EntityEventListener#onFinalizeSpawn(MobSpawnEvent.FinalizeSpawn)}
+     * Called from {@link GameEventListener#onFinalizeSpawn(MobSpawnEvent.FinalizeSpawn)}
      *
      * @param livingEntity The entity to find a potion effect for.
      * @param difficulty   The raw difficulty of the nearest player.

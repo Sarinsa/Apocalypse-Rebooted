@@ -10,9 +10,7 @@ import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.core.register.*;
 import com.toast.apocalypse.common.event.CapabilityAttachListener;
-import com.toast.apocalypse.common.event.EntityEventListener;
-import com.toast.apocalypse.common.event.PlayerEventListener;
-import com.toast.apocalypse.common.event.VillagerTradeListener;
+import com.toast.apocalypse.common.event.GameEventListener;
 import com.toast.apocalypse.common.network.PacketHandler;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.util.VersionCheckHelper;
@@ -59,9 +57,9 @@ public final class Apocalypse {
         
         ConfigManager.create( "Apocalypse Rebooted", Apocalypse.MOD_ID );
         
-        IEventBus eventBus = context.getModEventBus();
+        final IEventBus eventBus = context.getModEventBus();
         
-        // Misc events
+        // Register mod event listeners
         eventBus.addListener( ApocalypseTrapTypes::onRegistryCreate );
         eventBus.addListener( ApocalypseEntities::createEntityAttributes );
         eventBus.addListener( ApocalypseEntities::registerEntitySpawnPlacement );
@@ -70,13 +68,10 @@ public final class Apocalypse {
         eventBus.addListener( this::onLoadComplete );
         eventBus.addListener( this::sendIMCMessages );
         
-        // TODO - Centralize listener methods; having this many listener classes is lame
-        // Register event listeners
-        MinecraftForge.EVENT_BUS.register( new EntityEventListener() );
-        MinecraftForge.EVENT_BUS.register( new PlayerEventListener() );
+        // Register game event listeners
+        MinecraftForge.EVENT_BUS.register( new GameEventListener() );
         MinecraftForge.EVENT_BUS.register( new CapabilityAttachListener() );
-        MinecraftForge.EVENT_BUS.register( this.getDifficultyManager() );
-        MinecraftForge.EVENT_BUS.register( new VillagerTradeListener() );
+        MinecraftForge.EVENT_BUS.register( getDifficultyManager() );
         MinecraftForge.EVENT_BUS.addListener( CommandRegister::registerCommands );
         
         // Register game objects
@@ -102,6 +97,7 @@ public final class Apocalypse {
         context.registerConfig( ModConfig.Type.SERVER, ApocalypseServerConfig.SERVER_SPEC );
     }
     
+    /** Called when */
     public void onCommonSetup( FMLCommonSetupEvent event ) {
         packetHandler.registerMessages();
         event.enqueueWork( ApocalypseConfig::initialize );
@@ -146,6 +142,7 @@ public final class Apocalypse {
     }
     
     public void sendIMCMessages( InterModEnqueueEvent event ) { }
+    
     
     public static ResourceLocation rl( String path ) {
         return ResourceLocation.fromNamespaceAndPath( MOD_ID, path );
