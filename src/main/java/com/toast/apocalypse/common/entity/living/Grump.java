@@ -2,7 +2,6 @@ package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
-import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
@@ -173,12 +172,12 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
     
     @Override
     protected SoundEvent getHurtSound( DamageSource damageSource ) {
-        return ApocalypseSounds.GRUMP_HURT.get();
+        return ApocalypseObjects.SoundEvents.GRUMP_HURT.get();
     }
     
     @Override
     protected SoundEvent getDeathSound() {
-        return ApocalypseSounds.GRUMP_DEATH.get();
+        return ApocalypseObjects.SoundEvents.GRUMP_DEATH.get();
     }
     
     @Override
@@ -426,7 +425,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
             getPassengers().forEach( Entity::stopRiding );
         }
         else if( tickCount > 20 && itemStack.getItem() == Items.SADDLE || itemStack.getItem() == ApocalypseObjects.Items.BUCKET_HELM.get() ) {
-            playSound( ApocalypseSounds.GRUMP_EQUIP_SADDLE.get(), 0.5F, 1.0F );
+            playSound( ApocalypseObjects.SoundEvents.GRUMP_EQUIP_SADDLE.get(), 0.5F, 1.0F );
         }
     }
     
@@ -522,7 +521,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
             level().addParticle( particleType, getRandomX( 1.0D ), getRandomY() + 0.5D, getRandomZ( 1.0D ), x, y, z );
         }
         Vec3 pos = position();
-        level().playLocalSound( pos.x(), pos.y(), pos.z(), ApocalypseSounds.GRUMP_EAT.get(), SoundSource.NEUTRAL, 0.8F, 1.0F + (random.nextFloat() - random.nextFloat()) * 0.4F, false );
+        level().playLocalSound( pos.x(), pos.y(), pos.z(), ApocalypseObjects.SoundEvents.GRUMP_EAT.get(), SoundSource.NEUTRAL, 0.8F, 1.0F + (random.nextFloat() - random.nextFloat()) * 0.4F, false );
     }
     
     /**
@@ -568,7 +567,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
         }
         
         if( playEffects ) {
-            playSound( ApocalypseSounds.GRUMP_RAGE.get() );
+            playSound( ApocalypseObjects.SoundEvents.GRUMP_RAGE.get() );
         }
     }
     
@@ -635,7 +634,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
                 level.playSound(
                         null,
                         blockPosition(),
-                        ApocalypseSounds.GRUMP_LAUNCH_HOOK.get(),
+                        ApocalypseObjects.SoundEvents.GRUMP_LAUNCH_HOOK.get(),
                         SoundSource.NEUTRAL,
                         0.6F,
                         0.4F / (level.random.nextFloat() * 0.4F + 0.8F)

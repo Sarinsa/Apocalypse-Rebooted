@@ -16,7 +16,7 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-public class ApocalypseArgumentTypes {
+public final class ApocalypseArgumentTypes {
     
     public static final DeferredRegister<ArgumentTypeInfo<?, ?>> REGISTRY = DeferredRegister.create( ForgeRegistries.COMMAND_ARGUMENT_TYPES, Apocalypse.MOD_ID );
     
@@ -39,4 +39,7 @@ public class ApocalypseArgumentTypes {
     private static <T extends ArgumentType<?>> void register( RegistryObject<?> regObj, Supplier<ArgumentTypeInfo<T, ?>> supplier ) {
         REGISTRY.register( Objects.requireNonNull( regObj.getId() ).getPath(), supplier );
     }
+    
+    
+    private ApocalypseArgumentTypes() { }
 }

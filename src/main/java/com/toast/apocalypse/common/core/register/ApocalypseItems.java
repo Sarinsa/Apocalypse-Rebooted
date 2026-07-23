@@ -23,7 +23,7 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.*;
 import java.util.function.Supplier;
 
-public class ApocalypseItems {
+public final class ApocalypseItems {
     
     public static final DeferredRegister<Item> REGISTRY = DeferredRegister.create( ForgeRegistries.ITEMS, Apocalypse.MOD_ID );
     
@@ -57,14 +57,14 @@ public class ApocalypseItems {
     
     /** Registers an item to the deferred register. */
     @SafeVarargs
-    protected static void register( RegistryObject<Item> regObj, Supplier<Item> supplier, ResourceKey<CreativeModeTab>... creativeTabs ) {
+    private static void register( RegistryObject<Item> regObj, Supplier<Item> supplier, ResourceKey<CreativeModeTab>... creativeTabs ) {
         queueForCreativeTabs( REGISTRY.register( Objects.requireNonNull( regObj.getId() ).getPath(), supplier ), creativeTabs );
     }
     
     /** Registers a simple block item for the given block to the deferred register. */
     @SuppressWarnings( "SameParameterValue" )
     @SafeVarargs
-    protected static void registerBlockItem( RegistryObject<Block> regObj, ResourceKey<CreativeModeTab>... creativeTabs ) {
+    static void registerBlockItem( RegistryObject<Block> regObj, ResourceKey<CreativeModeTab>... creativeTabs ) {
         RegistryObject<Item> itemRegObj = REGISTRY.register( Objects.requireNonNull( regObj.getId() ).getPath(), () -> new BlockItem( regObj.get(), new Item.Properties() ) );
         queueForCreativeTabs( itemRegObj, creativeTabs );
     }
@@ -90,7 +90,7 @@ public class ApocalypseItems {
     
     /** Enqueues the specified item for being added to X creative mode tabs. */
     @SafeVarargs
-    protected static void queueForCreativeTabs( RegistryObject<? extends Item> item, ResourceKey<CreativeModeTab>... creativeTabs ) {
+    private static void queueForCreativeTabs( RegistryObject<? extends Item> item, ResourceKey<CreativeModeTab>... creativeTabs ) {
         for( ResourceKey<CreativeModeTab> tab : creativeTabs ) {
             if( !TAB_ITEMS.containsKey( tab ) ) {
                 List<RegistryObject<? extends Item>> list = new ArrayList<>();
@@ -124,4 +124,7 @@ public class ApocalypseItems {
             }
         }
     }
+    
+    
+    private ApocalypseItems() { }
 }

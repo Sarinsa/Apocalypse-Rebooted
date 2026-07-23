@@ -4,7 +4,6 @@ import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.client.screen.DynamicTrapMenuScreen;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.register.ApocalypseItems;
-import com.toast.apocalypse.common.core.register.ApocalypseMenus;
 import com.toast.apocalypse.common.core.register.ApocalypseRecipeTypes;
 import com.toast.apocalypse.common.menus.DynamicTrapMenu;
 import com.toast.apocalypse.common.recipe.TrapRecipe;
@@ -17,6 +16,7 @@ import mezz.jei.api.recipe.vanilla.IJeiAnvilRecipe;
 import mezz.jei.api.registration.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -55,10 +55,7 @@ public class ApocalypseJei implements IModPlugin {
     @SuppressWarnings( "ConstantConditions" )
     public void registerRecipes( IRecipeRegistration registration ) {
         RecipeManager recipeManager = Minecraft.getInstance().level.getRecipeManager();
-        
-        registration.addRecipes( TRAP_ASSEMBLING,
-                List.copyOf( recipeManager.byType( ApocalypseRecipeTypes.TRAP_ASSEMBLING.get() ).values() ) );
-        
+        registration.addRecipes( TRAP_ASSEMBLING, List.copyOf( recipeManager.byType( ApocalypseRecipeTypes.TRAP_ASSEMBLING.get() ).values() ) );
         armorAnvilRecipes( registration );
     }
     
@@ -73,8 +70,10 @@ public class ApocalypseJei implements IModPlugin {
     }
     
     @Override
+    @SuppressWarnings( "unchecked" )
     public void registerRecipeTransferHandlers( IRecipeTransferRegistration registration ) {
-        registration.addRecipeTransferHandler( DynamicTrapMenu.class, ApocalypseMenus.DYNAMIC_TRAP.get(), TRAP_ASSEMBLING, 0, 9, 9, 36 );
+        registration.addRecipeTransferHandler( DynamicTrapMenu.class, (MenuType<? super DynamicTrapMenu>) ApocalypseObjects.MenuTypes.DYNAMIC_TRAP.get(), TRAP_ASSEMBLING,
+                0, 9, 9, 36 );
     }
     
     /** Registers anvil recipes for the armor items in Apocalypse. */

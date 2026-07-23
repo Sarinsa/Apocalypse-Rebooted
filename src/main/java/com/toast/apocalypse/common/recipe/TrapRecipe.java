@@ -7,7 +7,6 @@ import com.google.gson.JsonSyntaxException;
 import com.toast.apocalypse.api.AbstractTrap;
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.blockentity.DynamicTrapBlockEntity;
-import com.toast.apocalypse.common.core.register.ApocalypseRecipeSerializers;
 import com.toast.apocalypse.common.core.register.ApocalypseRecipeTypes;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
@@ -118,7 +117,7 @@ public final class TrapRecipe implements Recipe<DynamicTrapBlockEntity> {
     
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return ApocalypseRecipeSerializers.TRAP_ASSEMBLING.get();
+        return ApocalypseObjects.RecipeSerializers.TRAP_ASSEMBLING.get();
     }
     
     @Override

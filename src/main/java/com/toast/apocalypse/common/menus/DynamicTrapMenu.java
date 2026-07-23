@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.menus;
 
-import com.toast.apocalypse.common.core.register.ApocalypseMenus;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -26,8 +26,7 @@ public class DynamicTrapMenu extends AbstractContainerMenu {
     }
     
     public DynamicTrapMenu( int containerId, Inventory inventory, Container container, ContainerData containerData, @Nullable BlockPos pos ) {
-        super( ApocalypseMenus.DYNAMIC_TRAP.get(), containerId );
-        
+        super( ApocalypseObjects.MenuTypes.DYNAMIC_TRAP.get(), containerId );
         checkContainerSize( container, 9 );
         checkContainerDataCount( containerData, 5 );
         dynamicTrap = container;

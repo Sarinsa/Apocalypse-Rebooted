@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.common.core.register.ApocalypseSounds;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
 import fathertoast.crust.api.lib.CrustObjects;
@@ -292,12 +292,12 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
     @Override
     @Nullable
     protected SoundEvent getAmbientSound() {
-        return isFrozen() ? null : ApocalypseSounds.GHOST_IDLE.get();
+        return isFrozen() ? null : ApocalypseObjects.SoundEvents.GHOST_IDLE.get();
     }
     
     @Override
     protected SoundEvent getHurtSound( DamageSource damageSource ) {
-        return ApocalypseSounds.GHOST_HURT.get();
+        return ApocalypseObjects.SoundEvents.GHOST_HURT.get();
     }
     
     @Override
@@ -310,7 +310,7 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
     
     @Override
     protected SoundEvent getDeathSound() {
-        return ApocalypseSounds.GHOST_DEATH.get();
+        return ApocalypseObjects.SoundEvents.GHOST_DEATH.get();
     }
     
     @Override

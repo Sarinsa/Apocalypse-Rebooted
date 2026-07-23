@@ -4,7 +4,6 @@ import com.toast.apocalypse.api.AbstractTrap;
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.block.DynamicTrapBlock;
 import com.toast.apocalypse.common.core.register.ApocalypseRecipeTypes;
-import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.menus.DynamicTrapMenu;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.recipe.TrapRecipe;
@@ -153,7 +152,7 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
             }
         }
         if( !level.isClientSide ) {
-            level.playSound( null, getBlockPos(), ApocalypseSounds.DYNAMIC_TRAP_ACTIVATE.get(), SoundSource.BLOCKS, 1.0F, 1.0F );
+            level.playSound( null, getBlockPos(), ApocalypseObjects.SoundEvents.DYNAMIC_TRAP_ACTIVATE.get(), SoundSource.BLOCKS, 1.0F, 1.0F );
         }
     }
     

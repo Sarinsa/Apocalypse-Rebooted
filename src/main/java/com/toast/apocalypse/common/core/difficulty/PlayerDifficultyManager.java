@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.core.difficulty;
 
 import com.google.common.collect.ImmutableSet;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.capability.CapabilityHelper;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
@@ -9,7 +10,6 @@ import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.core.mod_event.IEventPredicate;
 import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
-import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.event.ApocalypseEventFactory;
 import com.toast.apocalypse.common.item.LunarArmorItem;
 import com.toast.apocalypse.common.network.NetworkHelper;
@@ -369,7 +369,7 @@ public final class PlayerDifficultyManager {
                     serverPlayer.level().playSound(
                             null,
                             serverPlayer.blockPosition(),
-                            ApocalypseSounds.LUNAR_ARMOR_REACT.get(),
+                            ApocalypseObjects.SoundEvents.LUNAR_ARMOR_REACT.get(),
                             SoundSource.PLAYERS,
                             0.9F,
                             serverPlayer.getRandom().nextFloat() * 0.1F + 1.0F );

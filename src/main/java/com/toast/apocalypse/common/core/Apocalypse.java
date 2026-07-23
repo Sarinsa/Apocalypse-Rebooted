@@ -31,7 +31,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 @Mod( Apocalypse.MOD_ID )
-public class Apocalypse {
+public final class Apocalypse {
     
     /** The mod's ID. **/
     public static final String MOD_ID = "apocalypse";

@@ -1,10 +1,10 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.mod_event.EventRegistry;
 import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
-import com.toast.apocalypse.common.core.register.ApocalypseParticles;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -101,7 +101,7 @@ public interface IFullMoonMob {
     
     static void spawnSmoke( ServerLevel level, Mob mob ) {
         for( int i = 0; i < 8; i++ ) {
-            level.sendParticles( ApocalypseParticles.LUNAR_DESPAWN_SMOKE.get(), mob.getX(), mob.getY(), mob.getZ(), 4, 0.1, 0.1, 0.1, 0.1 );
+            level.sendParticles( ApocalypseObjects.ParticleTypes.LUNAR_DESPAWN_SMOKE.get(), mob.getX(), mob.getY(), mob.getZ(), 4, 0.1, 0.1, 0.1, 0.1 );
         }
     }
 }

@@ -1,8 +1,8 @@
 package com.toast.apocalypse.common.entity.projectile;
 
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
-import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.entity.living.Destroyer;
 import com.toast.apocalypse.common.misc.DestroyerExplosionCalculator;
 import net.minecraft.nbt.CompoundTag;
@@ -132,7 +132,7 @@ public class DestroyerFireballEntity extends Fireball {
             Entity entity = damageSource.getEntity();
             Vec3 vec = entity.getLookAngle();
             // noinspection resource
-            entity.level().playSound( null, blockPosition(), ApocalypseSounds.DESTROYER_FIREBALL_DEFLECT.get(), SoundSource.NEUTRAL, 0.8F, 1.0F );
+            entity.level().playSound( null, blockPosition(), ApocalypseObjects.SoundEvents.DESTROYER_FIREBALL_DEFLECT.get(), SoundSource.NEUTRAL, 0.8F, 1.0F );
             fuseTime = 10;
             setDeltaMovement( vec );
             xPower = vec.x * 0.1D;

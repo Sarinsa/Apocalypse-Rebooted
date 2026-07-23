@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
-import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
@@ -165,12 +165,12 @@ public class Destroyer extends AbstractFullMoonGhast {
     
     @Override
     protected SoundEvent getHurtSound( DamageSource damageSource ) {
-        return ApocalypseSounds.DESTROYER_HURT.get();
+        return ApocalypseObjects.SoundEvents.DESTROYER_HURT.get();
     }
     
     @Override
     protected SoundEvent getDeathSound() {
-        return ApocalypseSounds.DESTROYER_DEATH.get();
+        return ApocalypseObjects.SoundEvents.DESTROYER_DEATH.get();
     }
     
     @Override
@@ -239,7 +239,7 @@ public class Destroyer extends AbstractFullMoonGhast {
                     level.playSound(
                             null,
                             destroyer.blockPosition(),
-                            ApocalypseSounds.DESTROYER_WARN.get(),
+                            ApocalypseObjects.SoundEvents.DESTROYER_WARN.get(),
                             destroyer.getSoundSource(),
                             destroyer.getSoundVolume(),
                             (level.random.nextFloat() - level.random.nextFloat()) * 0.2F + 1.0F
@@ -256,7 +256,7 @@ public class Destroyer extends AbstractFullMoonGhast {
                         level.playSound(
                                 null,
                                 destroyer.blockPosition(),
-                                ApocalypseSounds.DESTROYER_SHOOT.get(),
+                                ApocalypseObjects.SoundEvents.DESTROYER_SHOOT.get(),
                                 destroyer.getSoundSource(),
                                 destroyer.getSoundVolume(),
                                 (level.random.nextFloat() - level.random.nextFloat()) * 0.2F + 1.0F

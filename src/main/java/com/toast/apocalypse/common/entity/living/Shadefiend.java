@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
-import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
 import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
 import fathertoast.crust.api.lib.CrustObjects;
@@ -99,7 +99,7 @@ public class Shadefiend extends FlyingMob implements Enemy {
             if( hasTarget && f > 0.0F && f1 <= 0.0F ) {
                 level().playLocalSound(
                         getX(), getY(), getZ(),
-                        ApocalypseSounds.SHADEFIEND_FLAP.get(),
+                        ApocalypseObjects.SoundEvents.SHADEFIEND_FLAP.get(),
                         getSoundSource(),
                         0.95F + random.nextFloat() * 0.05F,
                         0.95F + random.nextFloat() * 0.05F,
@@ -193,17 +193,17 @@ public class Shadefiend extends FlyingMob implements Enemy {
     
     @Override
     protected SoundEvent getAmbientSound() {
-        return ApocalypseSounds.SHADEFIEND_IDLE.get();
+        return ApocalypseObjects.SoundEvents.SHADEFIEND_IDLE.get();
     }
     
     @Override
     protected SoundEvent getHurtSound( DamageSource damageSource ) {
-        return ApocalypseSounds.SHADEFIEND_HURT.get();
+        return ApocalypseObjects.SoundEvents.SHADEFIEND_HURT.get();
     }
     
     @Override
     protected SoundEvent getDeathSound() {
-        return ApocalypseSounds.SHADEFIEND_DEATH.get();
+        return ApocalypseObjects.SoundEvents.SHADEFIEND_DEATH.get();
     }
     
     
@@ -360,7 +360,7 @@ public class Shadefiend extends FlyingMob implements Enemy {
                 mob.level().playSound(
                         null,
                         mob.blockPosition(),
-                        ApocalypseSounds.SHADEFIEND_BITE.get(),
+                        ApocalypseObjects.SoundEvents.SHADEFIEND_BITE.get(),
                         mob.getSoundSource(),
                         mob.getSoundVolume(),
                         (mob.random.nextFloat() - mob.random.nextFloat()) * 0.2F + 1.0F

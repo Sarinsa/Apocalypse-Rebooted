@@ -1,5 +1,6 @@
 package com.toast.apocalypse.client;
 
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.client.config.ClientConfig;
 import com.toast.apocalypse.client.event.ClientEvents;
 import com.toast.apocalypse.client.event.KeyInputListener;
@@ -22,16 +23,18 @@ import com.toast.apocalypse.client.screen.DynamicTrapMenuScreen;
 import com.toast.apocalypse.common.compat.ryaomic.RyoamicCompat;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
-import com.toast.apocalypse.common.core.register.ApocalypseMenus;
-import com.toast.apocalypse.common.core.register.ApocalypseParticles;
 import fathertoast.crust.api.config.client.ClientConfigUtil;
 import fathertoast.crust.api.config.common.ConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.model.CreeperModel;
 import net.minecraft.client.model.GhastModel;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
@@ -44,6 +47,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.RegistryObject;
 
 @Mod.EventBusSubscriber( value = Dist.CLIENT, modid = Apocalypse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD )
 public class ClientRegister {
@@ -62,23 +66,24 @@ public class ClientRegister {
     
     @SubscribeEvent
     public static void onClientSetup( FMLClientSetupEvent event ) {
+        final IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        modBus.addListener( ClientUtil::onAddLayer );
+        
         MinecraftForge.EVENT_BUS.register( new ClientEvents() );
         MinecraftForge.EVENT_BUS.register( new KeyInputListener() );
         
-        RyoamicCompat.init();
-        
-        // Config loading
+        // Init client configs
         CLIENT_CONFIG.SPEC.initialize();
         
         // Tell Forge to open the config editor when our mod's "Config" button is clicked in the Mods screen
         ClientConfigUtil.registerConfigButtonAsEditScreen();
         
-        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modBus.addListener( ClientUtil::onAddLayer );
+        RyoamicCompat.init();
         
-        registerMenuScreens();
-        
-        event.enqueueWork( ItemModelProps::register );
+        event.enqueueWork( () -> {
+            ItemModelProps.register();
+            registerMenuScreens();
+        } );
     }
     
     @SubscribeEvent
@@ -86,13 +91,9 @@ public class ClientRegister {
         event.registerAbove( VanillaGuiOverlay.BOSS_EVENT_PROGRESS.id(), "difficulty_overlay", DIFFICULTY_OVERLAY );
     }
     
-    private static void registerMenuScreens() {
-        MenuScreens.register( ApocalypseMenus.DYNAMIC_TRAP.get(), DynamicTrapMenuScreen::new );
-    }
-    
     @SubscribeEvent
     public static void registerParticles( RegisterParticleProvidersEvent event ) {
-        event.registerSpriteSet( ApocalypseParticles.LUNAR_DESPAWN_SMOKE.get(), LunarDespawnSmokeParticle.Factory::new );
+        event.registerSpriteSet( ApocalypseObjects.ParticleTypes.LUNAR_DESPAWN_SMOKE.get(), LunarDespawnSmokeParticle.Factory::new );
     }
     
     @SubscribeEvent
@@ -123,5 +124,23 @@ public class ClientRegister {
         event.registerEntityRenderer( ApocalypseEntities.DESTROYER_FIREBALL.get(), ( context ) -> new ThrownItemRenderer<>( context, 3.0F, true ) );
         event.registerEntityRenderer( ApocalypseEntities.SEEKER_FIREBALL.get(), ( context ) -> new ThrownItemRenderer<>( context, 1.5F, true ) );
         
+    }
+    
+    /** Registers Apocalypse's menu screens. */
+    private static void registerMenuScreens() {
+        registerMenu( ApocalypseObjects.MenuTypes.DYNAMIC_TRAP, DynamicTrapMenuScreen::new );
+    }
+    
+    /**
+     * Registers a menu screen by mapping a registered menu type to a menu screen factory.
+     *
+     * @param regObj        The menu type registry object.
+     * @param screenFactory The screen factory to map to the specified menu type.
+     */
+    @SuppressWarnings( "SameParameterValue" )
+    private static <M extends AbstractContainerMenu, U extends Screen & MenuAccess<M>>
+    void registerMenu( RegistryObject<MenuType<?>> regObj, MenuScreens.ScreenConstructor<M, U> screenFactory ) {
+        // noinspection unchecked
+        MenuScreens.register( (MenuType<? extends M>) regObj.get(), screenFactory );
     }
 }

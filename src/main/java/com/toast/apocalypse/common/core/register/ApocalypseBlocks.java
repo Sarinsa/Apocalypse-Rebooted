@@ -16,7 +16,7 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-public class ApocalypseBlocks {
+public final class ApocalypseBlocks {
     
     public static final DeferredRegister<Block> REGISTRY = DeferredRegister.create( ForgeRegistries.BLOCKS, Apocalypse.MOD_ID );
     
@@ -50,4 +50,7 @@ public class ApocalypseBlocks {
     
     /** Called when missing mappings are identified and need to be handled. */
     public static void onMissingMappings( MissingMappingsEvent event ) { }
+    
+    
+    private ApocalypseBlocks() { }
 }

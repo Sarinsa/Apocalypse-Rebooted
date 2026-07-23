@@ -5,7 +5,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.toast.apocalypse.api.AbstractTrap;
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
-import com.toast.apocalypse.common.core.register.ApocalypseRecipeSerializers;
 import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeBuilder;
@@ -144,7 +143,7 @@ public class TrapAssemblingRecipeBuilder implements RecipeBuilder {
         
         @Override
         public RecipeSerializer<?> getType() {
-            return ApocalypseRecipeSerializers.TRAP_ASSEMBLING.get();
+            return ApocalypseObjects.RecipeSerializers.TRAP_ASSEMBLING.get();
         }
         
         @Override

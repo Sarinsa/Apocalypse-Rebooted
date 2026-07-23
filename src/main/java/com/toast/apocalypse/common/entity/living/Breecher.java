@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.common.core.register.ApocalypseSounds;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.entity.living.ai.BreecherFindExplosionPos;
 import com.toast.apocalypse.common.entity.living.ai.BreecherSwellGoal;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
@@ -117,12 +117,12 @@ public class Breecher extends Creeper implements IFullMoonMob {
     
     @Override
     protected SoundEvent getHurtSound( DamageSource damageSource ) {
-        return ApocalypseSounds.BREECHER_HURT.get();
+        return ApocalypseObjects.SoundEvents.BREECHER_HURT.get();
     }
     
     @Override
     protected SoundEvent getDeathSound() {
-        return ApocalypseSounds.BREECHER_DEATH.get();
+        return ApocalypseObjects.SoundEvents.BREECHER_DEATH.get();
     }
     
     public void forceSwell() {

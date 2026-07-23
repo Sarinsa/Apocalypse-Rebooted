@@ -19,7 +19,7 @@ import net.minecraftforge.registries.RegistryObject;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-public class ApocalypseEntities {
+public final class ApocalypseEntities {
     
     public static final DeferredRegister<EntityType<?>> REGISTRY = DeferredRegister.create( ForgeRegistries.ENTITY_TYPES, Apocalypse.MOD_ID );
     
@@ -84,4 +84,7 @@ public class ApocalypseEntities {
                                                                              SpawnPlacements.SpawnPredicate<P> predicate ) {
         event.register( regObj.get(), placementType, heightmap, (SpawnPlacements.SpawnPredicate<T>) predicate, SpawnPlacementRegisterEvent.Operation.REPLACE );
     }
+    
+    
+    private ApocalypseEntities() { }
 }

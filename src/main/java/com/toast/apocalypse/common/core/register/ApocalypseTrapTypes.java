@@ -15,15 +15,15 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-public class ApocalypseTrapTypes {
+public final class ApocalypseTrapTypes {
     
     public static final DeferredRegister<AbstractTrap> REGISTRY = DeferredRegister.create( ApocalypseObjects.TrapTypes.REGISTRY_KEY, Apocalypse.MOD_ID );
-    
     
     static {
         register( ApocalypseObjects.TrapTypes.GHOST_FREEZE, GhostFreezeTrap::new );
         register( ApocalypseObjects.TrapTypes.EQUIPMENT_BREAK, EquipmentBreakTrap::new );
     }
+    
     
     /** Called to register this class. */
     public static void register( IEventBus bus ) { REGISTRY.register( bus ); }
@@ -44,4 +44,7 @@ public class ApocalypseTrapTypes {
         builder.setName( ApocalypseObjects.TrapTypes.REGISTRY_KEY.location() );
         ApocalypseObjects.TRAP_ACTIONS_REGISTRY = event.create( builder );
     }
+    
+    
+    private ApocalypseTrapTypes() { }
 }

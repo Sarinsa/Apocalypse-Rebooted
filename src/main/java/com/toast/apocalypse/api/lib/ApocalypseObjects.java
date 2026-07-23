@@ -8,7 +8,9 @@ import com.toast.apocalypse.common.command.argument.MaxDifficultyArgument;
 import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -100,37 +102,83 @@ public final class ApocalypseObjects {
     
     /** Global loot modifier serializers. */
     public interface LootModSerializers {
-    
+        RegistryObject<Codec<? extends IGlobalLootModifier>> SIMPLE_ADD_LOOT_MOD = lootModSerializer( "simple_add_loot_mod" );
     }
     
     /** Menu types. */
     public interface MenuTypes {
-    
+        RegistryObject<MenuType<?>> DYNAMIC_TRAP = menu( "dynamic_trap" );
     }
     
     /** Mob effects. */
     public interface MobEffects {
-    
+        // No mob effects yet.
     }
     
     /** Particle types. */
     public interface ParticleTypes {
-    
+        RegistryObject<SimpleParticleType> LUNAR_DESPAWN_SMOKE = particle( "lunar_despawn_smoke" );
     }
     
     /** Recipe serializers. */
     public interface RecipeSerializers {
-    
+        RegistryObject<RecipeSerializer<?>> TRAP_ASSEMBLING = recipeSerializer( "trap_assembling" );
     }
     
     /** Recipe types. */
     public interface RecipeTypes {
-    
+        RegistryObject<RecipeType<?>> TRAP_ASSEMBLING = recipeType( "trap_assembling" );
     }
     
     /** Sound event types. */
     public interface SoundEvents {
-    
+        RegistryObject<SoundEvent> LUNAR_ARMOR_REACT = sound( "item.lunar_armor.react" );
+        RegistryObject<SoundEvent> ARMOR_EQUIP_LUNAR = sound( "item.armor.equip_lunar" );
+        
+        RegistryObject<SoundEvent> DYNAMIC_TRAP_ACTIVATE = sound( "block.dynamic_trap.activate" );
+        
+        RegistryObject<SoundEvent> MONSTER_HOOK_RETRIEVE = sound( "entity.monster_fish_hook.retrieve" );
+        
+        RegistryObject<SoundEvent> DESTROYER_FIREBALL_DEFLECT = sound( "entity.destroyer_fireball.deflect" );
+        
+        RegistryObject<SoundEvent> SEEKER_FIREBALL_IGNITE = sound( "entity.seeker_fireball.ignite" );
+        
+        RegistryObject<SoundEvent> BREECHER_HURT = sound( "entity.breecher.hurt" );
+        RegistryObject<SoundEvent> BREECHER_DEATH = sound( "entity.breecher.death" );
+        
+        RegistryObject<SoundEvent> DESTROYER_WARN = sound( "entity.destroyer.warn" );
+        RegistryObject<SoundEvent> DESTROYER_SHOOT = sound( "entity.destroyer.shoot" );
+        RegistryObject<SoundEvent> DESTROYER_HURT = sound( "entity.destroyer.hurt" );
+        RegistryObject<SoundEvent> DESTROYER_DEATH = sound( "entity.destroyer.death" );
+        
+        RegistryObject<SoundEvent> SEEKER_WARN = sound( "entity.seeker.warn" );
+        RegistryObject<SoundEvent> SEEKER_SHOOT = sound( "entity.seeker.shoot" );
+        RegistryObject<SoundEvent> SEEKER_ALERT_MOBS = sound( "entity.seeker.alert_mobs" );
+        RegistryObject<SoundEvent> SEEKER_HURT = sound( "entity.seeker.hurt" );
+        RegistryObject<SoundEvent> SEEKER_DEATH = sound( "entity.seeker.death" );
+        
+        RegistryObject<SoundEvent> GHOST_IDLE = sound( "entity.ghost.idle" );
+        RegistryObject<SoundEvent> GHOST_HURT = sound( "entity.ghost.hurt" );
+        RegistryObject<SoundEvent> GHOST_DEATH = sound( "entity.ghost.death" );
+        RegistryObject<SoundEvent> GHOST_FREEZE = sound( "entity.ghost.freeze" );
+        
+        RegistryObject<SoundEvent> GRUMP_HURT = sound( "entity.grump.hurt" );
+        RegistryObject<SoundEvent> GRUMP_DEATH = sound( "entity.grump.death" );
+        RegistryObject<SoundEvent> GRUMP_RAGE = sound( "entity.grump.rage" );
+        RegistryObject<SoundEvent> GRUMP_EAT = sound( "entity.grump.eat" );
+        RegistryObject<SoundEvent> GRUMP_LAUNCH_HOOK = sound( "entity.grump.launch_hook" );
+        RegistryObject<SoundEvent> GRUMP_EQUIP_SADDLE = sound( "entity.grump.equip_saddle" );
+        
+        RegistryObject<SoundEvent> FEARWOLF_STEP = sound( "entity.fearwolf.step" );
+        RegistryObject<SoundEvent> FEARWOLF_IDLE = sound( "entity.fearwolf.idle" );
+        RegistryObject<SoundEvent> FEARWOLF_HURT = sound( "entity.fearwolf.hurt" );
+        RegistryObject<SoundEvent> FEARWOLF_DEATH = sound( "entity.fearwolf.death" );
+        
+        RegistryObject<SoundEvent> SHADEFIEND_FLAP = sound( "entity.shadefiend.flap" );
+        RegistryObject<SoundEvent> SHADEFIEND_BITE = sound( "entity.shadefiend.bite" );
+        RegistryObject<SoundEvent> SHADEFIEND_IDLE = sound( "entity.shadefiend.idle" );
+        RegistryObject<SoundEvent> SHADEFIEND_HURT = sound( "entity.shadefiend.hurt" );
+        RegistryObject<SoundEvent> SHADEFIEND_DEATH = sound( "entity.shadefiend.death" );
     }
     
     /** Trap types. */
@@ -173,7 +221,7 @@ public final class ApocalypseObjects {
     private static RegistryObject<MobEffect> mobEffect( String name ) { return ro( name, ForgeRegistries.MOB_EFFECTS ); }
     
     /** @return An object holder for a particle type. */
-    private static RegistryObject<ParticleType<?>> particle( String name ) { return ro( name, ForgeRegistries.PARTICLE_TYPES ); }
+    private static <T extends ParticleType<?> & ParticleOptions> RegistryObject<T> particle( String name ) { return ro( name, ForgeRegistries.PARTICLE_TYPES ); }
     
     /** @return An object holder for a recipe serializer. */
     private static RegistryObject<RecipeSerializer<?>> recipeSerializer( String name ) { return ro( name, ForgeRegistries.RECIPE_SERIALIZERS ); }

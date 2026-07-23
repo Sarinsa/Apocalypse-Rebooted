@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.entity.projectile;
 
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
-import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.entity.living.Grump;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import fathertoast.crust.api.lib.EntityEventHelper;
@@ -282,7 +282,14 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
         
         if( livingEntity != null ) {
             // noinspection resource
-            level().playSound( null, livingEntity.blockPosition(), ApocalypseSounds.MONSTER_HOOK_RETRIEVE.get(), SoundSource.NEUTRAL, 0.6F, 0.4F / (level().random.nextFloat() * 0.4F + 0.8F) );
+            level().playSound(
+                    null,
+                    livingEntity.blockPosition(),
+                    ApocalypseObjects.SoundEvents.MONSTER_HOOK_RETRIEVE.get(),
+                    SoundSource.NEUTRAL,
+                    0.6F,
+                    0.4F / (level().random.nextFloat() * 0.4F + 0.8F)
+            );
             Entity entity = hookedIn;
             
             double xMotion = livingEntity.getX() - getX();

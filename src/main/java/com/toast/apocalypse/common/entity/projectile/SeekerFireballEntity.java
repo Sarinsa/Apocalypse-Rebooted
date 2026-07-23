@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.entity.projectile;
 
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
-import com.toast.apocalypse.common.core.register.ApocalypseSounds;
 import com.toast.apocalypse.common.entity.living.Seeker;
 import com.toast.apocalypse.common.misc.SeekerExplosionCalculator;
 import net.minecraft.core.BlockPos;
@@ -102,7 +102,7 @@ public class SeekerFireballEntity extends Fireball {
                     
                     if( level.isEmptyBlock( firePos ) ) {
                         level.setBlockAndUpdate( firePos, FireBlock.getState( level(), firePos ) );
-                        level.playSound( null, blockPosition(), ApocalypseSounds.SEEKER_FIREBALL_IGNITE.get(), SoundSource.MASTER, 2.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F );
+                        level.playSound( null, blockPosition(), ApocalypseObjects.SoundEvents.SEEKER_FIREBALL_IGNITE.get(), SoundSource.MASTER, 2.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F );
                     }
                 }
             }

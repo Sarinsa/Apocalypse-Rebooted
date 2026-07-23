@@ -14,7 +14,7 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.List;
 import java.util.Objects;
 
-public class ApocalypseBlockEntities {
+public final class ApocalypseBlockEntities {
     
     public static final DeferredRegister<BlockEntityType<?>> REGISTRY = DeferredRegister.create( ForgeRegistries.BLOCK_ENTITY_TYPES, Apocalypse.MOD_ID );
     
@@ -47,4 +47,7 @@ public class ApocalypseBlockEntities {
         }
         return blockArray;
     }
+    
+    
+    private ApocalypseBlockEntities() { }
 }

@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.entity.living;
 
-import com.toast.apocalypse.common.core.register.ApocalypseSounds;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.entity.living.ai.FearwolfRunAwayGoal;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -97,7 +97,7 @@ public class Fearwolf extends Monster implements Enemy {
     
     @Override
     protected void playStepSound( BlockPos pos, BlockState state ) {
-        playSound( ApocalypseSounds.FEARWOLF_STEP.get(), 0.15F, 1.0F );
+        playSound( ApocalypseObjects.SoundEvents.FEARWOLF_STEP.get(), 0.15F, 1.0F );
     }
     
     public boolean runningAway() {
@@ -110,17 +110,17 @@ public class Fearwolf extends Monster implements Enemy {
     
     @Override
     protected SoundEvent getAmbientSound() {
-        return ApocalypseSounds.FEARWOLF_IDLE.get();
+        return ApocalypseObjects.SoundEvents.FEARWOLF_IDLE.get();
     }
     
     @Override
     protected SoundEvent getHurtSound( DamageSource damageSource ) {
-        return ApocalypseSounds.FEARWOLF_HURT.get();
+        return ApocalypseObjects.SoundEvents.FEARWOLF_HURT.get();
     }
     
     @Override
     protected SoundEvent getDeathSound() {
-        return ApocalypseSounds.FEARWOLF_DEATH.get();
+        return ApocalypseObjects.SoundEvents.FEARWOLF_DEATH.get();
     }
     
     @Override

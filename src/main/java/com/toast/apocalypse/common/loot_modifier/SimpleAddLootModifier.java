@@ -3,7 +3,7 @@ package com.toast.apocalypse.common.loot_modifier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.ListCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.toast.apocalypse.common.core.register.ApocalypseLootMods;
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -79,6 +79,6 @@ public class SimpleAddLootModifier extends LootModifier {
     
     @Override
     public Codec<? extends IGlobalLootModifier> codec() {
-        return ApocalypseLootMods.SIMPLE_ADD_LOOT_MOD.get();
+        return ApocalypseObjects.LootModSerializers.SIMPLE_ADD_LOOT_MOD.get();
     }
 }
