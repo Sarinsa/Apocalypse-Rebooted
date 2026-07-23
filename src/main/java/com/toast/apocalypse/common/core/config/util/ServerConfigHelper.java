@@ -20,11 +20,7 @@ import java.util.EnumMap;
 @Mod.EventBusSubscriber( bus = Mod.EventBusSubscriber.Bus.FORGE, modid = Apocalypse.MOD_ID, value = Dist.DEDICATED_SERVER )
 public class ServerConfigHelper {
     
-    /**
-     * Updated on client only as these
-     * values are only required for
-     * integrated servers.
-     */
+    /** Updated on client only as these values are only required for integrated servers. */
     public static double DESIRED_DEFAULT_MAX_DIFFICULTY;
     public static double DESIRED_DEFAULT_GRACE_PERIOD;
     
@@ -43,35 +39,34 @@ public class ServerConfigHelper {
      */
     @SuppressWarnings( "unchecked" )
     public static void updateModServerConfig() {
-        final String modid = Apocalypse.MOD_ID;
-        final String configName = ConfigTracker.INSTANCE.getConfigFileName( modid, ModConfig.Type.SERVER );
+        final String configName = ConfigTracker.INSTANCE.getConfigFileName( Apocalypse.MOD_ID, ModConfig.Type.SERVER );
         
         if( configName != null && !configName.isEmpty() ) {
-            ModContainer modContainer = ModList.get().getModContainerById( modid ).orElseThrow( () -> new IllegalStateException( "Failed to fetch ModContainer instance for " + modid + ". The server config will not be updated." ) );
-            Field field = ObfuscationReflectionHelper.findField( ModContainer.class, "configs" );
+            final ModContainer modContainer = ModList.get().getModContainerById( Apocalypse.MOD_ID ).orElseThrow(
+                    () -> new IllegalStateException( "Failed to fetch Apocalypse's mod container. This is impossible..?" ) );
+            final Field field = ObfuscationReflectionHelper.findField( ModContainer.class, "configs" );
             
             try {
-                EnumMap<ModConfig.Type, ModConfig> configMap;
-                configMap = (EnumMap<ModConfig.Type, ModConfig>) field.get( modContainer );
-                ModConfig config = configMap.getOrDefault( ModConfig.Type.SERVER, null );
+                final EnumMap<ModConfig.Type, ModConfig> configMap = (EnumMap<ModConfig.Type, ModConfig>) field.get( modContainer );
+                final ModConfig config = configMap.getOrDefault( ModConfig.Type.SERVER, null );
                 
+                // Manually overwrite config values and save
                 if( config != null ) {
-                    CommentedConfig commentedConfig = config.getConfigData();
+                    final CommentedConfig commentedConfig = config.getConfigData();
                     commentedConfig.set( "difficulty.defaultPlayerMaxDifficulty", DESIRED_DEFAULT_MAX_DIFFICULTY );
                     commentedConfig.set( "difficulty.defaultPlayerGracePeriod", DESIRED_DEFAULT_GRACE_PERIOD );
                     config.save();
                 }
             }
             catch( IllegalAccessException e ) {
+                // noinspection CallToPrintStackTrace
                 e.printStackTrace();
             }
         }
         resetValues();
     }
     
-    /**
-     * Called from {@link com.toast.apocalypse.client.screen.misc.ApocalypseWCTab}
-     */
+    /** Called from {@link com.toast.apocalypse.client.screen.misc.ApocalypseWCTab}. */
     public static void updateModServerConfigValues( double maxDifficulty, double gracePeriod ) {
         DESIRED_DEFAULT_MAX_DIFFICULTY = maxDifficulty;
         DESIRED_DEFAULT_GRACE_PERIOD = gracePeriod;

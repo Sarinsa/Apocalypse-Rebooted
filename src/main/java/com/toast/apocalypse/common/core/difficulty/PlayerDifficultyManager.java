@@ -16,6 +16,7 @@ import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.network.message.S2CSimpleClientTask;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.util.References;
+import fathertoast.crust.api.lib.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -43,13 +44,10 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
- * This class manages player difficulty and mod events
+ * This class manages player difficulty and Apocalypse events
  * like the full moon siege and thunderstorm.
  */
 public final class PlayerDifficultyManager {
@@ -82,15 +80,13 @@ public final class PlayerDifficultyManager {
     private int timeAdvCheck = 0;
     
     
-    /** Contains miscellaneous info about each world. */
+    /** A map of Apocalypse world info per level. */
     private final Map<Level, WorldInfo> worldInfo = new HashMap<>();
-    
-    /** A Map containing each online player's current event. */
+    /** A map containing each online player's currently running events. */
     private final Map<UUID, Map<EventType<?>, AbstractEvent>> playerEvents = new HashMap<>();
     
-    /** Server instance. */
+    /** The current server instance. */
     private MinecraftServer server;
-    
     /** Whether the current server instance has been shut down. */
     private boolean serverStopped = false;
     
@@ -104,58 +100,65 @@ public final class PlayerDifficultyManager {
     }
     
     /**
-     * Used to find the difficulty of the nearest player when
-     * calculating mob attribute bonuses and equipment etc.<br>
-     * <br>
+     * Returns the difficulty of the nearest player.
      *
      * @param level        The World :)
-     * @param livingEntity The entity to use as reference point.<br>
-     *                     <br>
+     * @param livingEntity The entity to look for nearby players around.
      * @return The unscaled, raw difficulty of the nearest player.
-     * Defaults to 0 if no player can be found.
+     * Returns 0 if no player was found.
      */
     public static long getNearestPlayerDifficulty( LevelAccessor level, LivingEntity livingEntity ) {
-        Player player = level.getNearestPlayer( livingEntity, Double.MAX_VALUE );
-        
-        if( player != null ) {
-            return CapabilityHelper.getPlayerDifficulty( player );
-        }
-        return 0;
-    }
-    
-    public static long getNearestPlayerDifficulty( LevelAccessor level, BlockPos pos ) {
-        Player player = level.getNearestPlayer( pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, Double.MAX_VALUE, false );
-        
-        if( player != null ) {
-            return CapabilityHelper.getPlayerDifficulty( player );
-        }
+        final Player player = level.getNearestPlayer( livingEntity, Double.MAX_VALUE );
+        if( player != null ) return CapabilityHelper.getPlayerDifficulty( player );
         return 0;
     }
     
     /**
-     * @return True if the current moon phase in the overworld is "new moon".<br>
+     * Returns the difficulty of the nearest player.
+     *
+     * @param level The World :)
+     * @param pos   The block position look for nearby players around.
+     * @return The unscaled, raw difficulty of the nearest player.
+     * Returns 0 if no player was found.
+     */
+    public static long getNearestPlayerDifficulty( LevelAccessor level, BlockPos pos ) {
+        final Player player = level.getNearestPlayer(
+                pos.getX() + 0.5D,
+                pos.getY(),
+                pos.getZ() + 0.5D,
+                Double.MAX_VALUE, false
+        );
+        if( player != null ) return CapabilityHelper.getPlayerDifficulty( player );
+        return 0;
+    }
+    
+    /**
+     * @return True if the current moon phase in the overworld is a new moon.
+     * <br>
      * Always returns false if {@link PlayerDifficultyManager#server} is null.
      */
     public boolean isNewMoon() {
         if( server == null ) return false;
-        
-        ServerLevel world = server.overworld();
+        final ServerLevel world = server.overworld();
+        // 4 is new moon
         return world.dimensionType().moonPhase( world.getDayTime() ) == 4;
     }
     
     /**
-     * @return True if the current moon phase in the overworld is "full moon".<br>
+     * @return True if the current moon phase in the overworld is a full moon.
+     * <br>
      * Always returns false if {@link PlayerDifficultyManager#server} is null.
      */
     public boolean isFullMoon() {
         if( server == null ) return false;
-        
-        ServerLevel world = server.overworld();
+        final ServerLevel world = server.overworld();
+        // 4 is full moon
         return world.dimensionType().moonPhase( world.getDayTime() ) == 0;
     }
     
     /**
-     * @return True if the current moon phase in the overworld is "new moon" and it is nighttime.<br>
+     * @return True if {@link PlayerDifficultyManager#isFullMoon()} returns true and it is nighttime in the overworld.
+     * <br>
      * Always returns false if {@link PlayerDifficultyManager#server} is null.
      */
     public boolean isFullMoonNight() {
@@ -164,7 +167,7 @@ public final class PlayerDifficultyManager {
         return isFullMoon() && dayTime > 13000L && dayTime < 23500L;
     }
     
-    /** @return True if it is currently raining acid in the given level. */
+    /** @return True if it is currently raining acid in the specified level. */
     public boolean isRainingAcid( ServerLevel world ) {
         return worldInfo.get( world ).isRainingAcid();
     }
@@ -201,7 +204,7 @@ public final class PlayerDifficultyManager {
     @SubscribeEvent( priority = EventPriority.HIGH )
     public void onPlayerLoggedIn( PlayerEvent.PlayerLoggedInEvent event ) {
         if( event.getEntity() instanceof ServerPlayer player ) {
-            ServerLevel playerLevel = player.serverLevel();
+            final ServerLevel playerLevel = player.serverLevel();
             
             // Load event data
             playerEvents.put( player.getUUID(), new HashMap<>() );
@@ -209,7 +212,7 @@ public final class PlayerDifficultyManager {
             
             // Update equipped lunar armor
             for( EquipmentSlot slot : MobEquipmentHandler.ARMOR_SLOTS ) {
-                ItemStack armorStack = player.getItemBySlot( slot );
+                final ItemStack armorStack = player.getItemBySlot( slot );
                 
                 if( armorStack.getItem() instanceof LunarArmorItem ) {
                     LunarArmorItem.writeIndexToNBT( armorStack, playerLevel );
@@ -221,9 +224,8 @@ public final class PlayerDifficultyManager {
     /** Called when a player has logged out of the server. */
     @SubscribeEvent( priority = EventPriority.HIGH )
     public void onPlayerLoggedOut( PlayerEvent.PlayerLoggedOutEvent event ) {
-        // Don't bother saving event data
-        // if the server has already been stopped
-        // as it will have been taken care of already.
+        // Don't bother saving event data if the server has
+        // been stopped as it will have been taken care of already.
         if( serverStopped ) return;
         
         if( event.getEntity() instanceof ServerPlayer player ) {
@@ -293,7 +295,6 @@ public final class PlayerDifficultyManager {
                             }
                         }
                     }
-                    
                     // Update world info
                     if( !worldInfo.isEmpty() ) {
                         final WorldInfo overworldInfo = worldInfo.get( overworld );
@@ -343,8 +344,9 @@ public final class PlayerDifficultyManager {
             sporadicLunarIndexTime = 0;
             sporadicLunarArmorIndex = server.overworld().random.nextInt( LunarArmorItem.MAX_INDEX ) + 1;
         }
-        int lunarArmorModIndex;
+        final int lunarArmorModIndex;
         
+        // Pick index based on moon phase
         if( isFullMoonNight() ) {
             lunarArmorModIndex = sporadicLunarArmorIndex;
         }
@@ -352,7 +354,7 @@ public final class PlayerDifficultyManager {
             lunarArmorModIndex = isNewMoon() ? -1 : 0;
         }
         if( currentLunarArmorIndex != lunarArmorModIndex ) {
-            // Update clients
+            // Update clients if the new index differs from the previous
             for( ServerPlayer serverPlayer : server.getPlayerList().getPlayers() ) {
                 boolean playSound = false;
                 
@@ -379,9 +381,7 @@ public final class PlayerDifficultyManager {
         }
     }
     
-    /**
-     * Updates the player's difficulty.
-     */
+    /** Updates the specified player's difficulty properties. */
     private void updatePlayerDifficulty( ServerPlayer player ) {
         final long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty( player );
         long currentDifficulty = CapabilityHelper.getPlayerDifficulty( player );
@@ -406,24 +406,21 @@ public final class PlayerDifficultyManager {
             }
             currentDifficulty += (long) (TICKS_PER_UPDATE * difficultyMultiplier);
         }
-        
         // Update difficulty stuff on clients
         CapabilityHelper.setPlayerDifficulty( player, currentDifficulty );
         CapabilityHelper.setPlayerDifficultyMult( player, difficultyMultiplier );
     }
     
     /**
-     * Updates the given player's current event
-     * and checks what event should be active.
+     * Updates the given player's current Apocalypse events.
+     * Checks for events that should start up, and stops events that should no longer run.
      *
      * @param player The player to update event for.
      */
     @SuppressWarnings( "ConstantConditions" )
     public void updatePlayerEvent( ServerPlayer player ) {
-        ServerLevel level = player.serverLevel();
-        
-        Map<EventType<?>, AbstractEvent> events = playerEvents.get( player.getUUID() );
-        
+        final ServerLevel level = player.serverLevel();
+        final Map<EventType<?>, AbstractEvent> events = playerEvents.get( player.getUUID() );
         final double scaledDifficulty = (double) (CapabilityHelper.getPlayerDifficulty( player ) / References.DAY_LENGTH);
         
         // Loop through running events and
@@ -538,19 +535,17 @@ public final class PlayerDifficultyManager {
     public void loadEventData( ServerPlayer player ) {
         final CompoundTag persistentData = player.getPersistentData();
         
-        if( persistentData.contains( KEY_EVENT_DATA_LIST, Tag.TAG_LIST ) ) {
-            ListTag listTag = persistentData.getList( KEY_EVENT_DATA_LIST, Tag.TAG_COMPOUND );
+        if( NBTHelper.containsList( persistentData, KEY_EVENT_DATA_LIST ) ) {
+            final List<CompoundTag> eventDataList = NBTHelper.getCompoundList( persistentData, KEY_EVENT_DATA_LIST );
             
-            for( Tag tag : listTag ) {
+            for( CompoundTag eventData : eventDataList ) {
                 try {
-                    CompoundTag compoundTag = (CompoundTag) tag;
-                    
-                    if( compoundTag.contains( "EventId", Tag.TAG_INT ) ) {
-                        EventType<?> eventType = EventRegistry.getFromId( compoundTag.getInt( "EventId" ) );
+                    if( NBTHelper.containsNumber( eventData, AbstractEvent.KEY_EVENT_ID ) ) {
+                        final EventType<?> eventType = EventRegistry.getFromId( eventData.getInt( AbstractEvent.KEY_EVENT_ID ) );
                         
                         if( eventType != null ) {
                             AbstractEvent event = eventType.createEvent();
-                            event.read( compoundTag, player, player.serverLevel() );
+                            event.read( eventData, player, player.serverLevel() );
                             playerEvents.get( player.getUUID() ).put( eventType, event );
                         }
                     }
@@ -575,8 +570,8 @@ public final class PlayerDifficultyManager {
         if( !playerEvents.containsKey( player.getUUID() ) ) return;
         
         try {
-            CompoundTag persistentData = player.getPersistentData();
-            ListTag listTag = new ListTag();
+            final CompoundTag persistentData = player.getPersistentData();
+            final ListTag listTag = new ListTag();
             
             for( AbstractEvent abstractEvent : playerEvents.get( player.getUUID() ).values() ) {
                 CompoundTag tag = new CompoundTag();

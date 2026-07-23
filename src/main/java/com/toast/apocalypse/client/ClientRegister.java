@@ -2,7 +2,7 @@ package com.toast.apocalypse.client;
 
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.client.config.ClientConfig;
-import com.toast.apocalypse.client.event.ClientEvents;
+import com.toast.apocalypse.client.event.ClientEventListener;
 import com.toast.apocalypse.client.event.KeyInputListener;
 import com.toast.apocalypse.client.particle.LunarDespawnSmokeParticle;
 import com.toast.apocalypse.client.renderer.DifficultyOverlayRenderHandler;
@@ -69,7 +69,7 @@ public class ClientRegister {
         final IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener( ClientUtil::onAddLayer );
         
-        MinecraftForge.EVENT_BUS.register( new ClientEvents() );
+        MinecraftForge.EVENT_BUS.register( new ClientEventListener() );
         MinecraftForge.EVENT_BUS.register( new KeyInputListener() );
         
         // Init client configs
