@@ -25,9 +25,6 @@ public class ApocalypseConfig {
     
     /** Performs initial loading of our configs. */
     public static void initialize() {
-        ConfigManager manager = ConfigManager.getRequired( Apocalypse.MOD_ID );
-        manager.freezeFileWatcher = true;
-        
         DIFFICULTY.SPEC.initialize();
         MOB_BUFFING.SPEC.initialize();
         LUNAR_SIEGE.SPEC.initialize();
@@ -35,8 +32,6 @@ public class ApocalypseConfig {
         CALL_OF_THE_SHADOWS.SPEC.initialize();
         THUNDERSTORM.SPEC.initialize();
         MISC.SPEC.initialize();
-        
-        manager.freezeFileWatcher = false;
         
         MobEquipmentHandler.refreshArmorMaps( MOB_BUFFING.EQUIPMENT.armorTierList );
     }
