@@ -2,6 +2,8 @@ package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.api.event.ApocalypseEvent;
 import com.toast.apocalypse.api.event.SeekerAlertEvent;
+import com.toast.apocalypse.common.network.NetworkHelper;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
@@ -10,7 +12,7 @@ import net.minecraftforge.common.MinecraftForge;
 
 import java.util.List;
 
-public class ApocalypseEventFactory {
+public final class ApocalypseEventFactory {
     
     /**
      * Fires a {@link SeekerAlertEvent} and posts it on the  {@link MinecraftForge#EVENT_BUS} bus.
@@ -26,24 +28,56 @@ public class ApocalypseEventFactory {
     }
     
     /**
-     * Fires a {@link ApocalypseEvent.Start} event and posts it on the {@link MinecraftForge#EVENT_BUS} bus.
+     * Fires a {@link ApocalypseEvent.Starting} event and posts it on the {@link MinecraftForge#EVENT_BUS} bus.
      *
-     * @param player  The player to start an Apocalypse event for.
+     * @param player  The player who has an Apocalypse event that is starting.
      * @param eventId The ID of the Apocalypse event that is starting.
      * @return True if the event was canceled.
      */
-    public static boolean fireApocalypseStartEvent( Player player, int eventId ) {
-        return MinecraftForge.EVENT_BUS.post( new ApocalypseEvent.Start( player, eventId ) );
+    public static boolean fireApocalypseEventStarting( Player player, int eventId ) {
+        return MinecraftForge.EVENT_BUS.post( new ApocalypseEvent.Starting( player, eventId ) );
     }
     
     /**
-     * Fires a {@link ApocalypseEvent.Stop} event and posts it on the {@link MinecraftForge#EVENT_BUS} bus.
+     * Fires a {@link ApocalypseEvent.Started} event and posts it on the {@link MinecraftForge#EVENT_BUS} bus.
      *
-     * @param player  The player to stop an Apocalypse event for.
-     * @param eventId The ID of the Apocalypse event that is stopping.
+     * @param player       The player who has an Apocalypse event that just started.
+     * @param eventId      The ID of the Apocalypse event that started.
+     * @param sendToClient True if the client should be told to fire the event as well.
+     */
+    public static void fireApocalypseEventStarted( boolean sendToClient, Player player, int eventId ) {
+        MinecraftForge.EVENT_BUS.post( new ApocalypseEvent.Started( player, eventId ) );
+        if( sendToClient && player instanceof ServerPlayer serverPlayer ) {
+            NetworkHelper.sendEventStarted( serverPlayer, eventId );
+        }
+    }
+    
+    /**
+     * Fires a {@link ApocalypseEvent.Ending} event and posts it on the {@link MinecraftForge#EVENT_BUS} bus.
+     *
+     * @param player  The player who has en Apocalypse event that is ending.
+     * @param eventId The ID of the Apocalypse event that is ending.
      * @return True if the event was canceled.
      */
-    public static boolean fireApocalypseStopEvent( Player player, int eventId ) {
-        return MinecraftForge.EVENT_BUS.post( new ApocalypseEvent.Stop( player, eventId ) );
+    public static boolean fireApocalypseEventEnding( Player player, int eventId ) {
+        return MinecraftForge.EVENT_BUS.post( new ApocalypseEvent.Ending( player, eventId ) );
     }
+    
+    /**
+     * Fires a {@link ApocalypseEvent.Ended} event and posts it on the {@link MinecraftForge#EVENT_BUS} bus.
+     *
+     * @param player       The player who has an Apocalypse event that just ended.
+     * @param eventId      The ID of the Apocalypse event that ended.
+     * @param sendToClient True if the client should be told to fire the event as well.
+     */
+    public static void fireApocalypseEventEnded( boolean sendToClient, Player player, int eventId ) {
+        MinecraftForge.EVENT_BUS.post( new ApocalypseEvent.Ended( player, eventId ) );
+        if( sendToClient && player instanceof ServerPlayer serverPlayer ) {
+            NetworkHelper.sendEventEnded( serverPlayer, eventId );
+        }
+    }
+    
+    
+    // Utility class
+    private ApocalypseEventFactory() { }
 }

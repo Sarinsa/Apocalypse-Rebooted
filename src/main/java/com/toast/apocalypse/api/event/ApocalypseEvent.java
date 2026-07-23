@@ -7,11 +7,7 @@ import net.minecraftforge.eventbus.api.Event;
 /**
  * The base Forge event class for all Apocalypse events, such as lunar sieges,
  * acid rain, thunderstorms etc.
- * <br><br>
- * All sub-events are posted on {@link net.minecraftforge.common.MinecraftForge#EVENT_BUS}
- * and are {@link Cancelable}.
  */
-@Cancelable
 public class ApocalypseEvent extends Event {
     
     /** Contains all valid and registered Apocalypse event IDs. */
@@ -47,38 +43,68 @@ public class ApocalypseEvent extends Event {
         return eventId;
     }
     
-    // TODO fire on client
     
     /**
-     * On the <strong>server</strong>, this event is fired when an Apocalypse event is about to start.
+     * Fired when an Apocalypse event is about to start.
      * Canceling this event will prevent the Apocalypse event from starting.
      * <br><br>
-     * On the <strong>client</strong>, this event is fired AFTER an Apocalypse event has started,
-     * and provides no control over the event itself, as Apocalypse events only exist on the server.
-     * Canceling this event on the client will in other words do nothing other than stop
-     * other listeners from receiving it.
+     * This event is only fired on the server.
+     * <br><br>
+     * This event is {@link Cancelable}.
      */
-    public static final class Start extends ApocalypseEvent {
+    @Cancelable
+    public static final class Starting extends ApocalypseEvent {
         
-        public Start( Player player, int eventId ) {
+        public Starting( Player player, int eventId ) {
             super( player, eventId );
         }
     }
     
-    // TODO fire on client
+    /**
+     * Fired when an Apocalypse event has just started.
+     * Listen to {@link Starting} instead if you wish to prevent
+     * an Apocalypse event from starting.
+     * <br><br>
+     * This event is fired on both server and client.
+     * <br><br>
+     * This event is NOT {@link Cancelable}.
+     */
+    public static final class Started extends ApocalypseEvent {
+        
+        public Started( Player player, int eventId ) {
+            super( player, eventId );
+        }
+    }
     
     /**
-     * On the <strong>server</strong>, this event is fired when an Apocalypse event is about to end.
-     * Canceling this event will prevent the Apocalypse event from ending.
+     * Fired when an Apocalypse event is about to end.
+     * Canceling this event will prevent the Apocalypse event from ending,
+     * allowing it to keep running. This event is only fired on the server.
      * <br><br>
-     * On the <strong>client</strong>, this event is fired AFTER an Apocalypse event has ended,
-     * and provides no control over the event itself, as Apocalypse events only exist on the server.
-     * Canceling this event on the client will in other words do nothing other than stop
-     * other listeners from receiving it.
+     * This event is only fired on the server.
+     * <br><br>
+     * This event is {@link Cancelable}.
      */
-    public static final class Stop extends ApocalypseEvent {
+    @Cancelable
+    public static final class Ending extends ApocalypseEvent {
         
-        public Stop( Player player, int eventId ) {
+        public Ending( Player player, int eventId ) {
+            super( player, eventId );
+        }
+    }
+    
+    /**
+     * Fired when an Apocalypse event has ended.
+     * Listen to {@link Ending} instead if you wish to prevent
+     * an Apocalypse event from ending.
+     * <br><br>
+     * This event is fired on both server and client.
+     * <br><br>
+     * This event is NOT {@link Cancelable}.
+     */
+    public static final class Ended extends ApocalypseEvent {
+        
+        public Ended( Player player, int eventId ) {
             super( player, eventId );
         }
     }

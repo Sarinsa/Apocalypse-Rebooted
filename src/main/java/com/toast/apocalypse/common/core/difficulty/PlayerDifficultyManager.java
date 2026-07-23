@@ -430,14 +430,7 @@ public final class PlayerDifficultyManager {
         // stop any events that should no longer run.
         events.values().removeIf( ( abstractEvent ) -> {
             if( !abstractEvent.shouldContinueRunning( level, player, scaledDifficulty, this ) ) {
-                // Allow listeners to prevent the event from ending
-                if( ApocalypseEventFactory.fireApocalypseStopEvent( player, abstractEvent.getType().getId() ) ) {
-                    return false;
-                }
-                else {
-                    abstractEvent.onEnd( server, player );
-                    return true;
-                }
+                return stopEvent( player, abstractEvent );
             }
             return false;
         } );
@@ -460,42 +453,75 @@ public final class PlayerDifficultyManager {
     }
     
     /**
-     * Starts an event for the given player, if possible.
+     * Starts the specified Apocalypse event for the given player, if possible.
      *
      * @param player    The player to start the event for.
-     * @param eventType The event type for the event to start.
+     * @param eventType The event type of the event to start.
      */
-    public void startEvent( ServerPlayer player, EventType<?> eventType ) {
-        boolean canceled = ApocalypseEventFactory.fireApocalypseStartEvent( player, eventType.getId() );
-        if( canceled ) return;
+    private void startEvent( ServerPlayer player, EventType<?> eventType ) {
+        final int eventId = eventType.getId();
+        // Allow listeners to prevent the event from starting.
+        if( ApocalypseEventFactory.fireApocalypseEventStarting( player, eventId ) ) return;
         
-        AbstractEvent newEvent = eventType.createEvent();
+        final AbstractEvent newEvent = eventType.createEvent();
+        
         newEvent.onStart( server, player );
         playerEvents.get( player.getUUID() ).put( eventType, newEvent );
         
         if( eventType.getEventStartMessage() != null && ApocalypseConfig.MISC.EVENTS.displayStartMessage.get() ) {
             player.displayClientMessage( Component.translatable( eventType.getEventStartMessage() ), true );
         }
+        // Notify listeners that this event has started.
+        ApocalypseEventFactory.fireApocalypseEventStarted( true, player, eventId );
     }
     
+    /**
+     * Stops the specified Apocalypse event for the given player, if possible.
+     *
+     * @param player The player to stop the event for.
+     * @param event  The event to stop.
+     * @return True if the event stopped.
+     */
+    private boolean stopEvent( ServerPlayer player, AbstractEvent event ) {
+        final boolean ended;
+        final int eventId = event.getType().getId();
+        
+        // Allow listeners to prevent the event from ending
+        if( ApocalypseEventFactory.fireApocalypseEventEnding( player, eventId ) ) {
+            ended = false;
+        }
+        else {
+            event.onEnd( server, player );
+            ended = true;
+        }
+        // Notify listeners that this event has ended.
+        ApocalypseEventFactory.fireApocalypseEventEnded( true, player, eventId );
+        return ended;
+    }
+    
+    /**
+     * @return A set containing the event types for every running Apocalypse event for the specified player.
+     * Returns null if the internal event map does not contain a key of the given player's UUID.
+     */
     @Nullable
     public Set<EventType<?>> getEventTypes( ServerPlayer player ) {
-        UUID uuid = player.getUUID();
+        final UUID uuid = player.getUUID();
         return playerEvents.containsKey( uuid ) ? ImmutableSet.copyOf( playerEvents.get( uuid ).keySet() ) : null;
     }
     
-    // SHOULD not return null, but who knows
+    /**
+     * @return The specified player's currently running event
+     * associated with the given event type. Returns null if the event is not running.
+     */
     @Nullable
     public AbstractEvent getEvent( ServerPlayer player, EventType<?> eventType ) {
         UUID uuid = player.getUUID();
-        
         if( !playerEvents.containsKey( uuid ) ) return null;
-        
         return playerEvents.get( uuid ).getOrDefault( eventType, null );
     }
     
-    /** Cleans up the references to things in a server when the server stops. */
-    public void cleanup() {
+    /** Resets timers and misc temporary data. */
+    private void cleanup() {
         server = null;
         timeUpdate = 0;
         timeSave = 0;
@@ -504,7 +530,11 @@ public final class PlayerDifficultyManager {
         worldInfo.clear();
     }
     
-    /** Loads the given player's event data. */
+    /**
+     * Loads all Apocalypse event data for the specified player.
+     *
+     * @see PlayerDifficultyManager#onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent)
+     */
     public void loadEventData( ServerPlayer player ) {
         final CompoundTag persistentData = player.getPersistentData();
         
@@ -534,7 +564,13 @@ public final class PlayerDifficultyManager {
         }
     }
     
-    /** Saves the data of the player's current event. */
+    /**
+     * Saves all Apocalypse event data for the specified player.
+     *
+     * @see PlayerDifficultyManager#onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent)
+     * @see PlayerDifficultyManager#onServerStopping(ServerStoppingEvent)
+     * @see PlayerDifficultyManager#onServerTick(TickEvent.ServerTickEvent)
+     */
     public void saveEventData( ServerPlayer player ) {
         if( !playerEvents.containsKey( player.getUUID() ) ) return;
         
@@ -556,27 +592,39 @@ public final class PlayerDifficultyManager {
         }
     }
     
+    /**
+     * @return The current lunar armor attribute modifier index.
+     * @see LunarArmorItem#writeIndexToNBT(ItemStack, Level)
+     */
     public int getLunarArmorModIndex() {
         return currentLunarArmorIndex;
     }
     
-    /** Contains miscellaneous info about a world. */
+    
+    /** Contains various level information Apocalypse uses for events and whatnot. */
     public static class WorldInfo {
         
-        protected static final String saveDataId = Apocalypse.rl( "world_info" ).toString();
+        /** The save data ID to use when writing {@link #savedData} to the level. */
+        protected static final String SAVE_DATA_ID = Apocalypse.rl( "world_info" ).toString();
         
+        /** The level that this world info is storing data for. */
         private final ServerLevel level;
+        /** The level save data instance for this world info. */
         private final WorldInfoSavedData savedData;
         
+        /** True if it just started raining this tick. */
         private boolean justStartedRaining;
+        /** True if it is currently raining acid in the level associated with this world info. */
         private boolean isRainingAcid;
         
         
+        /** Creates a new world info instance with the specified level. */
         private WorldInfo( ServerLevel level ) {
             this.level = level;
-            this.savedData = level.getDataStorage().computeIfAbsent( this::load, this::create, saveDataId );
+            this.savedData = level.getDataStorage().computeIfAbsent( this::load, () -> new WorldInfoSavedData( this ), SAVE_DATA_ID );
         }
         
+        /** Updates the {@link #isRainingAcid} field for this world info and notifies clients. */
         protected void setRainingAcid( boolean value ) {
             isRainingAcid = value;
             
@@ -587,14 +635,15 @@ public final class PlayerDifficultyManager {
             }
         }
         
+        /** @return True if it is currently raining acid in the level associated with this world info. */
         public boolean isRainingAcid() {
             return isRainingAcid;
         }
         
-        public boolean justStartedRaining() {
-            return justStartedRaining;
-        }
-        
+        /**
+         * Updates the {@link #justStartedRaining} field for this world info. If {@code value}
+         * is true, the configured acid rain event chance is rolled, maybe starting the event.
+         */
         public void setJustStartedRaining( boolean value, RandomSource random ) {
             justStartedRaining = value;
             
@@ -602,6 +651,12 @@ public final class PlayerDifficultyManager {
                 setRainingAcid( true );
         }
         
+        /** @return True if it just started raining in the level associated with this world info (this tick). */
+        public boolean justStartedRaining() {
+            return justStartedRaining;
+        }
+        
+        /** Used by this world info's {@link #savedData} instance to load from NBT. */
         protected WorldInfoSavedData load( CompoundTag compoundNBT ) {
             WorldInfoSavedData savedData = new WorldInfoSavedData( this );
             
@@ -611,18 +666,22 @@ public final class PlayerDifficultyManager {
             return savedData;
         }
         
-        protected WorldInfoSavedData create() {
-            return new WorldInfoSavedData( this );
-        }
-        
+        /**
+         * A level saved data implementation used to write
+         * world info data that needs to persist to disk.
+         */
         protected static class WorldInfoSavedData extends SavedData {
             
+            /** The {@link WorldInfo} instance associated with this saved data. */
             private final WorldInfo worldInfo;
             
+            
+            /** Creates a new instance for the specified world info. */
             public WorldInfoSavedData( WorldInfo info ) {
                 worldInfo = info;
             }
             
+            /** Saves this saved data instance to NBT. */
             @Override
             public CompoundTag save( CompoundTag compoundNBT ) {
                 compoundNBT.putBoolean( "RainingAcid", worldInfo.isRainingAcid );

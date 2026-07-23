@@ -8,6 +8,7 @@ import com.toast.apocalypse.common.blockentity.DynamicTrapBlockEntity;
 import com.toast.apocalypse.common.capability.ApocalypseCapabilities;
 import com.toast.apocalypse.common.capability.difficulty.DifficultyCapProvider;
 import com.toast.apocalypse.common.entity.living.Grump;
+import com.toast.apocalypse.common.event.ApocalypseEventFactory;
 import com.toast.apocalypse.common.inventory.container.GrumpInventoryContainer;
 import com.toast.apocalypse.common.network.message.*;
 import com.toast.apocalypse.common.util.References;
@@ -138,6 +139,17 @@ public class ClientWork {
                 trap.setCurrentTrap( ApocalypseObjects.TRAP_ACTIONS_REGISTRY.get().getValue( id ) );
                 trap.setCurrentTrapRadius( message.trapRadius );
             }
+        }
+    }
+    
+    public static void handleApocalypseEventUpdate( S2CApocalypseEvent message ) {
+        final LocalPlayer player = Minecraft.getInstance().player;
+        
+        if( player == null ) return;
+        
+        switch( message.eventStatus ) {
+            case STARTED -> ApocalypseEventFactory.fireApocalypseEventStarted( false, player, message.eventId );
+            case ENDED -> ApocalypseEventFactory.fireApocalypseEventEnded( false, player, message.eventId );
         }
     }
 }
