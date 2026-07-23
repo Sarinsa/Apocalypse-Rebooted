@@ -26,7 +26,7 @@ public class ShadefiendModel extends HierarchicalModel<Shadefiend> {
         this.root = root;
         renderType = ( resourceLocation ) -> ApocalypseRenderTypes.entityCutoutNoCullBlend( resourceLocation, RenderStateShard.TransparencyStateShard.ADDITIVE_TRANSPARENCY );
         
-        ModelPart body = root.getChild( "body" );
+        final ModelPart body = root.getChild( "body" );
         
         tailBase = body.getChild( "tail_base" );
         tailTip = tailBase.getChild( "tail_tip" );
@@ -36,27 +36,34 @@ public class ShadefiendModel extends HierarchicalModel<Shadefiend> {
         rightWingTip = rightWingBase.getChild( "right_wing_tip" );
     }
     
+    /** @return The layer definition for the Fearwolf model. */
     public static LayerDefinition createBodyLayer() {
-        MeshDefinition meshdefinition = new MeshDefinition();
+        final MeshDefinition meshDef = new MeshDefinition();
         
-        PartDefinition partdefinition = meshdefinition.getRoot();
-        PartDefinition partdefinition1 = partdefinition.addOrReplaceChild( "body", CubeListBuilder.create().texOffs( 0, 8 ).addBox( -3.0F, -2.0F, -8.0F, 5.0F, 3.0F, 9.0F ), PartPose.rotation( -0.1F, 0.0F, 0.0F ) );
-        PartDefinition partdefinition2 = partdefinition1.addOrReplaceChild( "tail_base", CubeListBuilder.create().texOffs( 3, 20 ).addBox( -2.0F, 0.0F, 0.0F, 3.0F, 2.0F, 6.0F ), PartPose.offset( 0.0F, -2.0F, 1.0F ) );
-        partdefinition2.addOrReplaceChild( "tail_tip", CubeListBuilder.create().texOffs( 4, 29 ).addBox( -1.0F, 0.0F, 0.0F, 1.0F, 1.0F, 6.0F ), PartPose.offset( 0.0F, 0.5F, 6.0F ) );
-        PartDefinition partdefinition3 = partdefinition1.addOrReplaceChild( "left_wing_base", CubeListBuilder.create().texOffs( 23, 12 ).addBox( 0.0F, 0.0F, 0.0F, 6.0F, 2.0F, 9.0F ), PartPose.offsetAndRotation( 2.0F, -2.0F, -8.0F, 0.0F, 0.0F, 0.1F ) );
-        partdefinition3.addOrReplaceChild( "left_wing_tip", CubeListBuilder.create().texOffs( 16, 24 ).addBox( 0.0F, 0.0F, 0.0F, 13.0F, 1.0F, 9.0F ), PartPose.offsetAndRotation( 6.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.1F ) );
-        PartDefinition partdefinition4 = partdefinition1.addOrReplaceChild( "right_wing_base", CubeListBuilder.create().texOffs( 23, 12 ).mirror().addBox( -6.0F, 0.0F, 0.0F, 6.0F, 2.0F, 9.0F ), PartPose.offsetAndRotation( -3.0F, -2.0F, -8.0F, 0.0F, 0.0F, -0.1F ) );
-        partdefinition4.addOrReplaceChild( "right_wing_tip", CubeListBuilder.create().texOffs( 16, 24 ).mirror().addBox( -13.0F, 0.0F, 0.0F, 13.0F, 1.0F, 9.0F ), PartPose.offsetAndRotation( -6.0F, 0.0F, 0.0F, 0.0F, 0.0F, -0.1F ) );
-        partdefinition1.addOrReplaceChild( "head", CubeListBuilder.create().texOffs( 0, 0 ).addBox( -4.0F, -2.0F, -5.0F, 7.0F, 3.0F, 5.0F ), PartPose.offsetAndRotation( 0.0F, 1.0F, -7.0F, 0.2F, 0.0F, 0.0F ) );
+        final PartDefinition root = meshDef.getRoot();
+        final PartDefinition body = root.addOrReplaceChild( "body", CubeListBuilder.create().texOffs( 0, 8 ).addBox( -3.0F, -2.0F, -8.0F, 5.0F, 3.0F, 9.0F ), PartPose.rotation( -0.1F, 0.0F, 0.0F ) );
         
-        return LayerDefinition.create( meshdefinition, 64, 64 );
+        final PartDefinition tailBase = body.addOrReplaceChild( "tail_base", CubeListBuilder.create().texOffs( 3, 20 ).addBox( -2.0F, 0.0F, 0.0F, 3.0F, 2.0F, 6.0F ), PartPose.offset( 0.0F, -2.0F, 1.0F ) );
+        tailBase.addOrReplaceChild( "tail_tip", CubeListBuilder.create().texOffs( 4, 29 ).addBox( -1.0F, 0.0F, 0.0F, 1.0F, 1.0F, 6.0F ), PartPose.offset( 0.0F, 0.5F, 6.0F ) );
+        
+        final PartDefinition leftWingBase = body.addOrReplaceChild( "left_wing_base", CubeListBuilder.create().texOffs( 23, 12 ).addBox( 0.0F, 0.0F, 0.0F, 6.0F, 2.0F, 9.0F ), PartPose.offsetAndRotation( 2.0F, -2.0F, -8.0F, 0.0F, 0.0F, 0.1F ) );
+        leftWingBase.addOrReplaceChild( "left_wing_tip", CubeListBuilder.create().texOffs( 16, 24 ).addBox( 0.0F, 0.0F, 0.0F, 13.0F, 1.0F, 9.0F ), PartPose.offsetAndRotation( 6.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.1F ) );
+        
+        final PartDefinition rightWingBase = body.addOrReplaceChild( "right_wing_base", CubeListBuilder.create().texOffs( 23, 12 ).mirror().addBox( -6.0F, 0.0F, 0.0F, 6.0F, 2.0F, 9.0F ), PartPose.offsetAndRotation( -3.0F, -2.0F, -8.0F, 0.0F, 0.0F, -0.1F ) );
+        rightWingBase.addOrReplaceChild( "right_wing_tip", CubeListBuilder.create().texOffs( 16, 24 ).mirror().addBox( -13.0F, 0.0F, 0.0F, 13.0F, 1.0F, 9.0F ), PartPose.offsetAndRotation( -6.0F, 0.0F, 0.0F, 0.0F, 0.0F, -0.1F ) );
+        
+        body.addOrReplaceChild( "head", CubeListBuilder.create().texOffs( 0, 0 ).addBox( -4.0F, -2.0F, -5.0F, 7.0F, 3.0F, 5.0F ), PartPose.offsetAndRotation( 0.0F, 1.0F, -7.0F, 0.2F, 0.0F, 0.0F ) );
+        
+        return LayerDefinition.create( meshDef, 64, 64 );
     }
     
+    /** @return The root model part of this model. */
     @Override
     public ModelPart root() {
-        return this.root;
+        return root;
     }
     
+    /** Called before rendering to set up model part rotations and whatnot. */
     @Override
     public void setupAnim( Shadefiend shadefiend, float limbSwing, float limbSwingAmount, float partialTick, float netHeadYaw, float headPitch ) {
         if( shadefiend.isAggressive() ) {

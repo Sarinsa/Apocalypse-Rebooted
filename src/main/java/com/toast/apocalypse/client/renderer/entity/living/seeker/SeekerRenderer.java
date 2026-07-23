@@ -19,19 +19,19 @@ public class SeekerRenderer<T extends Seeker> extends MobRenderer<T, GhastModel<
     
     public SeekerRenderer( EntityRendererProvider.Context context ) {
         super( context, new GhastModel<>( context.bakeLayer( ModelLayers.GHAST ) ), 3.0F );
-        this.addLayer( new SeekerEyesLayer<>( this ) );
+        addLayer( new SeekerEyesLayer<>( this ) );
     }
     
+    /** Called when the pose stack can be scaled safely without messing with previous transforms. */
     @Override
-    protected void scale( T destroyer, PoseStack poseStack, float scale ) {
+    protected void scale( T destroyer, PoseStack poseStack, float partialTicks ) {
         poseStack.scale( 5.0F, 5.0F, 5.0F );
     }
     
+    /** @return The texture to use when rendering this renderer's model. */
     @Override
     public ResourceLocation getTextureLocation( T seeker ) {
-        if( seeker.isAlerting() )
-            return TEXTURES[2];
-        
+        if( seeker.isAlerting() ) return TEXTURES[2];
         return seeker.isCharging() ? TEXTURES[1] : TEXTURES[0];
     }
 }

@@ -12,7 +12,6 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 
-/** Renders the seeker's fullbright eyes */
 public class SeekerEyesLayer<T extends Seeker> extends RenderLayer<T, GhastModel<T>> {
     
     private static final RenderType EYES = RenderType.entityCutout( Apocalypse.rl( "textures/entity/seeker/seeker_eyes.png" ) );
@@ -24,16 +23,15 @@ public class SeekerEyesLayer<T extends Seeker> extends RenderLayer<T, GhastModel
         super( entityRenderer );
     }
     
+    /** Renders this render layer. */
     @Override
-    public void render( PoseStack poseStack, MultiBufferSource buffer, int packedLight, T seeker, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch ) {
-        VertexConsumer vertexConsumer;
+    public void render( PoseStack poseStack, MultiBufferSource buffer, int packedLight, T seeker, float limbSwing, float limbSwingAmount,
+                        float partialTicks, float ageInTicks, float netHeadYaw, float headPitch ) {
+        final VertexConsumer vertexConsumer;
         
-        if( seeker.isAlerting() ) {
-            vertexConsumer = buffer.getBuffer( EYES_ALERT );
-        }
-        else {
-            vertexConsumer = buffer.getBuffer( seeker.isCharging() ? EYES_FIRE : EYES );
-        }
-        this.getParentModel().renderToBuffer( poseStack, vertexConsumer, LightTexture.pack( 15, 15 ), OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F );
+        if( seeker.isAlerting() ) vertexConsumer = buffer.getBuffer( EYES_ALERT );
+        else vertexConsumer = buffer.getBuffer( seeker.isCharging() ? EYES_FIRE : EYES );
+        
+        getParentModel().renderToBuffer( poseStack, vertexConsumer, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F );
     }
 }

@@ -11,7 +11,6 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 
-/** Renders the fearwolf's fullbright eyes */
 public class FearwolfEyesLayer<T extends Fearwolf> extends RenderLayer<T, FearwolfModel<T>> {
     
     private static final RenderType EYES = RenderType.entityCutout( Apocalypse.rl( "textures/entity/fearwolf/fearwolf_eyes.png" ) );
@@ -20,9 +19,12 @@ public class FearwolfEyesLayer<T extends Fearwolf> extends RenderLayer<T, Fearwo
         super( parent );
     }
     
+    
+    /** Renders this render layer. */
     @Override
-    public void render( PoseStack poseStack, MultiBufferSource buffer, int packedLight, T fearwolf, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch ) {
-        VertexConsumer vertexConsumer = buffer.getBuffer( EYES );
-        this.getParentModel().renderToBuffer( poseStack, vertexConsumer, LightTexture.pack( 15, 15 ), OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F );
+    public void render( PoseStack poseStack, MultiBufferSource buffer, int packedLight, T fearwolf, float limbSwing, float limbSwingAmount,
+                        float partialTicks, float ageInTicks, float netHeadYaw, float headPitch ) {
+        final VertexConsumer vertexConsumer = buffer.getBuffer( EYES );
+        getParentModel().renderToBuffer( poseStack, vertexConsumer, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F );
     }
 }

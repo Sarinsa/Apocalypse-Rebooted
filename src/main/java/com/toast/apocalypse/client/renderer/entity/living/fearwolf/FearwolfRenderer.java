@@ -14,14 +14,16 @@ public class FearwolfRenderer<T extends Fearwolf> extends MobRenderer<T, Fearwol
     
     public FearwolfRenderer( EntityRendererProvider.Context context ) {
         super( context, new FearwolfModel<>( context.bakeLayer( ApocalypseModelLayers.FEARWOLF ) ), 1.3F );
-        this.addLayer( new FearwolfEyesLayer<>( this ) );
+        addLayer( new FearwolfEyesLayer<>( this ) );
     }
     
+    /** Called when the pose stack can be scaled safely without messing with previous transforms. */
     @Override
-    protected void scale( T fearwolf, PoseStack poseStack, float scale ) {
+    protected void scale( T fearwolf, PoseStack poseStack, float partialTicks ) {
         poseStack.scale( 2.0F, 2.0F, 2.0F );
     }
     
+    /** @return The texture to use when rendering this renderer's model. */
     @Override
     public ResourceLocation getTextureLocation( T destroyer ) {
         return TEXTURE;

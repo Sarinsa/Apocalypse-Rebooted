@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
+import com.toast.apocalypse.common.entity.projectile.MonsterFishhook;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -21,24 +21,26 @@ import net.minecraft.world.item.Items;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
-/** Copied from SpecialMobs 'SpecialFishingBobberRenderer' */
-public class MonsterHookRenderer extends EntityRenderer<MonsterFishHook> {
+// TODO - This will probably be replaced when the monster fishhook makes use of the Crust fishhook.
+public class MonsterFishhookRenderer extends EntityRenderer<MonsterFishhook> {
     
     private static final ResourceLocation TEXTURE = Apocalypse.rl( "textures/entity/projectile/monster_hook.png" );
     private static final RenderType RENDER_TYPE = RenderType.entityCutout( TEXTURE );
     
     
-    public MonsterHookRenderer( EntityRendererProvider.Context context ) {
+    public MonsterFishhookRenderer( EntityRendererProvider.Context context ) {
         super( context );
     }
     
+    /** @return True if this renderer should render. */
     @Override
-    public boolean shouldRender( MonsterFishHook fishHook, Frustum frustum, double cameraX, double cameraY, double cameraZ ) {
+    public boolean shouldRender( MonsterFishhook fishHook, Frustum frustum, double cameraX, double cameraY, double cameraZ ) {
         return true;
     }
     
+    /** Performs this renderer's rendering. */
     @Override
-    public void render( MonsterFishHook entity, float rotation, float partialTicks,
+    public void render( MonsterFishhook entity, float rotation, float partialTicks,
                         PoseStack poseStack, MultiBufferSource buffer, int packedLight ) {
         final LivingEntity angler = entity.getLivingOwner();
         if( angler == null ) return;
@@ -150,8 +152,9 @@ public class MonsterHookRenderer extends EntityRenderer<MonsterFishHook> {
                 .endVertex();
     }
     
+    /** @return The texture to use when rendering this renderer's model. */
     @Override
-    public ResourceLocation getTextureLocation( MonsterFishHook fishHook ) {
+    public ResourceLocation getTextureLocation( MonsterFishhook fishHook ) {
         return TEXTURE;
     }
 }

@@ -5,7 +5,7 @@ import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
-import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
+import com.toast.apocalypse.common.entity.projectile.MonsterFishhook;
 import com.toast.apocalypse.common.inventory.container.GrumpInventoryContainer;
 import com.toast.apocalypse.common.misc.PlayerKeyBindInfo;
 import com.toast.apocalypse.common.network.NetworkHelper;
@@ -91,7 +91,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
     
     
     /** The current fishhook entity launched by the Grump. */
-    private MonsterFishHook fishHook;
+    private MonsterFishhook fishHook;
     /** The Grump's inventory. */
     private final SimpleContainer inventory = new SimpleContainer( 1 );
     /** The amount of fishhooks this Grump has launched that have been blocked with a shield. */
@@ -616,15 +616,15 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
     public void spawnFishHook( @Nullable LivingEntity target, @Nullable Vec3 riderLook ) {
         if( !level().isClientSide ) {
             Level level = level();
-            MonsterFishHook fishHook = null;
+            MonsterFishhook fishHook = null;
             
             if( riderLook != null ) {
                 if( getControllingPassenger() != null ) {
-                    fishHook = new MonsterFishHook( riderLook, this, level );
+                    fishHook = new MonsterFishhook( riderLook, this, level );
                 }
             }
             else if( target != null ) {
-                fishHook = new MonsterFishHook( this, target, level );
+                fishHook = new MonsterFishhook( this, target, level );
             }
             
             if( fishHook != null ) {
@@ -645,7 +645,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
     
     /** @return This Grump's current fishhook entity, or null if one doesn't exist. */
     @Nullable
-    public MonsterFishHook getFishHook() {
+    public MonsterFishhook getFishHook() {
         return fishHook;
     }
     
@@ -780,7 +780,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
         public void tick() {
             if( grump.getTarget() == null ) return;
             
-            MonsterFishHook hook = grump.fishHook;
+            MonsterFishhook hook = grump.fishHook;
             
             if( hook == null ) {
                 if( ++timeNextHookLaunch >= 40 ) {

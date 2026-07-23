@@ -16,7 +16,7 @@ import com.toast.apocalypse.client.renderer.entity.living.grump.GrumpRenderer;
 import com.toast.apocalypse.client.renderer.entity.living.seeker.SeekerRenderer;
 import com.toast.apocalypse.client.renderer.entity.living.shadefiend.ShadefiendModel;
 import com.toast.apocalypse.client.renderer.entity.living.shadefiend.ShadefiendRenderer;
-import com.toast.apocalypse.client.renderer.entity.projectile.monsterhook.MonsterHookRenderer;
+import com.toast.apocalypse.client.renderer.entity.projectile.monsterhook.MonsterFishhookRenderer;
 import com.toast.apocalypse.client.renderer.model.armor.BucketHelmetModel;
 import com.toast.apocalypse.client.renderer.model.armor.GrumpBucketHelmetModel;
 import com.toast.apocalypse.client.screen.DynamicTrapMenuScreen;
@@ -120,7 +120,7 @@ public class ClientRegister {
         event.registerEntityRenderer( ApocalypseEntities.FEARWOLF.get(), FearwolfRenderer::new );
         event.registerEntityRenderer( ApocalypseEntities.SHADEFIEND.get(), ShadefiendRenderer::new );
         
-        event.registerEntityRenderer( ApocalypseEntities.MONSTER_FISH_HOOK.get(), MonsterHookRenderer::new );
+        event.registerEntityRenderer( ApocalypseEntities.MONSTER_FISH_HOOK.get(), MonsterFishhookRenderer::new );
         event.registerEntityRenderer( ApocalypseEntities.DESTROYER_FIREBALL.get(), ( context ) -> new ThrownItemRenderer<>( context, 3.0F, true ) );
         event.registerEntityRenderer( ApocalypseEntities.SEEKER_FIREBALL.get(), ( context ) -> new ThrownItemRenderer<>( context, 1.5F, true ) );
         

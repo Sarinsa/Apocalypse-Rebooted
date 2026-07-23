@@ -14,8 +14,9 @@ public class BreecherRenderer extends CreeperRenderer {
         super( context );
     }
     
+    /** @return The texture to use when rendering this renderer's model. */
     @Override
-    public ResourceLocation getTextureLocation( Creeper breecher ) {
+    public ResourceLocation getTextureLocation( Creeper creeper ) {
         return TEXTURE;
     }
 }

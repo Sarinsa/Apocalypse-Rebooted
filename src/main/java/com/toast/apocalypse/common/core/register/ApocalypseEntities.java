@@ -4,7 +4,7 @@ import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.entity.living.*;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
-import com.toast.apocalypse.common.entity.projectile.MonsterFishHook;
+import com.toast.apocalypse.common.entity.projectile.MonsterFishhook;
 import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
 import fathertoast.crust.api.lib.CrustEntityHelper;
 import net.minecraft.world.entity.*;
@@ -23,8 +23,8 @@ public final class ApocalypseEntities {
     
     public static final DeferredRegister<EntityType<?>> REGISTRY = DeferredRegister.create( ForgeRegistries.ENTITY_TYPES, Apocalypse.MOD_ID );
     
-    public static final RegistryObject<EntityType<MonsterFishHook>> MONSTER_FISH_HOOK = register( ApocalypseObjects.EntityTypes.MONSTER_FISH_HOOK,
-            EntityType.Builder.<MonsterFishHook>of( MonsterFishHook::new, MobCategory.MISC )
+    public static final RegistryObject<EntityType<MonsterFishhook>> MONSTER_FISH_HOOK = register( ApocalypseObjects.EntityTypes.MONSTER_FISH_HOOK,
+            EntityType.Builder.<MonsterFishhook>of( MonsterFishhook::new, MobCategory.MISC )
                     .sized( 0.25F, 0.25F ).noSave().noSummon()
                     .clientTrackingRange( 4 ).updateInterval( 5 ) );
     public static final RegistryObject<EntityType<DestroyerFireballEntity>> DESTROYER_FIREBALL = register( ApocalypseObjects.EntityTypes.DESTROYER_FIREBALL,

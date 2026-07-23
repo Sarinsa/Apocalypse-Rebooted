@@ -19,18 +19,19 @@ public class BucketHelmetModel extends HumanoidModel<LivingEntity> {
     }
     
     
+    /** @return The layer definition for the Bucket Helmet model. */
     public static LayerDefinition createBodyLayer() {
-        MeshDefinition meshdefinition = new MeshDefinition();
-        PartDefinition partdefinition = meshdefinition.getRoot();
+        final MeshDefinition meshDef = new MeshDefinition();
+        final PartDefinition root = meshDef.getRoot();
         
-        PartDefinition rope = partdefinition.addOrReplaceChild( "rope", CubeListBuilder.create(), PartPose.offset( 0.0F, 24.0F, 0.0F ) );
+        final PartDefinition rope = root.addOrReplaceChild( "rope", CubeListBuilder.create(), PartPose.offset( 0.0F, 24.0F, 0.0F ) );
         rope.addOrReplaceChild( "cube_r1", CubeListBuilder.create().texOffs( 0, 9 ).addBox( -5.0F, 2.0F, 0.0F, 10.0F, 5.0F, 0.0F, new CubeDeformation( 0.0F ) ), PartPose.offsetAndRotation( 0.0F, -6.0F, 0.0F, -0.3927F, 0.0F, 0.0F ) );
-        partdefinition.addOrReplaceChild( "bone", CubeListBuilder.create().texOffs( 0, 14 ).addBox( -4.0F, -13.0F, -4.0F, 8.0F, 10.0F, 8.0F, new CubeDeformation( 0.25F ) ), PartPose.offset( 0.0F, 24.0F, 0.0F ) );
+        root.addOrReplaceChild( "bone", CubeListBuilder.create().texOffs( 0, 14 ).addBox( -4.0F, -13.0F, -4.0F, 8.0F, 10.0F, 8.0F, new CubeDeformation( 0.25F ) ), PartPose.offset( 0.0F, 24.0F, 0.0F ) );
         
-        return LayerDefinition.create( meshdefinition, 32, 32 );
+        return LayerDefinition.create( meshDef, 32, 32 );
     }
     
-    // Copy over head model rotations and positions here because weirdness.
+    /** Copies over head rotations and positions from the specified model. */
     public BucketHelmetModel copyProps( HumanoidModel<?> humanoidModel ) {
         rope.xRot = humanoidModel.head.xRot;
         rope.yRot = humanoidModel.head.yRot;
@@ -45,15 +46,17 @@ public class BucketHelmetModel extends HumanoidModel<LivingEntity> {
         return this;
     }
     
+    /** @return An iterable of this model's head model parts. */
     protected Iterable<ModelPart> headParts() {
         return ImmutableList.of( rope, bone );
     }
     
+    /** @return An iterable of this model's body model parts. */
     protected Iterable<ModelPart> bodyParts() {
         return ImmutableList.of();
     }
     
+    /** Called before rendering to set up model part rotations and whatnot. */
     @Override
-    public void setupAnim( LivingEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch ) {
-    }
+    public void setupAnim( LivingEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch ) { }
 }

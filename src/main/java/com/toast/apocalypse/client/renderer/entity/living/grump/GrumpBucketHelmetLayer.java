@@ -21,7 +21,10 @@ import net.minecraft.world.item.ItemStack;
 public class GrumpBucketHelmetLayer<T extends Grump, M extends GhastModel<T>> extends RenderLayer<T, M> {
     
     private static final ResourceLocation TEXTURE = ResourceLocation.parse( BucketHelmetItem.TEXTURE );
+    
+    /** The model rendered by this render layer. */
     private final GrumpBucketHelmetModel<T> bucketModel;
+    
     
     public GrumpBucketHelmetLayer( RenderLayerParent<T, M> parent, EntityModelSet modelSet ) {
         super( parent );
@@ -29,12 +32,14 @@ public class GrumpBucketHelmetLayer<T extends Grump, M extends GhastModel<T>> ex
     }
     
     
+    /** Renders this render layer. */
     @Override
-    public void render( PoseStack poseStack, MultiBufferSource buffer, int packedLight, T grump, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch ) {
-        ItemStack headStack = grump.getItemOnHead();
+    public void render( PoseStack poseStack, MultiBufferSource buffer, int packedLight, T grump, float limbSwing, float limbSwingAmount,
+                        float partialTicks, float ageInTicks, float netHeadYaw, float headPitch ) {
+        final ItemStack headStack = grump.getItemOnHead();
         
         if( !headStack.isEmpty() && headStack.getItem() == ApocalypseObjects.Items.BUCKET_HELM.get() ) {
-            VertexConsumer vertexConsumer = ItemRenderer.getArmorFoilBuffer( buffer, RenderType.armorCutoutNoCull( TEXTURE ), false, headStack.hasFoil() );
+            final VertexConsumer vertexConsumer = ItemRenderer.getArmorFoilBuffer( buffer, RenderType.armorCutoutNoCull( TEXTURE ), false, headStack.hasFoil() );
             bucketModel.renderToBuffer( poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F );
         }
     }

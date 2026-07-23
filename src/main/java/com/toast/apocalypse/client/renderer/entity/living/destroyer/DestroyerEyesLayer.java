@@ -12,9 +12,6 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 
-/**
- * Renders the destroyer's fullbright eyes
- */
 public class DestroyerEyesLayer<T extends Destroyer> extends RenderLayer<T, GhastModel<T>> {
     
     private static final RenderType EYES = RenderType.entityCutout( Apocalypse.rl( "textures/entity/destroyer/destroyer_eyes.png" ) );
@@ -25,9 +22,11 @@ public class DestroyerEyesLayer<T extends Destroyer> extends RenderLayer<T, Ghas
         super( parent );
     }
     
+    /** Renders this render layer. */
     @Override
-    public void render( PoseStack poseStack, MultiBufferSource buffer, int packedLight, T destroyer, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch ) {
-        VertexConsumer vertexConsumer = buffer.getBuffer( destroyer.isCharging() ? EYES_FIRE : EYES );
-        this.getParentModel().renderToBuffer( poseStack, vertexConsumer, LightTexture.pack( 15, 15 ), OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F );
+    public void render( PoseStack poseStack, MultiBufferSource buffer, int packedLight, T destroyer, float limbSwing, float limbSwingAmount,
+                        float partialTicks, float ageInTicks, float netHeadYaw, float headPitch ) {
+        final VertexConsumer vertexConsumer = buffer.getBuffer( destroyer.isCharging() ? EYES_FIRE : EYES );
+        getParentModel().renderToBuffer( poseStack, vertexConsumer, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F );
     }
 }

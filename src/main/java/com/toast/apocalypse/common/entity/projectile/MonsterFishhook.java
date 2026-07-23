@@ -40,25 +40,25 @@ import javax.annotation.Nullable;
  * <p>
  * Essentially a copy-paste of {@link net.minecraft.world.entity.projectile.FishingHook}
  */
-public class MonsterFishHook extends Projectile implements IEntityAdditionalSpawnData {
+public class MonsterFishhook extends Projectile implements IEntityAdditionalSpawnData {
     
-    private static final EntityDataAccessor<Integer> DATA_HOOKED_ENTITY = SynchedEntityData.defineId( MonsterFishHook.class, EntityDataSerializers.INT );
-    private static final EntityDataAccessor<Boolean> LAUNCHED_BY_RIDER = SynchedEntityData.defineId( MonsterFishHook.class, EntityDataSerializers.BOOLEAN );
+    private static final EntityDataAccessor<Integer> DATA_HOOKED_ENTITY = SynchedEntityData.defineId( MonsterFishhook.class, EntityDataSerializers.INT );
+    private static final EntityDataAccessor<Boolean> LAUNCHED_BY_RIDER = SynchedEntityData.defineId( MonsterFishhook.class, EntityDataSerializers.BOOLEAN );
     private int life;
     private Entity hookedIn;
     private State currentState = State.FLYING;
     
-    public MonsterFishHook( EntityType<? extends MonsterFishHook> entityType, Level level ) {
+    public MonsterFishhook( EntityType<? extends MonsterFishhook> entityType, Level level ) {
         super( entityType, level );
     }
     
-    private MonsterFishHook( Level level, Mob mob ) {
+    private MonsterFishhook( Level level, Mob mob ) {
         super( ApocalypseEntities.MONSTER_FISH_HOOK.get(), level );
         setOwner( mob );
         noCulling = true;
     }
     
-    public MonsterFishHook( Mob mob, LivingEntity target, Level level ) {
+    public MonsterFishhook( Mob mob, LivingEntity target, Level level ) {
         this( level, mob );
         
         final Vec3 lookVec = mob.getViewVector( 1.0F ).scale( mob.getBbWidth() );
@@ -72,7 +72,7 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
         shoot( dX, dY + dH * 0.2, dZ, 1.3F, 0 );
     }
     
-    public MonsterFishHook( Vec3 riderLookVec, Mob mob, Level level ) {
+    public MonsterFishhook( Vec3 riderLookVec, Mob mob, Level level ) {
         this( level, mob );
         
         getEntityData().set( LAUNCHED_BY_RIDER, true );

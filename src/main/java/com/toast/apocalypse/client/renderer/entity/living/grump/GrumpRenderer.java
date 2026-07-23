@@ -34,15 +34,16 @@ public class GrumpRenderer<T extends Grump> extends MobRenderer<T, GhastModel<T>
         addLayer( new GrumpBucketHelmetLayer<>( this, context.getModelSet() ) );
     }
     
+    /** @return True if the model should shiver do a shiver effect. */
     @Override
     protected boolean isShaking( T grump ) {
         return grump.isEnraged();
     }
     
+    /** @return The texture to use when rendering this renderer's model. */
     @Override
     public ResourceLocation getTextureLocation( T grump ) {
-        if( grump.isEnraged() )
-            return ENRAGED;
+        if( grump.isEnraged() ) return ENRAGED;
         
         boolean saddled = grump.getItemOnHead().getItem() == Items.SADDLE;
         

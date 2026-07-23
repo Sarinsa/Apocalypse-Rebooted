@@ -21,13 +21,15 @@ public class GhostFrozenLayer<T extends Ghost> extends RenderLayer<T, GhostModel
         super( parent );
     }
     
+    
+    /** Renders this render layer. */
     @Override
-    public void render( PoseStack poseStack, MultiBufferSource buffer, int packedLight, T ghost, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch ) {
+    public void render( PoseStack poseStack, MultiBufferSource buffer, int packedLight, T ghost, float limbSwing, float limbSwingAmount,
+                        float partialTicks, float ageInTicks, float netHeadYaw, float headPitch ) {
         if( ghost.isFrozen() ) {
-            VertexConsumer vertexConsumer = buffer.getBuffer( RENDER_TYPE );
+            final VertexConsumer vertexConsumer = buffer.getBuffer( RENDER_TYPE );
             float colorShift = ((float) (ghost.tickCount % 25) + partialTicks) / 25.0F;
-            ;
-            this.getParentModel().renderToBuffer( poseStack, vertexConsumer, LightTexture.pack( 15, 15 ), OverlayTexture.NO_OVERLAY, colorShift, 1.0F, colorShift, 1.0F );
+            getParentModel().renderToBuffer( poseStack, vertexConsumer, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, colorShift, 1.0F, colorShift, 1.0F );
         }
     }
 }
