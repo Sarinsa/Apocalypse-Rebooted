@@ -6,8 +6,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Apocalypse's server/per world config.
- * Remains Forge-based until one day
- * Crust supports per-world configs (maybe).
+ * Remains Forge-based until one day Crust supports per-world configs (maybe).
  */
 public class ApocalypseServerConfig {
     
