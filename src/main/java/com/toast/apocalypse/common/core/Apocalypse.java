@@ -23,7 +23,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -66,7 +65,6 @@ public final class Apocalypse {
         eventBus.addListener( ApocalypseItems::onCreativeTabPopulate );
         eventBus.addListener( this::onCommonSetup );
         eventBus.addListener( this::onLoadComplete );
-        eventBus.addListener( this::sendIMCMessages );
         
         // Register game event listeners
         MinecraftForge.EVENT_BUS.register( new GameEventListener() );
@@ -97,12 +95,13 @@ public final class Apocalypse {
         context.registerConfig( ModConfig.Type.SERVER, ApocalypseServerConfig.SERVER_SPEC );
     }
     
-    /** Called when */
+    /** Called when the game enters the {@link net.minecraftforge.fml.ModLoadingStage#COMMON_SETUP} loading stage. */
     public void onCommonSetup( FMLCommonSetupEvent event ) {
         packetHandler.registerMessages();
         event.enqueueWork( ApocalypseConfig::initialize );
     }
     
+    /** Called when the game enters the {@link net.minecraftforge.fml.ModLoadingStage#COMPLETE} loading stage. */
     public void onLoadComplete( FMLLoadCompleteEvent event ) {
         event.enqueueWork( () -> {
             processPlugins();
@@ -141,17 +140,18 @@ public final class Apocalypse {
         } );
     }
     
-    public void sendIMCMessages( InterModEnqueueEvent event ) { }
     
-    
+    /** @return A resource location of the specified path, under this mod's namespace. */
     public static ResourceLocation rl( String path ) {
         return ResourceLocation.fromNamespaceAndPath( MOD_ID, path );
     }
     
+    /** @return The difficulty manager instance. */
     public PlayerDifficultyManager getDifficultyManager() {
         return difficultyManager;
     }
     
+    /** @return The Apocalypse API instance. */
     public ApocalypseApiImpl getApi() {
         return api;
     }
