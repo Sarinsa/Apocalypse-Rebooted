@@ -36,6 +36,7 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.function.Supplier;
 
 /** Contains references to Apocalypse's registry objects and custom registries. */
+@SuppressWarnings( "SameParameterValue" )
 public final class ApocalypseObjects {
     
     // ---- Registry Suppliers ---- //
