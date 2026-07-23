@@ -3,7 +3,6 @@ package com.toast.apocalypse.common.entity.projectile;
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.entity.living.Grump;
-import com.toast.apocalypse.common.network.NetworkHelper;
 import fathertoast.crust.api.lib.EntityEventHelper;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -11,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -290,8 +290,6 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
                     0.6F,
                     0.4F / (level().random.nextFloat() * 0.4F + 0.8F)
             );
-            Entity entity = hookedIn;
-            
             double xMotion = livingEntity.getX() - getX();
             double yMotion = livingEntity.getY() - getY();
             double zMotion = livingEntity.getZ() - getZ();
@@ -300,11 +298,11 @@ public class MonsterFishHook extends Projectile implements IEntityAdditionalSpaw
             double multiplier = 0.3;
             
             Vec3 velocity = new Vec3( xMotion * multiplier, yMotion * (multiplier / 2) + Math.sqrt( v ) * 0.1, zMotion * multiplier );
+            hookedIn.setDeltaMovement( velocity );
             
-            if( entity instanceof ServerPlayer serverPlayer ) {
-                NetworkHelper.sendEntityVelocityUpdate( serverPlayer, serverPlayer, velocity );
+            if( hookedIn instanceof ServerPlayer serverPlayer ) {
+                serverPlayer.connection.connection.send( new ClientboundSetEntityMotionPacket( serverPlayer ) );
             }
-            entity.setDeltaMovement( velocity );
         }
     }
     

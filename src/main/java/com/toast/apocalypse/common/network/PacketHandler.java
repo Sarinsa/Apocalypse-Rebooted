@@ -39,7 +39,6 @@ public class PacketHandler {
         registerMessage( S2CUpdatePlayerDifficulty.class, S2CUpdatePlayerDifficulty::encode, S2CUpdatePlayerDifficulty::decode, S2CUpdatePlayerDifficulty::handle );
         registerMessage( S2CUpdatePlayerDifficultyRate.class, S2CUpdatePlayerDifficultyRate::encode, S2CUpdatePlayerDifficultyRate::decode, S2CUpdatePlayerDifficultyRate::handle );
         registerMessage( S2CUpdatePlayerMaxDifficulty.class, S2CUpdatePlayerMaxDifficulty::encode, S2CUpdatePlayerMaxDifficulty::decode, S2CUpdatePlayerMaxDifficulty::handle );
-        registerMessage( S2CUpdateEntityVelocity.class, S2CUpdateEntityVelocity::encode, S2CUpdateEntityVelocity::decode, S2CUpdateEntityVelocity::handle );
         registerMessage( S2COpenGrumpInventory.class, S2COpenGrumpInventory::encode, S2COpenGrumpInventory::decode, S2COpenGrumpInventory::handle );
         registerMessage( S2CSimpleClientTask.class, S2CSimpleClientTask::encode, S2CSimpleClientTask::decode, S2CSimpleClientTask::handle );
         registerMessage( S2CDynTrapUpdate.class, S2CDynTrapUpdate::encode, S2CDynTrapUpdate::decode, S2CDynTrapUpdate::handle );
