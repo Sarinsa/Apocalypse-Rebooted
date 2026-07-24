@@ -1,6 +1,6 @@
 package com.toast.apocalypse.client.screen;
 
-import com.toast.apocalypse.api.AbstractTrap;
+import com.toast.apocalypse.api.trap.AbstractTrap;
 import com.toast.apocalypse.common.blockentity.DynamicTrapBlockEntity;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.menus.DynamicTrapMenu;

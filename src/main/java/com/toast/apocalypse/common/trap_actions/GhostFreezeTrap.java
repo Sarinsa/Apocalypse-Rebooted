@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.trap_actions;
 
-import com.toast.apocalypse.api.AbstractTrap;
+import com.toast.apocalypse.api.trap.AbstractTrap;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.Ghost;

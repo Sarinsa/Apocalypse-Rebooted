@@ -2,7 +2,7 @@ package com.toast.apocalypse.api.lib;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.serialization.Codec;
-import com.toast.apocalypse.api.AbstractTrap;
+import com.toast.apocalypse.api.trap.AbstractTrap;
 import com.toast.apocalypse.common.command.argument.DifficultyArgument;
 import com.toast.apocalypse.common.command.argument.MaxDifficultyArgument;
 import com.toast.apocalypse.common.core.Apocalypse;

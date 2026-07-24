@@ -3,7 +3,7 @@ package com.toast.apocalypse.datagen.recipe;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.toast.apocalypse.api.AbstractTrap;
+import com.toast.apocalypse.api.trap.AbstractTrap;
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.data.recipes.FinishedRecipe;

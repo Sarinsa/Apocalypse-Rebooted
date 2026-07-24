@@ -1,4 +1,4 @@
-package com.toast.apocalypse.api;
+package com.toast.apocalypse.api.trap;
 
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import net.minecraft.core.BlockPos;
@@ -6,8 +6,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-
-import javax.annotation.Nonnull;
 
 /**
  * Represents a trap that can be crafted in and used by the Dynamic Trap block.
@@ -39,7 +37,6 @@ public abstract class AbstractTrap {
      * @return A resource location pointing to this trap type's GUI icon.
      * The only texture size currently supported is 16x16.
      */
-    @Nonnull
     public abstract ResourceLocation getIcon();
     
     /**
