@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.core;
 
+import com.toast.apocalypse.api.IApocalypseApi;
 import com.toast.apocalypse.api.impl.ApocalypseApiImpl;
 import com.toast.apocalypse.api.plugin.ApocalypsePlugin;
 import com.toast.apocalypse.api.plugin.IApocalypsePlugin;
@@ -31,7 +32,7 @@ import org.apache.logging.log4j.Logger;
 public final class Apocalypse {
     
     /** The mod's ID. **/
-    public static final String MOD_ID = "apocalypse";
+    public static final String MOD_ID = IApocalypseApi.MOD_ID;
     /** The mod's display name. */
     public static final String MOD_NAME = "Apocalypse Rebooted";
     /** A logger instance with this mod's ID as its name. **/

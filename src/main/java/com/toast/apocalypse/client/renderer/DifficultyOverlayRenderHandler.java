@@ -39,16 +39,13 @@ public class DifficultyOverlayRenderHandler {
         IS_RENDERING = false;
         
         final LocalPlayer player = gui.getMinecraft().player;
-        if( player == null )
-            return;
         
+        // Abort if player entity doesn't exist for whatever reason
+        if( player == null ) return;
         // Check if we should render in creative mode
-        if( player.isCreative() && !CLIENT_CONFIG.DIFFICULTY.renderDifficultyInCreative.get() )
-            return;
-        
+        if( player.isCreative() && !CLIENT_CONFIG.DIFFICULTY.renderDifficultyInCreative.get() ) return;
         // Check if keybind only is enabled
-        if( CLIENT_CONFIG.DIFFICULTY.keybindOnly.get() && !ApocalypseKeyBindings.TOGGLE_DIFFICULTY.isDown() )
-            return;
+        if( CLIENT_CONFIG.DIFFICULTY.keybindOnly.get() && !ApocalypseKeyBindings.TOGGLE_DIFFICULTY.isDown() ) return;
         
         final long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty( player );
         

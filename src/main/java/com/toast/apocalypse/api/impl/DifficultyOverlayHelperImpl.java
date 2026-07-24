@@ -1,14 +1,14 @@
 package com.toast.apocalypse.api.impl;
 
-import com.toast.apocalypse.api.client.IDifficultyRenderHelper;
+import com.toast.apocalypse.api.client.IDifficultyOverlayHelper;
 import com.toast.apocalypse.client.renderer.DifficultyOverlayRenderHandler;
 import com.toast.apocalypse.common.capability.CapabilityHelper;
 import net.minecraft.world.entity.player.Player;
 
-/** Provides read access to properties and components used by Apocalypse's overlay difficulty renderer. */
-public final class DifficultyRenderHelperImpl implements IDifficultyRenderHelper {
+/** Provides read access to properties and components used by Apocalypse's difficulty GUI overlay. */
+public final class DifficultyOverlayHelperImpl implements IDifficultyOverlayHelper {
     
-    /** @return True if the difficulty renderer is active and drawing difficulty text on the screen this frame. */
+    /** @return True if the difficulty overlay is active and drawing difficulty text on the screen this frame. */
     @Override
     public boolean isRendering() {
         return DifficultyOverlayRenderHandler.isRendering();

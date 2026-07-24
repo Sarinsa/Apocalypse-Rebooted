@@ -1,5 +1,6 @@
 package com.toast.apocalypse.client;
 
+import com.toast.apocalypse.api.client.IDifficultyOverlayHelper;
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.client.config.ClientConfig;
 import com.toast.apocalypse.client.event.ClientEventListener;
@@ -52,11 +53,11 @@ import net.minecraftforge.registries.RegistryObject;
 @Mod.EventBusSubscriber( value = Dist.CLIENT, modid = Apocalypse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD )
 public class ClientRegister {
     
-    // Client config
+    /** Apocalypse's client config. */
     public static final ClientConfig CLIENT_CONFIG = new ClientConfig(
             ConfigManager.getRequired( Apocalypse.MOD_ID ), "client_settings" );
     
-    
+    /** The difficulty GUI overlay. */
     public static final IGuiOverlay DIFFICULTY_OVERLAY = ( forgeGui, guiGraphics, partialTick, screenWidth, screenHeight ) -> {
         if( forgeGui.getMinecraft().options.hideGui || Minecraft.getInstance().options.renderDebug )
             return;
@@ -88,7 +89,7 @@ public class ClientRegister {
     
     @SubscribeEvent
     public static void onGuiOverlayRegister( RegisterGuiOverlaysEvent event ) {
-        event.registerAbove( VanillaGuiOverlay.BOSS_EVENT_PROGRESS.id(), "difficulty_overlay", DIFFICULTY_OVERLAY );
+        event.registerAbove( VanillaGuiOverlay.BOSS_EVENT_PROGRESS.id(), IDifficultyOverlayHelper.OVERLAY_ID.getPath(), DIFFICULTY_OVERLAY );
     }
     
     @SubscribeEvent

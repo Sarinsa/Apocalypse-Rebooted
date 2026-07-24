@@ -2,7 +2,7 @@ package com.toast.apocalypse.api.impl;
 
 import com.toast.apocalypse.api.IApocalypseApi;
 import com.toast.apocalypse.api.IDifficultyAccessor;
-import com.toast.apocalypse.api.client.IDifficultyRenderHelper;
+import com.toast.apocalypse.api.client.IDifficultyOverlayHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 
@@ -16,7 +16,7 @@ public final class ApocalypseApiImpl implements IApocalypseApi {
     private final IDifficultyAccessor difficultyProvider;
     
     // Client-only helpers and utilities
-    private IDifficultyRenderHelper difficultyRenderHelper;
+    private IDifficultyOverlayHelper difficultyRenderHelper;
     
     
     public ApocalypseApiImpl() {
@@ -24,7 +24,7 @@ public final class ApocalypseApiImpl implements IApocalypseApi {
         
         // Only instantiate client helpers on the client
         if( FMLEnvironment.dist == Dist.CLIENT ) {
-            difficultyRenderHelper = new DifficultyRenderHelperImpl();
+            difficultyRenderHelper = new DifficultyOverlayHelperImpl();
         }
     }
     
@@ -38,11 +38,11 @@ public final class ApocalypseApiImpl implements IApocalypseApi {
     }
     
     /**
-     * @return The {@link IDifficultyRenderHelper} instance provided by Apocalypse.
-     * Use this to access the difficulty renderer's text formats and other properties.
+     * @return The {@link IDifficultyOverlayHelper} instance provided by Apocalypse.
+     * Use this to access the difficulty GUI overlay's text formats and other properties.
      */
     @Override
-    public IDifficultyRenderHelper getDifficultyRenderHelper() {
+    public IDifficultyOverlayHelper getDifficultyOverlayHelper() {
         if( !FMLEnvironment.dist.isClient() )
             throw new IllegalStateException( "Client-side helpers cannot be accessed in a dedicated server environment!" );
         return difficultyRenderHelper;
