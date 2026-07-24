@@ -1,5 +1,7 @@
 package com.toast.apocalypse.api.plugin;
 
+import com.toast.apocalypse.api.IApocalypseApi;
+
 /**
  * This is the main interface that Apocalypse plugins must implement to access the API.
  */

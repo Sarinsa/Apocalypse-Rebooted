@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.capability;
 
+import com.toast.apocalypse.api.IApocalypseApi;
 import com.toast.apocalypse.common.capability.difficulty.DifficultyCapProvider;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,7 +16,7 @@ import javax.annotation.Nonnull;
  * devs are encouraged to use the API instead to interact with
  * Apocalypse's capability data.
  *
- * @see com.toast.apocalypse.api.plugin.IApocalypseApi
+ * @see IApocalypseApi
  */
 @ApiStatus.Internal
 public class CapabilityHelper {

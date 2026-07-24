@@ -1,4 +1,4 @@
-package com.toast.apocalypse.api.plugin;
+package com.toast.apocalypse.api;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
