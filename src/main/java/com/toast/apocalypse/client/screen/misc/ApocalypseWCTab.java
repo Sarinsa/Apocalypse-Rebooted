@@ -39,10 +39,9 @@ public class ApocalypseWCTab extends GridLayoutTab {
                 ServerConfigHelper.DESIRED_DEFAULT_MAX_DIFFICULTY,
                 0.0D,
                 (double) (References.MAX_DIFFICULTY_HARD_LIMIT / References.DAY_LENGTH),
-                0,
-                0,
-                Component.translatable( References.MAX_DIFFICULTY_CONFIG_FIELD ),
-                null )
+                0, 0,
+                60, 20,
+                Component.translatable( References.MAX_DIFFICULTY_CONFIG_FIELD ) )
         );
         rowHelper.addChild( new InfoPoint(
                 0,
@@ -54,10 +53,9 @@ public class ApocalypseWCTab extends GridLayoutTab {
                 ServerConfigHelper.DESIRED_DEFAULT_GRACE_PERIOD,
                 0.0D,
                 (double) (References.MAX_DIFFICULTY_HARD_LIMIT / References.DAY_LENGTH),
-                0,
-                0,
-                Component.translatable( References.GRACE_PERIOD_CONFIG_FIELD ),
-                null )
+                0, 0,
+                60, 20,
+                Component.translatable( References.GRACE_PERIOD_CONFIG_FIELD ) )
         );
         rowHelper.addChild( new InfoPoint(
                 0,
@@ -65,9 +63,9 @@ public class ApocalypseWCTab extends GridLayoutTab {
                 Tooltip.create( Component.translatable( References.GRACE_PERIOD_CONFIG_FIELD_DESC ) ) )
         );
         maxDifficultyField.setResponder( ( parent )
-                -> ServerConfigHelper.updateModServerConfigValues( maxDifficultyField.getDoubleValue(), gracePeriodField.getDoubleValue() ) );
+                -> ServerConfigHelper.updateModServerConfigValues( maxDifficultyField.get(), gracePeriodField.get() ) );
         gracePeriodField.setResponder( ( parent )
-                -> ServerConfigHelper.updateModServerConfigValues( maxDifficultyField.getDoubleValue(), gracePeriodField.getDoubleValue() ) );
+                -> ServerConfigHelper.updateModServerConfigValues( maxDifficultyField.get(), gracePeriodField.get() ) );
     }
     
     /** Called each tick to update this tab. */

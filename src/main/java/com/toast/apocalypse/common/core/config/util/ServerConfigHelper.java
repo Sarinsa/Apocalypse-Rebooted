@@ -70,5 +70,6 @@ public class ServerConfigHelper {
     public static void updateModServerConfigValues( double maxDifficulty, double gracePeriod ) {
         DESIRED_DEFAULT_MAX_DIFFICULTY = maxDifficulty;
         DESIRED_DEFAULT_GRACE_PERIOD = gracePeriod;
+        System.out.println( maxDifficulty );
     }
 }
