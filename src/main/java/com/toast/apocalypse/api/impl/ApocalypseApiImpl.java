@@ -40,6 +40,7 @@ public final class ApocalypseApiImpl implements IApocalypseApi {
     /**
      * @return The {@link IDifficultyOverlayHelper} instance provided by Apocalypse.
      * Use this to access the difficulty GUI overlay's text formats and other properties.
+     * @throws IllegalStateException If called on a dedicated server.
      */
     @Override
     public IDifficultyOverlayHelper getDifficultyOverlayHelper() {
