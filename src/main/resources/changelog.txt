@@ -5,7 +5,8 @@
     - Fixed Shadefiend melee attack AI having no cooldown.
     - Rebalanced Fatherly Toast's food stats.
     - Fixed LunarArmorItem not calling super method when overriding IForgeItem#onInventoryTick().
-    - Got rid of pointless packet S2CUpdateEntityVelocity.java.
+    - Got rid of pointless packet S2CUpdateEntityVelocity.
+    - Renamed some advancements.
   API changes:
     - Various classes, fields and methods have been renamed and/or had their signatures changed.
     - Removed unused interface TriConsumer.

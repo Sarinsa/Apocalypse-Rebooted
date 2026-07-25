@@ -47,7 +47,7 @@ public class ApocalypseAdvancementProvider extends ForgeAdvancementProvider {
                     .addCriterion( "obtain_fatherly_toast", InventoryChangeTrigger.TriggerInstance.hasItems( ApocalypseObjects.Items.FATHERLY_TOAST.get() ) )
                     .save( saver, Apocalypse.rl( "toasty" ), existingFileHelper );
             
-            Advancement lessGrumpy = Advancement.Builder.advancement()
+            Advancement.Builder.advancement()
                     .parent( toasty )
                     .display( Items.COOKIE,
                             Component.translatable( title( "less_grumpy" ) ),
@@ -57,15 +57,15 @@ public class ApocalypseAdvancementProvider extends ForgeAdvancementProvider {
                     .addCriterion( "tame_grump", TamedGrumpTrigger.TriggerInstance.tamedGrump() )
                     .save( saver, Apocalypse.rl( "less_grumpy" ), existingFileHelper );
             
-            Advancement lunarium = Advancement.Builder.advancement()
+            Advancement.Builder.advancement()
                     .parent( root )
                     .display( ApocalypseObjects.Items.MIDNIGHT_STEEL_INGOT.get(),
                             Component.translatable( title( "lunarium" ) ),
                             Component.translatable( desc( "lunarium" ) ),
                             null,
                             FrameType.TASK, true, true, true )
-                    .addCriterion( "obtain_lunarium", InventoryChangeTrigger.TriggerInstance.hasItems( ApocalypseObjects.Items.MIDNIGHT_STEEL_INGOT.get() ) )
-                    .save( saver, Apocalypse.rl( "lunarium" ), existingFileHelper );
+                    .addCriterion( "obtain_midnight_steel", InventoryChangeTrigger.TriggerInstance.hasItems( ApocalypseObjects.Items.MIDNIGHT_STEEL_INGOT.get() ) )
+                    .save( saver, Apocalypse.rl( "midnight_steel" ), existingFileHelper );
         }
         
         private static String title( String advancementName ) {
