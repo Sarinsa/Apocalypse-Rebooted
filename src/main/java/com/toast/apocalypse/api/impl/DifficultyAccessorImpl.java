@@ -19,19 +19,19 @@ public final class DifficultyAccessorImpl implements IDifficultyAccessor {
     /** @return The player's current difficulty rate/multiplier. */
     @Override
     public double getDifficultyRate( Player player ) {
-        return CapabilityHelper.getPlayerDifficultyMult( player );
+        return CapabilityHelper.getDifficultyMult( player );
     }
     
     /** @return The current difficulty of the specified player. */
     @Override
     public long getPlayerDifficulty( Player player ) {
-        return CapabilityHelper.getPlayerDifficulty( player );
+        return CapabilityHelper.getDifficulty( player );
     }
     
     /** @return The current max difficulty of the specified player. */
     @Override
     public long getMaxPlayerDifficulty( Player player ) {
-        return CapabilityHelper.getMaxPlayerDifficulty( player );
+        return CapabilityHelper.getMaxDifficulty( player );
     }
     
     /**

@@ -3,11 +3,10 @@ package com.toast.apocalypse.common.capability;
 import com.toast.apocalypse.api.IApocalypseApi;
 import com.toast.apocalypse.common.capability.difficulty.DifficultyCapProvider;
 import com.toast.apocalypse.common.network.NetworkHelper;
+import com.toast.apocalypse.common.util.References;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.ApiStatus;
-
-import javax.annotation.Nonnull;
 
 /**
  * Helper class for manipulating capability data.
@@ -31,7 +30,7 @@ public class CapabilityHelper {
      * @param player     The player to update data for.
      * @param difficulty The new difficulty level.
      */
-    public static void setPlayerDifficulty( @Nonnull ServerPlayer player, long difficulty ) {
+    public static void setDifficulty( ServerPlayer player, long difficulty ) {
         player.getCapability( ApocalypseCapabilities.DIFFICULTY_CAPABILITY ).ifPresent( ( capability ) ->
         {
             capability.setDifficulty( difficulty );
@@ -40,8 +39,36 @@ public class CapabilityHelper {
     }
     
     /** @return The current difficulty level of the specified player. */
-    public static long getPlayerDifficulty( @Nonnull Player player ) {
+    public static long getDifficulty( Player player ) {
         return player.getCapability( ApocalypseCapabilities.DIFFICULTY_CAPABILITY ).orElse( DifficultyCapProvider.SUPPLIER.get() ).getDifficulty();
+    }
+    
+    /**
+     * @return The current difficulty level of the specified player divided by
+     * {@link References#DAY_LENGTH}, which in vanilla is {@code 24,000} ticks.
+     * <br><br>
+     * This is the "true" difficulty level of the player, which is displayed in the overlay
+     * and referenced in configs and most difficulty-related calculations.
+     */
+    public static long getScaledDifficulty( Player player ) {
+        return getDifficulty( player ) / References.DAY_LENGTH;
+    }
+    
+    /**
+     * @return The partial difficulty level of the specified player,
+     * which is the first digit of the fractional remainder you get when dividing difficulty level by day length.
+     */
+    public static int getPartialDifficulty( Player player ) {
+        final long difficulty = getDifficulty( player );
+        return difficulty <= 0 ? 0 : (int) (difficulty % References.DAY_LENGTH / 2400);
+    }
+    
+    /**
+     * @return The partial difficulty level of the specified difficulty level,
+     * which is the first digit of the fractional remainder you get when dividing difficulty level by day length.
+     */
+    public static int getPartialDifficulty( long difficulty ) {
+        return difficulty <= 0 ? 0 : (int) (difficulty % References.DAY_LENGTH / 2400);
     }
     
     /**
@@ -50,7 +77,7 @@ public class CapabilityHelper {
      * @param player        The player to update data for.
      * @param maxDifficulty The new maximum difficulty level.
      */
-    public static void setMaxPlayerDifficulty( @Nonnull ServerPlayer player, long maxDifficulty ) {
+    public static void setMaxDifficulty( ServerPlayer player, long maxDifficulty ) {
         player.getCapability( ApocalypseCapabilities.DIFFICULTY_CAPABILITY ).ifPresent( ( capability ) ->
         {
             capability.setMaxDifficulty( maxDifficulty );
@@ -59,8 +86,17 @@ public class CapabilityHelper {
     }
     
     /** @return The current maximum difficulty level for the specified player. */
-    public static long getMaxPlayerDifficulty( @Nonnull Player player ) {
+    public static long getMaxDifficulty( Player player ) {
         return player.getCapability( ApocalypseCapabilities.DIFFICULTY_CAPABILITY ).orElse( DifficultyCapProvider.SUPPLIER.get() ).getMaxDifficulty();
+    }
+    
+    /**
+     * @return The current maximum difficulty level for the specified player divided by
+     * {@link References#DAY_LENGTH}, which in vanilla is {@code 24,000} ticks.
+     */
+    public static long getScaledMaxDifficulty( Player player ) {
+        final long maxDifficulty = getMaxDifficulty( player );
+        return maxDifficulty / References.DAY_LENGTH;
     }
     
     /**
@@ -69,16 +105,47 @@ public class CapabilityHelper {
      * @param player     The player to update data for.
      * @param multiplier The new difficulty multiplier.
      */
-    public static void setPlayerDifficultyMult( @Nonnull ServerPlayer player, double multiplier ) {
+    public static void setDifficultyMult( ServerPlayer player, double multiplier ) {
         player.getCapability( ApocalypseCapabilities.DIFFICULTY_CAPABILITY ).ifPresent( ( capability ) ->
         {
-            capability.setDifficultyMult( multiplier );
+            capability.setMultiplier( multiplier );
             NetworkHelper.sendUpdatePlayerDifficultyMult( player, multiplier );
         } );
     }
     
     /** @return The current difficulty increment multiplier for the specified player. */
-    public static double getPlayerDifficultyMult( @Nonnull Player player ) {
-        return player.getCapability( ApocalypseCapabilities.DIFFICULTY_CAPABILITY ).orElse( DifficultyCapProvider.SUPPLIER.get() ).getDifficultyMult();
+    public static double getDifficultyMult( Player player ) {
+        return player.getCapability( ApocalypseCapabilities.DIFFICULTY_CAPABILITY ).orElse( DifficultyCapProvider.SUPPLIER.get() ).getMultiplier();
+    }
+    
+    /**
+     * @return The specified long value divided by {@link References#DAY_LENGTH}, which in vanilla is {@code 24,000} ticks.
+     * <br><br>
+     * This is the "true" difficulty level of the player, which is displayed in the overlay
+     * and referenced in configs and most difficulty-related calculations.
+     */
+    public static long divByDayLength( long value ) {
+        return value / References.DAY_LENGTH;
+    }
+    
+    /**
+     * @return The specified long value divided by {@link References#DAY_LENGTH}, which in vanilla is {@code 24,000} ticks.
+     * Cast as a double value to include any fractals resulting from division.
+     * <br><br>
+     * This is the "true" difficulty level of the player, which is displayed in the overlay
+     * and referenced in configs and most difficulty-related calculations.
+     */
+    public static double fractalDivByDayLength( long value ) {
+        return (double) (value / References.DAY_LENGTH);
+    }
+    
+    /**
+     * @return The specified long value multiplied by {@link References#DAY_LENGTH}, which in vanilla is {@code 24,000} ticks.
+     * <br><br>
+     * This is the "true" difficulty level of the player, which is displayed in the overlay
+     * and referenced in configs and most difficulty-related calculations.
+     */
+    public static long mulByDayLength( long value ) {
+        return value * References.DAY_LENGTH;
     }
 }

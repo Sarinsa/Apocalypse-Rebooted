@@ -96,6 +96,8 @@ public final class PlayerDifficultyManager {
     
     /** @return The current time of day in the given level. */
     public static long queryDayTime( Level level ) {
+        // TODO - Update once daytime definition can be changed
+        //        Maybe look at the mod Time Control?
         return level.getDayTime() % References.DAY_LENGTH;
     }
     
@@ -109,7 +111,7 @@ public final class PlayerDifficultyManager {
      */
     public static long getNearestPlayerDifficulty( LevelAccessor level, LivingEntity livingEntity ) {
         final Player player = level.getNearestPlayer( livingEntity, Double.MAX_VALUE );
-        if( player != null ) return CapabilityHelper.getPlayerDifficulty( player );
+        if( player != null ) return CapabilityHelper.getDifficulty( player );
         return 0;
     }
     
@@ -128,7 +130,7 @@ public final class PlayerDifficultyManager {
                 pos.getZ() + 0.5D,
                 Double.MAX_VALUE, false
         );
-        if( player != null ) return CapabilityHelper.getPlayerDifficulty( player );
+        if( player != null ) return CapabilityHelper.getDifficulty( player );
         return 0;
     }
     
@@ -238,39 +240,35 @@ public final class PlayerDifficultyManager {
         }
     }
     
+    /** Called when a living entity is going to die. */
     @SubscribeEvent( priority = EventPriority.LOWEST )
     public void onPlayerDeath( LivingDeathEvent event ) {
         if( event.getEntity() instanceof ServerPlayer serverPlayer ) {
             for( AbstractEvent abstractEvent : playerEvents.get( serverPlayer.getUUID() ).values() ) {
                 abstractEvent.onPlayerDeath( serverPlayer, serverPlayer.serverLevel() );
             }
-            long difficulty = CapabilityHelper.getPlayerDifficulty( serverPlayer );
+            long difficulty = CapabilityHelper.getDifficulty( serverPlayer );
             
             // Reduce difficulty if we should
             if( difficulty > 0 ) {
                 ReductionType reductionType = ApocalypseConfig.DIFFICULTY.GENERAL.reductionType.get();
                 
                 switch( reductionType ) {
-                    case RESET -> CapabilityHelper.setPlayerDifficulty( serverPlayer, 0 );
+                    case RESET -> CapabilityHelper.setDifficulty( serverPlayer, 0 );
                     case LEVEL -> {
-                        long newDifficulty = difficulty - (ApocalypseConfig.DIFFICULTY.GENERAL.reductionLevel.get() * References.DAY_LENGTH);
-                        CapabilityHelper.setPlayerDifficulty( serverPlayer, Math.max( 0, newDifficulty ) );
+                        long newDifficulty = difficulty - CapabilityHelper.mulByDayLength( ApocalypseConfig.DIFFICULTY.GENERAL.reductionLevel.get() );
+                        CapabilityHelper.setDifficulty( serverPlayer, Math.max( 0, newDifficulty ) );
                     }
                     case PERCENTAGE -> {
                         double multiplier = 1.0 - ApocalypseConfig.DIFFICULTY.GENERAL.reductionPercentage.get();
-                        CapabilityHelper.setPlayerDifficulty( serverPlayer, (long) (difficulty * multiplier) );
+                        CapabilityHelper.setDifficulty( serverPlayer, (long) (difficulty * multiplier) );
                     }
                 }
             }
         }
     }
     
-    /**
-     * Called each game tick to update all players'
-     * difficulty properties and Apocalypse events.
-     *
-     * @param event The event being triggered.
-     */
+    /** Called each game tick to update all players' difficulty properties and Apocalypse events. */
     @SubscribeEvent( priority = EventPriority.HIGH )
     public void onServerTick( TickEvent.ServerTickEvent event ) {
         if( event.phase == TickEvent.Phase.END ) {
@@ -327,7 +325,7 @@ public final class PlayerDifficultyManager {
                 timeAdvCheck = 0;
                 
                 for( ServerPlayer player : server.getPlayerList().getPlayers() ) {
-                    ApocalypseTriggers.PASSED_GRACE_PERIOD.trigger( player, CapabilityHelper.getPlayerDifficulty( player ) );
+                    ApocalypseTriggers.PASSED_GRACE_PERIOD.trigger( player, CapabilityHelper.getDifficulty( player ) );
                 }
             }
         }
@@ -383,8 +381,8 @@ public final class PlayerDifficultyManager {
     
     /** Updates the specified player's difficulty properties. */
     private void updatePlayerDifficulty( ServerPlayer player ) {
-        final long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty( player );
-        long currentDifficulty = CapabilityHelper.getPlayerDifficulty( player );
+        final long maxDifficulty = CapabilityHelper.getMaxDifficulty( player );
+        long currentDifficulty = CapabilityHelper.getDifficulty( player );
         double difficultyMultiplier = 1.0D;
         boolean maxDifficultyReached = maxDifficulty >= 0 && currentDifficulty >= maxDifficulty;
         
@@ -407,8 +405,8 @@ public final class PlayerDifficultyManager {
             currentDifficulty += (long) (TICKS_PER_UPDATE * difficultyMultiplier);
         }
         // Update difficulty stuff on clients
-        CapabilityHelper.setPlayerDifficulty( player, currentDifficulty );
-        CapabilityHelper.setPlayerDifficultyMult( player, difficultyMultiplier );
+        CapabilityHelper.setDifficulty( player, currentDifficulty );
+        CapabilityHelper.setDifficultyMult( player, difficultyMultiplier );
     }
     
     /**
@@ -421,7 +419,7 @@ public final class PlayerDifficultyManager {
     public void updatePlayerEvent( ServerPlayer player ) {
         final ServerLevel level = player.serverLevel();
         final Map<EventType<?>, AbstractEvent> events = playerEvents.get( player.getUUID() );
-        final double scaledDifficulty = (double) (CapabilityHelper.getPlayerDifficulty( player ) / References.DAY_LENGTH);
+        final double scaledDifficulty = CapabilityHelper.getScaledDifficulty( player );
         
         // Loop through running events and
         // stop any events that should no longer run.

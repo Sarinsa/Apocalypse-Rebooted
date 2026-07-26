@@ -40,7 +40,7 @@ public class ClientWork {
         LocalPlayer player = Minecraft.getInstance().player;
         
         if( player != null ) {
-            player.getCapability( ApocalypseCapabilities.DIFFICULTY_CAPABILITY ).orElse( DifficultyCapProvider.SUPPLIER.get() ).setDifficultyMult( message.multiplier );
+            player.getCapability( ApocalypseCapabilities.DIFFICULTY_CAPABILITY ).orElse( DifficultyCapProvider.SUPPLIER.get() ).setMultiplier( message.multiplier );
         }
     }
     

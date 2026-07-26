@@ -16,7 +16,7 @@ public interface IDifficultyOverlayHelper {
     
     /**
      * Fetches the difficulty level of the specified player and turns it into
-     * a string formatted the same way it would be displayed by the difficulty overlay.
+     * a translated string formatted the same way it would be displayed by the difficulty overlay.
      *
      * @param player The player to get the difficulty level for.
      * @return A formatted and translated difficulty level string.
@@ -25,7 +25,7 @@ public interface IDifficultyOverlayHelper {
     
     /**
      * Fetches the difficulty multiplier of the specified player and turns it into
-     * a string formatted the same way it would be displayed by the difficulty overlay.
+     * a translated string formatted the same way it would be displayed by the difficulty overlay.
      *
      * @param player The player to get the difficulty multiplier for.
      * @return A formatted and translated difficulty multiplier string.

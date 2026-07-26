@@ -1,16 +1,27 @@
 package com.toast.apocalypse.common.capability.difficulty;
 
+import com.toast.apocalypse.common.capability.CapabilityHelper;
 import com.toast.apocalypse.common.core.config.ApocalypseServerConfig;
-import com.toast.apocalypse.common.util.References;
+import fathertoast.crust.api.lib.NBTHelper;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 
 public class DifficultyCapability implements IDifficultyCapability {
     
-    private long difficulty = -(long) ApocalypseServerConfig.SERVER.getPlayerGracePeriod() * References.DAY_LENGTH;
-    private long maxDifficulty = (long) ApocalypseServerConfig.SERVER.getDefaultPlayerMaxDifficulty() * References.DAY_LENGTH;
+    public static final String KEY_DIFFICULTY = "Difficulty";
+    public static final String KEY_MAX_DIFFICULTY = "MaxDifficulty";
+    public static final String KEY_MULTIPLIER = "DifficultyMul";
     
-    private double difficultyMult = 1.0D;
+    private long difficulty;
+    private long maxDifficulty;
+    private double multiplier;
+    
+    
+    public DifficultyCapability() {
+        difficulty = -CapabilityHelper.mulByDayLength( (long) ApocalypseServerConfig.SERVER.getPlayerGracePeriod() );
+        maxDifficulty = CapabilityHelper.mulByDayLength( (long) ApocalypseServerConfig.SERVER.getDefaultPlayerMaxDifficulty() );
+        multiplier = 1.0;
+    }
+    
     
     @Override
     public void setDifficulty( long difficulty ) {
@@ -19,7 +30,7 @@ public class DifficultyCapability implements IDifficultyCapability {
     
     @Override
     public long getDifficulty() {
-        return this.difficulty;
+        return difficulty;
     }
     
     @Override
@@ -29,39 +40,39 @@ public class DifficultyCapability implements IDifficultyCapability {
     
     @Override
     public long getMaxDifficulty() {
-        return this.maxDifficulty;
+        return maxDifficulty;
     }
     
     @Override
-    public void setDifficultyMult( double multiplier ) {
-        this.difficultyMult = multiplier;
+    public void setMultiplier( double multiplier ) {
+        this.multiplier = multiplier;
     }
     
     @Override
-    public double getDifficultyMult() {
-        return this.difficultyMult;
+    public double getMultiplier() {
+        return multiplier;
     }
     
     @Override
     public CompoundTag serializeNBT() {
-        CompoundTag tag = new CompoundTag();
+        final CompoundTag tag = new CompoundTag();
         
-        tag.putLong( "Difficulty", difficulty );
-        tag.putLong( "MaxDifficulty", maxDifficulty );
-        tag.putDouble( "DifficultyMul", difficultyMult );
+        tag.putLong( KEY_DIFFICULTY, difficulty );
+        tag.putLong( KEY_MAX_DIFFICULTY, maxDifficulty );
+        tag.putDouble( KEY_MULTIPLIER, multiplier );
         
         return tag;
     }
     
     @Override
     public void deserializeNBT( CompoundTag compoundTag ) {
-        if( compoundTag.contains( "Difficulty", Tag.TAG_LONG ) )
-            difficulty = compoundTag.getLong( "Difficulty" );
+        if( NBTHelper.containsNumber( compoundTag, KEY_DIFFICULTY ) )
+            difficulty = compoundTag.getLong( KEY_DIFFICULTY );
         
-        if( compoundTag.contains( "MaxDifficulty", Tag.TAG_LONG ) )
-            maxDifficulty = compoundTag.getLong( "MaxDifficulty" );
+        if( NBTHelper.containsNumber( compoundTag, KEY_MAX_DIFFICULTY ) )
+            maxDifficulty = compoundTag.getLong( KEY_MAX_DIFFICULTY );
         
-        if( compoundTag.contains( "DifficultyMul", Tag.TAG_DOUBLE ) )
-            difficultyMult = compoundTag.getDouble( "DifficultyMul" );
+        if( NBTHelper.containsNumber( compoundTag, KEY_MULTIPLIER ) )
+            multiplier = compoundTag.getDouble( KEY_MULTIPLIER );
     }
 }

@@ -7,7 +7,6 @@ import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import com.toast.apocalypse.common.tag.ApocalypseEntityTags;
 import com.toast.apocalypse.common.util.DataStructureUtils;
-import com.toast.apocalypse.common.util.References;
 import fathertoast.crust.api.config.common.value.RegistryEntryValueList;
 import fathertoast.crust.api.config.common.value.RegistryValueEntry;
 import net.minecraft.core.BlockPos;
@@ -67,7 +66,7 @@ public final class FullMoonEvent extends AbstractEvent {
     
     @Override
     public void onStart( MinecraftServer server, ServerPlayer player ) {
-        long difficulty = CapabilityHelper.getPlayerDifficulty( player );
+        long difficulty = CapabilityHelper.getDifficulty( player );
         calculateMobs( difficulty );
         calculateSpawnTime();
         gracePeriod = MAX_GRACE_PERIOD;
@@ -136,9 +135,8 @@ public final class FullMoonEvent extends AbstractEvent {
      */
     private void calculateMobs( long difficulty ) {
         final double difficultyPerIncrease = LUNAR_SIEGE.SIEGE_MOB_PROPS.difficultyPerIncrease.get();
-        final double scaledDifficulty = (double) difficulty / References.DAY_LENGTH;
-        
-        double effectiveDifficulty;
+        final double scaledDifficulty = CapabilityHelper.fractalDivByDayLength( difficulty );
+        double multiplier;
         int count;
         
         final RegistryEntryValueList<EntityType<?>> entryList = LUNAR_SIEGE.SIEGE_MOB_PROPS.mobSpawnSettings.get();
@@ -150,9 +148,8 @@ public final class FullMoonEvent extends AbstractEvent {
             final double additionalSpawnCount = entry.VALUES[3];
             
             if( startDifficulty >= 0 && startDifficulty <= scaledDifficulty ) {
-                
-                effectiveDifficulty = (scaledDifficulty - startDifficulty) / difficultyPerIncrease;
-                count = minSpawnCount + (int) (additionalSpawnCount * effectiveDifficulty);
+                multiplier = (scaledDifficulty - startDifficulty) / difficultyPerIncrease;
+                count = minSpawnCount + (int) (additionalSpawnCount * multiplier);
                 mobsToSpawn.put( entry.REG_KEY, Math.min( count, maxSpawnCount ) );
             }
         }

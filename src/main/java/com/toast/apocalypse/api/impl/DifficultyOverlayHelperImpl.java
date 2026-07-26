@@ -23,7 +23,7 @@ public final class DifficultyOverlayHelperImpl implements IDifficultyOverlayHelp
      */
     @Override
     public String getFormattedDifficulty( Player player ) {
-        final long difficulty = CapabilityHelper.getPlayerDifficulty( player );
+        final long difficulty = CapabilityHelper.getDifficulty( player );
         return DifficultyOverlayRenderHandler.getFormattedDifficulty( difficulty );
     }
     
@@ -36,14 +36,14 @@ public final class DifficultyOverlayHelperImpl implements IDifficultyOverlayHelp
      */
     @Override
     public String getFormattedMultiplier( Player player ) {
-        final double multiplier = CapabilityHelper.getPlayerDifficultyMult( player );
+        final double multiplier = CapabilityHelper.getDifficultyMult( player );
         return DifficultyOverlayRenderHandler.getFormattedMultiplier( multiplier );
     }
     
     /** @return The currently used color for the difficulty text. */
     @Override
     public int getTextColor( Player player ) {
-        final long difficulty = CapabilityHelper.getPlayerDifficulty( player );
+        final long difficulty = CapabilityHelper.getDifficulty( player );
         return DifficultyOverlayRenderHandler.getColorForDifficulty( difficulty );
     }
     

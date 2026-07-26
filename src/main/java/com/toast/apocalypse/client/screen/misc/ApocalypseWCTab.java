@@ -2,6 +2,7 @@ package com.toast.apocalypse.client.screen.misc;
 
 import com.toast.apocalypse.client.screen.widget.config.DoubleConfigTextField;
 import com.toast.apocalypse.client.screen.widget.config.InfoPoint;
+import com.toast.apocalypse.common.capability.CapabilityHelper;
 import com.toast.apocalypse.common.core.config.util.ServerConfigHelper;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.client.Minecraft;
@@ -38,7 +39,7 @@ public class ApocalypseWCTab extends GridLayoutTab {
                 Minecraft.getInstance().font,
                 ServerConfigHelper.DESIRED_DEFAULT_MAX_DIFFICULTY,
                 0.0D,
-                (double) (References.MAX_DIFFICULTY_HARD_LIMIT / References.DAY_LENGTH),
+                (double) CapabilityHelper.divByDayLength( References.MAX_DIFFICULTY_HARD_LIMIT ),
                 0, 0,
                 60, 20,
                 Component.translatable( References.MAX_DIFFICULTY_CONFIG_FIELD ) )
@@ -52,7 +53,7 @@ public class ApocalypseWCTab extends GridLayoutTab {
                 Minecraft.getInstance().font,
                 ServerConfigHelper.DESIRED_DEFAULT_GRACE_PERIOD,
                 0.0D,
-                (double) (References.MAX_DIFFICULTY_HARD_LIMIT / References.DAY_LENGTH),
+                (double) CapabilityHelper.divByDayLength( References.MAX_DIFFICULTY_HARD_LIMIT ),
                 0, 0,
                 60, 20,
                 Component.translatable( References.GRACE_PERIOD_CONFIG_FIELD ) )

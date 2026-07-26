@@ -129,12 +129,12 @@ public final class GameEventListener {
             // No point caring if the amount of time skipped is so to speak insignificant
             if( timeSkipped > 200L ) {
                 for( ServerPlayer player : serverLevel.players() ) {
-                    long playerDifficulty = CapabilityHelper.getPlayerDifficulty( player );
-                    long playerMaxDifficulty = CapabilityHelper.getMaxPlayerDifficulty( player );
-                    double difficultyMult = CapabilityHelper.getPlayerDifficultyMult( player );
+                    long playerDifficulty = CapabilityHelper.getDifficulty( player );
+                    long playerMaxDifficulty = CapabilityHelper.getMaxDifficulty( player );
+                    double difficultyMult = CapabilityHelper.getDifficultyMult( player );
                     
                     playerDifficulty += (long) ((timeSkipped * ApocalypseConfig.DIFFICULTY.GENERAL.sleepPenaltyMultiplier.get()) * difficultyMult);
-                    CapabilityHelper.setPlayerDifficulty( player, Math.min( playerDifficulty, playerMaxDifficulty ) );
+                    CapabilityHelper.setDifficulty( player, Math.min( playerDifficulty, playerMaxDifficulty ) );
                     
                     player.displayClientMessage( Component.translatable( References.SLEEP_PENALTY ), true );
                     // Play spooky sound
@@ -170,13 +170,13 @@ public final class GameEventListener {
             ServerPlayer originalPlayer = (ServerPlayer) event.getOriginal();
             originalPlayer.reviveCaps();
             
-            long difficulty = CapabilityHelper.getPlayerDifficulty( originalPlayer );
-            long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty( originalPlayer );
+            long difficulty = CapabilityHelper.getDifficulty( originalPlayer );
+            long maxDifficulty = CapabilityHelper.getMaxDifficulty( originalPlayer );
             
             originalPlayer.invalidateCaps();
             
-            CapabilityHelper.setPlayerDifficulty( newPlayer, difficulty );
-            CapabilityHelper.setMaxPlayerDifficulty( newPlayer, maxDifficulty );
+            CapabilityHelper.setDifficulty( newPlayer, difficulty );
+            CapabilityHelper.setMaxDifficulty( newPlayer, maxDifficulty );
         }
     }
     
@@ -225,14 +225,14 @@ public final class GameEventListener {
         // Check if mob can spawn with the difficulty of the closest player
         if( entity != null && DIFFICULTY.GENERAL.mobSpawnDifficulties.contains( entity ) ) {
             final double neededDifficulty = DIFFICULTY.GENERAL.mobSpawnDifficulties.get().getValue( entity );
-            final long nearestDifficulty = (PlayerDifficultyManager.getNearestPlayerDifficulty( event.getLevel(), event.getPos() )) / References.DAY_LENGTH;
+            final long nearestDifficulty = PlayerDifficultyManager.getNearestPlayerDifficulty( event.getLevel(), event.getPos() );
+            final long scaledDifficulty = CapabilityHelper.divByDayLength( nearestDifficulty );
             
-            if( nearestDifficulty < neededDifficulty ) {
+            if( scaledDifficulty < neededDifficulty ) {
                 event.setResult( Event.Result.DENY );
                 return;
             }
         }
-        
         // Completely ignore spawn placement checks if thunderstorm event is running
         if( event.getLevel() instanceof ServerLevel level ) {
             if( ApocalypseConfig.THUNDERSTORM.GENERAL.enabled.get() && level.isThundering() && entity instanceof Enemy ) {

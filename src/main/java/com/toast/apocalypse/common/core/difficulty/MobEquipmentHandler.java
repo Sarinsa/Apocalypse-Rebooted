@@ -1,10 +1,10 @@
 package com.toast.apocalypse.common.core.difficulty;
 
+import com.toast.apocalypse.common.capability.CapabilityHelper;
 import com.toast.apocalypse.common.core.config.field.DifficultyRegistryEntryListField;
 import com.toast.apocalypse.common.core.config.value.DifficultyRegListEntry;
 import com.toast.apocalypse.common.event.GameEventListener;
 import com.toast.apocalypse.common.util.DataStructureUtils;
-import com.toast.apocalypse.common.util.References;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
@@ -51,7 +51,7 @@ public final class MobEquipmentHandler {
         // Try to equip a weapon
         if( MOB_BUFFING.EQUIPMENT.canReceiveWeapons.contains( entityType ) ) {
             final double maxWeaponChance = MOB_BUFFING.EQUIPMENT.weaponsMaxChance.get();
-            final double multiplier = (double) (difficulty / References.DAY_LENGTH) / MOB_BUFFING.EQUIPMENT.weaponsDifficultySpan.get();
+            final double multiplier = CapabilityHelper.fractalDivByDayLength( difficulty ) / MOB_BUFFING.EQUIPMENT.weaponsDifficultySpan.get();
             double chance = MOB_BUFFING.EQUIPMENT.weaponsChance.get() * multiplier;
             
             if( fullMoon ) {
@@ -68,7 +68,7 @@ public final class MobEquipmentHandler {
         // Try to equip a suitable set of armor
         if( MOB_BUFFING.EQUIPMENT.canReceiveArmor.contains( entityType ) ) {
             final double maxArmorChance = MOB_BUFFING.EQUIPMENT.armorMaxChance.get();
-            final double multiplier = (double) (difficulty / References.DAY_LENGTH) / MOB_BUFFING.EQUIPMENT.armorDifficultySpan.get();
+            final double multiplier = CapabilityHelper.fractalDivByDayLength( difficulty ) / MOB_BUFFING.EQUIPMENT.armorDifficultySpan.get();
             double chance = MOB_BUFFING.EQUIPMENT.armorChance.get() * multiplier;
             
             
@@ -86,7 +86,7 @@ public final class MobEquipmentHandler {
         if( MOB_BUFFING.EQUIPMENT.canGetEnchantments.contains( entityType ) ) {
             // Loop through equipment and roll chances for enchanting each piece of equipment
             final double maxEnchantChance = MOB_BUFFING.EQUIPMENT.armorMaxChance.get();
-            final double multiplier = (double) (difficulty / References.DAY_LENGTH) / MOB_BUFFING.EQUIPMENT.enchantDifficultySpan.get();
+            final double multiplier = CapabilityHelper.fractalDivByDayLength( difficulty ) / MOB_BUFFING.EQUIPMENT.enchantDifficultySpan.get();
             double chance = MOB_BUFFING.EQUIPMENT.enchantChance.get() * multiplier;
             
             if( fullMoon ) {
@@ -170,9 +170,9 @@ public final class MobEquipmentHandler {
     @SuppressWarnings( "ConstantConditions" )
     private static void equipArmor( LivingEntity entity, long difficulty, RandomSource random ) {
         // No armor tiers defined, abort
-        if( ARMOR_MAPS.keySet().isEmpty() ) return;
+        if( ARMOR_MAPS.isEmpty() ) return;
         
-        int scaledDifficulty = (int) (difficulty / References.DAY_LENGTH);
+        long scaledDifficulty = CapabilityHelper.divByDayLength( difficulty );
         ItemStack[] toEquip = new ItemStack[] {
                 ItemStack.EMPTY,
                 ItemStack.EMPTY,

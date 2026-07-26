@@ -48,7 +48,7 @@ public class DifficultyOverlayRenderHandler {
         if( CLIENT_CONFIG.DIFFICULTY_OVERLAY.keybindOnly.get() && !ApocalypseKeyBindings.TOGGLE_DIFFICULTY.isDown() )
             return;
         
-        final long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty( player );
+        final long maxDifficulty = CapabilityHelper.getMaxDifficulty( player );
         
         // Don't bother rendering the difficulty when it will
         // constantly be at 0 or if the player is dead.
@@ -59,8 +59,8 @@ public class DifficultyOverlayRenderHandler {
         IS_RENDERING = true;
         
         // Build the difficulty text
-        final long difficulty = CapabilityHelper.getPlayerDifficulty( player );
-        final double multiplier = CapabilityHelper.getPlayerDifficultyMult( player );
+        final long difficulty = CapabilityHelper.getDifficulty( player );
+        final double multiplier = CapabilityHelper.getDifficultyMult( player );
         final StringBuilder builder = new StringBuilder();
         
         builder.append( getFormattedDifficulty( difficulty ) );
@@ -92,10 +92,10 @@ public class DifficultyOverlayRenderHandler {
     
     /** @return The given difficulty level as a formatted, translated string. */
     public static String getFormattedDifficulty( long difficulty ) {
-        int partialDifficulty = difficulty <= 0 ? 0 : (int) (difficulty % References.DAY_LENGTH / 2400);
-        difficulty /= References.DAY_LENGTH;
-        String parsedDifficulty = difficulty > 0L ? (difficulty + "." + partialDifficulty) : "0.0";
-        return Component.translatable( References.DIFFICULTY, parsedDifficulty ).getString();
+        final int partialDifficulty = CapabilityHelper.getPartialDifficulty( difficulty );
+        difficulty = CapabilityHelper.divByDayLength( difficulty );
+        String formattedDifficulty = difficulty > 0L ? (difficulty + "." + partialDifficulty) : "0.0";
+        return Component.translatable( References.DIFFICULTY, formattedDifficulty ).getString();
     }
     
     /** @return The player's current difficulty multiplier as a formatted, translated string. */

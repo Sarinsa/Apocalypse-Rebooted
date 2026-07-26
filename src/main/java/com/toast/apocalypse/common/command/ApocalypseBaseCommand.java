@@ -48,19 +48,25 @@ public class ApocalypseBaseCommand {
             return Commands.literal( "debug" )
                     .requires( ( source ) -> source.hasPermission( 3 ) )
                     .then( Commands.argument( "target", EntityArgument.player() )
-                            .executes( ( context ) -> showPlayerDebugInfo( context.getSource().source, EntityArgument.getPlayer( context, "target" ) ) ) );
+                            .executes( ( context ) -> sendPlayerDebugInfo( context.getSource().source, EntityArgument.getPlayer( context, "target" ) ) ) );
         }
         
-        private static int showPlayerDebugInfo( CommandSource source, ServerPlayer playerEntity ) {
-            long difficulty = CapabilityHelper.getPlayerDifficulty( playerEntity );
-            int scaledDifficulty = (int) difficulty / (int) References.DAY_LENGTH;
-            int partialDifficulty = difficulty <= 0 ? 0 : (int) (difficulty % References.DAY_LENGTH / (References.DAY_LENGTH / 10));
-            long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty( playerEntity );
-            double scaledMaxDifficulty = (double) maxDifficulty / References.DAY_LENGTH;
-            Set<EventType<?>> eventTypes = Apocalypse.INSTANCE.getDifficultyManager().getEventTypes( playerEntity );
+        private static int sendPlayerDebugInfo( CommandSource source, ServerPlayer playerEntity ) {
+            final long difficulty = CapabilityHelper.getDifficulty( playerEntity );
+            final long scaledDifficulty = CapabilityHelper.divByDayLength( difficulty );
+            final int partialDifficulty = CapabilityHelper.getPartialDifficulty( difficulty );
+            final long maxDifficulty = CapabilityHelper.getMaxDifficulty( playerEntity );
+            final double scaledMaxDifficulty = CapabilityHelper.divByDayLength( maxDifficulty );
+            final Set<EventType<?>> eventTypes = Apocalypse.INSTANCE.getDifficultyManager().getEventTypes( playerEntity );
             
-            source.sendSystemMessage( Component.literal( "Player difficulty: " + (difficulty < 0 ? ChatFormatting.YELLOW : ChatFormatting.GREEN) + scaledDifficulty + "." + partialDifficulty + ChatFormatting.WHITE + " (" + ChatFormatting.GRAY + difficulty + " ticks" + ChatFormatting.WHITE + ")" ) );
-            source.sendSystemMessage( Component.literal( "Player max difficulty: " + ChatFormatting.GREEN + scaledMaxDifficulty + ChatFormatting.WHITE + " (" + ChatFormatting.GRAY + maxDifficulty + " ticks" + ChatFormatting.WHITE + ")" ) );
+            source.sendSystemMessage( Component.literal(
+                    "Player difficulty: " + (difficulty < 0 ? ChatFormatting.YELLOW : ChatFormatting.GREEN)
+                            + scaledDifficulty + "." + partialDifficulty + ChatFormatting.WHITE
+                            + " (" + ChatFormatting.GRAY + difficulty + " ticks" + ChatFormatting.WHITE + ")" ) );
+            source.sendSystemMessage( Component.literal(
+                    "Player max difficulty: " + ChatFormatting.GREEN
+                            + scaledMaxDifficulty + ChatFormatting.WHITE
+                            + " (" + ChatFormatting.GRAY + maxDifficulty + " ticks" + ChatFormatting.WHITE + ")" ) );
             
             if( eventTypes == null || eventTypes.isEmpty() ) {
                 source.sendSystemMessage( Component.literal( "Current events: " + ChatFormatting.GRAY + "none" ) );
@@ -69,14 +75,14 @@ public class ApocalypseBaseCommand {
                 source.sendSystemMessage( Component.literal( "Current events: " ) );
                 
                 for( EventType<?> eventType : eventTypes ) {
-                    String s = String.valueOf( ChatFormatting.GREEN ) +
+                    final String s = String.valueOf( ChatFormatting.GREEN ) +
                             eventType.getId() +
                             ChatFormatting.WHITE +
-                            " (" +
+                            "(" +
                             ChatFormatting.GRAY +
                             eventType.getName() +
                             ChatFormatting.WHITE +
-                            ") ";
+                            ")";
                     source.sendSystemMessage( Component.literal( s ) );
                 }
             }
@@ -98,15 +104,15 @@ public class ApocalypseBaseCommand {
         
         private static int setPlayerDifficulty( CommandSourceStack source, Collection<ServerPlayer> players, long difficulty ) {
             for( ServerPlayer player : players ) {
-                long actualDifficulty = difficulty * References.DAY_LENGTH;
-                long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty( player );
+                final long actualDifficulty = CapabilityHelper.mulByDayLength( difficulty );
+                final long maxDifficulty = CapabilityHelper.getMaxDifficulty( player );
                 
                 if( difficulty > maxDifficulty ) {
-                    CapabilityHelper.setMaxPlayerDifficulty( player, difficulty );
+                    CapabilityHelper.setMaxDifficulty( player, difficulty );
                 }
-                CapabilityHelper.setPlayerDifficulty( player, actualDifficulty );
+                CapabilityHelper.setDifficulty( player, actualDifficulty );
             }
-            Component message;
+            final Component message;
             
             if( players.size() == 1 ) {
                 message = Component.translatable( References.DIFFICULTY_SET_SINGLE, difficulty, players.iterator().next().getDisplayName() );
@@ -119,9 +125,7 @@ public class ApocalypseBaseCommand {
         }
     }
     
-    /**
-     * Setting player max difficulty.
-     */
+    /** Setting player max difficulty. */
     private static class DifficultySetMaxCommand {
         
         private static ArgumentBuilder<CommandSourceStack, ?> register() {
@@ -134,19 +138,18 @@ public class ApocalypseBaseCommand {
         private static int setPlayerMaxDifficulty( CommandSourceStack source, Collection<ServerPlayer> players, long maxDifficulty ) {
             for( ServerPlayer player : players ) {
                 if( maxDifficulty == -1 ) {
-                    CapabilityHelper.setMaxPlayerDifficulty( player, maxDifficulty );
+                    CapabilityHelper.setMaxDifficulty( player, maxDifficulty );
                 }
                 else {
-                    long difficultyScaled = maxDifficulty * References.DAY_LENGTH;
+                    final long scaledMaxDiff = CapabilityHelper.mulByDayLength( maxDifficulty );
+                    CapabilityHelper.setMaxDifficulty( player, scaledMaxDiff );
                     
-                    CapabilityHelper.setMaxPlayerDifficulty( player, difficultyScaled );
-                    
-                    if( CapabilityHelper.getPlayerDifficulty( player ) > difficultyScaled ) {
-                        CapabilityHelper.setPlayerDifficulty( player, difficultyScaled );
+                    if( CapabilityHelper.getDifficulty( player ) > scaledMaxDiff ) {
+                        CapabilityHelper.setDifficulty( player, scaledMaxDiff );
                     }
                 }
             }
-            Component message;
+            final Component message;
             
             if( players.size() == 1 ) {
                 message = Component.translatable( References.MAX_DIFFICULTY_SET_SINGLE, maxDifficulty, players.iterator().next().getDisplayName() );

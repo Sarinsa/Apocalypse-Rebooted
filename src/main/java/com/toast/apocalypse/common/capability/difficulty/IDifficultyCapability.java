@@ -15,7 +15,7 @@ public interface IDifficultyCapability extends INBTSerializable<CompoundTag> {
     
     long getMaxDifficulty();
     
-    void setDifficultyMult( double multiplier );
+    void setMultiplier( double multiplier );
     
-    double getDifficultyMult();
+    double getMultiplier();
 }

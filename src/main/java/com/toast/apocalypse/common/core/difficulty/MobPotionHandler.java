@@ -1,8 +1,8 @@
 package com.toast.apocalypse.common.core.difficulty;
 
+import com.toast.apocalypse.common.capability.CapabilityHelper;
 import com.toast.apocalypse.common.event.GameEventListener;
 import com.toast.apocalypse.common.util.DataStructureUtils;
-import com.toast.apocalypse.common.util.References;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -31,8 +31,8 @@ public final class MobPotionHandler {
         
         if( MOB_BUFFING.POTION_EFFECTS.potionEffectList.isEmpty() ) return;
         
-        final double effectiveDifficulty = (double) (difficulty / References.DAY_LENGTH) / MOB_BUFFING.POTION_EFFECTS.potionEffectDifficultySpan.get();
-        double bonus = MOB_BUFFING.POTION_EFFECTS.potionEffectChance.get() * effectiveDifficulty;
+        final double diffMultiplier = CapabilityHelper.fractalDivByDayLength( difficulty ) / MOB_BUFFING.POTION_EFFECTS.potionEffectDifficultySpan.get();
+        double bonus = MOB_BUFFING.POTION_EFFECTS.potionEffectChance.get() * diffMultiplier;
         
         final double maxPotionChance = MOB_BUFFING.POTION_EFFECTS.potionEffectMaxChance.get();
         
@@ -44,7 +44,7 @@ public final class MobPotionHandler {
         }
         if( random.nextDouble() <= bonus ) {
             final List<MobEffect> availableEffects = MOB_BUFFING.POTION_EFFECTS.potionEffectList.getAllUntil( difficulty );
-            MobEffect mobEffect = DataStructureUtils.getRandomListValue( random, availableEffects );
+            final MobEffect mobEffect = DataStructureUtils.getRandomListValue( random, availableEffects );
             
             if( mobEffect != null ) {
                 livingEntity.addEffect( new MobEffectInstance( mobEffect, -1 ) );

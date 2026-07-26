@@ -33,7 +33,7 @@ public class NetworkHelper {
      */
     public static void sendUpdatePlayerDifficultyMult( ServerPlayer player ) {
         Objects.requireNonNull( player );
-        PacketHandler.sendToClient( new S2CUpdatePlayerDifficultyRate( CapabilityHelper.getPlayerDifficultyMult( player ) ), player );
+        PacketHandler.sendToClient( new S2CUpdatePlayerDifficultyRate( CapabilityHelper.getDifficultyMult( player ) ), player );
     }
     
     /**
@@ -52,7 +52,7 @@ public class NetworkHelper {
      */
     public static void sendUpdatePlayerDifficulty( ServerPlayer player ) {
         Objects.requireNonNull( player );
-        PacketHandler.sendToClient( new S2CUpdatePlayerDifficulty( CapabilityHelper.getPlayerDifficulty( player ) ), player );
+        PacketHandler.sendToClient( new S2CUpdatePlayerDifficulty( CapabilityHelper.getDifficulty( player ) ), player );
     }
     
     /**
@@ -71,7 +71,7 @@ public class NetworkHelper {
      */
     public static void sendUpdatePlayerMaxDifficulty( ServerPlayer player ) {
         Objects.requireNonNull( player );
-        PacketHandler.sendToClient( new S2CUpdatePlayerMaxDifficulty( CapabilityHelper.getMaxPlayerDifficulty( player ) ), player );
+        PacketHandler.sendToClient( new S2CUpdatePlayerMaxDifficulty( CapabilityHelper.getMaxDifficulty( player ) ), player );
     }
     
     /**

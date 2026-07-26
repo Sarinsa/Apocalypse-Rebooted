@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.core.config.value;
 
-import com.toast.apocalypse.common.util.References;
+import com.toast.apocalypse.common.capability.CapabilityHelper;
 import fathertoast.crust.api.config.common.ConfigUtil;
 import fathertoast.crust.api.config.common.field.AbstractConfigField;
 import fathertoast.crust.api.config.common.file.TomlHelper;
@@ -142,13 +142,13 @@ public class DifficultyRegistryEntryList<T> implements IStringArray {
      */
     @Nullable
     public List<T> getClosestValues( IForgeRegistry<T> registry, @Nullable Predicate<T> customPredicate, long difficulty ) {
-        Iterator<DifficultyRegListEntry<T>> iterator = UNDERLYING_SET.descendingIterator();
-        final int level = (int) (difficulty / References.DAY_LENGTH);
+        final Iterator<DifficultyRegListEntry<T>> iterator = UNDERLYING_SET.descendingIterator();
+        final long scaledDifficulty = CapabilityHelper.divByDayLength( difficulty );
         
         while( iterator.hasNext() ) {
             DifficultyRegListEntry<T> entry = iterator.next();
             
-            if( level >= entry.DIFFICULTY_LEVEL )
+            if( scaledDifficulty >= entry.DIFFICULTY_LEVEL )
                 return entry.getRegistryEntries( registry, customPredicate );
         }
         return null;
@@ -163,15 +163,14 @@ public class DifficultyRegistryEntryList<T> implements IStringArray {
      */
     @Nullable
     public List<T> getAllUntil( IForgeRegistry<T> registry, @Nullable Predicate<T> customPredicate, long difficulty ) {
-        List<T> items = new ArrayList<>();
-        
-        Iterator<DifficultyRegListEntry<T>> iterator = UNDERLYING_SET.iterator();
-        final int level = (int) (difficulty / References.DAY_LENGTH);
+        final List<T> items = new ArrayList<>();
+        final Iterator<DifficultyRegListEntry<T>> iterator = UNDERLYING_SET.iterator();
+        final long scaledDifficulty = CapabilityHelper.divByDayLength( difficulty );
         
         while( iterator.hasNext() ) {
             DifficultyRegListEntry<T> entry = iterator.next();
             
-            if( entry.DIFFICULTY_LEVEL <= level ) {
+            if( entry.DIFFICULTY_LEVEL <= scaledDifficulty ) {
                 List<T> list = entry.getRegistryEntries( registry, customPredicate );
                 
                 if( list != null && !list.isEmpty() )
