@@ -31,6 +31,62 @@ import org.apache.logging.log4j.Logger;
 @Mod( Apocalypse.MOD_ID )
 public final class Apocalypse {
     
+    /* Features list:
+     * (KEY: - = complete in current version, o = incomplete feature from previous version,
+     *       + = incomplete new feature, ? = feature to consider adding)
+     *
+     *  - general
+     *      - custom per-player difficulty system
+     *      - special game events:
+     *          - lunar siege
+     *          - acid rain
+     *          - thunderstorm
+     *          - call of the shadows
+     *  - advancements
+     *      - root (The Apocalypse)
+     *      - toasty (Secret Snack)
+     *      - less grumpy (Slightly Less Grumpy)
+     *      - midnight steel (Moon Alloy)
+     *  - blocks
+     *      - dead plant blocks
+     *      - midnightsteel block
+     *      - dynamic trap
+     *      - lunar phase sensor
+     *      - lightsources that fizzle out in rain:
+     *          - wet torch
+     *  - items
+     *      - spawn eggs
+     *      - bucket helmet
+     *      - lunar clock
+     *      - midnightsteel ingot
+     *      - fragmented soul
+     *      - fatherly toast
+     *      - lunar armor set
+     *      ? apoclaypse compendium
+     *  - entities
+     *      - fearwolf
+     *      - shadefiend
+     *      - lunar mobs:
+     *          - breecher
+     *          - grump
+     *          - ghost
+     *          - seeker
+     *          - destroyer
+     *      - projectiles:
+     *          - monster fishhook
+     *          - seeker fireball
+     *          - destroyer fireball
+     *  - dynamic traps
+     *      - ghost freeze
+     *      - armor break
+     *      ? gust (applies great knockback to nearby mobs)
+     *
+     * Possible future additions:
+     *  - Custom Obsidian block with durability, being able to withstand multiple explosions.
+     *      - Chance to take damage based on explosion strength?
+     */
+    
+    
     /** The mod's ID. **/
     public static final String MOD_ID = IApocalypseApi.MOD_ID;
     /** The mod's display name. */
@@ -105,24 +161,23 @@ public final class Apocalypse {
     /** Called when the game enters the {@link net.minecraftforge.fml.ModLoadingStage#COMPLETE} loading stage. */
     public void onLoadComplete( FMLLoadCompleteEvent event ) {
         event.enqueueWork( () -> {
-            processPlugins();
+            loadPlugins();
             VersionCheckHelper.setUpdateMessage();
         } );
     }
     
     /** Looks for Apocalypse plugins and attempts to load them. */
-    private void processPlugins() {
-        // Load mod plugins
+    private void loadPlugins() {
         ModList.get().getAllScanData().forEach( scanData -> {
             scanData.getAnnotations().forEach( annotationData -> {
                 
-                // Look for classes annotated with @ApocalypsePlugin
+                /// Look for classes annotated with {@link ApocalypsePlugin}
                 if( annotationData.annotationType().getClassName().equals( ApocalypsePlugin.class.getName() ) ) {
-                    String modId = (String) annotationData.annotationData().getOrDefault( "modId", "" );
+                    final String modId = (String) annotationData.annotationData().getOrDefault( "modId", "" );
                     
-                    if( ModList.get().isLoaded( modId ) || modId.isEmpty() ) {
+                    if( modId.isEmpty() || ModList.get().isLoaded( modId ) ) {
                         try {
-                            Class<?> pluginClass = Class.forName( annotationData.memberName() );
+                            final Class<?> pluginClass = Class.forName( annotationData.memberName() );
                             
                             if( IApocalypsePlugin.class.isAssignableFrom( pluginClass ) ) {
                                 IApocalypsePlugin plugin = (IApocalypsePlugin) pluginClass.getConstructor().newInstance();
