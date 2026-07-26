@@ -2,12 +2,12 @@ package com.toast.apocalypse.client.renderer;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.toast.apocalypse.client.ApocalypseKeyBindings;
-import com.toast.apocalypse.client.ClientRegister;
 import com.toast.apocalypse.common.capability.CapabilityHelper;
 import com.toast.apocalypse.common.util.References;
 import fathertoast.crust.api.config.common.value.CrustAnchor;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.BossHealthOverlay;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
@@ -43,9 +43,10 @@ public class DifficultyOverlayRenderHandler {
         // Abort if player entity doesn't exist for whatever reason
         if( player == null ) return;
         // Check if we should render in creative mode
-        if( player.isCreative() && !CLIENT_CONFIG.DIFFICULTY.renderDifficultyInCreative.get() ) return;
+        if( player.isCreative() && !CLIENT_CONFIG.DIFFICULTY_OVERLAY.renderDifficultyInCreative.get() ) return;
         // Check if keybind only is enabled
-        if( CLIENT_CONFIG.DIFFICULTY.keybindOnly.get() && !ApocalypseKeyBindings.TOGGLE_DIFFICULTY.isDown() ) return;
+        if( CLIENT_CONFIG.DIFFICULTY_OVERLAY.keybindOnly.get() && !ApocalypseKeyBindings.TOGGLE_DIFFICULTY.isDown() )
+            return;
         
         final long maxDifficulty = CapabilityHelper.getMaxPlayerDifficulty( player );
         
@@ -70,22 +71,16 @@ public class DifficultyOverlayRenderHandler {
             builder.append( getFormattedMultiplier( multiplier ) );
         }
         final Font font = gui.getFont();
-        final CrustAnchor xAnchor = CLIENT_CONFIG.DIFFICULTY.difficultyRenderXAnchor.get();
-        final CrustAnchor yAnchor = CLIENT_CONFIG.DIFFICULTY.difficultyRenderYAnchor.get();
-        final int xOffset = CLIENT_CONFIG.DIFFICULTY.difficultyRenderXOffset.get();
-        final int yOffset = CLIENT_CONFIG.DIFFICULTY.difficultyRenderYOffset.get();
+        final CrustAnchor xAnchor = CLIENT_CONFIG.DIFFICULTY_OVERLAY.xAnchor.get();
+        final CrustAnchor yAnchor = CLIENT_CONFIG.DIFFICULTY_OVERLAY.yAnchor.get();
+        final int xOffset = CLIENT_CONFIG.DIFFICULTY_OVERLAY.xOffset.get();
+        final int yOffset = CLIENT_CONFIG.DIFFICULTY_OVERLAY.yOffset.get();
         
         final String difficultyText = builder.toString();
         
-        X_POS = calcXRenderPos( xAnchor, width, font.width( difficultyText ), xOffset );
-        Y_POS = calcYRenderPos( yAnchor, height, font.lineHeight, yOffset );
+        X_POS = calcXRenderPos( xAnchor, gui.getBossOverlay(), width, font.width( difficultyText ), xOffset );
+        Y_POS = calcYRenderPos( yAnchor, gui.getBossOverlay(), height, font.lineHeight, yOffset );
         
-        // Additional Y offset when boss bar is rendered, if enabled.
-        if( !gui.getBossOverlay().events.isEmpty() && ClientRegister.CLIENT_CONFIG.DIFFICULTY.offsetForBossBar.get() ) {
-            if( xAnchor == CrustAnchor.CENTER && yAnchor == CrustAnchor.TOP ) {
-                Y_POS += 20;
-            }
-        }
         guiGraphics.drawString( font, difficultyText, X_POS, Y_POS, getColorForDifficulty( difficulty ) );
         RenderSystem.setShaderColor( 1.0F, 1.0F, 1.0F, 1.0F );
     }
@@ -128,9 +123,17 @@ public class DifficultyOverlayRenderHandler {
     }
     
     /** @return Calculates and returns the GUI X-position to draw the difficulty level at. */
-    private static int calcXRenderPos( CrustAnchor anchor, int guiWidth, int stringWidth, int xOffset ) {
+    private static int calcXRenderPos( CrustAnchor anchor, BossHealthOverlay bossHealthOverlay, int guiWidth, int stringWidth, int xOffset ) {
         if( anchor == null ) return 0;
         
+        // Extra offset if boss bar is visible.
+        if( !bossHealthOverlay.events.isEmpty() ) {
+            if( CLIENT_CONFIG.DIFFICULTY_OVERLAY.stackBossBarXOffset.get() ) {
+                xOffset += (CLIENT_CONFIG.DIFFICULTY_OVERLAY.bossBarXOffset.get() * bossHealthOverlay.events.size());
+            }
+            else
+                xOffset += CLIENT_CONFIG.DIFFICULTY_OVERLAY.bossBarXOffset.get();
+        }
         return switch( anchor ) {
             case CENTER -> (guiWidth / 2) - (stringWidth / 2) + xOffset;
             case RIGHT -> guiWidth - stringWidth + xOffset;
@@ -139,9 +142,17 @@ public class DifficultyOverlayRenderHandler {
     }
     
     /** @return Calculates and returns the GUI Y-position to draw the difficulty level at. */
-    private static int calcYRenderPos( CrustAnchor anchor, int guiHeight, int stringHeight, int yOffset ) {
+    private static int calcYRenderPos( CrustAnchor anchor, BossHealthOverlay bossHealthOverlay, int guiHeight, int stringHeight, int yOffset ) {
         if( anchor == null ) return 0;
         
+        // Extra offset if boss bar is visible.
+        if( !bossHealthOverlay.events.isEmpty() ) {
+            if( CLIENT_CONFIG.DIFFICULTY_OVERLAY.stackBossBarYOffset.get() ) {
+                yOffset += (CLIENT_CONFIG.DIFFICULTY_OVERLAY.bossBarYOffset.get() * bossHealthOverlay.events.size());
+            }
+            else
+                yOffset += CLIENT_CONFIG.DIFFICULTY_OVERLAY.bossBarYOffset.get();
+        }
         return switch( anchor ) {
             case CENTER -> (guiHeight / 2) - (stringHeight / 2) + yOffset;
             case BOTTOM -> guiHeight - stringHeight + yOffset;

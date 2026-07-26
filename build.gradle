@@ -106,8 +106,10 @@ dependencies {
     runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}")
 
     // Crust; only implement the api, but include the entire mod at runtime
-    implementation "curse.maven:crust-873570:${crust_api_version}"
-    runtimeOnly "curse.maven:crust-873570:${crust_src_version}"
+    // implementation "curse.maven:crust-873570:${crust_api_version}"
+    // runtimeOnly "curse.maven:crust-873570:${crust_src_version}"
+    implementation "blank:crust-1.20.1-4.18.29:api"
+    runtimeOnly "blank:crust-1.20.1-4.18.29:src"
 
     // Misc toast mods to include at runtime // TODO wait for these to update
     // runtimeOnly fg.deobf("curse.maven:specialmobs-59968:${sm_version}")
