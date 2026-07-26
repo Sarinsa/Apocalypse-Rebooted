@@ -1,27 +1,33 @@
 package com.toast.apocalypse.common.util;
 
-import net.minecraft.nbt.ByteTag;
+import fathertoast.crust.api.lib.NBTHelper;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
 
 /**
- * Helper class containing various methods for manipulating NBT.
+ * Class containing various NBT-related helper methods.
  */
 public class NBTUtil {
     
+    /** The NBT key used for "main" compound tags where Apocalypse stores its data. */
     private static final String TAG_MOD_DATA = "ApocalypseRebootedData";
+    /**
+     * The NBT key used for the "is entity processed" flag.
+     *
+     * @see com.toast.apocalypse.common.event.GameEventListener#onFinalizeSpawn(MobSpawnEvent.FinalizeSpawn)
+     */
     private static final String TAG_PROCESSED = "Processed";
     
     
     /** @return True if the given entity has been handled by Apocalypse. */
-    public static boolean isEntityProcessed( LivingEntity livingEntity ) {
-        if( livingEntity == null ) return false;
+    public static boolean isEntityProcessed( LivingEntity entity ) {
+        if( entity == null ) return false;
         
-        if( livingEntity.getPersistentData().contains( TAG_MOD_DATA, Tag.TAG_COMPOUND ) ) {
-            CompoundTag modData = livingEntity.getPersistentData().getCompound( TAG_MOD_DATA );
+        if( NBTHelper.containsCompound( entity.getPersistentData(), TAG_MOD_DATA ) ) {
+            final CompoundTag modData = entity.getPersistentData().getCompound( TAG_MOD_DATA );
             
-            if( modData.contains( TAG_PROCESSED, Tag.TAG_BYTE ) ) {
+            if( NBTHelper.containsNumber( modData, TAG_PROCESSED ) ) {
                 return modData.getByte( TAG_PROCESSED ) > (byte) 0;
             }
         }
@@ -29,11 +35,9 @@ public class NBTUtil {
     }
     
     /** Helper method for marking an entity as processed by Apocalypse. */
-    public static void markEntityProcessed( LivingEntity livingEntity ) {
-        if( livingEntity == null ) return;
-        
-        CompoundTag modTag = livingEntity.getPersistentData().getCompound( TAG_MOD_DATA );
-        modTag.put( TAG_PROCESSED, ByteTag.valueOf( true ) );
-        livingEntity.getPersistentData().put( TAG_MOD_DATA, modTag );
+    public static void markEntityProcessed( LivingEntity entity ) {
+        if( entity == null ) return;
+        final CompoundTag modTag = NBTHelper.getOrCreateCompound( entity.getPersistentData(), TAG_MOD_DATA );
+        modTag.putBoolean( TAG_PROCESSED, true );
     }
 }
