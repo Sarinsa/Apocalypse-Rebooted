@@ -9,8 +9,10 @@ import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import fathertoast.crust.api.config.common.AbstractConfigCategory;
 import fathertoast.crust.api.config.common.AbstractConfigFile;
 import fathertoast.crust.api.config.common.ConfigManager;
-import fathertoast.crust.api.config.common.field.*;
-import fathertoast.crust.api.config.common.value.*;
+import fathertoast.crust.api.config.common.field.BooleanField;
+import fathertoast.crust.api.config.common.field.DoubleField;
+import fathertoast.crust.api.config.common.field.InjectionWrapperField;
+import fathertoast.crust.api.config.common.field.IntField;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
@@ -31,7 +33,7 @@ public class MobBuffingConfig extends AbstractConfigFile {
     
     /** Builds the config spec that should be used for this config. */
     public MobBuffingConfig( ConfigManager cfgManager, String cfgName ) {
-        super( cfgManager, cfgName,
+        super( cfgManager, cfgName, false,
                 "This config contains options related to difficulty-based mob buffs, including equipment, attribute boosts, " +
                         "potion effects and more."
         );

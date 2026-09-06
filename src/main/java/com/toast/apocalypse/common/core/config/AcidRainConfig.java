@@ -7,7 +7,10 @@ import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import fathertoast.crust.api.config.common.AbstractConfigCategory;
 import fathertoast.crust.api.config.common.AbstractConfigFile;
 import fathertoast.crust.api.config.common.ConfigManager;
-import fathertoast.crust.api.config.common.field.*;
+import fathertoast.crust.api.config.common.field.BooleanField;
+import fathertoast.crust.api.config.common.field.DoubleField;
+import fathertoast.crust.api.config.common.field.IntField;
+import fathertoast.crust.api.config.common.field.RestartNote;
 import fathertoast.crust.api.config.common.value.EntityEntry;
 import fathertoast.crust.api.config.common.value.EntityList;
 import net.minecraft.tags.BlockTags;
@@ -21,7 +24,7 @@ public class AcidRainConfig extends AbstractConfigFile {
     
     /** Builds the config spec that should be used for this config. */
     public AcidRainConfig( ConfigManager cfgManager, String cfgName ) {
-        super( cfgManager, cfgName,
+        super( cfgManager, cfgName, false,
                 "This config contains settings related to Apocalypse's acid rain event."
         );
         SPEC.fileOnlyNewLine();

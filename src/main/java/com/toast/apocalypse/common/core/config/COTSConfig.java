@@ -13,7 +13,7 @@ public class COTSConfig extends AbstractConfigFile {
     
     /** Builds the config spec that should be used for this config. */
     public COTSConfig( ConfigManager cfgManager, String cfgName ) {
-        super( cfgManager, cfgName,
+        super( cfgManager, cfgName, false,
                 "This config contains settings related to Apocalypse's 'Call of The Shadows event'."
         );
         GENERAL = new COTSConfig.General( this );

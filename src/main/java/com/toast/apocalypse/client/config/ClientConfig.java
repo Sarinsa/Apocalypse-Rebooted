@@ -16,7 +16,7 @@ public class ClientConfig extends AbstractConfigFile {
     
     /** Builds the config spec that should be used for this config. */
     public ClientConfig( ConfigManager cfgManager, String cfgName ) {
-        super( cfgManager, cfgName,
+        super( cfgManager, cfgName, true,
                 "This config contains various client-sided options."
         );
         DIFFICULTY_OVERLAY = new DifficultyOverlay( this );
@@ -77,7 +77,7 @@ public class ClientConfig extends AbstractConfigFile {
     public static class Misc extends AbstractConfigCategory<ClientConfig> {
         
         
-        public final InjectionWrapperField<ColorIntField> rainColor;
+        public final InjectionWrapperField<Integer, ColorIntField> rainColor;
         public final BooleanField renderAcidRain;
         
         

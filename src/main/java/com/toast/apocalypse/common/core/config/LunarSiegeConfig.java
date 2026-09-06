@@ -23,7 +23,7 @@ public class LunarSiegeConfig extends AbstractConfigFile {
     
     /** Builds the config spec that should be used for this config. */
     public LunarSiegeConfig( ConfigManager cfgManager, String cfgName ) {
-        super( cfgManager, cfgName,
+        super( cfgManager, cfgName, false,
                 "This config contains settings related to Apocalypse's Lunar Sieges / Full moon events."
         );
         SPEC.fileOnlyNewLine();

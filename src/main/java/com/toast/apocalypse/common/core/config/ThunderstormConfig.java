@@ -12,7 +12,7 @@ public class ThunderstormConfig extends AbstractConfigFile {
     
     /** Builds the config spec that should be used for this config. */
     public ThunderstormConfig( ConfigManager cfgManager, String cfgName ) {
-        super( cfgManager, cfgName,
+        super( cfgManager, cfgName, false,
                 "This config contains settings related to Apocalypse's thunderstorm event."
         );
         GENERAL = new ThunderstormConfig.General( this );

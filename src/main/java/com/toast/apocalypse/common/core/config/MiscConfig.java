@@ -26,7 +26,7 @@ public class MiscConfig extends AbstractConfigFile {
     
     /** Builds the config spec that should be used for this config. */
     public MiscConfig( ConfigManager cfgManager, String cfgName ) {
-        super( cfgManager, cfgName,
+        super( cfgManager, cfgName, false,
                 "This config contains misc settings; a bit of this and a bit of that."
         );
         SPEC.fileOnlyNewLine();
