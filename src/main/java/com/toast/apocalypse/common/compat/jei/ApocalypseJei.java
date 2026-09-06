@@ -27,7 +27,6 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.ArrayList;
 import java.util.List;
 
-// Note: dang the JEI api is clean
 @JeiPlugin
 public class ApocalypseJei implements IModPlugin {
     
@@ -47,7 +46,6 @@ public class ApocalypseJei implements IModPlugin {
     @Override
     public void registerCategories( IRecipeCategoryRegistration registration ) {
         IJeiHelpers jeiHelpers = registration.getJeiHelpers();
-        
         registration.addRecipeCategories( new TrapCategory( jeiHelpers ) );
     }
     
