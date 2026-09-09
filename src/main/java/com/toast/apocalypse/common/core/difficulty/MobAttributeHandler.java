@@ -24,37 +24,29 @@ public final class MobAttributeHandler {
     public static final UUID MULTIPLIER_SPEED_BONUS = UUID.fromString( "6b90c4e9-3dee-434f-a819-a0d761003697" );
     public static final UUID FLAT_KNOCKBACK_RES_BONUS = UUID.fromString( "695802b9-3f4c-463b-b620-9a043c523ace" );
     
-    
     /**
      * Handles entity attribute modifications such as health, knockback resistance and speed bonuses.
      *
-     * @param livingEntity The entity to process.
-     * @param difficulty   The difficulty of the nearest player.
-     * @param fullMoon     True if it is currently nighttime and a full moon in the overworld.
+     * @param livingEntity     The entity to process.
+     * @param scaledDifficulty The difficulty (in days) of the nearest player.
+     * @param fullMoon         True if it is currently nighttime and a full moon in the overworld.
      */
-    public static void handleAttributes( LivingEntity livingEntity, long difficulty, boolean fullMoon ) {
-        final double scaledDifficulty = CapabilityHelper.fractalDivByDayLength( difficulty );
+    public static void handleAttributes( LivingEntity livingEntity, double scaledDifficulty, boolean fullMoon ) {
         AttributeInstance attribute;
-        double diffMultiplier;
-        double bonus;
-        double mult;
+        double diffMultiplier, bonus, mult;
         
         // Health
         attribute = livingEntity.getAttribute( Attributes.MAX_HEALTH );
-        
-        if( attribute != null && !MOB_BUFFING.ATTRIBUTES.maxHealthBlacklist.contains( livingEntity.getType() ) ) {
-            float prevMax = livingEntity.getMaxHealth();
+        if( attribute != null && !MOB_BUFFING.ATTRIBUTES.healthBlacklist.contains( livingEntity ) ) {
             diffMultiplier = scaledDifficulty / MOB_BUFFING.ATTRIBUTES.healthDifficultySpan.get();
             
-            bonus = MOB_BUFFING.ATTRIBUTES.healthFlatBonus.get() * diffMultiplier;
-            mult = MOB_BUFFING.ATTRIBUTES.healthMultBonus.get() * diffMultiplier;
-            
             final double maxFlatHealthBonus = MOB_BUFFING.ATTRIBUTES.healthFlatBonusMax.get();
-            final double maxMultHealthBonus = MOB_BUFFING.ATTRIBUTES.healthMultBonusMax.get();
-            
+            bonus = MOB_BUFFING.ATTRIBUTES.healthFlatBonus.get() * diffMultiplier;
             if( maxFlatHealthBonus >= 0.0 && bonus > maxFlatHealthBonus ) {
                 bonus = maxFlatHealthBonus;
             }
+            final double maxMultHealthBonus = MOB_BUFFING.ATTRIBUTES.healthMultBonusMax.get();
+            mult = MOB_BUFFING.ATTRIBUTES.healthMultBonus.get() * diffMultiplier;
             if( maxMultHealthBonus >= 0.0 && mult > maxMultHealthBonus ) {
                 mult = maxMultHealthBonus;
             }
@@ -63,6 +55,7 @@ public final class MobAttributeHandler {
                 mult += MOB_BUFFING.ATTRIBUTES.healthLunarMultBonus.get();
             }
             
+            float prevMax = livingEntity.getMaxHealth();
             if( bonus != 0.0 ) {
                 attribute.addPermanentModifier( new AttributeModifier( FLAT_HEALTH_BONUS, "ApocalypseFlatHEALTH", bonus, AttributeModifier.Operation.ADDITION ) );
             }
@@ -74,14 +67,11 @@ public final class MobAttributeHandler {
         
         // Speed
         attribute = livingEntity.getAttribute( Attributes.MOVEMENT_SPEED );
-        
-        if( attribute != null && !MOB_BUFFING.ATTRIBUTES.moveSpeedBlacklist.contains( livingEntity.getType() ) ) {
+        if( attribute != null && !MOB_BUFFING.ATTRIBUTES.speedBlacklist.contains( livingEntity ) ) {
             diffMultiplier = scaledDifficulty / MOB_BUFFING.ATTRIBUTES.speedDifficultySpan.get();
             
-            mult = MOB_BUFFING.ATTRIBUTES.speedMultBonus.get() * diffMultiplier;
-            
             final double maxMultSpeedBonus = MOB_BUFFING.ATTRIBUTES.speedMultBonusMax.get();
-            
+            mult = MOB_BUFFING.ATTRIBUTES.speedMultBonus.get() * diffMultiplier;
             if( maxMultSpeedBonus >= 0.0 && mult > maxMultSpeedBonus ) {
                 mult = maxMultSpeedBonus;
             }
@@ -96,8 +86,7 @@ public final class MobAttributeHandler {
         
         // Knockback resistance
         attribute = livingEntity.getAttribute( Attributes.KNOCKBACK_RESISTANCE );
-        
-        if( attribute != null && !MOB_BUFFING.ATTRIBUTES.knockbackResBlacklist.contains( livingEntity.getType() ) ) {
+        if( attribute != null && !MOB_BUFFING.ATTRIBUTES.knockbackResBlacklist.contains( livingEntity ) ) {
             diffMultiplier = scaledDifficulty / MOB_BUFFING.ATTRIBUTES.knockbackResDifficultySpan.get();
             
             bonus = MOB_BUFFING.ATTRIBUTES.knockbackResFlatBonus.get() * diffMultiplier;
@@ -119,31 +108,28 @@ public final class MobAttributeHandler {
     
     /** Used in {@link PlayerMixin} */
     public static float getLivingDamage( LivingEntity attacker, Player player, float originalDamage ) {
+        if( MOB_BUFFING.ATTRIBUTES.damageBlacklist.contains( attacker ) ) return originalDamage;
+        
+        boolean fullMoon = Apocalypse.INSTANCE.getDifficultyManager().isFullMoonNight();
         final long difficulty = CapabilityHelper.getDifficulty( player );
         final double scaledDifficulty = CapabilityHelper.fractalDivByDayLength( difficulty );
         final double diffMultiplier = scaledDifficulty / MOB_BUFFING.ATTRIBUTES.damageDifficultySpan.get();
         
-        if( !MOB_BUFFING.ATTRIBUTES.attackDamageBlacklist.contains( attacker.getType() ) && diffMultiplier > 1 ) {
-            boolean fullMoon = Apocalypse.INSTANCE.getDifficultyManager().isFullMoonNight();
-            double bonus = MOB_BUFFING.ATTRIBUTES.damageFlatBonus.get() * diffMultiplier;
-            double mult = MOB_BUFFING.ATTRIBUTES.damageMultBonus.get() * diffMultiplier;
-            
-            final double maxFlatDamageBonus = MOB_BUFFING.ATTRIBUTES.damageFlatBonusMax.get();
-            final double maxMultDamageBonus = MOB_BUFFING.ATTRIBUTES.damageMultBonusMax.get();
-            
-            if( maxFlatDamageBonus >= 0.0 && bonus > maxFlatDamageBonus ) {
-                bonus = maxFlatDamageBonus;
-            }
-            if( maxMultDamageBonus >= 0.0 && mult > maxMultDamageBonus ) {
-                mult = maxMultDamageBonus;
-            }
-            if( fullMoon ) {
-                bonus += MOB_BUFFING.ATTRIBUTES.damageLunarFlatBonus.get();
-                mult += MOB_BUFFING.ATTRIBUTES.damageLunarMultBonus.get();
-            }
-            double newDamage = (originalDamage * (mult + 1.0D)) + bonus;
-            return (float) newDamage;
+        final double maxFlatDamageBonus = MOB_BUFFING.ATTRIBUTES.damageFlatBonusMax.get();
+        double bonus = MOB_BUFFING.ATTRIBUTES.damageFlatBonus.get() * diffMultiplier;
+        if( maxFlatDamageBonus >= 0.0 && bonus > maxFlatDamageBonus ) {
+            bonus = maxFlatDamageBonus;
         }
-        return originalDamage;
+        final double maxMultDamageBonus = MOB_BUFFING.ATTRIBUTES.damageMultBonusMax.get();
+        double mult = MOB_BUFFING.ATTRIBUTES.damageMultBonus.get() * diffMultiplier;
+        if( maxMultDamageBonus >= 0.0 && mult > maxMultDamageBonus ) {
+            mult = maxMultDamageBonus;
+        }
+        if( fullMoon ) {
+            bonus += MOB_BUFFING.ATTRIBUTES.damageLunarFlatBonus.get();
+            mult += MOB_BUFFING.ATTRIBUTES.damageLunarMultBonus.get();
+        }
+        
+        return (float) ((originalDamage + bonus) * (1.0 + mult));
     }
 }

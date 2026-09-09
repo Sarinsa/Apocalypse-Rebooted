@@ -26,7 +26,7 @@ public class DestroyerExplosionCalculator extends ExplosionDamageCalculator {
     
     @Override
     public boolean shouldBlockExplode( Explosion explosion, BlockGetter level, BlockPos pos, BlockState state, float radius ) {
-        return !ApocalypseConfig.MISC.OTHER.destroyerProofBlocks.matches( state )
+        return !ApocalypseConfig.MISC.OTHER.destroyerProofBlocks.contains( state )
                 && !(state.getBlock() instanceof LiquidBlock)
                 && !(state.getBlock() instanceof IFluidBlock);
     }

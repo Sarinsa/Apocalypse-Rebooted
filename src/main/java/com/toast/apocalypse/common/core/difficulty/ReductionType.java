@@ -1,25 +1,38 @@
 package com.toast.apocalypse.common.core.difficulty;
 
-import net.minecraft.util.StringRepresentable;
+import fathertoast.crust.api.config.common.value.ITooltipEnum;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
 
-public enum ReductionType implements StringRepresentable {
-    NONE( "none" ),
-    RESET( "reset" ),
-    LEVEL( "level" ),
-    PERCENTAGE( "percentage" );
+public enum ReductionType implements ITooltipEnum {
     
-    ReductionType( String name ) {
-        this.name = name;
-    }
+    NONE( "none",
+            "No difficulty reduction when the player dies." ),
+    
+    LEVEL( "level",
+            "Difficulty is reduced by the number of levels specified by 'reduction_levels' upon death." ),
+    
+    PERCENTAGE( "percentage",
+            "Difficulty is reduced by the percentage specified by 'reduction_percentage' upon death." ),
+    
+    BOTH( "both",
+            "Difficulty is reduced by the number of levels specified by 'reduction_levels', " +
+                    "and then by the percentage specified by 'reduction_percentage' upon death." );
+    
     
     final String name;
+    final Component tooltip;
     
-    @Override
-    public String getSerializedName() {
-        return name;
+    ReductionType( String name, String tooltip ) {
+        this.name = name;
+        this.tooltip = Component.literal( tooltip );
     }
+    
+    //    @Override
+    //    public String getSerializedName() {
+    //        return name;
+    //    }
     
     @Nullable
     public static ReductionType getByName( String name ) {
@@ -29,4 +42,8 @@ public enum ReductionType implements StringRepresentable {
         }
         return null;
     }
+    
+    @Override
+    @Nullable
+    public Component getTooltip() { return tooltip; }
 }

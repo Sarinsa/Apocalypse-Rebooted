@@ -10,7 +10,6 @@ public class COTSConfig extends AbstractConfigFile {
     
     public final COTSConfig.General GENERAL;
     
-    
     /** Builds the config spec that should be used for this config. */
     public COTSConfig( ConfigManager cfgManager, String cfgName ) {
         super( cfgManager, cfgName, false,
@@ -32,16 +31,14 @@ public class COTSConfig extends AbstractConfigFile {
             
             enabled = SPEC.define( new BooleanField( "enabled", true,
                     "If true, this event is enabled and will trigger if the circumstances are correct. See below settings." ) );
-            blockLightLevel = SPEC.define( new IntField( "block_light_level", 0, 0, 14,
+            blockLightLevel = SPEC.define( new IntField( "block_light_level", 0, 0, 15,
                     "The maximum required block light level for this event to start.",
                     "Block light is the light that comes from sources that are not skylight, such as torches or glowstone.",
                     "NOTE: If RyoamicLights is installed, all dynamic light sources will be considered block light for this event." ) );
-            skyLightLevel = SPEC.define( new IntField( "sky_light_level", 0, 0, 14,
+            skyLightLevel = SPEC.define( new IntField( "sky_light_level", 0, 0, 15,
                     "The maximum required sky light level for this event to start.",
                     "Sky light is the light that comes from the sky (no way!). Take note that sky light does not decrease if it is night, it only decreases" +
                             " when a solid blocks obstruct view to the sky." ) );
-            
-            SPEC.newLine();
         }
     }
 }

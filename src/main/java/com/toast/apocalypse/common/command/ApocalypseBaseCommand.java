@@ -54,7 +54,7 @@ public class ApocalypseBaseCommand {
         private static int sendPlayerDebugInfo( CommandSource source, ServerPlayer playerEntity ) {
             final long difficulty = CapabilityHelper.getDifficulty( playerEntity );
             final long scaledDifficulty = CapabilityHelper.divByDayLength( difficulty );
-            final int partialDifficulty = CapabilityHelper.getPartialDifficulty( difficulty );
+            final int partialDifficulty = CapabilityHelper.getPartialScaledDifficulty( difficulty );
             final long maxDifficulty = CapabilityHelper.getMaxDifficulty( playerEntity );
             final double scaledMaxDifficulty = CapabilityHelper.divByDayLength( maxDifficulty );
             final Set<EventType<?>> eventTypes = Apocalypse.INSTANCE.getDifficultyManager().getEventTypes( playerEntity );

@@ -4,17 +4,14 @@ import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import fathertoast.crust.api.config.common.AbstractConfigCategory;
 import fathertoast.crust.api.config.common.AbstractConfigFile;
 import fathertoast.crust.api.config.common.ConfigManager;
-import fathertoast.crust.api.config.common.field.BlockListField;
 import fathertoast.crust.api.config.common.field.BooleanField;
 import fathertoast.crust.api.config.common.field.DoubleField;
 import fathertoast.crust.api.config.common.field.IntField;
-import fathertoast.crust.api.config.common.value.BlockEntry;
-import fathertoast.crust.api.config.common.value.BlockList;
+import fathertoast.crust.api.config.common.field.collection.BlockStateSetField;
+import fathertoast.crust.api.config.common.value.collection.BlockStateSet;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.Tags;
-
-import java.util.List;
 
 public class MiscConfig extends AbstractConfigFile {
     
@@ -23,15 +20,12 @@ public class MiscConfig extends AbstractConfigFile {
     public final Events EVENTS;
     public final Other OTHER;
     
-    
     /** Builds the config spec that should be used for this config. */
     public MiscConfig( ConfigManager cfgManager, String cfgName ) {
         super( cfgManager, cfgName, false,
                 "This config contains misc settings; a bit of this and a bit of that."
         );
-        SPEC.fileOnlyNewLine();
-        SPEC.describeBlockList();
-        SPEC.fileOnlyNewLine();
+        BlockStateSetField.describe( SPEC );
         
         VERSION_CHECK = new VersionCheck( this );
         TRAP_PROPERTIES = new TrapProperties( this );
@@ -43,15 +37,12 @@ public class MiscConfig extends AbstractConfigFile {
         
         public final BooleanField sendUpdateMessage;
         
-        
         VersionCheck( MiscConfig parent ) {
             super( parent, "version_check",
                     "Contains settings related to version checking (when Forge looks for updates of Apocalypse)." );
             
             sendUpdateMessage = SPEC.define( new BooleanField( "send_update_message", true,
                     "If enabled, the player will receive an in-game message when a new mod update is released." ) );
-            
-            SPEC.newLine();
         }
     }
     
@@ -60,7 +51,6 @@ public class MiscConfig extends AbstractConfigFile {
         
         public final IntField ghostFreezeRange;
         public final IntField armorShatterRange;
-        
         
         TrapProperties( MiscConfig parent ) {
             super( parent, "trap_properties",
@@ -71,8 +61,6 @@ public class MiscConfig extends AbstractConfigFile {
                     "The range for the Dynamic Trap's AoE in which the Ghost Freeze trap will affect ghosts." ) );
             armorShatterRange = SPEC.define( new IntField( "armor_shatter_range", 20, 1, 60,
                     "The range for the Dynamic Trap's AoE in which the Armor Shatter trap will affect mobs." ) );
-            
-            SPEC.newLine();
         }
     }
     
@@ -81,15 +69,12 @@ public class MiscConfig extends AbstractConfigFile {
         
         public final BooleanField displayStartMessage;
         
-        
         Events( MiscConfig parent ) {
             super( parent, "events",
                     "Contains settings shared by all events from Apocalypse." );
             
             displayStartMessage = SPEC.define( new BooleanField( "display_start_message", true,
                     "If enabled, Apocalypse events will display a short message to the player when they start up." ) );
-            
-            SPEC.newLine();
         }
     }
     
@@ -98,13 +83,14 @@ public class MiscConfig extends AbstractConfigFile {
         
         public final BooleanField rainFizzlesTorches;
         
+        //TODO move all these entity config things to an entity config with ze attributes
         public final DoubleField grumpBucketHelmetChance;
         
-        public final BlockListField breecherExplosionTargets;
+        public final BlockStateSetField breecherExplosionTargets;
         
         public final IntField seekerExplosionPower;
         
-        public final BlockListField destroyerProofBlocks;
+        public final BlockStateSetField destroyerProofBlocks;
         public final IntField destroyerExplosionPower;
         public final IntField destroyerEquipmentDamage;
         public final BooleanField destroyerTargetRespawnPos;
@@ -112,7 +98,6 @@ public class MiscConfig extends AbstractConfigFile {
         public final BooleanField pauseDaylightCycle;
         
         public final IntField lunarEquipmentUpdateTime;
-        
         
         Other( MiscConfig parent ) {
             super( parent, "other",
@@ -130,9 +115,11 @@ public class MiscConfig extends AbstractConfigFile {
             
             SPEC.newLine();
             
-            breecherExplosionTargets = SPEC.define( new BlockListField( "breecher_explosion_targets", new BlockList( List.of(), List.of(
-                    BlockTags.BEDS, BlockTags.DOORS, BlockTags.TRAPDOORS, Tags.Blocks.CHESTS, Tags.Blocks.BARRELS, Tags.Blocks.FENCE_GATES
-            ), new BlockEntry( ApocalypseObjects.Blocks.DYNAMIC_TRAP.get() ) ),
+            breecherExplosionTargets = SPEC.define( new BlockStateSetField( "breecher_explosion_targets", new BlockStateSet.Builder<>()
+                    .addTag( BlockTags.BEDS ).addTag( BlockTags.DOORS ).addTag( BlockTags.TRAPDOORS )
+                    .addTag( Tags.Blocks.CHESTS ).addTag( Tags.Blocks.BARRELS ).addTag( Tags.Blocks.FENCE_GATES )
+                    .add( ApocalypseObjects.Blocks.DYNAMIC_TRAP )
+                    .build(),
                     "A list of blocks that the Breecher will target and try to explode if it can't currently reach its target player." ) );
             
             SPEC.newLine();
@@ -142,9 +129,9 @@ public class MiscConfig extends AbstractConfigFile {
             
             SPEC.newLine();
             
-            destroyerProofBlocks = SPEC.define( new BlockListField( "destroyer_proof_blocks", new BlockList( List.of(), List.of(),
-                    new BlockEntry( Blocks.BEDROCK )
-            ),
+            destroyerProofBlocks = SPEC.define( new BlockStateSetField( "destroyer_proof_blocks", new BlockStateSet.Builder<>()
+                    .addTag( BlockTags.WITHER_IMMUNE ).add( Blocks.BEDROCK ) // Bedrock is in the tag normally, but also specify just in case
+                    .build(),
                     "A list of blocks that the Destroyer cannot explode.",
                     "Generally speaking destroyers are supposed to be able to blow up anything, but some exceptions may be desired (bedrock and whatnot)." ) );
             destroyerExplosionPower = SPEC.define( new IntField( "destroyer_explosion_power", 2, 1, 10,
@@ -166,8 +153,6 @@ public class MiscConfig extends AbstractConfigFile {
             lunarEquipmentUpdateTime = SPEC.define( new IntField( "lunar_equipment_update_time", 60, 5, 3600,
                     "Some equipment added by Apocalypse (Midnight Steel armor) has abilities or attribute modifiers that halve on new moons or change over time when it is a full moon night.",
                     "This field's value is the amount of seconds that must pass before the equipment's stats change again during full moon nights." ) );
-            
-            SPEC.newLine();
         }
     }
 }

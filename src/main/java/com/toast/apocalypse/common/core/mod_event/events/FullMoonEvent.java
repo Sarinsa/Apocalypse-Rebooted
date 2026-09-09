@@ -6,9 +6,10 @@ import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import com.toast.apocalypse.common.tag.ApocalypseEntityTags;
-import com.toast.apocalypse.common.util.DataStructureUtils;
-import fathertoast.crust.api.config.common.value.RegistryEntryValueList;
-import fathertoast.crust.api.config.common.value.RegistryValueEntry;
+import fathertoast.crust.api.config.common.value.collection.key.IRegWrapper;
+import fathertoast.crust.api.config.common.value.collection.key.RegObjKey;
+import fathertoast.crust.api.config.common.value.environment.EnvironmentContext;
+import fathertoast.crust.api.lib.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -27,9 +28,9 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import static com.toast.apocalypse.common.core.config.ApocalypseConfig.LUNAR_SIEGE;
 
@@ -40,6 +41,12 @@ import static com.toast.apocalypse.common.core.config.ApocalypseConfig.LUNAR_SIE
  */
 public final class FullMoonEvent extends AbstractEvent {
     
+    private static final String TAG_TIME_UNTIL_NEXT_SPAWN = "TimeNextSpawn";
+    private static final String TAG_SPAWN_TIME = "SpawnTime";
+    private static final String TAG_DEATH_COUNT = "PlayerDeathCount";
+    private static final String TAG_MOBS_TO_SPAWN = "MobsToSpawn";
+    
+    private static final IRegWrapper<EntityType<?>> ENTITY_REG = IRegWrapper.of( ForgeRegistries.ENTITY_TYPES );
     
     /**
      * The time it takes from when the event is triggered
@@ -47,17 +54,15 @@ public final class FullMoonEvent extends AbstractEvent {
      */
     private static final int MAX_GRACE_PERIOD = 800;
     
-    /** Time until mobs can start spawning. */
-    private int gracePeriod;
     /** The time between each mob spawn */
-    private int spawnTime = 600;
+    private int spawnTime;
     /** The time until the next mob should be spawned for the player */
-    private int timeUntilNextSpawn = 0;
+    private int timeUntilNextSpawn = MAX_GRACE_PERIOD;
     /** Whether there are any mobs left to spawn */
     private boolean hasMobsLeft = true;
     
-    /** A map containing all the full moon mobs that will be spawned for the player */
-    private final Map<ResourceLocation, Integer> mobsToSpawn = new HashMap<>();
+    /** A list containing all the full moon mobs that will be spawned */
+    private final List<SpawnEntry> mobsToSpawn = new ArrayList<>();
     
     
     public FullMoonEvent( EventType<?> type ) {
@@ -69,40 +74,23 @@ public final class FullMoonEvent extends AbstractEvent {
         long difficulty = CapabilityHelper.getDifficulty( player );
         calculateMobs( difficulty );
         calculateSpawnTime();
-        gracePeriod = MAX_GRACE_PERIOD;
     }
     
     @Override
     public void update( ServerLevel level, ServerPlayer player, PlayerDifficultyManager difficultyManager ) {
-        // Tick grace period
-        if( gracePeriod > 0 ) {
-            gracePeriod -= PlayerDifficultyManager.TICKS_PER_UPDATE;
-        }
         // Tick time until next mob spawn
         if( timeUntilNextSpawn > 0 ) {
             timeUntilNextSpawn -= PlayerDifficultyManager.TICKS_PER_UPDATE;
         }
-        hasMobsLeft = false;
+        if( timeUntilNextSpawn > 0 ) return;
         
-        for( ResourceLocation id : mobsToSpawn.keySet() ) {
-            if( mobsToSpawn.get( id ) > 0 ) {
-                hasMobsLeft = true;
-                break;
-            }
-        }
-        
-        if( canSpawn() ) {
+        if( hasMobsLeft ) {
             RandomSource random = level.getRandom();
-            ResourceLocation mobId = getRandomMobID( random );
-            
-            if( mobId == null )
-                return;
-            
-            int currentCount = mobsToSpawn.get( mobId );
-            mobsToSpawn.put( mobId, --currentCount );
+            EntityType<?> entityType = drawEntityType( random );
+            if( entityType == null ) return;
             
             if( level.getDifficulty() != Difficulty.PEACEFUL ) {
-                spawnMobFromId( mobId, level, player );
+                spawnMob( entityType, level, player );
             }
             timeUntilNextSpawn = spawnTime;
         }
@@ -119,13 +107,13 @@ public final class FullMoonEvent extends AbstractEvent {
     }
     
     @Override
-    public void stop( ServerLevel level, ServerPlayer player ) { }
+    public void stop( ServerLevel level, ServerPlayer player ) {}
     
     /**
      * Returns true if it is time to spawn a new full moon mob.
      */
     private boolean canSpawn() {
-        return gracePeriod <= 0 && hasMobsLeft && timeUntilNextSpawn <= 0;
+        return hasMobsLeft && timeUntilNextSpawn <= 0;
     }
     
     /**
@@ -134,36 +122,26 @@ public final class FullMoonEvent extends AbstractEvent {
      * @param difficulty The player's difficulty.
      */
     private void calculateMobs( long difficulty ) {
-        final double difficultyPerIncrease = LUNAR_SIEGE.SIEGE_MOB_PROPS.difficultyPerIncrease.get();
         final double scaledDifficulty = CapabilityHelper.fractalDivByDayLength( difficulty );
-        double multiplier;
-        int count;
-        
-        final RegistryEntryValueList<EntityType<?>> entryList = LUNAR_SIEGE.SIEGE_MOB_PROPS.mobSpawnSettings.get();
-        
-        for( RegistryValueEntry<EntityType<?>> entry : entryList.getEntries() ) {
-            final double startDifficulty = entry.VALUES[0];
-            final int minSpawnCount = (int) entry.VALUES[1];
-            final int maxSpawnCount = (int) entry.VALUES[2];
-            final double additionalSpawnCount = entry.VALUES[3];
-            
-            if( startDifficulty >= 0 && startDifficulty <= scaledDifficulty ) {
-                multiplier = (scaledDifficulty - startDifficulty) / difficultyPerIncrease;
-                count = minSpawnCount + (int) (additionalSpawnCount * multiplier);
-                mobsToSpawn.put( entry.REG_KEY, Math.min( count, maxSpawnCount ) );
+        for( var entry : LUNAR_SIEGE.SIEGE_MOB_PROPS.mobSpawnSettings.entries() ) {
+            if( entry != null ) {
+                int count = entry.value().getCount( scaledDifficulty );
+                if( count > 0 ) mobsToSpawn.add( new SpawnEntry( entry.key(), count ) );
             }
         }
     }
     
     /** Calculates the interval between each mob spawn */
     private void calculateSpawnTime() {
-        final int defaultSpawnTime = 500;
-        int totalMobCount = 0;
-        
-        for( ResourceLocation mobId : mobsToSpawn.keySet() ) {
-            totalMobCount += mobsToSpawn.get( mobId );
-        }
-        this.spawnTime = totalMobCount <= 0 ? defaultSpawnTime : (10500 - MAX_GRACE_PERIOD) / totalMobCount;
+        int totalMobCount = getSpawnsRemaining();
+        spawnTime = totalMobCount > 0 ? 9_700 / totalMobCount : 666;
+    }
+    
+    /** Calculates the number of remaining spawns */
+    private int getSpawnsRemaining() {
+        int totalCount = 0;
+        for( SpawnEntry entry : mobsToSpawn ) totalCount += entry.count;
+        return totalCount;
     }
     
     /**
@@ -171,26 +149,33 @@ public final class FullMoonEvent extends AbstractEvent {
      * or null if there are no mobs left to spawn.
      */
     @Nullable
-    private ResourceLocation getRandomMobID( RandomSource random ) {
-        return DataStructureUtils.randomMapKeyFiltered( random, mobsToSpawn, ( id, count ) -> count > 0 );
+    private EntityType<?> drawEntityType( RandomSource random ) {
+        int totalMobCount = getSpawnsRemaining();
+        hasMobsLeft = totalMobCount > 1; // Account for the one we are about to yoink
+        if( totalMobCount > 0 ) {
+            int choice = random.nextInt( totalMobCount );
+            for( Iterator<SpawnEntry> iterator = mobsToSpawn.iterator(); iterator.hasNext(); ) {
+                SpawnEntry entry = iterator.next();
+                choice -= entry.count;
+                if( choice < 0 ) {
+                    if( entry.removeOne() ) iterator.remove();
+                    return entry.type;
+                }
+            }
+        }
+        return null;
     }
     
     /**
-     * Spawns a full moon mob. The type of mob depends on the mob id given.
+     * Spawns a full moon mob of the entity type given.
      *
-     * @param mobId  The registry key of the entity type of the mob to spawn.
-     * @param level  The world to spawn this mob in.
-     * @param player The player to spawn this mob for.
+     * @param entityType The entity type of the mob to spawn.
+     * @param level      The world to spawn this mob in.
+     * @param player     The player to spawn this mob for.
      */
-    private void spawnMobFromId( ResourceLocation mobId, ServerLevel level, ServerPlayer player ) {
-        EntityType<?> entityType = ForgeRegistries.ENTITY_TYPES.getValue( mobId );
-        
-        if( entityType == null ) return;
-        
-        Entity entity = spawnMob( entityType, player, level );
-        
-        if( entity == null )
-            return;
+    private void spawnMob( EntityType<?> entityType, ServerLevel level, ServerPlayer player ) {
+        Entity entity = trySpawn( entityType, level, player );
+        if( entity == null ) return;
         
         if( entity instanceof IFullMoonMob fullMoonMob ) {
             fullMoonMob.setPlayerTargetUUID( player.getUUID() );
@@ -200,7 +185,7 @@ public final class FullMoonEvent extends AbstractEvent {
     }
     
     @Nullable
-    private Entity spawnMob( EntityType<?> entityType, ServerPlayer player, ServerLevel level ) {
+    private Entity trySpawn( EntityType<?> entityType, ServerLevel level, ServerPlayer player ) {
         RandomSource random = level.getRandom();
         BlockPos playerPos = player.blockPosition();
         BlockPos spawnPos = null;
@@ -276,14 +261,12 @@ public final class FullMoonEvent extends AbstractEvent {
             }
         }
         // No viable spawn position found, abort
-        if( spawnPos == null )
-            return null;
-        
-        Double envValue = LUNAR_SIEGE.GENERAL.siegeSpawningConditions.get( level, spawnPos );
+        if( spawnPos == null ) return null;
         
         // Check environment conditions before spawning.
-        // If the condition list is empty, consider all positions valid.
-        if( LUNAR_SIEGE.GENERAL.siegeSpawningConditions.isEmpty() || (envValue != null && envValue > 0.0) ) {
+        double envValue = LUNAR_SIEGE.GENERAL.siegeSpawningConditions
+                .getOrElse( EnvironmentContext.withTarget( level, spawnPos ), 1.0 );
+        if( envValue > 0.0 && random.nextDouble() < envValue ) {
             return entityType.create( level, null, null, spawnPos, MobSpawnType.EVENT, true, true );
         }
         else {
@@ -298,34 +281,67 @@ public final class FullMoonEvent extends AbstractEvent {
     
     @Override
     public void writeAdditional( CompoundTag data ) {
-        data.putInt( "GracePeriod", gracePeriod );
-        data.putInt( "TimeNextSpawn", timeUntilNextSpawn );
-        data.putInt( "SpawnTime", spawnTime );
-        data.putInt( "PlayerDeathCount", deathCount );
+        data.putInt( TAG_TIME_UNTIL_NEXT_SPAWN, timeUntilNextSpawn );
+        data.putInt( TAG_SPAWN_TIME, spawnTime );
+        data.putInt( TAG_DEATH_COUNT, deathCount );
         
         CompoundTag spawnsTag = new CompoundTag();
-        
-        mobsToSpawn.forEach( ( id, count ) -> {
-            spawnsTag.putInt( id.toString(), count );
+        mobsToSpawn.forEach( entry -> {
+            String key = toString( entry.type );
+            if( key != null && entry.count > 0 ) {
+                spawnsTag.putInt( key, entry.count );
+            }
         } );
-        
-        data.put( "MobsToSpawn", spawnsTag );
+        data.put( TAG_MOBS_TO_SPAWN, spawnsTag );
     }
     
     @Override
     public void read( CompoundTag data, ServerPlayer player, ServerLevel level ) {
-        gracePeriod = data.getInt( "GracePeriod" );
-        timeUntilNextSpawn = data.getInt( "TimeNextSpawn" );
-        spawnTime = data.getInt( "SpawnTime" );
-        deathCount = data.getInt( "PlayerDeathCount" );
+        if( NBTHelper.containsNumber( data, TAG_TIME_UNTIL_NEXT_SPAWN ) )
+            timeUntilNextSpawn = data.getInt( TAG_TIME_UNTIL_NEXT_SPAWN );
+        if( NBTHelper.containsNumber( data, TAG_SPAWN_TIME ) )
+            spawnTime = data.getInt( TAG_SPAWN_TIME );
+        if( NBTHelper.containsNumber( data, TAG_DEATH_COUNT ) )
+            deathCount = data.getInt( TAG_DEATH_COUNT );
         
-        CompoundTag spawnsTag = data.getCompound( "MobsToSpawn" );
-        Set<String> keys = spawnsTag.getAllKeys();
+        if( NBTHelper.containsCompound( data, TAG_MOBS_TO_SPAWN ) ) {
+            mobsToSpawn.clear();
+            CompoundTag spawnsTag = data.getCompound( TAG_MOBS_TO_SPAWN );
+            spawnsTag.getAllKeys().forEach( key -> {
+                EntityType<?> entityType = fromString( key );
+                if( entityType != null ) {
+                    mobsToSpawn.add( new SpawnEntry( entityType, spawnsTag.getInt( key ) ) );
+                }
+            } );
+        }
+    }
+    
+    @Nullable
+    private static String toString( EntityType<?> entityType ) {
+        ResourceLocation key = ENTITY_REG.getKey( entityType );
+        return key == null ? null : key.toString();
+    }
+    
+    @Nullable
+    private static EntityType<?> fromString( String entityType ) {
+        RegObjKey.Basic<EntityType<?>> key = RegObjKey.Basic.parse( ENTITY_REG, entityType, false );
+        return key == null ? null : key.asValue();
+    }
+    
+    
+    private static class SpawnEntry {
+        final EntityType<?> type;
+        int count;
         
-        for( String key : keys ) {
-            ResourceLocation id = ResourceLocation.tryParse( key );
-            if( id == null ) continue;
-            mobsToSpawn.put( id, Math.max( 0, spawnsTag.getInt( key ) ) );
+        SpawnEntry( EntityType<?> entityType, int entityCount ) {
+            type = entityType;
+            count = entityCount;
+        }
+        
+        /** Removes one from this entry's count and returns true if it is now zero or less. */
+        boolean removeOne() {
+            count--;
+            return count <= 0;
         }
     }
 }

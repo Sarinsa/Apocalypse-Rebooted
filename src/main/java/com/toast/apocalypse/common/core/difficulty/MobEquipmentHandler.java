@@ -1,21 +1,19 @@
 package com.toast.apocalypse.common.core.difficulty;
 
-import com.toast.apocalypse.common.capability.CapabilityHelper;
-import com.toast.apocalypse.common.core.config.field.DifficultyRegistryEntryListField;
-import com.toast.apocalypse.common.core.config.value.DifficultyRegListEntry;
+import com.toast.apocalypse.common.core.config.field.ItemsByDifficultyMapField;
 import com.toast.apocalypse.common.event.GameEventListener;
 import com.toast.apocalypse.common.util.DataStructureUtils;
+import fathertoast.crust.api.config.common.value.collection.ItemStackList;
+import fathertoast.crust.api.config.common.value.collection.key.FuzzyKey;
+import fathertoast.crust.api.config.common.value.collection.value.FuzzyEntry;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Equipable;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,76 +25,74 @@ import static com.toast.apocalypse.common.core.config.ApocalypseConfig.MOB_BUFFI
 public final class MobEquipmentHandler {
     
     public static final EquipmentSlot[] ARMOR_SLOTS = new EquipmentSlot[] {
-            EquipmentSlot.FEET,
-            EquipmentSlot.LEGS,
-            EquipmentSlot.CHEST,
-            EquipmentSlot.HEAD
+            EquipmentSlot.FEET, EquipmentSlot.LEGS, EquipmentSlot.CHEST, EquipmentSlot.HEAD
     };
     
-    public static final Map<Integer, Map<EquipmentSlot, List<Item>>> ARMOR_MAPS = new HashMap<>();
-    
+    public static final Map<FuzzyKey<Double>, Map<EquipmentSlot, List<ItemStack>>> ARMOR_MAPS = new HashMap<>();
     
     /**
      * Handles Apocalypse equipment for mobs when they spawn, such as weapon and armor.<br>
      * Called from {@link GameEventListener#onFinalizeSpawn(MobSpawnEvent.FinalizeSpawn)} (EntityJoinLevelEvent)}
      *
-     * @param entity     The entity to handle equipment for.
-     * @param difficulty The raw difficulty of the nearest player.
-     * @param fullMoon   True if it is both nighttime and a full moon in the level the entity is in.
-     * @param random     The RNG of the level the entity is in.
+     * @param entity           The entity to handle equipment for.
+     * @param scaledDifficulty The difficulty (in days) of the nearest player.
+     * @param fullMoon         True if it is both nighttime and a full moon in the level the entity is in.
+     * @param random           The RNG of the level the entity is in.
      */
-    public static void handleMobEquipment( LivingEntity entity, long difficulty, boolean fullMoon, RandomSource random ) {
-        EntityType<?> entityType = entity.getType();
-        
+    public static void handleMobEquipment( LivingEntity entity, double scaledDifficulty, boolean fullMoon, RandomSource random ) {
         // Try to equip a weapon
-        if( MOB_BUFFING.EQUIPMENT.canReceiveWeapons.contains( entityType ) ) {
-            final double maxWeaponChance = MOB_BUFFING.EQUIPMENT.weaponsMaxChance.get();
-            final double multiplier = CapabilityHelper.fractalDivByDayLength( difficulty ) / MOB_BUFFING.EQUIPMENT.weaponsDifficultySpan.get();
-            double chance = MOB_BUFFING.EQUIPMENT.weaponsChance.get() * multiplier;
+        if( MOB_BUFFING.EQUIPMENT.weaponWhitelist.contains( entity ) ) {
+            double multiplier = scaledDifficulty / MOB_BUFFING.EQUIPMENT.weaponsDifficultySpan.get();
             
-            if( fullMoon ) {
-                chance += MOB_BUFFING.EQUIPMENT.weaponsLunarChance.get();
-            }
+            double chance = MOB_BUFFING.EQUIPMENT.weaponsChance.get() * multiplier;
+            double maxWeaponChance = MOB_BUFFING.EQUIPMENT.weaponsMaxChance.get();
             if( maxWeaponChance >= 0.0 && chance > maxWeaponChance ) {
                 chance = maxWeaponChance;
             }
-            if( random.nextDouble() <= chance ) {
-                equipWeapon( entity, difficulty, random );
+            if( fullMoon ) {
+                chance += MOB_BUFFING.EQUIPMENT.weaponsLunarChance.get();
+            }
+            
+            if( random.nextDouble() < chance ) {
+                equipWeapon( entity, scaledDifficulty, random );
             }
         }
         
         // Try to equip a suitable set of armor
-        if( MOB_BUFFING.EQUIPMENT.canReceiveArmor.contains( entityType ) ) {
-            final double maxArmorChance = MOB_BUFFING.EQUIPMENT.armorMaxChance.get();
-            final double multiplier = CapabilityHelper.fractalDivByDayLength( difficulty ) / MOB_BUFFING.EQUIPMENT.armorDifficultySpan.get();
+        if( MOB_BUFFING.EQUIPMENT.armorWhitelist.contains( entity ) ) {
+            double multiplier = scaledDifficulty / MOB_BUFFING.EQUIPMENT.armorDifficultySpan.get();
+            
             double chance = MOB_BUFFING.EQUIPMENT.armorChance.get() * multiplier;
-            
-            
-            if( fullMoon ) {
-                chance += MOB_BUFFING.EQUIPMENT.armorLunarChance.get();
-            }
+            double maxArmorChance = MOB_BUFFING.EQUIPMENT.armorMaxChance.get();
             if( maxArmorChance >= 0.0 && chance > maxArmorChance ) {
                 chance = maxArmorChance;
             }
-            if( random.nextDouble() <= chance ) {
-                equipArmor( entity, difficulty, random );
+            if( fullMoon ) {
+                chance += MOB_BUFFING.EQUIPMENT.armorLunarChance.get();
+            }
+            
+            if( random.nextDouble() < chance ) {
+                //TODO might be fun to have a small chance to slap a random trim on the equipped armor
+                equipArmor( entity, scaledDifficulty, random );
             }
         }
         
-        if( MOB_BUFFING.EQUIPMENT.canGetEnchantments.contains( entityType ) ) {
-            // Loop through equipment and roll chances for enchanting each piece of equipment
-            final double maxEnchantChance = MOB_BUFFING.EQUIPMENT.armorMaxChance.get();
-            final double multiplier = CapabilityHelper.fractalDivByDayLength( difficulty ) / MOB_BUFFING.EQUIPMENT.enchantDifficultySpan.get();
-            double chance = MOB_BUFFING.EQUIPMENT.enchantChance.get() * multiplier;
+        // Try to enchant equipment
+        if( MOB_BUFFING.EQUIPMENT.enchantWhitelist.contains( entity ) ) {
+            double multiplier = scaledDifficulty / MOB_BUFFING.EQUIPMENT.enchantDifficultySpan.get();
             
-            if( fullMoon ) {
-                chance += MOB_BUFFING.EQUIPMENT.enchantLunarChance.get();
-            }
+            double chance = MOB_BUFFING.EQUIPMENT.enchantChance.get() * multiplier;
+            double maxEnchantChance = MOB_BUFFING.EQUIPMENT.armorMaxChance.get();
             if( maxEnchantChance >= 0.0 && chance > maxEnchantChance ) {
                 chance = maxEnchantChance;
             }
+            if( fullMoon ) {
+                chance += MOB_BUFFING.EQUIPMENT.enchantLunarChance.get();
+            }
+            
+            // Loop through equipment and roll chance for each
             for( EquipmentSlot slot : EquipmentSlot.values() ) {
-                if( random.nextDouble() <= chance ) {
+                if( random.nextDouble() < chance ) {
                     maybeEnchantSlot( entity, random, slot );
                 }
             }
@@ -115,11 +111,9 @@ public final class MobEquipmentHandler {
         ItemStack itemStack = entity.getItemBySlot( slot );
         
         // Abort if stack is empty or already enchanted
-        if( itemStack.isEmpty() ) return;
-        if( !EnchantmentHelper.getEnchantments( itemStack ).isEmpty() ) return;
+        if( itemStack.isEmpty() || !EnchantmentHelper.getEnchantments( itemStack ).isEmpty() ) return;
         
-        int level = MOB_BUFFING.EQUIPMENT.enchantLevelRange.next( random );
-        
+        int level = MOB_BUFFING.EQUIPMENT.enchantLevelRange.next( random );//TODO Difficulty scale
         EnchantmentHelper.enchantItem( random, itemStack, level, false );
     }
     
@@ -127,141 +121,98 @@ public final class MobEquipmentHandler {
      * Attempts to pick a suitable weapon from the equipment config
      * and equip it on the given entity.
      *
-     * @param entity     The entity to try and equip with a weapon.
-     * @param difficulty The raw difficulty of the nearest player.
-     * @param random     The RNG of the level object the entity is in.
+     * @param entity           The entity to try and equip with a weapon.
+     * @param scaledDifficulty The difficulty (in days) of the nearest player.
+     * @param random           The RNG of the level object the entity is in.
      */
-    private static void equipWeapon( LivingEntity entity, long difficulty, RandomSource random ) {
-        // Weapon tier list is empty, abort
+    private static void equipWeapon( LivingEntity entity, double scaledDifficulty, RandomSource random ) {
         if( MOB_BUFFING.EQUIPMENT.weaponTierList.isEmpty() ) return;
         
-        ItemStack weapon = null;
+        // Pick a random enabled weapon
+        final List<ItemStack> availableWeapons = getAllWeaponsFor( scaledDifficulty );
+        ItemStack weapon = DataStructureUtils.getRandomListValue( random, availableWeapons );
         
-        // Check if we are only picking from the current tier
-        if( MOB_BUFFING.EQUIPMENT.currentWeaponTierOnly.get() ) {
-            Item item = DataStructureUtils.getRandomListValue( random, MOB_BUFFING.EQUIPMENT.weaponTierList.getClosestValues( difficulty ) );
-            
-            if( item != null ) {
-                weapon = new ItemStack( item );
-            }
-        }
-        // All tiers are viable, lets pick a random tier!
-        else {
-            final List<Item> items = MOB_BUFFING.EQUIPMENT.weaponTierList.getAllUntil( difficulty );
-            Item item = DataStructureUtils.getRandomListValue( random, items );
-            
-            if( item != null ) {
-                weapon = new ItemStack( item );
-            }
-        }
         // Equip the weapon if it isn't null or empty
         if( weapon != null && !weapon.isEmpty() ) {
             entity.setItemInHand( InteractionHand.MAIN_HAND, weapon );
         }
     }
     
+    /** @return All weapons active for the difficulty level. */
+    private static List<ItemStack> getAllWeaponsFor( double difficulty ) {
+        List<ItemStack> list = new ArrayList<>();
+        MOB_BUFFING.EQUIPMENT.weaponTierList.entries().forEach( entry -> {
+            if( entry.matches( difficulty ) ) {
+                for( ItemStack item : new ItemStackList( entry.get() ).entries() ) {
+                    if( item != null && !item.isEmpty() ) list.add( item );
+                }
+            }
+        } );
+        return list;
+    }
+    
     /**
      * Attempts to pick a suitable set of armor from the equipment config to equip the given entity with.
      *
-     * @param entity     The entity to try and equip with a weapon.
-     * @param difficulty The raw difficulty of the nearest player.
-     * @param random     The RNG of the level the entity is in.
+     * @param entity           The entity to try and equip with a weapon.
+     * @param scaledDifficulty The difficulty (in days) of the nearest player.
+     * @param random           The RNG of the level the entity is in.
      */
-    @SuppressWarnings( "ConstantConditions" )
-    private static void equipArmor( LivingEntity entity, long difficulty, RandomSource random ) {
-        // No armor tiers defined, abort
+    private static void equipArmor( LivingEntity entity, double scaledDifficulty, RandomSource random ) {
         if( ARMOR_MAPS.isEmpty() ) return;
         
-        long scaledDifficulty = CapabilityHelper.divByDayLength( difficulty );
-        ItemStack[] toEquip = new ItemStack[] {
-                ItemStack.EMPTY,
-                ItemStack.EMPTY,
-                ItemStack.EMPTY,
-                ItemStack.EMPTY
-        };
+        // Pick a random enabled armor tier
+        List<Map<EquipmentSlot, List<ItemStack>>> availableTiers = getAllArmorTiersFor( scaledDifficulty );
+        if( availableTiers.isEmpty() ) return;
+        Map<EquipmentSlot, List<ItemStack>> armorTier = DataStructureUtils.getRandomListValue( random, availableTiers );
+        if( armorTier == null ) return;
         
-        // Check if we are only picking from the current armor tier
-        if( MOB_BUFFING.EQUIPMENT.currentArmorTierOnly.get() ) {
-            int tier = 0;
-            
-            for( int i : ARMOR_MAPS.keySet() ) {
-                if( i <= scaledDifficulty ) {
-                    tier = i;
-                }
-            }
-            Map<EquipmentSlot, List<Item>> armors = ARMOR_MAPS.get( tier );
-            
-            if( armors != null ) {
-                toEquip[0] = new ItemStack( DataStructureUtils.getRandomListValue( random, armors.get( EquipmentSlot.FEET ) ) );
-                toEquip[1] = new ItemStack( DataStructureUtils.getRandomListValue( random, armors.get( EquipmentSlot.LEGS ) ) );
-                toEquip[2] = new ItemStack( DataStructureUtils.getRandomListValue( random, armors.get( EquipmentSlot.CHEST ) ) );
-                toEquip[3] = new ItemStack( DataStructureUtils.getRandomListValue( random, armors.get( EquipmentSlot.HEAD ) ) );
-            }
-        }
-        // All tiers are viable, lets pick a random tier!
-        else {
-            final List<Integer> viableTiers = new ArrayList<>();
-            
-            // Filter out tiers that haven't been reached
-            for( int tier : ARMOR_MAPS.keySet() ) {
-                if( tier <= scaledDifficulty ) {
-                    viableTiers.add( tier );
-                }
-            }
-            // No viable tiers were found, abort
-            if( viableTiers.isEmpty() ) return;
-            
-            final Map<EquipmentSlot, List<Item>> armors = ARMOR_MAPS.get( DataStructureUtils.getRandomListValue( random, viableTiers ) );
-            
-            if( armors != null ) {
-                toEquip[0] = new ItemStack( DataStructureUtils.getRandomListValue( random, armors.get( EquipmentSlot.FEET ) ) );
-                toEquip[1] = new ItemStack( DataStructureUtils.getRandomListValue( random, armors.get( EquipmentSlot.LEGS ) ) );
-                toEquip[2] = new ItemStack( DataStructureUtils.getRandomListValue( random, armors.get( EquipmentSlot.CHEST ) ) );
-                toEquip[3] = new ItemStack( DataStructureUtils.getRandomListValue( random, armors.get( EquipmentSlot.HEAD ) ) );
-            }
-        }
-        // Equip the armor we picked, if any
-        for( int i = 0; i < toEquip.length; i++ ) {
-            ItemStack armorPiece = toEquip[i];
-            
-            if( entity.getItemBySlot( ARMOR_SLOTS[i] ).isEmpty() && armorPiece != null && !armorPiece.isEmpty() ) {
-                entity.setItemSlot( ARMOR_SLOTS[i], armorPiece );
+        // Try to equip armor for each slot
+        for( EquipmentSlot slot : ARMOR_SLOTS ) {
+            ItemStack equip = DataStructureUtils.getRandomListValue( random, armorTier.get( slot ) );
+            if( equip != null && !equip.isEmpty() && entity.getItemBySlot( slot ).isEmpty() ) {
+                entity.setItemSlot( slot, equip.copy() ); // Copy; the armor item stacks are only generated on config load
             }
         }
     }
     
+    /** @return All armor tiers active for the difficulty level. */
+    private static List<Map<EquipmentSlot, List<ItemStack>>> getAllArmorTiersFor( double scaledDifficulty ) {
+        List<Map<EquipmentSlot, List<ItemStack>>> list = new ArrayList<>();
+        ARMOR_MAPS.forEach( ( key, value ) -> {
+            if( key.matches( scaledDifficulty ) ) list.add( value );
+        } );
+        return list;
+    }
+    
     /**
-     * Called in the 'armor_tier_list' config field's callback
+     * Called in the 'armor.tier_list' config field's callback
      * ({@link com.toast.apocalypse.common.core.config.MobBuffingConfig.Equipment}).
      */
-    public static void refreshArmorMaps( DifficultyRegistryEntryListField<Item> field ) {
+    public static void refreshArmorMaps( ItemsByDifficultyMapField field ) {
         // Clear map of existing entries
         ARMOR_MAPS.clear();
         
         // Loop through all tiers
-        for( DifficultyRegListEntry<Item> entry : field.getEntries() ) {
-            List<Item> items = entry.getRegistryEntries( ForgeRegistries.ITEMS, null );
+        for( FuzzyEntry<Double, List<FuzzyKey<ItemStack>>> entry : field.entries() ) {
             
-            // No entries for tier, skip
-            if( items == null || items.isEmpty() )
-                continue;
-            
-            final Map<EquipmentSlot, List<Item>> armorTier = new HashMap<>();
-            armorTier.put( EquipmentSlot.FEET, new ArrayList<>() );
-            armorTier.put( EquipmentSlot.LEGS, new ArrayList<>() );
-            armorTier.put( EquipmentSlot.CHEST, new ArrayList<>() );
-            armorTier.put( EquipmentSlot.HEAD, new ArrayList<>() );
-            
-            for( Item item : items ) {
-                // If an item is not normally considered gear,
-                // put it on the player's head :)
-                EquipmentSlot equipmentSlot = item instanceof Equipable equipable
-                        ? equipable.getEquipmentSlot()
-                        : EquipmentSlot.HEAD;
-                
-                armorTier.get( equipmentSlot ).add( item );
+            final Map<EquipmentSlot, List<ItemStack>> armorTier = new HashMap<>();
+            for( EquipmentSlot armorSlot : ARMOR_SLOTS ) {
+                armorTier.put( armorSlot, new ArrayList<>() );
             }
-            ARMOR_MAPS.put( entry.DIFFICULTY_LEVEL, armorTier );
+            
+            boolean hasItems = false;
+            for( ItemStack item : new ItemStackList( entry.get() ).entries() ) {
+                if( item != null && !item.isEmpty() ) {
+                    // If an item is not normally considered gear, put it on the entity's head :)
+                    EquipmentSlot equipmentSlot = item.getItem() instanceof Equipable equipable ?
+                            equipable.getEquipmentSlot() : EquipmentSlot.HEAD;
+                    
+                    armorTier.get( equipmentSlot ).add( item );
+                    hasItems = true;
+                }
+            }
+            if( hasItems ) ARMOR_MAPS.put( entry.wrappedKey(), armorTier );
         }
     }
 }

@@ -32,7 +32,7 @@ public class BreecherFindExplosionPos extends MoveToBlockGoal {
     @Override
     protected boolean isValidTarget( LevelReader level, BlockPos pos ) {
         if( breecher.getPlayerTargetUUID() != null && (breecher.getTarget() instanceof Player player && player.getUUID() == breecher.getPlayerTargetUUID()) ) {
-            if( ApocalypseConfig.MISC.OTHER.breecherExplosionTargets.matches( level.getBlockState( pos ) ) ) {
+            if( ApocalypseConfig.MISC.OTHER.breecherExplosionTargets.contains( level.getBlockState( pos ) ) ) {
                 double dist = breecher.distanceToSqr( player.getX(), player.getY(), player.getZ() );
                 return dist < 700.0D;
             }

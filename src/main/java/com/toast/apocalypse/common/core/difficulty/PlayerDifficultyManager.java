@@ -16,6 +16,7 @@ import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.network.message.S2CSimpleClientTask;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.util.References;
+import fathertoast.crust.api.config.common.value.environment.EnvironmentContext;
 import fathertoast.crust.api.lib.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -91,7 +92,7 @@ public final class PlayerDifficultyManager {
     private boolean serverStopped = false;
     
     
-    public PlayerDifficultyManager() { }
+    public PlayerDifficultyManager() {}
     
     
     /** @return The current time of day in the given level. */
@@ -243,29 +244,33 @@ public final class PlayerDifficultyManager {
     /** Called when a living entity is going to die. */
     @SubscribeEvent( priority = EventPriority.LOWEST )
     public void onPlayerDeath( LivingDeathEvent event ) {
-        if( event.getEntity() instanceof ServerPlayer serverPlayer ) {
-            for( AbstractEvent abstractEvent : playerEvents.get( serverPlayer.getUUID() ).values() ) {
-                abstractEvent.onPlayerDeath( serverPlayer, serverPlayer.serverLevel() );
+        if( event.getEntity() instanceof ServerPlayer player ) {
+            for( AbstractEvent abstractEvent : playerEvents.get( player.getUUID() ).values() ) {
+                abstractEvent.onPlayerDeath( player, player.serverLevel() );
             }
-            long difficulty = CapabilityHelper.getDifficulty( serverPlayer );
+            long difficulty = CapabilityHelper.getDifficulty( player );
             
             // Reduce difficulty if we should
             if( difficulty > 0 ) {
                 ReductionType reductionType = ApocalypseConfig.DIFFICULTY.GENERAL.reductionType.get();
-                
                 switch( reductionType ) {
-                    case RESET -> CapabilityHelper.setDifficulty( serverPlayer, 0 );
-                    case LEVEL -> {
-                        long newDifficulty = difficulty - CapabilityHelper.mulByDayLength( ApocalypseConfig.DIFFICULTY.GENERAL.reductionLevel.get() );
-                        CapabilityHelper.setDifficulty( serverPlayer, Math.max( 0, newDifficulty ) );
-                    }
-                    case PERCENTAGE -> {
-                        double multiplier = 1.0 - ApocalypseConfig.DIFFICULTY.GENERAL.reductionPercentage.get();
-                        CapabilityHelper.setDifficulty( serverPlayer, (long) (difficulty * multiplier) );
-                    }
+                    case LEVEL -> CapabilityHelper.setDifficulty( player, reduceLevels( difficulty ) );
+                    case PERCENTAGE -> CapabilityHelper.setDifficulty( player, reducePercentage( difficulty ) );
+                    case BOTH -> CapabilityHelper.setDifficulty( player,
+                            reducePercentage( reduceLevels( difficulty ) ) );
                 }
             }
         }
+    }
+    
+    private static long reduceLevels( long currentDifficulty ) {
+        return Math.max( 0L, currentDifficulty - CapabilityHelper.mulByDayLength( ApocalypseConfig.DIFFICULTY.GENERAL.reductionLevel.get() ) );
+    }
+    
+    private static long reducePercentage( long currentDifficulty ) {
+        double multiplier = 1.0 - ApocalypseConfig.DIFFICULTY.GENERAL.reductionPercentage.get();
+        double daysDiff = CapabilityHelper.fractalDivByDayLength( currentDifficulty ) * multiplier;
+        return Math.max( 0L, CapabilityHelper.mulByDayLength( daysDiff ) );
     }
     
     /** Called each game tick to update all players' difficulty properties and Apocalypse events. */
@@ -383,26 +388,33 @@ public final class PlayerDifficultyManager {
     private void updatePlayerDifficulty( ServerPlayer player ) {
         final long maxDifficulty = CapabilityHelper.getMaxDifficulty( player );
         long currentDifficulty = CapabilityHelper.getDifficulty( player );
+        double partialDifficulty = CapabilityHelper.getPartialDifficulty( player );
         double difficultyMultiplier = 1.0D;
         boolean maxDifficultyReached = maxDifficulty >= 0 && currentDifficulty >= maxDifficulty;
         
         if( !maxDifficultyReached && !player.isCreative() && !player.isSpectator() ) {
-            final int playerCount = server.getPlayerCount();
             
             // Apply multiplayer difficulty multiplier, if enabled.
+            final int playerCount = server.getPlayerCount();
             if( playerCount > 1 && ApocalypseConfig.DIFFICULTY.GENERAL.multiplayerMultiplier.get() > 1.0D ) {
                 difficultyMultiplier = ApocalypseConfig.DIFFICULTY.GENERAL.multiplayerMultiplier.get();
             }
             
             // Apply dimension difficulty rate penalty if any player is in a dimension with a penalty multiplier
-            Double dimensionPenalty = ApocalypseConfig.DIFFICULTY.GENERAL.dimensionPenaltyList.get( player.level() );
-            
-            if( dimensionPenalty != null && dimensionPenalty > 1.0D ) {
-                if( !player.isSpectator() ) {
-                    difficultyMultiplier += (dimensionPenalty - 1.0D);
-                }
+            double dimensionPenalty = ApocalypseConfig.DIFFICULTY.GENERAL.dimensionPenaltyList.getOrElse( EnvironmentContext.withTarget( player ), 1.0 );
+            if( dimensionPenalty != 1.0 ) {
+                difficultyMultiplier *= dimensionPenalty;
             }
-            currentDifficulty += (long) (TICKS_PER_UPDATE * difficultyMultiplier);
+            
+            if( difficultyMultiplier > 0.0 ) {
+                partialDifficulty += TICKS_PER_UPDATE * difficultyMultiplier;
+                long fullTicks = (long) partialDifficulty;
+                if( fullTicks > 0 ) {
+                    currentDifficulty += fullTicks;
+                    partialDifficulty -= fullTicks;
+                }
+                CapabilityHelper.setPartialDifficulty( player, partialDifficulty );
+            }
         }
         // Update difficulty stuff on clients
         CapabilityHelper.setDifficulty( player, currentDifficulty );
@@ -640,7 +652,7 @@ public final class PlayerDifficultyManager {
         public void setJustStartedRaining( boolean value, RandomSource random ) {
             justStartedRaining = value;
             
-            if( value && random.nextDouble() <= ApocalypseConfig.ACID_RAIN.GENERAL.acidRainChance.get() )
+            if( value && random.nextDouble() < ApocalypseConfig.ACID_RAIN.GENERAL.acidRainChance.get() )
                 setRainingAcid( true );
         }
         

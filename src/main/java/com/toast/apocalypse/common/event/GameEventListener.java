@@ -39,6 +39,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityStruckByLightningEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
@@ -83,21 +84,28 @@ public final class GameEventListener {
         // Send misc sync packets to the client
         if( !event.getEntity().level().isClientSide ) {
             ServerPlayer player = (ServerPlayer) event.getEntity();
-            PlayerDifficultyManager difficultyManager = Apocalypse.INSTANCE.getDifficultyManager();
             
             NetworkHelper.sendUpdatePlayerDifficulty( player );
             NetworkHelper.sendUpdatePlayerDifficultyMult( player );
             NetworkHelper.sendUpdatePlayerMaxDifficulty( player );
             
             NetworkHelper.sendSimpleClientTaskRequest( player,
-                    difficultyManager.isRainingAcid( (ServerLevel) player.level() )
-                            ? S2CSimpleClientTask.SET_ACID_RAIN
-                            : S2CSimpleClientTask.REMOVE_ACID_RAIN );
-            
-            NetworkHelper.sendSimpleClientTaskRequest( player,
                     ApocalypseConfig.ACID_RAIN.GENERAL.acidSnow.get()
                             ? S2CSimpleClientTask.ENABLE_ACID_SNOW
                             : S2CSimpleClientTask.DISABLE_ACID_SNOW );
+        }
+    }
+    
+    /** Called when a player joins a level. */
+    @SubscribeEvent
+    public void onPlayerJoinLevel( EntityJoinLevelEvent event ) {
+        if( event.getEntity() instanceof ServerPlayer player ) {
+            // Send any level-specific sync packets to the client
+            PlayerDifficultyManager difficultyManager = Apocalypse.INSTANCE.getDifficultyManager();
+            NetworkHelper.sendSimpleClientTaskRequest( player,
+                    difficultyManager.isRainingAcid( player.serverLevel() )
+                            ? S2CSimpleClientTask.SET_ACID_RAIN
+                            : S2CSimpleClientTask.REMOVE_ACID_RAIN );
         }
     }
     
@@ -212,27 +220,26 @@ public final class GameEventListener {
      */
     @SubscribeEvent( priority = EventPriority.LOWEST )
     public void onSpawnPlacementCheck( MobSpawnEvent.SpawnPlacementCheck event ) {
-        MobSpawnType spawnType = event.getSpawnType();
-        
-        if( spawnType == MobSpawnType.SPAWNER || spawnType == MobSpawnType.SPAWN_EGG || spawnType == MobSpawnType.COMMAND
-                || spawnType == MobSpawnType.MOB_SUMMONED || spawnType == MobSpawnType.STRUCTURE )
-            return;
-        
         // Create or get entity instance to check against the list properly
         EntityType<?> entityType = event.getEntityType();
-        final Entity entity = ENTITY_FOR_TYPE.getOrDefault( entityType, null );
+        final Entity entity = ENTITY_FOR_TYPE.get( entityType );
+        if( entity == null ) return;
         
         // Check if mob can spawn with the difficulty of the closest player
-        if( entity != null && DIFFICULTY.GENERAL.mobSpawnDifficulties.contains( entity ) ) {
-            final double neededDifficulty = DIFFICULTY.GENERAL.mobSpawnDifficulties.get().getValue( entity );
-            final long nearestDifficulty = PlayerDifficultyManager.getNearestPlayerDifficulty( event.getLevel(), event.getPos() );
-            final long scaledDifficulty = CapabilityHelper.divByDayLength( nearestDifficulty );
-            
-            if( scaledDifficulty < neededDifficulty ) {
-                event.setResult( Event.Result.DENY );
-                return;
+        MobSpawnType spawnType = event.getSpawnType();
+        if( spawnType == MobSpawnType.NATURAL ) {
+            double neededDifficulty = DIFFICULTY.GENERAL.mobSpawnDifficulties.getOrElse( entity, -1.0 );
+            if( neededDifficulty >= 0.0 ) {
+                final long nearestDifficulty = PlayerDifficultyManager.getNearestPlayerDifficulty( event.getLevel(), event.getPos() );
+                final long scaledDifficulty = CapabilityHelper.mulByDayLength( neededDifficulty );
+                
+                if( nearestDifficulty < scaledDifficulty ) {
+                    event.setResult( Event.Result.DENY );
+                    return;
+                }
             }
         }
+        
         // Completely ignore spawn placement checks if thunderstorm event is running
         if( event.getLevel() instanceof ServerLevel level ) {
             if( ApocalypseConfig.THUNDERSTORM.GENERAL.enabled.get() && level.isThundering() && entity instanceof Enemy ) {
@@ -279,12 +286,14 @@ public final class GameEventListener {
             return;
         
         // Make sure we skip buffing non-enemies if "enemiesOnly" is enabled.
-        if( ApocalypseConfig.MOB_BUFFING.GENERAL.enemiesOnly.get() && !(mob instanceof Enemy) )
+        if( ApocalypseConfig.MOB_BUFFING.GENERAL.enemiesOnly.get() && !(mob instanceof Enemy) ||
+                ApocalypseConfig.MOB_BUFFING.GENERAL.buffBlacklist.contains( mob ) )
             return;
         
-        MobAttributeHandler.handleAttributes( mob, difficulty, fullMoon );
-        MobPotionHandler.handlePotions( mob, difficulty, fullMoon, random );
-        MobEquipmentHandler.handleMobEquipment( mob, difficulty, fullMoon, random );
+        double scaledDifficulty = CapabilityHelper.fractalDivByDayLength( difficulty );
+        MobAttributeHandler.handleAttributes( mob, scaledDifficulty, fullMoon );
+        MobPotionHandler.handlePotions( mob, scaledDifficulty, fullMoon, random );
+        MobEquipmentHandler.handleMobEquipment( mob, scaledDifficulty, fullMoon, random );
         
         NBTUtil.markEntityProcessed( mob );
     }

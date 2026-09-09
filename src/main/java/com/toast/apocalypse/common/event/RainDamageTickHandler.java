@@ -55,9 +55,9 @@ public final class RainDamageTickHandler {
         
         final boolean isRainingAcid = Apocalypse.INSTANCE.getDifficultyManager().isRainingAcid( event.getServer().overworld() );
         
-        if( !isRainingAcid || ACID_RAIN.GENERAL.rainDamage.get() <= 0 ) return;
+        if( !isRainingAcid || ACID_RAIN.GENERAL.rainDamage.get() <= 0.0 ) return;
         
-        if( ++timeNextDamageCheck >= (ACID_RAIN.GENERAL.damageRate.get() * 20) ) {
+        if( ++timeNextDamageCheck >= ACID_RAIN.GENERAL.damageTicks.get() ) {
             timeNextDamageCheck = 0;
             final ServerLevel overworld = event.getServer().overworld();
             final boolean playersOnly = !ACID_RAIN.GENERAL.damageMobs.get();
@@ -86,7 +86,7 @@ public final class RainDamageTickHandler {
                     headStack.hurtAndBreak( entity.getRandom().nextInt( 2 ), entity, ( playerEntity ) -> entity.broadcastBreakEvent( EquipmentSlot.HEAD ) );
                 }
                 else {
-                    entity.hurt( ApocalypseDamageSources.of( overworld, ApocalypseDamageSources.ACID_RAIN ), ACID_RAIN.GENERAL.rainDamage.get() );
+                    entity.hurt( ApocalypseDamageSources.of( overworld, ApocalypseDamageSources.ACID_RAIN ), ACID_RAIN.GENERAL.rainDamage.getFloat() );
                 }
             }
         }
@@ -105,5 +105,5 @@ public final class RainDamageTickHandler {
     
     
     // Utility class
-    private RainDamageTickHandler() { }
+    private RainDamageTickHandler() {}
 }

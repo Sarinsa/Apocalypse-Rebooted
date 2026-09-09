@@ -10,16 +10,19 @@ public class DifficultyCapability implements IDifficultyCapability {
     public static final String KEY_DIFFICULTY = "Difficulty";
     public static final String KEY_MAX_DIFFICULTY = "MaxDifficulty";
     public static final String KEY_MULTIPLIER = "DifficultyMul";
+    public static final String KEY_PARTIAL_DIFF = "DifficultyPart";
     
     private long difficulty;
     private long maxDifficulty;
     private double multiplier;
+    private double partialDifficulty;
     
     
     public DifficultyCapability() {
         difficulty = -CapabilityHelper.mulByDayLength( (long) ApocalypseServerConfig.SERVER.getPlayerGracePeriod() );
         maxDifficulty = CapabilityHelper.mulByDayLength( (long) ApocalypseServerConfig.SERVER.getDefaultPlayerMaxDifficulty() );
         multiplier = 1.0;
+        partialDifficulty = 0.0;
     }
     
     
@@ -54,12 +57,23 @@ public class DifficultyCapability implements IDifficultyCapability {
     }
     
     @Override
+    public void setPartialDifficulty( double partialDifficulty ) {
+        this.partialDifficulty = partialDifficulty;
+    }
+    
+    @Override
+    public double getPartialDifficulty() {
+        return partialDifficulty;
+    }
+    
+    @Override
     public CompoundTag serializeNBT() {
         final CompoundTag tag = new CompoundTag();
         
         tag.putLong( KEY_DIFFICULTY, difficulty );
         tag.putLong( KEY_MAX_DIFFICULTY, maxDifficulty );
         tag.putDouble( KEY_MULTIPLIER, multiplier );
+        tag.putDouble( KEY_MULTIPLIER, partialDifficulty );
         
         return tag;
     }
@@ -74,5 +88,8 @@ public class DifficultyCapability implements IDifficultyCapability {
         
         if( NBTHelper.containsNumber( compoundTag, KEY_MULTIPLIER ) )
             multiplier = compoundTag.getDouble( KEY_MULTIPLIER );
+        
+        if( NBTHelper.containsNumber( compoundTag, KEY_MULTIPLIER ) )
+            partialDifficulty = compoundTag.getDouble( KEY_MULTIPLIER );
     }
 }

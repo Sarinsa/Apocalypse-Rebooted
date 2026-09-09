@@ -3,15 +3,23 @@ package com.toast.apocalypse.common.misc.mixin_work;
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
+import fathertoast.crust.api.config.common.value.collection.key.BlockStateKey;
+import fathertoast.crust.api.config.common.value.collection.key.FuzzyKey;
+import fathertoast.crust.api.config.common.value.collection.key.IRandomKey;
+import fathertoast.crust.api.util.BlockStatePropertyMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WallTorchBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import javax.annotation.Nullable;
+import java.lang.reflect.Field;
 
 public class ServerMixinHooks {
     
@@ -83,11 +91,41 @@ public class ServerMixinHooks {
             return;
         
         BlockState currentState = level.getBlockState( pos );
-        BlockState resultState = ApocalypseConfig.ACID_RAIN.WORLD_DEGRADATION.blockTransformations.getResultFor( currentState );
-        
-        if( resultState != null ) {
-            level.setBlockAndUpdate( pos, resultState );
+        FuzzyKey<BlockState> transform = ApocalypseConfig.ACID_RAIN.WORLD_DEGRADATION.blockTransformations.get( currentState );
+        if( transform instanceof BlockStateKey<?> key ) {
+            // Start with the current state's props, then overwrite it with all props specifically set in the transform
+            BlockStatePropertyMap props = new BlockStatePropertyMap.Builder().putAll( currentState ).buildMutable();
+            props.map().putAll( getProps( key ).map() );
+            IRandomKey<Block> regObjKey = getRegObjKey( key );
+            if( regObjKey != null ) {
+                Block resultBlock = regObjKey.nextValue( level.random );
+                if( resultBlock != null ) level.setBlockAndUpdate( pos, props.stateFor( resultBlock ) );
+            }
         }
+    }
+    
+    // TODO replace this with a less sketchy method when Crust is updated
+    @Nullable
+    private static IRandomKey<Block> getRegObjKey( BlockStateKey<?> key ) {
+        try {
+            Field regObjKeyField = key.getClass().getDeclaredField( "regObjKey" );
+            regObjKeyField.setAccessible( true );
+            //noinspection unchecked
+            return (IRandomKey<Block>) regObjKeyField.get( key );
+        }
+        catch( ReflectiveOperationException ignored ) {}
+        return null;
+    }
+    
+    // TODO replace this with a less sketchy method when Crust is updated
+    private static BlockStatePropertyMap getProps( BlockStateKey<?> key ) {
+        try {
+            Field statePropsField = key.getClass().getDeclaredField( "stateProps" );
+            statePropsField.setAccessible( true );
+            return (BlockStatePropertyMap) statePropsField.get( key );
+        }
+        catch( ReflectiveOperationException ignored ) {}
+        return BlockStatePropertyMap.EMPTY;
     }
     
     private static void maybeFizzleTorch( ServerLevel serverLevel, BlockPos pos ) {

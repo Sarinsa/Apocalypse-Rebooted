@@ -1,11 +1,9 @@
 package com.toast.apocalypse.common.core.config;
 
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.difficulty.MobEquipmentHandler;
 import fathertoast.crust.api.config.common.ConfigManager;
 
 public class ApocalypseConfig {
-    
     
     /** Settings related to difficulty. */
     public static final DifficultyConfig DIFFICULTY = new DifficultyConfig( ConfigManager.getRequired( Apocalypse.MOD_ID ), "difficulty" );
@@ -32,7 +30,5 @@ public class ApocalypseConfig {
         CALL_OF_THE_SHADOWS.SPEC.initialize();
         THUNDERSTORM.SPEC.initialize();
         MISC.SPEC.initialize();
-        
-        MobEquipmentHandler.refreshArmorMaps( MOB_BUFFING.EQUIPMENT.armorTierList );
     }
 }

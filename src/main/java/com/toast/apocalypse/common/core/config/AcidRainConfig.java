@@ -1,8 +1,7 @@
 package com.toast.apocalypse.common.core.config;
 
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
-import com.toast.apocalypse.common.core.config.field.BlockTransformListField;
-import com.toast.apocalypse.common.core.config.value.BlockTransformList;
+import com.toast.apocalypse.common.core.config.value.UsageRestrictedKeyParser;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import fathertoast.crust.api.config.common.AbstractConfigCategory;
 import fathertoast.crust.api.config.common.AbstractConfigFile;
@@ -11,11 +10,19 @@ import fathertoast.crust.api.config.common.field.BooleanField;
 import fathertoast.crust.api.config.common.field.DoubleField;
 import fathertoast.crust.api.config.common.field.IntField;
 import fathertoast.crust.api.config.common.field.RestartNote;
-import fathertoast.crust.api.config.common.value.EntityEntry;
-import fathertoast.crust.api.config.common.value.EntityList;
+import fathertoast.crust.api.config.common.field.collection.BlockStateMapField;
+import fathertoast.crust.api.config.common.field.collection.EntitySetField;
+import fathertoast.crust.api.config.common.value.collection.BlockStateMap;
+import fathertoast.crust.api.config.common.value.collection.EntitySet;
+import fathertoast.crust.api.config.common.value.collection.KeyUsage;
+import fathertoast.crust.api.config.common.value.collection.key.BlockStateKey;
+import fathertoast.crust.api.config.common.value.collection.key.FuzzyKey;
+import fathertoast.crust.api.util.BlockStatePropertyMap;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.Tags;
 
 public class AcidRainConfig extends AbstractConfigFile {
     
@@ -27,11 +34,8 @@ public class AcidRainConfig extends AbstractConfigFile {
         super( cfgManager, cfgName, false,
                 "This config contains settings related to Apocalypse's acid rain event."
         );
-        SPEC.fileOnlyNewLine();
-        SPEC.describeEntityList();
-        SPEC.fileOnlyNewLine();
-        SPEC.fileOnlyComment( BlockTransformListField.verboseDescription() );
-        SPEC.fileOnlyNewLine();
+        EntitySetField.describe( SPEC );
+        BlockStateMapField.describe( SPEC );
         
         GENERAL = new General( this );
         WORLD_DEGRADATION = new WorldDegradation( this );
@@ -42,45 +46,43 @@ public class AcidRainConfig extends AbstractConfigFile {
         
         public final DoubleField acidRainChance;
         
-        public final IntField damageRate;
-        public final IntField rainDamage;
+        public final IntField damageTicks;
+        public final DoubleField rainDamage;
         
         public final BooleanField damageMobs;
-        public final EntityListField mobBlacklist;
+        public final EntitySetField mobBlacklist;
         
         public final BooleanField acidSnow;
         public final BooleanField acidSnowAccumulates;
         
-        
         General( AcidRainConfig parent ) {
             super( parent, "general",
-                    "General event settings" );
+                    "General event settings." );
             
-            acidRainChance = SPEC.define( new DoubleField( "acid_rain_chance", 0.5, DoubleField.Range.PERCENT,
+            acidRainChance = SPEC.define( new DoubleField( "acid_rain_chance", 0.25, DoubleField.Range.PERCENT,
                     "The chance of triggering an Acid Rain event when it starts raining. 1.0 = 100% chance, 0.5 = 50% etc.",
                     "Setting this to 0.0 effectively disables acid rain." ) );
+            //TODO perchance add a multiplier we can apply to rain duration when it is of the acid variety
             
             SPEC.newLine();
             
-            damageRate = SPEC.define( new IntField( "damage_rate", 3, 1, 1000,
-                    "Determines the interval in which acid rain damage should be dealt in seconds.",
-                    "A value of 2 will inflict acid rain damage on players every 2 seconds." ) );
-            rainDamage = SPEC.define( new IntField( "rain_damage", 1, IntField.Range.NON_NEGATIVE,
-                    "The amount of damage that should be dealt to players on acid rain tick.",
-                    "Setting this to 0 disables acid rain damage." ) );
+            damageTicks = SPEC.define( new IntField( "damage_interval", 60, IntField.Range.POSITIVE,
+                    "Determines the interval in which acid rain damage should be dealt, in ticks (20 ticks = 1 second).",
+                    "For example, a value of 60 will inflict acid rain damage every 3 seconds." ) );
+            rainDamage = SPEC.define( new DoubleField( "rain_damage", 1.0, DoubleField.Range.NON_NEGATIVE,
+                    "The amount of damage that should be inflicted by acid rain, in half-hearts.",
+                    "Setting this to 0.0 disables acid rain damage." ) );
             
             SPEC.newLine();
             
             damageMobs = SPEC.define( new BooleanField( "damage_mobs", false,
                     "If true, acid rain will damage all living things and not just players." ) );
-            mobBlacklist = SPEC.define( new EntityListField( "mob_blacklist",
-                    new EntityList(
-                            null,
-                            new EntityEntry( EntityType.VEX ),
-                            new EntityEntry( EntityType.SLIME ),
-                            new EntityEntry( EntityType.WARDEN ),
-                            new EntityEntry( ApocalypseEntities.GHOST.get() )
-                    ).setNoValues(),
+            mobBlacklist = SPEC.define( new EntitySetField( "mob_blacklist",
+                    new EntitySet.Builder<>()
+                            .add( EntityType.VEX ).addExtends( EntityType.SLIME )
+                            .add( EntityType.WARDEN ).addTag( Tags.EntityTypes.BOSSES )
+                            .add( ApocalypseEntities.GHOST )
+                            .build(),
                     "If 'damage_mobs' is true, this field acts as a blacklist for mobs that should be an exception and NOT take damage from acid rain." ) );
             
             SPEC.newLine();
@@ -88,12 +90,9 @@ public class AcidRainConfig extends AbstractConfigFile {
             acidSnow = SPEC.define( new BooleanField( "acid_snow", false,
                             "If true, colder biomes/areas where it snows will have acid snow when the acid rain event triggers." ),
                     RestartNote.WORLD );
-            
             acidSnowAccumulates = SPEC.define( new BooleanField( "acid_snow_accumulates", false,
                     "If acid snow is enabled, setting this to false will stop snow layers from being placed on the ground when it is " +
                             "snowing acid." ) );
-            
-            SPEC.newLine();
         }
     }
     
@@ -101,7 +100,7 @@ public class AcidRainConfig extends AbstractConfigFile {
         
         public final BooleanField enableBlockDegradation;
         
-        public final BlockTransformListField blockTransformations;
+        public final BlockStateMapField<FuzzyKey<BlockState>> blockTransformations;
         
         
         WorldDegradation( AcidRainConfig parent ) {
@@ -113,94 +112,60 @@ public class AcidRainConfig extends AbstractConfigFile {
                     "What blocks are affected and what they turn into can be configured in the below transformation list.",
                     "Note that block degradation by acid rain will not happen in snowy areas unless \"acidSnow\" is enabled in the general category." ) );
             
-            blockTransformations = SPEC.define( new BlockTransformListField( "block_transformations", defaultTransformList(),
-                    "A list of input blocks and what block state they turn into when exposed to acid rain.",
+            blockTransformations = SPEC.define( new BlockStateMapField<>( "block_transformations", defaultTransformList(),
+                    "A list of input blocks states and what block states they turn into when exposed to acid rain.",
+                    "Both the input and output block states can have state properties specified; input blocks will only " +
+                            "be transformed when matching the state properties specified, while output blocks will copy the " +
+                            "transforming block's state properties and overwrite any state properties specifically defined.",
                     "Consider this example entry:",
-                    "\"minecraft:mossy_cobblestone_stairs minecraft:cobblestone_stairs[] true\"",
-                    "This will result in mossy cobble stairs turning into normal cobblestone stairs, and since the \"copy\" properties flag is set to true, " +
-                            "the block state property values of the old stairs will be copied over to the new ones so we retain the rotation of the stairs." ) );
-            
-            SPEC.newLine();
+                    "\"minecraft:mossy_cobblestone_stairs minecraft:cobblestone_stairs\"",
+                    "This will result in mossy cobble stairs turning into normal cobblestone stairs. The block state " +
+                            "property values of the old stairs will be copied over to the new ones, so we retain the " +
+                            "rotation of the stairs." ) );
         }
         
-        private static BlockTransformList defaultTransformList() {
-            return new BlockTransformList(
-                    // Grass, plants, crops and small flowers
-                    new BlockTransformList.Entry( Blocks.GRASS_BLOCK, null, BlockTransformList.StateProperties.Builder
-                            .builder( Blocks.DIRT )
-                            .build(),
-                            false ),
-                    new BlockTransformList.Entry( Blocks.GRASS, null, BlockTransformList.StateProperties.Builder
-                            .builder( ApocalypseObjects.Blocks.DEAD_GRASS.get() )
-                            .build(),
-                            false ),
-                    new BlockTransformList.Entry( Blocks.TALL_GRASS, null, BlockTransformList.StateProperties.Builder
-                            .builder( Blocks.GRASS )
-                            .build(),
-                            false ),
-                    new BlockTransformList.Entry( null, BlockTags.SMALL_FLOWERS, BlockTransformList.StateProperties.Builder
-                            .builder( ApocalypseObjects.Blocks.DEAD_PLANT.get() )
-                            .build(),
-                            false ),
-                    new BlockTransformList.Entry( Blocks.FERN, null, BlockTransformList.StateProperties.Builder
-                            .builder( ApocalypseObjects.Blocks.DEAD_PLANT.get() )
-                            .build(),
-                            false ),
-                    new BlockTransformList.Entry( Blocks.LARGE_FERN, null, BlockTransformList.StateProperties.Builder
-                            .builder( Blocks.FERN )
-                            .build(),
-                            false ),
-                    new BlockTransformList.Entry( Blocks.BROWN_MUSHROOM, null, BlockTransformList.StateProperties.Builder
-                            .builder( Blocks.AIR )
-                            .build(),
-                            false ),
-                    new BlockTransformList.Entry( null, BlockTags.SAPLINGS, BlockTransformList.StateProperties.Builder
-                            .builder( Blocks.DEAD_BUSH )
-                            .build(),
-                            false ),
-                    new BlockTransformList.Entry( null, BlockTags.CROPS, BlockTransformList.StateProperties.Builder
-                            .builder( ApocalypseObjects.Blocks.DEAD_PLANT.get() )
-                            .build(),
-                            false ),
-                    new BlockTransformList.Entry( Blocks.SWEET_BERRY_BUSH, null, BlockTransformList.StateProperties.Builder
-                            .builder( Blocks.DEAD_BUSH )
-                            .build(),
-                            false ),
+        private static BlockStateMap<FuzzyKey<BlockState>> defaultTransformList() {
+            return new BlockStateMap.Builder<>( UsageRestrictedKeyParser.of( BlockStateKey.PARSER, KeyUsage.POLL ) )
+                    // Grass, plants, crops, and small flowers
+                    .put( Blocks.GRASS_BLOCK, BlockStateKey.of( Blocks.DIRT,
+                            BlockStatePropertyMap.EMPTY, false ) )
+                    .put( Blocks.GRASS, BlockStateKey.of( ApocalypseObjects.Blocks.DEAD_GRASS,
+                            BlockStatePropertyMap.EMPTY, false ) )
+                    .put( Blocks.TALL_GRASS, BlockStateKey.of( Blocks.GRASS,
+                            BlockStatePropertyMap.EMPTY, false ) )
+                    .putTag( BlockTags.SMALL_FLOWERS, BlockStateKey.of( ApocalypseObjects.Blocks.DEAD_PLANT,
+                            BlockStatePropertyMap.EMPTY, false ) )
+                    .put( Blocks.FERN, BlockStateKey.of( ApocalypseObjects.Blocks.DEAD_PLANT,
+                            BlockStatePropertyMap.EMPTY, false ) )
+                    .put( Blocks.LARGE_FERN, BlockStateKey.of( Blocks.FERN,
+                            BlockStatePropertyMap.EMPTY, false ) )
+                    .put( Blocks.BROWN_MUSHROOM, BlockStateKey.of( Blocks.AIR,
+                            BlockStatePropertyMap.EMPTY, false ) )
+                    .putTag( BlockTags.SAPLINGS, BlockStateKey.of( Blocks.DEAD_BUSH,
+                            BlockStatePropertyMap.EMPTY, false ) )
+                    .putTag( BlockTags.CROPS, BlockStateKey.of( ApocalypseObjects.Blocks.DEAD_PLANT,
+                            BlockStatePropertyMap.EMPTY, false ) )
+                    .put( Blocks.SWEET_BERRY_BUSH, BlockStateKey.of( Blocks.DEAD_BUSH,
+                            BlockStatePropertyMap.EMPTY, false ) )
                     
                     // Blocks with mossy qualities
-                    new BlockTransformList.Entry( Blocks.MOSSY_COBBLESTONE, null, BlockTransformList.StateProperties.Builder
-                            .builder( Blocks.COBBLESTONE )
-                            .build(),
-                            false ),
-                    new BlockTransformList.Entry( Blocks.MOSSY_COBBLESTONE_SLAB, null, BlockTransformList.StateProperties.Builder
-                            .builder( Blocks.COBBLESTONE_SLAB )
-                            .build(),
-                            true ),
-                    new BlockTransformList.Entry( Blocks.MOSSY_COBBLESTONE_WALL, null, BlockTransformList.StateProperties.Builder
-                            .builder( Blocks.COBBLESTONE_WALL )
-                            .build(),
-                            true ),
-                    new BlockTransformList.Entry( Blocks.MOSSY_COBBLESTONE_STAIRS, null, BlockTransformList.StateProperties.Builder
-                            .builder( Blocks.COBBLESTONE_STAIRS )
-                            .build(),
-                            true ),
-                    new BlockTransformList.Entry( Blocks.MOSSY_STONE_BRICKS, null, BlockTransformList.StateProperties.Builder
-                            .builder( Blocks.STONE_BRICKS )
-                            .build(),
-                            false ),
-                    new BlockTransformList.Entry( Blocks.MOSSY_STONE_BRICK_SLAB, null, BlockTransformList.StateProperties.Builder
-                            .builder( Blocks.STONE_BRICK_SLAB )
-                            .build(),
-                            true ),
-                    new BlockTransformList.Entry( Blocks.MOSSY_STONE_BRICK_WALL, null, BlockTransformList.StateProperties.Builder
-                            .builder( Blocks.STONE_BRICK_WALL )
-                            .build(),
-                            true ),
-                    new BlockTransformList.Entry( Blocks.MOSSY_STONE_BRICK_STAIRS, null, BlockTransformList.StateProperties.Builder
-                            .builder( Blocks.STONE_BRICK_STAIRS )
-                            .build(),
-                            true )
-            );
+                    .put( Blocks.MOSSY_COBBLESTONE, BlockStateKey.of( Blocks.COBBLESTONE,
+                            BlockStatePropertyMap.EMPTY, false ) )
+                    .put( Blocks.MOSSY_COBBLESTONE_SLAB, BlockStateKey.of( Blocks.COBBLESTONE_SLAB,
+                            BlockStatePropertyMap.EMPTY, false ) )
+                    .put( Blocks.MOSSY_COBBLESTONE_WALL, BlockStateKey.of( Blocks.COBBLESTONE_WALL,
+                            BlockStatePropertyMap.EMPTY, false ) )
+                    .put( Blocks.MOSSY_COBBLESTONE_STAIRS, BlockStateKey.of( Blocks.COBBLESTONE_STAIRS,
+                            BlockStatePropertyMap.EMPTY, false ) )
+                    .put( Blocks.MOSSY_STONE_BRICKS, BlockStateKey.of( Blocks.STONE_BRICKS,
+                            BlockStatePropertyMap.EMPTY, false ) )
+                    .put( Blocks.MOSSY_STONE_BRICK_SLAB, BlockStateKey.of( Blocks.STONE_BRICK_SLAB,
+                            BlockStatePropertyMap.EMPTY, false ) )
+                    .put( Blocks.MOSSY_STONE_BRICK_WALL, BlockStateKey.of( Blocks.STONE_BRICK_WALL,
+                            BlockStatePropertyMap.EMPTY, false ) )
+                    .put( Blocks.MOSSY_STONE_BRICK_STAIRS, BlockStateKey.of( Blocks.STONE_BRICK_STAIRS,
+                            BlockStatePropertyMap.EMPTY, false ) )
+                    .build();
         }
     }
 }

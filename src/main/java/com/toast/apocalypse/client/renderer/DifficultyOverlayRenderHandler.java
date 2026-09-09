@@ -92,7 +92,7 @@ public class DifficultyOverlayRenderHandler {
     
     /** @return The given difficulty level as a formatted, translated string. */
     public static String getFormattedDifficulty( long difficulty ) {
-        final int partialDifficulty = CapabilityHelper.getPartialDifficulty( difficulty );
+        final int partialDifficulty = CapabilityHelper.getPartialScaledDifficulty( difficulty );
         difficulty = CapabilityHelper.divByDayLength( difficulty );
         String formattedDifficulty = difficulty > 0L ? (difficulty + "." + partialDifficulty) : "0.0";
         return Component.translatable( References.DIFFICULTY, formattedDifficulty ).getString();
