@@ -72,10 +72,12 @@ public interface IFullMoonMob {
     /**
      * This is a bit weird to explain, but here goes!<br>
      * <br>
-     * When the player dies, their <strong>"event generation"</strong> increments. Full moon mobs
-     * stores the value of what the event generation was when they spawned. This method
-     * checks if the full moon mob's stored value is <strong>different</strong> from the player's current
-     * event generation, in which case it should despawn.
+     * When the player dies, their death count increments. Full moon mobs save the player's death count at
+     * the moment they spawned. This method checks if the full moon mob's saved death count is different
+     * from the player's current death count (implying the player has died since the mob spawned),
+     * in which case it should despawn.
+     * <p>
+     * TODO perhaps we should move this to an event listener to allow non-full-moon mobs to despawn on player death
      */
     static boolean shouldDisappear( @Nullable UUID playerTargetUUID, ServerLevel level, IFullMoonMob moonMob ) {
         if( !ApocalypseConfig.LUNAR_SIEGE.GENERAL.despawnMobsOnDeath.get() )
