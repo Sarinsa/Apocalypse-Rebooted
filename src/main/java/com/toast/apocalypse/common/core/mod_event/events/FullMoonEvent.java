@@ -99,6 +99,12 @@ public final class FullMoonEvent extends AbstractEvent {
         bossEvent.setProgress( 0.0F );
     }
     
+    /** @return True if this event can start. */
+    @SuppressWarnings( "unused" )
+    public static boolean canStart( ServerLevel serverLevel, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager ) {
+        return ApocalypseConfig.LUNAR_SIEGE.GENERAL.enableLunarSieges.get() && scaledDifficulty > 0 && difficultyManager.isFullMoonNight();
+    }
+    
     /** Called when this event starts. */
     @Override
     public void onStart( MinecraftServer server, ServerPlayer player ) {
