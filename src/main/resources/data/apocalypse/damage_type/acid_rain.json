@@ -1,5 +1,6 @@
 {
   "exhaustion": 0.0,
   "message_id": "apocalypse.acidRain",
-  "scaling": "when_caused_by_living_non_player"
+  "scaling": "when_caused_by_living_non_player",
+  "effects": "burning"
 }

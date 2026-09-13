@@ -57,18 +57,20 @@ public class ServerMixinHooks {
         }
         
         // Proceed to check if we should do acid rain stuff
-        if( !ApocalypseConfig.ACID_RAIN.WORLD_DEGRADATION.enableBlockDegradation.get() ) return;
-        if( ApocalypseConfig.ACID_RAIN.WORLD_DEGRADATION.blockTransformations.isEmpty() ) return;
-        if( !Apocalypse.INSTANCE.getDifficultyManager().isRainingAcid( serverLevel ) ) return;
-        if( serverLevel.random.nextInt( 15 ) != 0 ) return;
+        if( !ApocalypseConfig.ACID_RAIN.WORLD_DEGRADATION.enableBlockDegradation.get() ||
+                ApocalypseConfig.ACID_RAIN.WORLD_DEGRADATION.blockTransformations.isEmpty() ||
+                !Apocalypse.INSTANCE.getDifficultyManager().isRainingAcid( serverLevel ) ||
+                !ApocalypseConfig.ACID_RAIN.WORLD_DEGRADATION.degradationChance.rollChance( serverLevel.random ) )
+            return;
+        
+        // Make sure we don't accidentally load neighboring chunks
+        //noinspection deprecation
+        if( !serverLevel.isAreaLoaded( topPos, 1 ) ) return;
         
         BlockPos topSolidPos = serverLevel.getHeightmapPos(
                 Heightmap.Types.MOTION_BLOCKING,
                 basePos
         ).below();
-        
-        // Make sure we don't accidentally load neighboring chunks
-        if( !serverLevel.isAreaLoaded( topPos, 1 ) ) return;
         
         // Corrode top block
         corrodeBlock( serverLevel, topPos );
@@ -108,7 +110,7 @@ public class ServerMixinHooks {
     @Nullable
     private static IRandomKey<Block> getRegObjKey( BlockStateKey<?> key ) {
         try {
-            Field regObjKeyField = key.getClass().getDeclaredField( "regObjKey" );
+            Field regObjKeyField = BlockStateKey.class.getDeclaredField( "regObjKey" );
             regObjKeyField.setAccessible( true );
             //noinspection unchecked
             return (IRandomKey<Block>) regObjKeyField.get( key );
@@ -120,7 +122,7 @@ public class ServerMixinHooks {
     // TODO replace this with a less sketchy method when Crust is updated
     private static BlockStatePropertyMap getProps( BlockStateKey<?> key ) {
         try {
-            Field statePropsField = key.getClass().getDeclaredField( "stateProps" );
+            Field statePropsField = BlockStateKey.class.getDeclaredField( "stateProps" );
             statePropsField.setAccessible( true );
             return (BlockStatePropertyMap) statePropsField.get( key );
         }

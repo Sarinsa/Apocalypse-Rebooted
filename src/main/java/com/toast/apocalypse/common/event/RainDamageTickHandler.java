@@ -1,7 +1,7 @@
 package com.toast.apocalypse.common.event;
 
-import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -19,8 +19,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import static com.toast.apocalypse.common.core.config.ApocalypseConfig.ACID_RAIN;
-
-// TODO - DON'T FORGET!!!!! Rain damage is currently only applied to entities in the overworld!
 
 /**
  * This listener is responsible for calculating acid rain tick damage
@@ -51,44 +49,61 @@ public final class RainDamageTickHandler {
      */
     @SubscribeEvent
     public static void onServerTick( TickEvent.ServerTickEvent event ) {
-        if( event.phase != TickEvent.Phase.END ) return;
-        
-        final boolean isRainingAcid = Apocalypse.INSTANCE.getDifficultyManager().isRainingAcid( event.getServer().overworld() );
-        
-        if( !isRainingAcid || ACID_RAIN.GENERAL.rainDamage.get() <= 0.0 ) return;
+        if( event.phase != TickEvent.Phase.END ||
+                // Do nothing if all acid rain damage is disabled
+                ACID_RAIN.GENERAL.healthDamage.getDouble() <= 0.0 && ACID_RAIN.GENERAL.durabilityDamage.getInt() <= 0 ) {
+            return;
+        }
         
         if( ++timeNextDamageCheck >= ACID_RAIN.GENERAL.damageTicks.get() ) {
             timeNextDamageCheck = 0;
-            final ServerLevel overworld = event.getServer().overworld();
-            final boolean playersOnly = !ACID_RAIN.GENERAL.damageMobs.get();
             
-            final Iterable<? extends LivingEntity> entities = playersOnly
-                    ? overworld.players()
-                    : overworld.getEntities( EntityTypeTest.forClass( LivingEntity.class ),
-                    ( entity ) -> !ACID_RAIN.GENERAL.mobBlacklist.contains( entity ) );
+            final PlayerDifficultyManager difficultyManager = Apocalypse.INSTANCE.getDifficultyManager();
+            event.getServer().getAllLevels().forEach( level -> {
+                if( PlayerDifficultyManager.canRain( level ) && difficultyManager.isRainingAcid( level ) ) {
+                    doAcidRainDamage( level );
+                }
+            } );
+        }
+    }
+    
+    /** Applies acid rain damage to all valid entities in the level. */
+    private static void doAcidRainDamage( ServerLevel level ) {
+        final Iterable<? extends LivingEntity> entities = ACID_RAIN.GENERAL.damageMobs.get() ?
+                level.getEntities( EntityTypeTest.forClass( LivingEntity.class ),
+                        entity -> !ACID_RAIN.GENERAL.mobBlacklist.contains( entity ) ) :
+                level.players();
+        
+        for( LivingEntity entity : entities ) {
+            if( EnchantmentHelper.hasAquaAffinity( entity ) ) continue;
             
-            for( LivingEntity entity : entities ) {
-                if( EnchantmentHelper.hasAquaAffinity( entity ) ) continue;
-                
-                boolean rainingAcidAt = acidSnowEnabled
-                        ? isRainingOrSnowingAt( overworld, entity.blockPosition().offset( 0, (int) entity.getEyeHeight(), 0 ) )
-                        : overworld.isRainingAt( entity.blockPosition().offset( 0, (int) entity.getEyeHeight(), 0 ) );
-                
-                if( !rainingAcidAt ) continue;
-                
-                final ItemStack headStack = entity.getItemBySlot( EquipmentSlot.HEAD );
-                
-                if( !headStack.isEmpty() ) {
-                    if( headStack.getItem() == ApocalypseObjects.Items.BUCKET_HELM.get() || headStack.getItem().getMaxDamage( headStack ) <= 0 ) {
-                        continue;
-                    }
-                    // TODO configurable damage to the equipped head stack
-                    headStack.hurtAndBreak( entity.getRandom().nextInt( 2 ), entity, ( playerEntity ) -> entity.broadcastBreakEvent( EquipmentSlot.HEAD ) );
-                }
-                else {
-                    entity.hurt( ApocalypseDamageSources.of( overworld, ApocalypseDamageSources.ACID_RAIN ), ACID_RAIN.GENERAL.rainDamage.getFloat() );
-                }
+            BlockPos headPos = BlockPos.containing( entity.getX(), entity.getY( 1.0 ), entity.getZ() );
+            boolean rainingAcidAt = acidSnowEnabled ? isRainingOrSnowingAt( level, headPos ) :
+                    level.isRainingAt( headPos );
+            if( !rainingAcidAt ) continue;
+            
+            // Deal health damage
+            final ItemStack headStack = entity.getItemBySlot( EquipmentSlot.HEAD );
+            if( headStack.isEmpty() || ACID_RAIN.GENERAL.nonProtectingItems.contains( headStack ) ) {
+                entity.hurt( ApocalypseDamageSources.of( level, ApocalypseDamageSources.ACID_RAIN ), ACID_RAIN.GENERAL.healthDamage.getFloat() );
             }
+            
+            // Deal durability damage
+            damageEquipmentFromAcidRain( entity, EquipmentSlot.HEAD );
+            if( ACID_RAIN.GENERAL.damageAllEquipment.get() ) {
+                damageEquipmentFromAcidRain( entity, EquipmentSlot.CHEST );
+                damageEquipmentFromAcidRain( entity, EquipmentSlot.LEGS );
+                damageEquipmentFromAcidRain( entity, EquipmentSlot.FEET );
+            }
+        }
+    }
+    
+    /** Applies acid rain's durability damage to the item equipped in a particular slot, if applicable. */
+    private static void damageEquipmentFromAcidRain( LivingEntity entity, EquipmentSlot slot ) {
+        final ItemStack item = entity.getItemBySlot( slot );
+        if( !item.isEmpty() && item.getItem().getMaxDamage( item ) > 0 && !ACID_RAIN.GENERAL.rainImmuneItems.contains( item ) ) {
+            item.hurtAndBreak( ACID_RAIN.GENERAL.durabilityDamage.getInt(), entity,
+                    e -> e.broadcastBreakEvent( slot ) );
         }
     }
     
