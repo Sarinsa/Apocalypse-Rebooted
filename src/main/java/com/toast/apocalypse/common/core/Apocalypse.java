@@ -47,6 +47,10 @@ public final class Apocalypse {
      *      - toasty (Secret Snack)
      *      - less grumpy (Slightly Less Grumpy)
      *      - midnight steel (Moon Alloy)
+     *  - commands
+     *      - /apocalypse difficulty (set|max) [<players>] <difficulty>
+     *      - /apocalypse nextFullMoon
+     *      - /apocalypse debug [<player>]
      *  - blocks
      *      - dead plant blocks
      *      - midnightsteel block
