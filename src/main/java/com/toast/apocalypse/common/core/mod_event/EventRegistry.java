@@ -21,8 +21,8 @@ public class EventRegistry {
     
     
     public static final EventType<?> LUNAR_SIEGE = register( ApocalypseEvent.EventIds.LUNAR_SIEGE, "lunar_siege", FullMoonEvent::new, References.FULL_MOON,
-            ( serverLevel, player, difficulty, difficultyManager ) ->
-                    ApocalypseConfig.LUNAR_SIEGE.GENERAL.enableLunarSieges.get() && difficulty > 0 && difficultyManager.isFullMoonNight() );
+            new IEventPredicate.RisingEdge( ( serverLevel, player, difficulty, difficultyManager ) ->
+                    ApocalypseConfig.LUNAR_SIEGE.GENERAL.enableLunarSieges.get() && difficulty > 0 && difficultyManager.isFullMoonNight() ) );
     
     public static final EventType<?> THUNDERSTORM = register( ApocalypseEvent.EventIds.THUNDERSTORM, "thunderstorm", ThunderstormEvent::new, References.THUNDERSTORM,
             ( serverLevel, player, difficulty, difficultyManager ) -> ApocalypseConfig.THUNDERSTORM.GENERAL.enabled.get() && serverLevel.isThundering() );
@@ -73,5 +73,5 @@ public class EventRegistry {
     }
     
     // Class loading epic moment
-    public static void init() { }
+    public static void init() {}
 }
