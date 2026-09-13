@@ -23,10 +23,12 @@ public class EventType<T extends AbstractEvent> {
         this.startPredicate = startPredicate;
     }
     
+    /** @return A new event instance using this event type's factory. */
     public final T createEvent() {
         return factory.create( this );
     }
     
+    /** The ID of this event type. */
     public final int getId() {
         return id;
     }

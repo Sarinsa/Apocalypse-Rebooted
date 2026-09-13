@@ -93,7 +93,7 @@ public final class PlayerDifficultyManager {
     private boolean serverStopped = false;
     
     
-    public PlayerDifficultyManager() {}
+    public PlayerDifficultyManager() { }
     
     
     /** @return The current time of day in the given level. */
@@ -447,7 +447,7 @@ public final class PlayerDifficultyManager {
         }
         
         // Check for events to start
-        for( EventType<?> type : EventRegistry.EVENTS.values() ) {
+        for( EventType<?> type : EventRegistry.allTypes() ) {
             if( !events.containsKey( type ) ) {
                 IEventPredicate startPredicate = type.getStartPredicate();
                 

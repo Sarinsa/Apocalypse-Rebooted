@@ -10,14 +10,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 
 /**
  * The registry for Apocalypse's event types.
- * Intended for internal use. Other mods can create their own events if desired, but it is not really supported.
+ * Intended for internal use. Other mods can register their own events if desired, but it is not really supported.
  */
 public class EventRegistry {
     
-    public static final HashMap<Integer, EventType<?>> EVENTS = new HashMap<>();
+    private static final HashMap<Integer, EventType<?>> EVENTS = new HashMap<>();
     
     
     public static final EventType<?> LUNAR_SIEGE = register( ApocalypseEvent.EventIds.LUNAR_SIEGE, "lunar_siege", FullMoonEvent::new, References.FULL_MOON,
@@ -34,7 +35,7 @@ public class EventRegistry {
             ( serverLevel, player, difficulty, difficultyManager ) -> {
                 if( player.isCreative() || player.isSpectator() || !ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.enabled.get() )
                     return false;
-                return DarknessEvent.isLowBrightnessAt( serverLevel, player.blockPosition().atY( (int) Math.floor( player.getEyeHeight() ) ) );
+                return DarknessEvent.isLowBrightnessAt( serverLevel, player );
             } );
     
     
@@ -49,6 +50,16 @@ public class EventRegistry {
             return null;
         }
         return EVENTS.get( id );
+    }
+    
+    /** @return An iterable view of all registered event types. */
+    public static Iterable<EventType<?>> allTypes() {
+        return EVENTS.values();
+    }
+    
+    /** Runs the given operation for each key-value pair in the event registry map. */
+    public static void forEachType( BiConsumer<Integer, EventType<?>> biConsumer ) {
+        EVENTS.forEach( biConsumer );
     }
     
     /**
