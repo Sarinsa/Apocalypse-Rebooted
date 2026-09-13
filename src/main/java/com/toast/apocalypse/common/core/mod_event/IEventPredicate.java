@@ -15,6 +15,10 @@ public interface IEventPredicate {
      */
     boolean test( ServerLevel serverWorld, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager );
     
+    /** @return The given event predicate as a {@link RisingEdge} predicate. */
+    static IEventPredicate risingEdge( IEventPredicate eventPredicate ) {
+        return new RisingEdge( eventPredicate );
+    }
     
     /**
      * Wraps an event predicate with logic that only returns 'true' when
