@@ -5,6 +5,7 @@
         - Specifying mob effect amplifiers for permanent potion effects.
     - Lunar siege events now display an event bar (similar to vanilla raids).
     - Fixed acid rain visuals not displaying on dedicated servers when changing dimensions.
+    - "Call of The Shadows" apocalypse event is now more configurable.
     - Added command to advance time to the next full moon night (/apocalypse nextFullMoon).
 1.20.1-3.10.10
     - Bumped minimum required Crust version to 4.18.29+.
