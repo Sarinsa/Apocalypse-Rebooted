@@ -67,7 +67,7 @@ public class SiegeSpawnStats extends MultiValueCodec<SiegeSpawnStats> {
         if( !difficulty.get().matches( scaledDifficulty ) ) return 0;
         double minDiff = Math.max( 0.0, getMin( difficulty.get() ) );
         double addedCount = countPerDiff.get() * (scaledDifficulty - minDiff) /
-                LUNAR_SIEGE.SIEGE_MOB_PROPS.difficultyPerIncrease.getDouble();
+                LUNAR_SIEGE.SIEGE_MOBS.difficultyPerIncrease.getDouble();
         return Math.min( minCount.get() + (int) addedCount, maxCount.get() );
     }
     

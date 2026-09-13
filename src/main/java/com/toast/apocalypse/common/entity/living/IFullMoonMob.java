@@ -80,7 +80,7 @@ public interface IFullMoonMob {
      * TODO perhaps we should move this to an event listener to allow non-full-moon mobs to despawn on player death
      */
     static boolean shouldDisappear( @Nullable UUID playerTargetUUID, ServerLevel level, IFullMoonMob moonMob ) {
-        if( !ApocalypseConfig.LUNAR_SIEGE.GENERAL.despawnMobsOnDeath.get() )
+        if( !ApocalypseConfig.LUNAR_SIEGE.SIEGE_MOBS.despawnMobsOnDeath.get() )
             return false;
         
         if( playerTargetUUID == null )

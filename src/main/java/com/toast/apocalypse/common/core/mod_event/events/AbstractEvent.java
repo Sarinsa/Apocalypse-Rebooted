@@ -56,7 +56,7 @@ public abstract class AbstractEvent {
     /** Called before each update to check if this event should keep running. */
     public abstract boolean shouldContinueRunning( ServerLevel level, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager );
     
-    /** Called when the event ends. */
+    /** Called when the event ends naturally. */
     public abstract void onEnd( MinecraftServer server, ServerPlayer player );
     
     /** Called when the player disconnects before the event can end naturally. */
@@ -80,10 +80,15 @@ public abstract class AbstractEvent {
         writeAdditional( data );
     }
     
-    public abstract void writeAdditional( CompoundTag data );
+    /**
+     * Saves this event's data to NBT.
+     *
+     * @param data The tag to write to.
+     */
+    protected abstract void writeAdditional( CompoundTag data );
     
     /**
-     * Loads this event from the given NBT.
+     * Loads this event's data from the given NBT.
      *
      * @param data the tag to read from.
      */

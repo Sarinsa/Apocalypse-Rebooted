@@ -2,7 +2,7 @@
   "event.apocalypse.sleep_penalty": "The monsters grow impatient",
   "event.apocalypse.full_moon": "Death lingers in the air, a bad moon rises",
   "event.apocalypse.full_moon.title": "Lunar Siege",
-  "event.apocalypse.full_moon.remaining": "Siege Monsters Remaining: %s",
+  "event.apocalypse.full_moon.remaining": "Monsters Remaining: %s",
   "event.apocalypse.thunderstorm": "The sky grows dark, a storm is coming",
   "event.apocalypse.acid_rain": "The air reeks of sulphur, death falls from the sky",
   "event.apocalypse.call_of_the_shadows.first_warn": "Something stirs in the darkness",
@@ -108,6 +108,7 @@
   "apocalypse.command.argument.max_difficulty.invalid_value": "Value can not be less than -1 or exceed 100,000. -1 equals no limit",
   "apocalypse.command.difficulty.max_message.single": "Set max difficulty to %s for %s",
   "apocalypse.command.difficulty.max_message.multiple": "Set max difficulty to %s for %s players",
+  "apocalypse.command.next_full_moon.message": "Set time to next full moon (%s)",
 
   "apocalypse.screen.tooltip.create_world_config": "Apocalypse",
   "apocalypse.screen.title.create_world_config": "Apocalypse World Settings",

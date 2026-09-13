@@ -126,9 +126,7 @@ public final class PlayerDifficultyManager {
      */
     public static long getNearestPlayerDifficulty( LevelAccessor level, BlockPos pos ) {
         final Player player = level.getNearestPlayer(
-                pos.getX() + 0.5D,
-                pos.getY(),
-                pos.getZ() + 0.5D,
+                pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5,
                 Double.MAX_VALUE, false
         );
         if( player != null ) return CapabilityHelper.getDifficulty( player );
@@ -155,7 +153,7 @@ public final class PlayerDifficultyManager {
     public boolean isFullMoon() {
         if( server == null ) return false;
         final ServerLevel world = server.overworld();
-        // 4 is full moon
+        // 0 is full moon
         return world.dimensionType().moonPhase( world.getDayTime() ) == 0;
     }
     
@@ -167,7 +165,7 @@ public final class PlayerDifficultyManager {
     public boolean isFullMoonNight() {
         if( server == null ) return false;
         long dayTime = queryDayTime( server.overworld() );
-        return isFullMoon() && dayTime > 13000L && dayTime < 23500L;
+        return isFullMoon() && dayTime > 13_000L && dayTime < 23_500L;
     }
     
     /** @return True if it is currently raining acid in the specified level. */

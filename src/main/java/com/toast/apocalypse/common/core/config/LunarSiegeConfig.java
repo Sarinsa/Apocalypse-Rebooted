@@ -9,6 +9,7 @@ import fathertoast.crust.api.config.common.ConfigManager;
 import fathertoast.crust.api.config.common.field.BooleanField;
 import fathertoast.crust.api.config.common.field.DoubleField;
 import fathertoast.crust.api.config.common.field.EnvironmentListField;
+import fathertoast.crust.api.config.common.field.IntField;
 import fathertoast.crust.api.config.common.field.collection.RegistryValueListField;
 import fathertoast.crust.api.config.common.value.collection.RegistryValueList;
 import fathertoast.crust.api.config.common.value.collection.value.DoubleValueCodec;
@@ -19,7 +20,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class LunarSiegeConfig extends AbstractConfigFile {
     
     public final General GENERAL;
-    public final SiegeMobProperties SIEGE_MOB_PROPS;
+    public final Pacing PACING;
+    public final SiegeMobs SIEGE_MOBS;
     
     
     /** Builds the config spec that should be used for this config. */
@@ -30,7 +32,8 @@ public class LunarSiegeConfig extends AbstractConfigFile {
         RegistryValueListField.describe( SPEC );
         
         GENERAL = new General( this );
-        SIEGE_MOB_PROPS = new SiegeMobProperties( this );
+        PACING = new Pacing( this );
+        SIEGE_MOBS = new SiegeMobs( this );
         
         SPEC.fileOnlyNewLine();
         EnvironmentListField.describe1of2( SPEC );
@@ -41,7 +44,6 @@ public class LunarSiegeConfig extends AbstractConfigFile {
         
         public final BooleanField enableLunarSieges;
         public final BooleanField denySleep;
-        public final BooleanField despawnMobsOnDeath;
         public final EnvironmentListField<Double> siegeSpawningConditions;
         
         General( LunarSiegeConfig parent ) {
@@ -51,14 +53,8 @@ public class LunarSiegeConfig extends AbstractConfigFile {
             enableLunarSieges = SPEC.define( new BooleanField( "enable_lunar_sieges", true,
                     "If enabled, every full moon night a 'lunar siege' will start, spawning stronger monsters and full moon monsters.",
                     "More settings related to this can be found further down in this config." ) );
-            
             denySleep = SPEC.define( new BooleanField( "deny_sleep", true,
                     "If enabled, players cannot sleep through full moon nights." ) );
-            
-            despawnMobsOnDeath = SPEC.define( new BooleanField( "despawn_mobs_on_death", true,
-                    "If enabled, any mobs that are still alive that were summoned by X player's Lunar Siege event will despawn if their target player dies.",
-                    "Can help prevent horrible spawn-camping" ) );
-            
             siegeSpawningConditions = SPEC.define( new EnvironmentListField<>( "siege_spawning_chance",
                     EnvironmentList.builder( DoubleValueCodec.PERCENT )
                             .entryBuilder( 0.0 ).inTheEnd().build()
@@ -71,16 +67,53 @@ public class LunarSiegeConfig extends AbstractConfigFile {
         }
     }
     
-    public static class SiegeMobProperties extends AbstractConfigCategory<LunarSiegeConfig> {
+    public static class Pacing extends AbstractConfigCategory<LunarSiegeConfig> {
+        
+        public final IntField gracePeriod;
+        public final IntField spawnDuration;
+        public final IntField timeoutDuration;
+        public final IntField resultsDuration;
+        
+        Pacing( LunarSiegeConfig parent ) {
+            super( parent, "pacing",
+                    "Controls on how slowly/quickly lunar siege events occur. Times generally use " +
+                            "the unit of ticks; 20 ticks = 1 second." );
+            
+            gracePeriod = SPEC.define( new IntField( "grace_period", 600, IntField.Range.POSITIVE,
+                    "The time, in ticks, between when the event's message and event bar overlay appear and when " +
+                            "it starts spawning monsters." ) );
+            spawnDuration = SPEC.define( new IntField( "spawn_duration", 8_000, IntField.Range.POSITIVE,
+                    "The time, in ticks, the event spends spawning monsters. Spawns are evenly spaced over " +
+                            "this entire duration." ) );
+            timeoutDuration = SPEC.define( new IntField( "timeout_duration", 3_000, IntField.Range.POSITIVE,
+                    "The time, in ticks, before the event times out after its spawn duration ends. If the " +
+                            "event times out before you kill all its spawns, the event is considered 'failed'." ) );
+            resultsDuration = SPEC.define( new IntField( "results_duration", 160, IntField.Range.POSITIVE,
+                    "The time, in ticks, the event bar lingers to display the result (victory or failure) " +
+                            "after the event has concluded." ) );
+        }
+    }
+    
+    public static class SiegeMobs extends AbstractConfigCategory<LunarSiegeConfig> {
+        
+        public final BooleanField despawnMobsOnDeath;
+        public final BooleanField despawnMobsOnTimeout;
         
         public final DoubleField difficultyPerIncrease;
-        
         public final RegistryValueListField<EntityType<?>, SiegeSpawnStats> mobSpawnSettings;
         
-        SiegeMobProperties( LunarSiegeConfig parent ) {
-            super( parent, "siege_mob_properties",
-                    "Various properties of full moon siege mobs, such as which entities spawn, " +
+        SiegeMobs( LunarSiegeConfig parent ) {
+            super( parent, "siege_mobs",
+                    "Various properties of lunar siege mobs, such as which entities spawn, " +
                             "how many spawn, and during what difficulty." );
+            
+            despawnMobsOnDeath = SPEC.define( new BooleanField( "despawn_on_death", true,
+                    "If enabled, mobs summoned by a player's lunar siege event will despawn if that player dies.",
+                    "Can help prevent horrible spawn-camping" ) );
+            despawnMobsOnTimeout = SPEC.define( new BooleanField( "despawn_on_timeout", true,
+                    "If enabled, mobs summoned by a lunar siege event will despawn if the siege times out (event failure)." ) );
+            
+            SPEC.newLine();
             
             difficultyPerIncrease = SPEC.define( new DoubleField( "difficulty_per_increase",
                     References.toDays( 1 ), 1.0, Double.POSITIVE_INFINITY,
@@ -88,9 +121,6 @@ public class LunarSiegeConfig extends AbstractConfigFile {
                             "(this refers to the 5th value of entries in the 'mob_spawns' list below).",
                     "For example, a value of 8.0 means that for every time the player passes another 8.0 levels of difficulty " +
                             "(a typical lunar cycle), the amount of full moon mobs increases by the last number in their spawn settings below." ) );
-            
-            SPEC.newLine();
-            
             //TODO experiment with adding some vanilla mobs here, perchance
             mobSpawnSettings = SPEC.define( new RegistryValueListField<>( "mob_spawns",
                     new RegistryValueList.Builder<>( ForgeRegistries.ENTITY_TYPES, SiegeSpawnStats.CODEC )
