@@ -7,6 +7,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 
+// TODO - Maybe we can do something else insaneo with this event
+//        than just using it to display a message lol
 public final class ThunderstormEvent extends AbstractEvent {
     
     public ThunderstormEvent( EventType<?> type ) {
