@@ -41,9 +41,6 @@ public class Shadefiend extends FlyingMob implements Enemy {
     /** Set to true when the Shadefiend is in a space with a harmful light level. */
     protected static final EntityDataAccessor<Boolean> IS_IN_LIGHT = SynchedEntityData.defineId( Shadefiend.class, EntityDataSerializers.BOOLEAN );
     
-    /** A tick counter for keeping track of how long this Shadefiend has gone without a target. */
-    private int ticksExistedWithoutTarget;
-    
     
     public Shadefiend( EntityType<? extends Shadefiend> type, Level level ) {
         super( type, level );
@@ -89,50 +86,56 @@ public class Shadefiend extends FlyingMob implements Enemy {
     public void tick() {
         super.tick();
         
-        if( level().isClientSide ) {
-            boolean hasTarget = getTarget() != null;
-            float flapTickOffset = getId() * 3;
-            
-            float f = Mth.cos( (flapTickOffset + tickCount) * 7.448451F * ((float) Math.PI / 180F) + (float) Math.PI );
-            float f1 = Mth.cos( (flapTickOffset + tickCount + 1) * 7.448451F * ((float) Math.PI / 180F) + (float) Math.PI );
-            
-            if( hasTarget && f > 0.0F && f1 <= 0.0F ) {
-                level().playLocalSound(
-                        getX(), getY(), getZ(),
-                        ApocalypseObjects.SoundEvents.SHADEFIEND_FLAP.get(),
-                        getSoundSource(),
-                        0.95F + random.nextFloat() * 0.05F,
-                        0.95F + random.nextFloat() * 0.05F,
-                        false
-                );
-            }
-            float xOffset = Mth.cos( getYRot() * ((float) Math.PI / 180F) ) * (1.3F + 0.21F);
-            float zOffset = Mth.sin( getYRot() * ((float) Math.PI / 180F) ) * (1.3F + 0.21F);
-            float yOffset = hasTarget ? (0.3F + f * 0.45F) * 1.2F : 0.3F;
-            
-            level().addParticle(
-                    ParticleTypes.SMOKE,
-                    getX() + (double) xOffset,
-                    getY() + (double) yOffset,
-                    getZ() + (double) zOffset,
-                    0.0D, 0.0D, 0.0D
-            );
-            level().addParticle( ParticleTypes.SMOKE,
-                    getX() - (double) xOffset,
-                    getY() + (double) yOffset,
-                    getZ() - (double) zOffset,
-                    0.0D, 0.0D, 0.0D
-            );
-        }
         boolean inHarmfulLight = (level().getBrightness( LightLayer.BLOCK, blockPosition() ) > getLightLevelLimit( LightLayer.BLOCK ))
                 || (level().isDay() && level().getBrightness( LightLayer.SKY, blockPosition() ) > getLightLevelLimit( LightLayer.SKY ));
-        if( !level().isClientSide ) {
+        
+        if( level().isClientSide ) {
+            spawnParticles();
+        }
+        else {
             entityData.set( IS_IN_LIGHT, inHarmfulLight );
         }
-        
+        // Damage the shadefiend if it comes in contact what in intolerable light level
         if( inHarmfulLight ) {
             hurt( ApocalypseDamageSources.of( level(), ApocalypseDamageSources.LIGHT_INTOLERANCE ), 2 );
         }
+    }
+    
+    /** Spawns misc particles depending on the state of the Shadefiend. */
+    private void spawnParticles() {
+        boolean hasTarget = getTarget() != null;
+        float flapTickOffset = getId() * 3;
+        
+        float f = Mth.cos( (flapTickOffset + tickCount) * 7.448451F * ((float) Math.PI / 180F) + (float) Math.PI );
+        float f1 = Mth.cos( (flapTickOffset + tickCount + 1) * 7.448451F * ((float) Math.PI / 180F) + (float) Math.PI );
+        
+        if( hasTarget && f > 0.0F && f1 <= 0.0F ) {
+            level().playLocalSound(
+                    getX(), getY(), getZ(),
+                    ApocalypseObjects.SoundEvents.SHADEFIEND_FLAP.get(),
+                    getSoundSource(),
+                    0.95F + random.nextFloat() * 0.05F,
+                    0.95F + random.nextFloat() * 0.05F,
+                    false
+            );
+        }
+        float xOffset = Mth.cos( getYRot() * ((float) Math.PI / 180F) ) * (1.3F + 0.21F);
+        float zOffset = Mth.sin( getYRot() * ((float) Math.PI / 180F) ) * (1.3F + 0.21F);
+        float yOffset = hasTarget ? (0.3F + f * 0.45F) * 1.2F : 0.3F;
+        
+        level().addParticle(
+                ParticleTypes.SMOKE,
+                getX() + (double) xOffset,
+                getY() + (double) yOffset,
+                getZ() + (double) zOffset,
+                0.0D, 0.0D, 0.0D
+        );
+        level().addParticle( ParticleTypes.SMOKE,
+                getX() - (double) xOffset,
+                getY() + (double) yOffset,
+                getZ() - (double) zOffset,
+                0.0D, 0.0D, 0.0D
+        );
     }
     
     /** Returns the max brightness for the specified light layer that the Shadefiend can tolerate. */
@@ -154,6 +157,7 @@ public class Shadefiend extends FlyingMob implements Enemy {
                 if( level().getDifficulty() == Difficulty.HARD ) {
                     effectDuration = 80;
                 }
+                // TODO the duration of these effects could be configurable
                 livingEntity.addEffect( new MobEffectInstance( MobEffects.DARKNESS, effectDuration, 0 ), this );
                 livingEntity.addEffect( new MobEffectInstance( CrustObjects.Effects.VULNERABILITY.get(), effectDuration, 0 ), this );
             }

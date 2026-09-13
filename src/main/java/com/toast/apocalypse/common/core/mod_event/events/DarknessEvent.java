@@ -64,7 +64,10 @@ public final class DarknessEvent extends AbstractEvent {
                 case STARTING, RESET -> { }
                 case FIRST_WARN -> warn( level, player, References.CALL_OF_THE_SHADOWS_0, false );
                 case SECOND_WARN -> warn( level, player, References.CALL_OF_THE_SHADOWS_1, true );
-                case SPAWN -> spawnMonster( level, player );
+                case SPAWN -> {
+                    warn( level, player, References.CALL_OF_THE_SHADOWS_2, false );
+                    spawnMonster( level, player );
+                }
             }
         }
     }
@@ -86,8 +89,6 @@ public final class DarknessEvent extends AbstractEvent {
     
     /** Spawns a monster at the given player's location. */
     private void spawnMonster( ServerLevel level, Player player ) {
-        player.displayClientMessage( Component.translatable( References.CALL_OF_THE_SHADOWS_2 ), true );
-        
         final Shadefiend mob = ApocalypseEntities.SHADEFIEND.get().create( level );
         
         if( mob == null ) return;
