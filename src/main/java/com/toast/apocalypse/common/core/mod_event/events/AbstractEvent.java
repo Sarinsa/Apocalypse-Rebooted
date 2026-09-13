@@ -85,7 +85,7 @@ public abstract class AbstractEvent {
      *
      * @param data The tag to write to.
      */
-    protected abstract void writeAdditional( CompoundTag data );
+    protected void writeAdditional( CompoundTag data ) { }
     
     /**
      * Loads this event's data from the given NBT.

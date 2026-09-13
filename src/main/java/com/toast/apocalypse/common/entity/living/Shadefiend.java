@@ -1,7 +1,6 @@
 package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
-import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
 import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
 import fathertoast.crust.api.lib.CrustObjects;
@@ -140,12 +139,8 @@ public class Shadefiend extends FlyingMob implements Enemy {
     
     /** Returns the max brightness for the specified light layer that the Shadefiend can tolerate. */
     private int getLightLevelLimit( LightLayer lightLayer ) {
-        if( lightLayer == LightLayer.SKY ) {
-            return ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.skyLightLevel.get();
-        }
-        else {
-            return level().isDay() ? 0 : ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.blockLightLevel.get();
-        }
+        // TODO perchance make this configurable in the entity's config
+        return 3;
     }
     
     @Override

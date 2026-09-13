@@ -2,7 +2,6 @@ package com.toast.apocalypse.common.core.mod_event.events;
 
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,35 +14,35 @@ public final class AcidRainEvent extends AbstractEvent {
         super( type );
     }
     
-    @Override
-    public void onStart( MinecraftServer server, ServerPlayer player ) {
+    /** @return True if this event can start. */
+    @SuppressWarnings( "unused" )
+    public static boolean canStart( ServerLevel serverLevel, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager ) {
+        return difficultyManager.isRainingAcid( serverLevel );
     }
     
+    /** Called when this event starts. */
     @Override
-    public void update( ServerLevel level, ServerPlayer player, PlayerDifficultyManager difficultyManager ) {
+    public void onStart( MinecraftServer server, ServerPlayer player ) { }
     
-    }
+    /**
+     * Called every 5 ticks on the server to tick this event.
+     *
+     * @param player The player to update this event for.
+     */
+    @Override
+    public void update( ServerLevel level, ServerPlayer player, PlayerDifficultyManager difficultyManager ) { }
     
+    /** Called before each update to check if this event should keep running. */
     @Override
     public boolean shouldContinueRunning( ServerLevel level, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager ) {
         return difficultyManager.isRainingAcid( level );
     }
     
+    /** Called when the event ends naturally. */
     @Override
-    public void onEnd( MinecraftServer server, ServerPlayer player ) {
-    }
+    public void onEnd( MinecraftServer server, ServerPlayer player ) { }
     
+    /** Called when the player disconnects before the event can end naturally. */
     @Override
-    public void stop( ServerLevel level, ServerPlayer player ) {
-    
-    }
-    
-    @Override
-    public void writeAdditional( CompoundTag data ) {
-    
-    }
-    
-    @Override
-    public void read( CompoundTag data, ServerPlayer player, ServerLevel level ) {
-    }
+    public void stop( ServerLevel level, ServerPlayer player ) { }
 }

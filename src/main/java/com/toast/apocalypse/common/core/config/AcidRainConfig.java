@@ -142,11 +142,11 @@ public class AcidRainConfig extends AbstractConfigFile {
             enableBlockDegradation = SPEC.define( new BooleanField( "enable_block_degradation", false,
                     "If enabled, acid rain will start \"corroding\" blocks it comes in contact with.",
                     "What blocks are affected and what they turn into can be configured in the below transformation list.",
-                    "Note that block degradation by acid rain will not happen in snowy areas unless \"acidSnow\" is enabled in the general category." ) );
+                    "Note that block degradation by acid rain will not happen in snowy areas unless \"acid_snow\" is enabled in the general category." ) );
             degradationChance = SPEC.define( new DoubleField( "degradation_chance", 0.05, DoubleField.Range.PERCENT,
                     "The chance when ticking a chunk to corrode a random exposed block." ) );
             blockTransformations = SPEC.define( new BlockStateMapField<>( "block_transformations", defaultTransformList(),
-                    "A list of input blocks states and what block states they turn into when exposed to acid rain.",
+                    "A list of input block states and what block states they turn into when exposed to acid rain.",
                     "Both the input and output block states can have state properties specified; input blocks will only " +
                             "be transformed when matching the state properties specified, while output blocks will copy the " +
                             "transforming block's state properties and overwrite any state properties specifically defined.",

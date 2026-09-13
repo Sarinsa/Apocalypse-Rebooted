@@ -1,12 +1,10 @@
 package com.toast.apocalypse.common.core.mod_event.events;
 
-import com.toast.apocalypse.common.compat.ryaomic.RyoamicCompat;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
-import com.toast.apocalypse.common.core.register.ApocalypseEntities;
-import com.toast.apocalypse.common.entity.living.Shadefiend;
 import com.toast.apocalypse.common.util.References;
+import fathertoast.crust.api.config.common.value.environment.EnvironmentContext;
 import fathertoast.crust.api.lib.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -18,10 +16,11 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LightLayer;
 import net.minecraftforge.event.ForgeEventFactory;
 
 import java.util.Objects;
@@ -41,6 +40,14 @@ public final class DarknessEvent extends AbstractEvent {
         super( type );
     }
     
+    /** @return True if this event can start. */
+    public static boolean canStart( ServerLevel serverLevel, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager ) {
+        if( player.isCreative() || player.isSpectator() || !ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.enabled.get() )
+            return false;
+        final BlockPos eyePos = player.blockPosition().atY( (int) Math.floor( player.getEyeY() ) );
+        final EnvironmentContext ctx = EnvironmentContext.withTarget( serverLevel, eyePos ).withCause( player );
+        return ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.conditions.getOrElse( ctx, false );
+    }
     
     /** Called when this event starts. */
     @Override
@@ -85,27 +92,41 @@ public final class DarknessEvent extends AbstractEvent {
         player.displayClientMessage( Component.translatable( warning ), true );
     }
     
-    // TODO Maybe make a configurable weighted list of mobs that can spawn
-    
-    /** Spawns a monster at the given player's location. */
+    /**
+     * Spawns a monster at the given player's location. Depending on the configured spawn list
+     * the picked entity may not even be a monster, or mob, but it will be allowed to spawn anyway.
+     */
     private void spawnMonster( ServerLevel level, Player player ) {
-        final Shadefiend mob = ApocalypseEntities.SHADEFIEND.get().create( level );
+        final EntityType<?> entityType = ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.spawnList.next( level.random );
         
-        if( mob == null ) return;
+        if( entityType == null ) return;
+        Entity entity = entityType.create( level );
+        if( entity == null ) return;
         
-        ForgeEventFactory.onFinalizeSpawn( mob, level, level.getCurrentDifficultyAt( player.blockPosition() ), MobSpawnType.EVENT, null, null );
-        mob.setPos( player.getX(), player.getY(), player.getZ() );
-        level.tryAddFreshEntityWithPassengers( mob );
+        if( entity instanceof Mob mob ) {
+            ForgeEventFactory.onFinalizeSpawn( mob, level, level.getCurrentDifficultyAt( player.blockPosition() ), MobSpawnType.EVENT, null, null );
+        }
+        entity.setPos( player.getX(), player.getY(), player.getZ() );
+        level.tryAddFreshEntityWithPassengers( entity );
         
-        // TODO Maybe make this configurable as well, or at the very least the duration
-        player.addEffect( new MobEffectInstance( MobEffects.BLINDNESS, 50 ) );
+        if( entity.isAddedToWorld() ) {
+            // Apply blindness effect
+            final int duration = ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.blindnessTicks.next( level.random );
+            player.addEffect( new MobEffectInstance( MobEffects.BLINDNESS, duration ) );
+            
+            // Set target early
+            if( entity instanceof Mob mob ) {
+                mob.setTarget( player );
+            }
+        }
     }
     
     /** Called before each update to check if this event should keep running. */
     @Override
     public boolean shouldContinueRunning( ServerLevel level, ServerPlayer player, double scaledDifficulty, PlayerDifficultyManager difficultyManager ) {
         if( stage == Stage.RESET || player.isCreative() || player.isSpectator() ) return false;
-        return isLowBrightnessAt( level, player );
+        // noinspection ConstantConditions
+        return getType().getStartPredicate().test( level, player, scaledDifficulty, difficultyManager );
     }
     
     /** Called when the event ends naturally. */
@@ -139,19 +160,6 @@ public final class DarknessEvent extends AbstractEvent {
         if( NBTHelper.containsNumber( data, TAG_TIME_NEXT_STATE ) ) {
             timer = data.getInt( TAG_TIME_NEXT_STATE );
         }
-    }
-    
-    /**
-     * @return True if the skylight and block light at the given player's eye position
-     * is low enough to trigger this event.
-     */
-    public static boolean isLowBrightnessAt( Level level, Player player ) {
-        final BlockPos eyePos = player.blockPosition().atY( (int) Math.floor( player.getEyeY() ) );
-        final int skylight = level.getBrightness( LightLayer.SKY, eyePos );
-        final int blockLight = RyoamicCompat.getBlockOrDynamicLightAt( level, eyePos );
-        
-        return skylight <= ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.skyLightLevel.get()
-                && blockLight <= ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.blockLightLevel.get();
     }
     
     enum Stage {

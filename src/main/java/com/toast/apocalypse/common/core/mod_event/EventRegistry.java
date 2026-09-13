@@ -21,22 +21,17 @@ public class EventRegistry {
     private static final HashMap<Integer, EventType<?>> EVENTS = new HashMap<>();
     
     
-    public static final EventType<?> LUNAR_SIEGE = register( ApocalypseEvent.EventIds.LUNAR_SIEGE, "lunar_siege", FullMoonEvent::new, References.FULL_MOON,
-            new IEventPredicate.RisingEdge( ( serverLevel, player, difficulty, difficultyManager ) ->
-                    ApocalypseConfig.LUNAR_SIEGE.GENERAL.enableLunarSieges.get() && difficulty > 0 && difficultyManager.isFullMoonNight() ) );
+    public static final EventType<?> LUNAR_SIEGE = register( ApocalypseEvent.EventIds.LUNAR_SIEGE, "lunar_siege",
+            FullMoonEvent::new, References.FULL_MOON, FullMoonEvent::canStart );
     
-    public static final EventType<?> THUNDERSTORM = register( ApocalypseEvent.EventIds.THUNDERSTORM, "thunderstorm", ThunderstormEvent::new, References.THUNDERSTORM,
-            ( serverLevel, player, difficulty, difficultyManager ) -> ApocalypseConfig.THUNDERSTORM.GENERAL.enabled.get() && serverLevel.isThundering() );
+    public static final EventType<?> THUNDERSTORM = register( ApocalypseEvent.EventIds.THUNDERSTORM, "thunderstorm",
+            ThunderstormEvent::new, References.THUNDERSTORM, ThunderstormEvent::canStart );
     
-    public static final EventType<?> ACID_RAIN = register( ApocalypseEvent.EventIds.ACID_RAIN, "acid_rain", AcidRainEvent::new, References.ACID_RAIN,
-            ( serverLevel, player, difficulty, difficultyManager ) -> difficultyManager.isRainingAcid( serverLevel ) );
+    public static final EventType<?> ACID_RAIN = register( ApocalypseEvent.EventIds.ACID_RAIN, "acid_rain",
+            AcidRainEvent::new, References.ACID_RAIN, AcidRainEvent::canStart );
     
-    public static final EventType<?> CALL_OF_THE_SHADOWS = register( ApocalypseEvent.EventIds.CALL_OF_THE_SHADOWS, "call_of_the_shadows", DarknessEvent::new, null,
-            ( serverLevel, player, difficulty, difficultyManager ) -> {
-                if( player.isCreative() || player.isSpectator() || !ApocalypseConfig.CALL_OF_THE_SHADOWS.GENERAL.enabled.get() )
-                    return false;
-                return DarknessEvent.isLowBrightnessAt( serverLevel, player );
-            } );
+    public static final EventType<?> CALL_OF_THE_SHADOWS = register( ApocalypseEvent.EventIds.CALL_OF_THE_SHADOWS, "call_of_the_shadows",
+            DarknessEvent::new, null, DarknessEvent::canStart );
     
     
     /**
@@ -84,5 +79,5 @@ public class EventRegistry {
     }
     
     // Class loading epic moment
-    public static void init() {}
+    public static void init() { }
 }
