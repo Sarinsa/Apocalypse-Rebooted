@@ -35,6 +35,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -630,6 +631,12 @@ public final class PlayerDifficultyManager {
         /** Updates the {@link #isRainingAcid} field for this world info and notifies clients. */
         protected void setRainingAcid( boolean value ) {
             isRainingAcid = value;
+            
+            if( value && ApocalypseConfig.ACID_RAIN.GENERAL.acidRainDurationMulti.getDouble() != 1.0 &&
+                    level.getLevelData() instanceof ServerLevelData levelData ) { // Should always be true; but just in case
+                levelData.setRainTime( Math.max( 1, (int) (levelData.getRainTime() *
+                        ApocalypseConfig.ACID_RAIN.GENERAL.acidRainDurationMulti.getDouble()) ) );
+            }
             
             savedData.setDirty();
             

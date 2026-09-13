@@ -45,6 +45,7 @@ public class AcidRainConfig extends AbstractConfigFile {
     public static class General extends AbstractConfigCategory<AcidRainConfig> {
         
         public final DoubleField acidRainChance;
+        public final DoubleField acidRainDurationMulti;
         
         public final IntField damageTicks;
         public final DoubleField rainDamage;
@@ -59,10 +60,12 @@ public class AcidRainConfig extends AbstractConfigFile {
             super( parent, "general",
                     "General event settings." );
             
-            acidRainChance = SPEC.define( new DoubleField( "acid_rain_chance", 0.25, DoubleField.Range.PERCENT,
+            acidRainChance = SPEC.define( new DoubleField( "acid_rain_chance", 0.15, DoubleField.Range.PERCENT,
                     "The chance of triggering an Acid Rain event when it starts raining. 1.0 = 100% chance, 0.5 = 50% etc.",
                     "Setting this to 0.0 effectively disables acid rain." ) );
-            //TODO perchance add a multiplier we can apply to rain duration when it is of the acid variety
+            acidRainDurationMulti = SPEC.define( new DoubleField( "acid_rain_duration_multiplier", 0.3, DoubleField.Range.NON_NEGATIVE,
+                    "When it starts raining acid, the rain's duration is multiplied by this value.",
+                    "For reference, vanilla rain is 12000 to 24000 ticks (10 to 20 minutes) long." ) );
             
             SPEC.newLine();
             
