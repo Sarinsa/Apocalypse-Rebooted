@@ -34,7 +34,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -92,7 +94,7 @@ public final class PlayerDifficultyManager {
     private boolean serverStopped = false;
     
     
-    public PlayerDifficultyManager() { }
+    public PlayerDifficultyManager() {}
     
     
     /** @return The current time of day in the given level. */
@@ -168,9 +170,15 @@ public final class PlayerDifficultyManager {
         return isFullMoon() && dayTime > 13_000L && dayTime < 23_500L;
     }
     
+    /** @return True if it is possible to rain in the specified level. */
+    public static boolean canRain( ServerLevel level ) {
+        DimensionType dimType = level.dimensionType();
+        return dimType.hasSkyLight() && !dimType.hasCeiling() && !dimType.ultraWarm();
+    }
+    
     /** @return True if it is currently raining acid in the specified level. */
-    public boolean isRainingAcid( ServerLevel world ) {
-        return worldInfo.get( world ).isRainingAcid();
+    public boolean isRainingAcid( ServerLevel level ) {
+        return worldInfo.get( level ).isRainingAcid();
     }
     
     /** Called when the server is about to start. */
@@ -187,7 +195,7 @@ public final class PlayerDifficultyManager {
     @SubscribeEvent
     public void onServerStarted( ServerStartedEvent event ) {
         serverStopped = false;
-        event.getServer().getAllLevels().forEach( ( world ) -> worldInfo.put( world, new WorldInfo( world ) ) );
+        event.getServer().getAllLevels().forEach( level -> worldInfo.put( level, new WorldInfo( level ) ) );
     }
     
     /** Called when the server is stopping. */
@@ -276,7 +284,6 @@ public final class PlayerDifficultyManager {
     public void onServerTick( TickEvent.ServerTickEvent event ) {
         if( event.phase == TickEvent.Phase.END ) {
             final MinecraftServer server = this.server;
-            final ServerLevel overworld = server.overworld();
             
             // Update lunar armor modifier index.
             calculateLunarArmorIndex( server );
@@ -287,7 +294,6 @@ public final class PlayerDifficultyManager {
                 if( server.overworld().getGameTime() > 0L ) {
                     // Update player difficulty and event
                     for( ServerPlayer player : server.getPlayerList().getPlayers() ) {
-                        // noinspection resource
                         if( player.level().isLoaded( BlockPos.containing( player.position() ) ) ) {
                             updatePlayerDifficulty( player );
                             
@@ -298,19 +304,22 @@ public final class PlayerDifficultyManager {
                     }
                     // Update world info
                     if( !worldInfo.isEmpty() ) {
-                        final WorldInfo overworldInfo = worldInfo.get( overworld );
-                        
-                        if( overworldInfo != null ) {
-                            if( overworld.isRaining() ) {
-                                if( !overworldInfo.justStartedRaining() ) {
-                                    overworldInfo.setJustStartedRaining( true, overworld.random );
+                        server.getAllLevels().forEach( level -> {
+                            if( PlayerDifficultyManager.canRain( level ) ) {
+                                final WorldInfo info = worldInfo.get( level );
+                                if( info != null ) {
+                                    if( level.isRaining() ) {
+                                        if( !info.justStartedRaining() ) {
+                                            info.setJustStartedRaining( true, level.random );
+                                        }
+                                    }
+                                    else {
+                                        info.setJustStartedRaining( false, level.random );
+                                        info.setRainingAcid( false );
+                                    }
                                 }
                             }
-                            else {
-                                overworldInfo.setJustStartedRaining( false, overworld.random );
-                                overworldInfo.setRainingAcid( false );
-                            }
-                        }
+                        } );
                     }
                 }
             }
@@ -368,7 +377,6 @@ public final class PlayerDifficultyManager {
                     }
                 }
                 if( playSound ) {
-                    // noinspection resource
                     serverPlayer.level().playSound(
                             null,
                             serverPlayer.blockPosition(),
@@ -631,6 +639,12 @@ public final class PlayerDifficultyManager {
         protected void setRainingAcid( boolean value ) {
             isRainingAcid = value;
             
+            if( value && ApocalypseConfig.ACID_RAIN.GENERAL.acidRainDurationMulti.getDouble() != 1.0 &&
+                    level.getLevelData() instanceof ServerLevelData levelData ) { // Should always be true; but just in case
+                levelData.setRainTime( Math.max( 1, (int) (levelData.getRainTime() *
+                        ApocalypseConfig.ACID_RAIN.GENERAL.acidRainDurationMulti.getDouble()) ) );
+            }
+            
             savedData.setDirty();
             
             for( ServerPlayer player : level.players() ) {
@@ -650,8 +664,9 @@ public final class PlayerDifficultyManager {
         public void setJustStartedRaining( boolean value, RandomSource random ) {
             justStartedRaining = value;
             
-            if( value && random.nextDouble() < ApocalypseConfig.ACID_RAIN.GENERAL.acidRainChance.get() )
+            if( value && random.nextDouble() < ApocalypseConfig.ACID_RAIN.GENERAL.acidRainChance.get() ) {
                 setRainingAcid( true );
+            }
         }
         
         /** @return True if it just started raining in the level associated with this world info (this tick). */

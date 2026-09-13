@@ -2,6 +2,7 @@ package com.toast.apocalypse.common.item;
 
 import com.toast.apocalypse.client.ClientUtil;
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.util.References;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.model.HumanoidModel;
@@ -49,6 +50,8 @@ public class BucketHelmetItem extends ArmorItem {
     
     @Override
     public void appendHoverText( ItemStack itemStack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag ) {
-        tooltip.add( Component.translatable( References.BUCKET_HELM_DESC ).withStyle( ChatFormatting.GRAY ) );
+        if( !ApocalypseConfig.ACID_RAIN.GENERAL.nonProtectingItems.contains( itemStack ) ) {
+            tooltip.add( Component.translatable( References.BUCKET_HELM_DESC ).withStyle( ChatFormatting.GRAY ) );
+        }
     }
 }

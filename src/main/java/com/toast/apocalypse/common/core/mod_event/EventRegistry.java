@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.core.mod_event;
 
 import com.toast.apocalypse.api.event.ApocalypseEvent;
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.mod_event.events.*;
 import com.toast.apocalypse.common.util.References;
 import org.jetbrains.annotations.ApiStatus;

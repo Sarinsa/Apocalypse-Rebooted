@@ -1,9 +1,14 @@
 1.20.1-3.11.0
     - Minimum required Crust version is now 5. As such, server configs can now be viewed
-     and/or edited in-game if you have the required permission level. Configs now allow:
+      and/or edited in-game if you have the required permission level. Configs now allow:
         - Specifying block state properties where relevant.
         - Specifying mob effect amplifiers for permanent potion effects.
+        - Many more options for events.
+    - Most config settings will be reset when updating to this version; you may want to
+      back up your configs if you want to base the new settings off your current.
     - Lunar siege events now display an event bar (similar to vanilla raids).
+    - Acid rain now has a configurable duration multiplier.
+    - Acid rain damage now ignores armor and plays the burning hit sound.
     - Fixed acid rain visuals not displaying on dedicated servers when changing dimensions.
     - "Call of The Shadows" apocalypse event is now more configurable.
     - Added command to advance time to the next full moon night (/apocalypse nextFullMoon).
