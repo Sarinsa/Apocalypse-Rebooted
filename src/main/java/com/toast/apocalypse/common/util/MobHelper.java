@@ -62,6 +62,7 @@ public class MobHelper {
      * and if the size of the resulting list is greater than the desired cap, entries are removed from the top of the list
      * until the size matches the cap.
      */
+    // TODO maybe add a boolean flag here for sorting by closest to the center of the AABB so we can discard entities that are further away?
     public static <T extends Entity> List<? extends T> getLoadedEntitiesCapped( Class<? extends T> entityClass, LevelAccessor level, AABB box, @Nullable Predicate<? super T> predicate, final int cap ) {
         if( cap < 1 ) return List.of();
         final List<? extends T> list = level.getEntitiesOfClass( entityClass, box, predicate == null
