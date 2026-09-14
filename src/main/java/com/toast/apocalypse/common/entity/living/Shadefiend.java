@@ -1,8 +1,10 @@
 package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
 import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
+import com.toast.apocalypse.common.util.MobHelper;
 import fathertoast.crust.api.lib.CrustObjects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -15,7 +17,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -34,7 +35,6 @@ import net.minecraftforge.fluids.FluidType;
 
 import java.util.EnumSet;
 
-@SuppressWarnings( "resource" )
 public class Shadefiend extends FlyingMob implements Enemy {
     
     /** Set to true when the Shadefiend is in a space with a harmful light level. */
@@ -54,9 +54,9 @@ public class Shadefiend extends FlyingMob implements Enemy {
     
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
-                .add( Attributes.MOVEMENT_SPEED, 0.35D )
-                .add( Attributes.MAX_HEALTH, 15.0D )
-                .add( Attributes.ATTACK_DAMAGE, 4.0D );
+                .add( Attributes.MOVEMENT_SPEED, 0.35 )
+                .add( Attributes.MAX_HEALTH, 15.0 )
+                .add( Attributes.ATTACK_DAMAGE, 3.0 );
     }
     
     @Override
@@ -139,22 +139,19 @@ public class Shadefiend extends FlyingMob implements Enemy {
     
     /** Returns the max brightness for the specified light layer that the Shadefiend can tolerate. */
     private int getLightLevelLimit( LightLayer lightLayer ) {
-        // TODO perchance make this configurable in the entity's config
-        return 3;
+        return lightLayer == LightLayer.SKY ? ApocalypseConfig.ENTITIES.MISC.shadefiendSkyLightTolerance.getInt() :
+                ApocalypseConfig.ENTITIES.MISC.shadefiendBlockLightTolerance.getInt();
     }
     
     @Override
-    public boolean doHurtTarget( Entity target ) {
-        if( super.doHurtTarget( target ) ) {
-            if( target instanceof LivingEntity livingEntity ) {
-                int effectDuration = 40;
-                
-                if( level().getDifficulty() == Difficulty.HARD ) {
-                    effectDuration = 80;
-                }
-                // TODO the duration of these effects could be configurable
-                livingEntity.addEffect( new MobEffectInstance( MobEffects.DARKNESS, effectDuration, 0 ), this );
-                livingEntity.addEffect( new MobEffectInstance( CrustObjects.Effects.VULNERABILITY.get(), effectDuration, 0 ), this );
+    public boolean doHurtTarget( Entity entity ) {
+        if( super.doHurtTarget( entity ) ) {
+            if( entity instanceof LivingEntity livingEntity ) {
+                MobHelper.applyEffect( livingEntity, this, MobEffects.DARKNESS, 0,
+                        ApocalypseConfig.ENTITIES.MISC.shadefiendDarknessDuration );
+                MobHelper.applyEffect( livingEntity, this, CrustObjects.Effects.VULNERABILITY, 0,
+                        ApocalypseConfig.ENTITIES.MISC.shadefiendVulnerabilityDuration );
+                MobHelper.applyDeathtouch( livingEntity, ApocalypseConfig.ENTITIES.MISC.shadefiendDeathtouch );
             }
             return true;
         }
@@ -225,7 +222,7 @@ public class Shadefiend extends FlyingMob implements Enemy {
         }
         
         @Override
-        public void tick() { }
+        public void tick() {}
     }
     
     static class ShadefiendMoveControl extends SimpleFlyingMoveController {

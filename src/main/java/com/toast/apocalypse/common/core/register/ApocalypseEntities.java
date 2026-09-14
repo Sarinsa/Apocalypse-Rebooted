@@ -2,12 +2,16 @@ package com.toast.apocalypse.common.core.register;
 
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.*;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import com.toast.apocalypse.common.entity.projectile.MonsterFishhook;
 import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
+import fathertoast.crust.api.config.common.field.collection.AttributeOpListField;
+import fathertoast.crust.api.config.common.value.ConfigDrivenAttributeSupplier;
 import fathertoast.crust.api.lib.CrustEntityHelper;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
@@ -23,6 +27,7 @@ public final class ApocalypseEntities {
     
     public static final DeferredRegister<EntityType<?>> REGISTRY = DeferredRegister.create( ForgeRegistries.ENTITY_TYPES, Apocalypse.MOD_ID );
     
+    // Projectiles
     public static final RegistryObject<EntityType<MonsterFishhook>> MONSTER_FISH_HOOK = register( ApocalypseObjects.EntityTypes.MONSTER_FISH_HOOK,
             EntityType.Builder.<MonsterFishhook>of( MonsterFishhook::new, MobCategory.MISC )
                     .sized( 0.25F, 0.25F ).noSave().noSummon()
@@ -36,11 +41,14 @@ public final class ApocalypseEntities {
                     .sized( 0.6F, 0.6F )
                     .clientTrackingRange( 4 ).updateInterval( 6 ) );
     
+    // Lunar siege monsters
     public static final RegistryObject<EntityType<Ghost>> GHOST = register( ApocalypseObjects.EntityTypes.GHOST, CrustEntityHelper.monsterType( Ghost::new, 0.6F, 1.95F ) );
     public static final RegistryObject<EntityType<Destroyer>> DESTROYER = register( ApocalypseObjects.EntityTypes.DESTROYER, CrustEntityHelper.monsterType( Destroyer::new, 4.5F, 4.5F ).fireImmune() );
     public static final RegistryObject<EntityType<Seeker>> SEEKER = register( ApocalypseObjects.EntityTypes.SEEKER, CrustEntityHelper.monsterType( Seeker::new, 4.5F, 4.5F ).fireImmune() );
     public static final RegistryObject<EntityType<Grump>> GRUMP = register( ApocalypseObjects.EntityTypes.GRUMP, CrustEntityHelper.monsterType( Grump::new, 1.0F, 1.0F ) );
     public static final RegistryObject<EntityType<Breecher>> BREECHER = register( ApocalypseObjects.EntityTypes.BREECHER, CrustEntityHelper.monsterType( Breecher::new, 0.6F, 1.7F ) );
+    
+    // Other monsters
     public static final RegistryObject<EntityType<Fearwolf>> FEARWOLF = register( ApocalypseObjects.EntityTypes.FEARWOLF, CrustEntityHelper.monsterType( Fearwolf::new, 1.6F, 1.8F ) );
     public static final RegistryObject<EntityType<Shadefiend>> SHADEFIEND = register( ApocalypseObjects.EntityTypes.SHADEFIEND, CrustEntityHelper.monsterType( Shadefiend::new, 0.9F, 0.5F ) );
     
@@ -57,13 +65,20 @@ public final class ApocalypseEntities {
     
     /** Called when entity attributes are to be created and registered. */
     public static void createEntityAttributes( EntityAttributeCreationEvent event ) {
-        event.put( GHOST.get(), Ghost.createGhostAttributes().build() );
-        event.put( DESTROYER.get(), Destroyer.createDestroyerAttributes().build() );
-        event.put( SEEKER.get(), Seeker.createSeekerAttributes().build() );
-        event.put( GRUMP.get(), Grump.createGrumpAttributes().build() );
-        event.put( BREECHER.get(), Breecher.createBreecherAttributes().build() );
-        event.put( FEARWOLF.get(), Fearwolf.createAttributes().build() );
-        event.put( SHADEFIEND.get(), Shadefiend.createAttributes().build() );
+        createConfigAttributes( event, GHOST, ApocalypseConfig.ENTITIES.FULL_MOON.ghostAttributes, Ghost.createGhostAttributes() );
+        createConfigAttributes( event, DESTROYER, ApocalypseConfig.ENTITIES.FULL_MOON.destroyerAttributes, Destroyer.createDestroyerAttributes() );
+        createConfigAttributes( event, SEEKER, ApocalypseConfig.ENTITIES.FULL_MOON.seekerAttributes, Seeker.createSeekerAttributes() );
+        createConfigAttributes( event, GRUMP, ApocalypseConfig.ENTITIES.FULL_MOON.grumpAttributes, Grump.createGrumpAttributes() );
+        createConfigAttributes( event, BREECHER, ApocalypseConfig.ENTITIES.FULL_MOON.breecherAttributes, Breecher.createBreecherAttributes() );
+        
+        createConfigAttributes( event, FEARWOLF, ApocalypseConfig.ENTITIES.MISC.fearwolfAttributes, Fearwolf.createAttributes() );
+        createConfigAttributes( event, SHADEFIEND, ApocalypseConfig.ENTITIES.MISC.shadefiendAttributes, Shadefiend.createAttributes() );
+    }
+    
+    /** Registers config-driven attributes for an entity type. */
+    private static <T extends LivingEntity> void createConfigAttributes(
+            EntityAttributeCreationEvent event, RegistryObject<EntityType<T>> type, AttributeOpListField attributeConfig, AttributeSupplier.Builder attributeBuilder ) {
+        event.put( type.get(), new ConfigDrivenAttributeSupplier( attributeConfig, attributeBuilder ) );
     }
     
     /** Called when it is time to register spawn placements. */
@@ -73,6 +88,7 @@ public final class ApocalypseEntities {
         spawnPlacement( event, DESTROYER, SpawnPlacements.Type.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING, Destroyer::checkDestroyerSpawnRules );
         spawnPlacement( event, SEEKER, SpawnPlacements.Type.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING, Seeker::checkSeekerSpawnRules );
         spawnPlacement( event, GRUMP, SpawnPlacements.Type.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING, Grump::checkGrumpSpawnRules );
+        
         spawnPlacement( event, FEARWOLF, SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Fearwolf::checkFearwolfSpawnRules );
         spawnPlacement( event, SHADEFIEND, SpawnPlacements.Type.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING, Shadefiend::checkShadefiendSpawnRules );
     }
@@ -86,5 +102,5 @@ public final class ApocalypseEntities {
     }
     
     
-    private ApocalypseEntities() { }
+    private ApocalypseEntities() {}
 }

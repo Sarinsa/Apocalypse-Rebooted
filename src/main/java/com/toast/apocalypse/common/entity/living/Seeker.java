@@ -64,9 +64,9 @@ public class Seeker extends AbstractFullMoonGhast {
     
     public static AttributeSupplier.Builder createSeekerAttributes() {
         return Mob.createMobAttributes()
-                .add( Attributes.MAX_HEALTH, 12.0D )
-                .add( Attributes.FOLLOW_RANGE, 4096.0D )
-                .add( ForgeMod.SWIM_SPEED.get(), 1.1D );
+                .add( Attributes.MAX_HEALTH, 10.0 )
+                .add( Attributes.FOLLOW_RANGE, 2048.0 )
+                .add( ForgeMod.SWIM_SPEED.get(), 1.1 );
     }
     
     public static boolean checkSeekerSpawnRules( EntityType<? extends Seeker> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random ) {
@@ -165,7 +165,7 @@ public class Seeker extends AbstractFullMoonGhast {
     
     @Override
     public int getExplosionPower() {
-        return explosionPower == 0 ? ApocalypseConfig.MISC.OTHER.seekerExplosionPower.get() : explosionPower;
+        return explosionPower == 0 ? ApocalypseConfig.ENTITIES.FULL_MOON.seekerExplosionPower.get() : explosionPower;
     }
     
     @Override

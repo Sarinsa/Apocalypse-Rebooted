@@ -57,7 +57,6 @@ public class DestroyerFireballEntity extends Fireball {
     
     @Override
     protected void onHit( HitResult result ) {
-        // noinspection resource
         final Level level = level();
         
         if( result.getType() == HitResult.Type.ENTITY ) {
@@ -69,7 +68,7 @@ public class DestroyerFireballEntity extends Fireball {
             
             if( entity instanceof LivingEntity livingEntity ) {
                 boolean damageBlocked = livingEntity.isDamageSourceBlocked( directImpact );
-                final int equipmentDamage = ApocalypseConfig.MISC.OTHER.destroyerEquipmentDamage.get();
+                final int equipmentDamage = ApocalypseConfig.ENTITIES.FULL_MOON.destroyerEquipmentDamage.get();
                 
                 if( equipmentDamage > 0 ) {
                     // Deal heavy damage to shield, if blocking
@@ -111,9 +110,7 @@ public class DestroyerFireballEntity extends Fireball {
             // wants to use the dummy info that would be parsed, lets not.
             // Did that explanation make sense? Probably not.
             
-            // noinspection resource
             if( !level().isClientSide ) {
-                // noinspection resource
                 destroyerExplosion( level(), this, level().damageSources().fireball( this, getOwner() ), getX(), getY(), getZ(), explosionPower );
                 discard();
             }
@@ -131,7 +128,6 @@ public class DestroyerFireballEntity extends Fireball {
             // Deflect fireball and set fuse time
             Entity entity = damageSource.getEntity();
             Vec3 vec = entity.getLookAngle();
-            // noinspection resource
             entity.level().playSound( null, blockPosition(), ApocalypseObjects.SoundEvents.DESTROYER_FIREBALL_DEFLECT.get(), SoundSource.NEUTRAL, 0.8F, 1.0F );
             fuseTime = 10;
             setDeltaMovement( vec );

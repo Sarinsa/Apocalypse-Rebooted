@@ -1,7 +1,9 @@
 package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.ai.FearwolfRunAwayGoal;
+import com.toast.apocalypse.common.util.MobHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -11,12 +13,8 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
@@ -58,9 +56,9 @@ public class Fearwolf extends Monster implements Enemy {
     
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
-                .add( Attributes.MOVEMENT_SPEED, 0.35D )
-                .add( Attributes.MAX_HEALTH, 10.0D )
-                .add( Attributes.ATTACK_DAMAGE, 2.0D );
+                .add( Attributes.MOVEMENT_SPEED, 0.35 )
+                .add( Attributes.MAX_HEALTH, 10.0 )
+                .add( Attributes.ATTACK_DAMAGE, 2.0 );
     }
     
     @Override
@@ -72,10 +70,10 @@ public class Fearwolf extends Monster implements Enemy {
     @Override
     public boolean doHurtTarget( Entity entity ) {
         if( super.doHurtTarget( entity ) ) {
-            if( entity instanceof Player player ) {
-                // noinspection resource
-                int duration = level().getDifficulty() == Difficulty.HARD ? 80 : 40;
-                player.addEffect( new MobEffectInstance( MobEffects.MOVEMENT_SLOWDOWN, duration ) );
+            if( entity instanceof LivingEntity livingEntity ) {
+                MobHelper.applyEffect( livingEntity, this, MobEffects.MOVEMENT_SLOWDOWN, 0,
+                        ApocalypseConfig.ENTITIES.MISC.fearwolfSlownessDuration );
+                MobHelper.applyDeathtouch( livingEntity, ApocalypseConfig.ENTITIES.MISC.fearwolfDeathtouch );
             }
             return true;
         }
@@ -135,7 +133,6 @@ public class Fearwolf extends Monster implements Enemy {
     
     @Override
     public int getExperienceReward() {
-        // noinspection resource
         return level().random.nextInt( 5 ) + 3;
     }
 }

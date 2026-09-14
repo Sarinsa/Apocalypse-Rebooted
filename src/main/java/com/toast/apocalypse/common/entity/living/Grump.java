@@ -11,6 +11,7 @@ import com.toast.apocalypse.common.misc.PlayerKeyBindInfo;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.tag.ApocalypseItemTags;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
+import com.toast.apocalypse.common.util.MobHelper;
 import fathertoast.crust.api.lib.CrustObjects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
@@ -28,7 +29,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.*;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -78,7 +78,6 @@ import java.util.UUID;
  * Despite being a fearsome close range enemy, it can be befriended with some Fatherly Toast, making it a useful
  * companion.
  */
-@SuppressWarnings( "resource" )
 public class Grump extends AbstractFullMoonGhast implements OwnableEntity, ContainerListener {
     
     protected static final EntityDataAccessor<Optional<UUID>> OWNER_UUID = SynchedEntityData.defineId( Grump.class, EntityDataSerializers.OPTIONAL_UUID );
@@ -109,11 +108,11 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
     
     public static AttributeSupplier.Builder createGrumpAttributes() {
         return Mob.createMobAttributes()
-                .add( Attributes.MAX_HEALTH, 10.0D )
-                .add( Attributes.ATTACK_DAMAGE, 4.0D )
-                .add( Attributes.FLYING_SPEED, 1.0D )
-                .add( ForgeMod.SWIM_SPEED.get(), 1.1D )
-                .add( Attributes.FOLLOW_RANGE, 4096.0D );
+                .add( Attributes.MAX_HEALTH, 10.0 )
+                .add( Attributes.ATTACK_DAMAGE, 2.0 )
+                .add( Attributes.FLYING_SPEED, 1.0 )
+                .add( ForgeMod.SWIM_SPEED.get(), 1.1 )
+                .add( Attributes.FOLLOW_RANGE, 2048.0 );
     }
     
     public static boolean checkGrumpSpawnRules( EntityType<? extends Grump> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random ) {
@@ -199,10 +198,10 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
     @Override
     public boolean doHurtTarget( Entity entity ) {
         if( super.doHurtTarget( entity ) ) {
-            if( entity instanceof Player player ) {
-                // Apply Heavy effect on players on melee attack
-                int duration = level().getDifficulty() == Difficulty.HARD ? 100 : 60;
-                player.addEffect( new MobEffectInstance( CrustObjects.Effects.WEIGHT.get(), duration, 1 ) );
+            if( entity instanceof LivingEntity livingEntity ) {
+                MobHelper.applyEffect( livingEntity, this, CrustObjects.Effects.WEIGHT, 0,
+                        ApocalypseConfig.ENTITIES.FULL_MOON.grumpWeightDuration );
+                MobHelper.applyDeathtouch( livingEntity, ApocalypseConfig.ENTITIES.FULL_MOON.grumpDeathtouch );
             }
             return true;
         }
@@ -406,7 +405,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
     
     @Override
     protected void populateDefaultEquipmentSlots( RandomSource random, DifficultyInstance difficultyInstance ) {
-        double chance = ApocalypseConfig.MISC.OTHER.grumpBucketHelmetChance.get();
+        double chance = ApocalypseConfig.ENTITIES.FULL_MOON.grumpBucketHelmetChance.get();
         
         if( chance <= 0 )
             return;

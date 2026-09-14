@@ -1,8 +1,10 @@
 package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
+import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
+import com.toast.apocalypse.common.util.MobHelper;
 import fathertoast.crust.api.lib.CrustObjects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -19,7 +21,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -51,7 +52,6 @@ import java.util.UUID;
  * The ghost will also occasionally maneuver away if damaged, phasing
  * through walls and disorienting the target.
  */
-@SuppressWarnings( "resource" )
 public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
     
     public static final byte FREEZE_SOUND_ID = (byte) 7;
@@ -79,10 +79,10 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
     
     public static AttributeSupplier.Builder createGhostAttributes() {
         return FlyingMob.createMobAttributes()
-                .add( Attributes.ATTACK_DAMAGE, 1.0D )
-                .add( Attributes.MAX_HEALTH, 4.0D )
-                .add( Attributes.FLYING_SPEED, 0.50D )
-                .add( Attributes.FOLLOW_RANGE, 4096.0D );
+                .add( Attributes.ATTACK_DAMAGE, 1.0 )
+                .add( Attributes.MAX_HEALTH, 4.0 )
+                .add( Attributes.FLYING_SPEED, 0.5 )
+                .add( Attributes.FOLLOW_RANGE, 2048.0 );
     }
     
     public static boolean checkGhostSpawnRules( EntityType<? extends Ghost> entityType, ServerLevelAccessor level, MobSpawnType spawnReason, BlockPos pos, RandomSource random ) {
@@ -143,9 +143,10 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
     @Override
     public boolean doHurtTarget( Entity entity ) {
         if( super.doHurtTarget( entity ) ) {
-            if( entity instanceof Player player ) {
-                int duration = level().getDifficulty() == Difficulty.HARD ? 140 : 80;
-                player.addEffect( new MobEffectInstance( CrustObjects.Effects.WEIGHT.get(), duration, 1 ) );
+            if( entity instanceof LivingEntity livingEntity ) {
+                MobHelper.applyEffect( livingEntity, this, CrustObjects.Effects.WEIGHT, 1,
+                        ApocalypseConfig.ENTITIES.FULL_MOON.ghostWeightDuration );
+                MobHelper.applyDeathtouch( livingEntity, ApocalypseConfig.ENTITIES.FULL_MOON.ghostDeathtouch );
             }
             return true;
         }

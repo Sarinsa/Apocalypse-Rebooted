@@ -1,17 +1,11 @@
 package com.toast.apocalypse.common.core.config;
 
-import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import fathertoast.crust.api.config.common.AbstractConfigCategory;
 import fathertoast.crust.api.config.common.AbstractConfigFile;
 import fathertoast.crust.api.config.common.ConfigManager;
 import fathertoast.crust.api.config.common.field.BooleanField;
-import fathertoast.crust.api.config.common.field.DoubleField;
 import fathertoast.crust.api.config.common.field.IntField;
 import fathertoast.crust.api.config.common.field.collection.BlockStateSetField;
-import fathertoast.crust.api.config.common.value.collection.BlockStateSet;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.common.Tags;
 
 public class MiscConfig extends AbstractConfigFile {
     
@@ -67,6 +61,7 @@ public class MiscConfig extends AbstractConfigFile {
     
     public static class Events extends AbstractConfigCategory<MiscConfig> {
         
+        // TODO allow changing the message to a chat message; also possibly we can slap this in each event's config
         public final BooleanField displayStartMessage;
         
         Events( MiscConfig parent ) {
@@ -83,18 +78,6 @@ public class MiscConfig extends AbstractConfigFile {
         
         public final BooleanField rainFizzlesTorches;
         
-        //TODO move all these entity config things to an entity config with ze attributes
-        public final DoubleField grumpBucketHelmetChance;
-        
-        public final BlockStateSetField breecherExplosionTargets;
-        
-        public final IntField seekerExplosionPower;
-        
-        public final BlockStateSetField destroyerProofBlocks;
-        public final IntField destroyerExplosionPower;
-        public final IntField destroyerEquipmentDamage;
-        public final BooleanField destroyerTargetRespawnPos;
-        
         public final BooleanField pauseDaylightCycle;
         
         public final IntField lunarEquipmentUpdateTime;
@@ -106,41 +89,6 @@ public class MiscConfig extends AbstractConfigFile {
             rainFizzlesTorches = SPEC.define( new BooleanField( "rain_fizzles_torches", true,
                     "If enabled, torches exposed to rain will become wet and fizzle out.",
                     "Wet torches give off very little light, but will reignite on their own when the rain stops." ) );
-            
-            SPEC.newLine();
-            
-            grumpBucketHelmetChance = SPEC.define( new DoubleField( "grump_bucket_helmet_chance", 0.05, DoubleField.Range.PERCENT,
-                    "The chance for grumps to spawn with a bucket helmet equipped.",
-                    "Grumps with bucket helmets take greatly reduced damage from arrows." ) );
-            
-            SPEC.newLine();
-            
-            breecherExplosionTargets = SPEC.define( new BlockStateSetField( "breecher_explosion_targets", new BlockStateSet.Builder<>()
-                    .addTag( BlockTags.BEDS ).addTag( BlockTags.DOORS ).addTag( BlockTags.TRAPDOORS )
-                    .addTag( Tags.Blocks.CHESTS ).addTag( Tags.Blocks.BARRELS ).addTag( Tags.Blocks.FENCE_GATES )
-                    .add( ApocalypseObjects.Blocks.DYNAMIC_TRAP )
-                    .build(),
-                    "A list of blocks that the Breecher will target and try to explode if it can't currently reach its target player." ) );
-            
-            SPEC.newLine();
-            
-            seekerExplosionPower = SPEC.define( new IntField( "seeker_explosion_power", 4, 1, 10,
-                    "The explosion power of Seeker fireballs." ) );
-            
-            SPEC.newLine();
-            
-            destroyerProofBlocks = SPEC.define( new BlockStateSetField( "destroyer_proof_blocks", new BlockStateSet.Builder<>()
-                    .addTag( BlockTags.WITHER_IMMUNE ).add( Blocks.BEDROCK ) // Bedrock is in the tag normally, but also specify just in case
-                    .build(),
-                    "A list of blocks that the Destroyer cannot explode.",
-                    "Generally speaking destroyers are supposed to be able to blow up anything, but some exceptions may be desired (bedrock and whatnot)." ) );
-            destroyerExplosionPower = SPEC.define( new IntField( "destroyer_explosion_power", 2, 1, 10,
-                    "The explosion power of Destroyer fireballs." ) );
-            destroyerEquipmentDamage = SPEC.define( new IntField( "destroyer_equipment_damage", 0, IntField.Range.NON_NEGATIVE,
-                    "Additional damage destroyer fireballs deals to its target's equipment (armor, shield etc.). Set this to 0 to deal no extra damage." ) );
-            destroyerTargetRespawnPos = SPEC.define( new BooleanField( "destroyer_target_respawn_pos", false,
-                    "If enabled, Destroyers will attempt to blow up their target player's respawn point (bed, respawn anchor etc.).",
-                    "This does not apply to the global respawn point (where players respawn if they have no bed etc.)" ) );
             
             SPEC.newLine();
             

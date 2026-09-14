@@ -55,7 +55,8 @@ public class COTSConfig extends AbstractConfigFile {
             
             conditions = SPEC.define( new EnvironmentListField<>( "conditions", createDefaultConditions(),
                     "A list of environment conditions that must be met for this event to start.",
-                    "By default, the event only triggers in complete darkness, and not in The End or Nether." ) );
+                    "By default, the event only triggers in complete darkness, and not in The End or Nether.",
+                    "If setting the brightness higher, it may be wise to raise the Shadefiend's light tolerance in the entities config." ) );
             spawnList = SPEC.define( new RegistryWeightedListField<>( "spawn_list", createDefaultSpawnList(),
                     "A weighted list of mobs that can be spawned by this event.",
                     "Leaving this list empty will effectively disable this event." ) );
@@ -64,7 +65,7 @@ public class COTSConfig extends AbstractConfigFile {
         private static EnvironmentList<Boolean> createDefaultConditions() {
             return EnvironmentList.builder( BooleanValueCodec.DEFAULT_FALSE )
                     .entryBuilder( true )
-                    .atBrightness( 0 ).and()
+                    .belowBrightness( 1 ).and()
                     .notInTheEnd().and()
                     .notInNether()
                     .build().build();
@@ -74,6 +75,7 @@ public class COTSConfig extends AbstractConfigFile {
             return new RegistryWeightedList.Builder<>( ForgeRegistries.ENTITY_TYPES )
                     .add( 100, ApocalypseObjects.EntityTypes.SHADEFIEND )
                     .add( 10, ApocalypseObjects.EntityTypes.GHOST )
+                    .add( 10, EntityType.SKELETON )
                     .build();
         }
     }

@@ -63,9 +63,9 @@ public class Destroyer extends AbstractFullMoonGhast {
     
     public static AttributeSupplier.Builder createDestroyerAttributes() {
         return Mob.createMobAttributes()
-                .add( Attributes.MAX_HEALTH, 12.0D )
-                .add( Attributes.FOLLOW_RANGE, 4096.0D )
-                .add( ForgeMod.SWIM_SPEED.get(), 1.1D );
+                .add( Attributes.MAX_HEALTH, 12.0 )
+                .add( Attributes.FOLLOW_RANGE, 2048.0 )
+                .add( ForgeMod.SWIM_SPEED.get(), 1.1 );
     }
     
     public static boolean checkDestroyerSpawnRules( EntityType<? extends Destroyer> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random ) {
@@ -175,7 +175,7 @@ public class Destroyer extends AbstractFullMoonGhast {
     
     @Override
     public int getExplosionPower() {
-        return explosionPower == 0 ? ApocalypseConfig.MISC.OTHER.destroyerExplosionPower.get() : explosionPower;
+        return explosionPower == 0 ? ApocalypseConfig.ENTITIES.FULL_MOON.destroyerExplosionPower.get() : explosionPower;
     }
     
     @Override
@@ -321,7 +321,7 @@ public class Destroyer extends AbstractFullMoonGhast {
             if( destroyer.getTarget() != null ) {
                 Optional<Vec3> respawnPos = Optional.empty();
                 
-                if( ApocalypseConfig.MISC.OTHER.destroyerTargetRespawnPos.get() && destroyer.getTarget() instanceof ServerPlayer serverPlayer && !destroyer.attackedBySiegeTarget() ) {
+                if( ApocalypseConfig.ENTITIES.FULL_MOON.destroyerTargetRespawnPos.get() && destroyer.getTarget() instanceof ServerPlayer serverPlayer && !destroyer.attackedBySiegeTarget() ) {
                     if( destroyer.getPlayerTargetUUID() != null && destroyer.getPlayerTargetUUID() == serverPlayer.getUUID() ) {
                         BlockPos pos = serverPlayer.getRespawnPosition();
                         
@@ -373,11 +373,10 @@ public class Destroyer extends AbstractFullMoonGhast {
         
         @Override
         public boolean canUse() {
-            if( !ApocalypseConfig.MISC.OTHER.destroyerTargetRespawnPos.get() )
+            if( !ApocalypseConfig.ENTITIES.FULL_MOON.destroyerTargetRespawnPos.get() )
                 return false;
             
             if( IFullMoonMob.getEventTarget( destroyer ) instanceof ServerPlayer targetPlayer && !destroyer.attackedBySiegeTarget() ) {
-                // noinspection resource
                 if( targetPlayer.getRespawnPosition() != null &&
                         (targetPlayer.getRespawnDimension().equals( destroyer.level().dimension() ))
                         && isPlayerSpawnValid( targetPlayer.getRespawnPosition(), destroyer.level() ) ) {
@@ -390,11 +389,10 @@ public class Destroyer extends AbstractFullMoonGhast {
         
         @Override
         public boolean canContinueToUse() {
-            if( !ApocalypseConfig.MISC.OTHER.destroyerTargetRespawnPos.get() )
+            if( !ApocalypseConfig.ENTITIES.FULL_MOON.destroyerTargetRespawnPos.get() )
                 return false;
             
             if( IFullMoonMob.getEventTarget( destroyer ) instanceof ServerPlayer targetPlayer && !destroyer.attackedBySiegeTarget() ) {
-                // noinspection resource
                 if( respawnPos != null && (targetPlayer.getRespawnDimension().equals( destroyer.level().dimension() )) ) {
                     return isPlayerSpawnValid( respawnPos, destroyer.level() );
                 }
@@ -473,7 +471,6 @@ public class Destroyer extends AbstractFullMoonGhast {
             else if( destroyer.getTarget() instanceof ServerPlayer serverPlayer ) {
                 double x, z;
                 
-                // noinspection resource
                 if( !destroyer.attackedBySiegeTarget() && destroyer.isTargetingSpawnPoint
                         && serverPlayer.getRespawnPosition() != null && (serverPlayer.getRespawnDimension().equals( destroyer.level().dimension() ))
                         && isPlayerSpawnValid( serverPlayer.getRespawnPosition(), destroyer.level() ) ) {
