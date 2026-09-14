@@ -173,11 +173,18 @@ public final class FullMoonEvent extends AbstractEvent {
     private void updateCleanup( ServerLevel level, ServerPlayer player, PlayerDifficultyManager difficultyManager ) {
         int totalRemaining = refreshRemainingMobCount();
         if( totalRemaining <= 0 ) {
-            //TODO perhaps generate some reward?
             timer = ApocalypseConfig.LUNAR_SIEGE.PACING.resultsDuration.getInt();
-            setState( State.VICTORY );
+            if( deathCount <= 0 ) {
+                generateReward( level, player, difficultyManager, true, 1.0F );
+                setState( State.VICTORY );
+            }
+            else {
+                generateReward( level, player, difficultyManager, false, 1.0F );
+                setState( State.DEFEAT );
+            }
         }
         else if( decrementTimer() ) {
+            generateReward( level, player, difficultyManager, false, (float) spawnedSiegeMobs.size() / totalSpawns );
             if( ApocalypseConfig.LUNAR_SIEGE.SIEGE_MOBS.despawnMobsOnTimeout.get() ) {
                 spawnedSiegeMobs.forEach( entity -> {
                     if( entity instanceof Mob mob ) IFullMoonMob.spawnSmoke( level, mob );
@@ -436,6 +443,12 @@ public final class FullMoonEvent extends AbstractEvent {
     
     private static boolean isFlyingType( EntityType<?> entityType ) {
         return entityType.is( ApocalypseEntityTags.FLYING_ENTITIES );
+    }
+    
+    /** Called at the conclusion of this event to provide the player a reward for participating. */
+    private void generateReward( ServerLevel level, ServerPlayer player, PlayerDifficultyManager difficultyManager,
+                                 boolean victory, float completion ) {
+        //TODO generate some kind of reward
     }
     
     /**
