@@ -50,21 +50,29 @@ public class MobHelper {
     }
     
     /**
-     * This method comes with a max cap. If the amount of entities that have been found exceeds the cap,
-     * entities in the list will be removed from the top of the list until the list size matches the cap.
+     * Gets a list of loaded entities of X type, with a size limit.
+     *
+     * @param entityClass The class of the entity to search for instances of.
+     * @param level       The level to search in.
+     * @param box         The area to search in.
+     * @param predicate   An optional predicate for filtering entities.
+     * @param cap         The desired entity count cap. If cap is < 1, an empty list is returned early.
+     * @return A capped list of entities of the specified type within the given AABB.
+     * Entities are first collected through {@link net.minecraft.world.level.Level#getEntitiesOfClass(Class, AABB, Predicate)},
+     * and if the size of the resulting list is greater than the desired cap, entries are removed from the top of the list
+     * until the size matches the cap.
      */
     public static <T extends Entity> List<? extends T> getLoadedEntitiesCapped( Class<? extends T> entityClass, LevelAccessor level, AABB box, @Nullable Predicate<? super T> predicate, final int cap ) {
-        List<? extends T> list = level.getEntitiesOfClass( entityClass, box, predicate );
-        
-        if( list.isEmpty() ) {
-            return list;
-        }
-        int count = list.size();
+        if( cap < 1 ) return List.of();
+        final List<? extends T> list = level.getEntitiesOfClass( entityClass, box, predicate == null
+                ? ( entity ) -> true
+                : predicate );
+        // Return early if list is empty
+        if( list.isEmpty() ) return list;
         
         // Limit the amount of mobs.
-        while( count > cap ) {
-            --count;
-            list.remove( count );
+        while( list.size() > cap ) {
+            list.remove( list.size() - cap );
         }
         return list;
     }
