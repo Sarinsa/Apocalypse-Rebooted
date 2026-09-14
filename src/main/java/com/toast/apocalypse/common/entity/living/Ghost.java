@@ -13,7 +13,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -64,7 +63,6 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
     
     /** The constant player target, if this mob was spawned by the full moon event */
     private UUID playerTargetUUID;
-    protected int playerDeathCount = 0;
     /** If the ghost should move away from its target in a random direction */
     private boolean isManeuvering;
     /** How long the ghost should be frozen in ticks */
@@ -187,15 +185,6 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
             }
         }
         super.aiStep();
-        
-        if( !level().isClientSide ) {
-            ServerLevel serverLevel = (ServerLevel) level();
-            
-            if( IFullMoonMob.shouldDisappear( getPlayerTargetUUID(), serverLevel, this ) ) {
-                IFullMoonMob.spawnSmoke( serverLevel, this );
-                discard();
-            }
-        }
     }
     
     @Override
@@ -340,16 +329,6 @@ public class Ghost extends FlyingMob implements Enemy, IFullMoonMob {
     @Override
     public void setPlayerTargetUUID( @Nullable UUID playerTargetUUID ) {
         this.playerTargetUUID = playerTargetUUID;
-    }
-    
-    @Override
-    public int getPlayerDeathCount() {
-        return playerDeathCount;
-    }
-    
-    @Override
-    public void setPlayerDeathCount( int deathCount ) {
-        playerDeathCount = deathCount;
     }
     
     @Override

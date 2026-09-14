@@ -29,6 +29,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -45,7 +46,6 @@ public final class FullMoonEvent extends AbstractEvent {
     // NBT tag names
     private static final String TAG_TIME_UNTIL_NEXT_SPAWN = "TimeNextSpawn";
     private static final String TAG_SPAWN_TIME = "SpawnTime";
-    private static final String TAG_DEATH_COUNT = "PlayerDeathCount";
     private static final String TAG_TOTAL_SPAWNS = "TotalMobs";
     private static final String TAG_MOBS_TO_SPAWN = "MobsToSpawn";
     private static final String TAG_SIEGE_MOBS = "SiegeMobs";
@@ -263,6 +263,21 @@ public final class FullMoonEvent extends AbstractEvent {
         unloadAllMobs();
     }
     
+    /**
+     * Called from {@link PlayerDifficultyManager#onPlayerDeath(LivingDeathEvent)}.
+     */
+    @Override
+    public void onPlayerDeath( ServerPlayer player, ServerLevel level ) {
+        super.onPlayerDeath( player, level );
+        
+        if( ApocalypseConfig.LUNAR_SIEGE.SIEGE_MOBS.despawnMobsOnDeath.get() ) {
+            spawnedSiegeMobs.forEach( entity -> {
+                if( entity instanceof Mob mob ) IFullMoonMob.spawnSmoke( level, mob );
+                entity.discard();
+            } );
+        }
+    }
+    
     /** @return A random entity type from the remaining spawns, or null if there are no mobs left to spawn. */
     @Nullable
     private EntityType<?> drawEntityType( RandomSource random ) {
@@ -319,7 +334,6 @@ public final class FullMoonEvent extends AbstractEvent {
         
         if( entity instanceof IFullMoonMob mob ) {
             mob.setPlayerTargetUUID( player.getUUID() );
-            mob.setPlayerDeathCount( getPlayerDeathCount() );
         }
         //        else {
         //            //TODO Maybe we can do this to support non-full-moon mobs; alternatively, we could use the list of spawned siege mobs
@@ -430,10 +444,9 @@ public final class FullMoonEvent extends AbstractEvent {
      * @param data The tag to write to.
      */
     @Override
-    public void writeAdditional( CompoundTag data ) {
+    protected void writeAdditional( CompoundTag data ) {
         data.putInt( TAG_TIME_UNTIL_NEXT_SPAWN, timer );
         data.putInt( TAG_SPAWN_TIME, spawnTime );
-        data.putInt( TAG_DEATH_COUNT, deathCount );
         data.putInt( TAG_TOTAL_SPAWNS, totalSpawns );
         
         CompoundTag spawnsTag = new CompoundTag();
@@ -466,13 +479,11 @@ public final class FullMoonEvent extends AbstractEvent {
      * @param data the tag to read from.
      */
     @Override
-    public void read( CompoundTag data, ServerPlayer player, ServerLevel level ) {
+    protected void readAdditional( CompoundTag data, ServerPlayer player, ServerLevel level ) {
         if( NBTHelper.containsNumber( data, TAG_TIME_UNTIL_NEXT_SPAWN ) )
             timer = data.getInt( TAG_TIME_UNTIL_NEXT_SPAWN );
         if( NBTHelper.containsNumber( data, TAG_SPAWN_TIME ) )
             spawnTime = data.getInt( TAG_SPAWN_TIME );
-        if( NBTHelper.containsNumber( data, TAG_DEATH_COUNT ) )
-            deathCount = data.getInt( TAG_DEATH_COUNT );
         if( NBTHelper.containsNumber( data, TAG_TOTAL_SPAWNS ) )
             totalSpawns = data.getInt( TAG_TOTAL_SPAWNS );
         

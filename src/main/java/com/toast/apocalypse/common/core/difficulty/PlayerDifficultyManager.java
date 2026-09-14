@@ -556,8 +556,8 @@ public final class PlayerDifficultyManager {
             
             for( CompoundTag eventData : eventDataList ) {
                 try {
-                    if( NBTHelper.containsNumber( eventData, AbstractEvent.KEY_EVENT_ID ) ) {
-                        final EventType<?> eventType = EventRegistry.getFromId( eventData.getInt( AbstractEvent.KEY_EVENT_ID ) );
+                    if( NBTHelper.containsNumber( eventData, AbstractEvent.TAG_EVENT_ID ) ) {
+                        final EventType<?> eventType = EventRegistry.getFromId( eventData.getInt( AbstractEvent.TAG_EVENT_ID ) );
                         
                         if( eventType != null ) {
                             AbstractEvent event = eventType.createEvent();

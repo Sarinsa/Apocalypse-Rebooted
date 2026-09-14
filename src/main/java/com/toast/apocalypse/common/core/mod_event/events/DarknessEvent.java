@@ -51,7 +51,7 @@ public final class DarknessEvent extends AbstractEvent {
     
     /** Called when this event starts. */
     @Override
-    public void onStart( MinecraftServer server, ServerPlayer player ) { }
+    public void onStart( MinecraftServer server, ServerPlayer player ) {}
     
     /**
      * Called every 5 ticks on the server to tick this event.
@@ -68,7 +68,7 @@ public final class DarknessEvent extends AbstractEvent {
             
             switch( stage ) {
                 // These states function as breaks between other states
-                case STARTING, RESET -> { }
+                case STARTING, RESET -> {}
                 case FIRST_WARN -> warn( level, player, References.CALL_OF_THE_SHADOWS_0, false );
                 case SECOND_WARN -> warn( level, player, References.CALL_OF_THE_SHADOWS_1, true );
                 case SPAWN -> {
@@ -131,11 +131,11 @@ public final class DarknessEvent extends AbstractEvent {
     
     /** Called when the event ends naturally. */
     @Override
-    public void onEnd( MinecraftServer server, ServerPlayer player ) { }
+    public void onEnd( MinecraftServer server, ServerPlayer player ) {}
     
     /** Called when the player disconnects before the event can end naturally. */
     @Override
-    public void stop( ServerLevel level, ServerPlayer player ) { }
+    public void stop( ServerLevel level, ServerPlayer player ) {}
     
     /**
      * Saves this event's data to NBT.
@@ -143,7 +143,7 @@ public final class DarknessEvent extends AbstractEvent {
      * @param data The tag to write to.
      */
     @Override
-    public void writeAdditional( CompoundTag data ) {
+    protected void writeAdditional( CompoundTag data ) {
         data.putInt( TAG_STATE, stage.ordinal() );
         data.putInt( TAG_TIME_NEXT_STATE, timer );
     }
@@ -153,7 +153,7 @@ public final class DarknessEvent extends AbstractEvent {
      *
      * @param data the tag to read from.
      */
-    public void read( CompoundTag data, ServerPlayer player, ServerLevel level ) {
+    protected void readAdditional( CompoundTag data, ServerPlayer player, ServerLevel level ) {
         if( NBTHelper.containsNumber( data, TAG_STATE ) ) {
             stage = Stage.getFromOrdinal( data.getInt( TAG_STATE ) );
         }

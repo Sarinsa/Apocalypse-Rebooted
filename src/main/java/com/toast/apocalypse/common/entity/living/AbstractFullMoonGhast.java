@@ -2,7 +2,6 @@ package com.toast.apocalypse.common.entity.living;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -24,7 +23,6 @@ import java.util.UUID;
 public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMob {
     
     protected UUID playerTargetUUID;
-    protected int playerDeathCount = 0;
     
     public AbstractFullMoonGhast( EntityType<? extends Ghast> entityType, Level level ) {
         super( entityType, level );
@@ -89,36 +87,11 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
     }
     
     @Override
-    public int getPlayerDeathCount() {
-        return playerDeathCount;
-    }
-    
-    @Override
-    public void setPlayerDeathCount( int deathCount ) {
-        playerDeathCount = deathCount;
-    }
-    
-    @Override
-    public void aiStep() {
-        super.aiStep();
-        
-        if( !level().isClientSide ) {
-            ServerLevel serverLevel = (ServerLevel) level();
-            
-            if( IFullMoonMob.shouldDisappear( getPlayerTargetUUID(), serverLevel, this ) ) {
-                IFullMoonMob.spawnSmoke( serverLevel, this );
-                discard();
-            }
-        }
-    }
-    
-    @Override
     public void addAdditionalSaveData( CompoundTag compoundTag ) {
         super.addAdditionalSaveData( compoundTag );
         
         if( this.getPlayerTargetUUID() != null ) {
             compoundTag.putUUID( KEY_PLAYER_UUID, getPlayerTargetUUID() );
-            compoundTag.putInt( KEY_TARGET_DEATH_COUNT, getPlayerDeathCount() );
         }
     }
     

@@ -9,7 +9,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -42,7 +41,6 @@ public class Breecher extends Creeper implements IFullMoonMob {
     
     /** The constant player target, if this mob was spawned by the full moon event */
     private UUID playerTargetUUID;
-    protected int playerDeathCount = 0;
     
     
     public Breecher( EntityType<? extends Creeper> entityType, Level level ) {
@@ -98,20 +96,6 @@ public class Breecher extends Creeper implements IFullMoonMob {
     }
     
     @Override
-    public void aiStep() {
-        super.aiStep();
-        
-        if( !level().isClientSide ) {
-            ServerLevel serverLevel = (ServerLevel) level();
-            
-            if( IFullMoonMob.shouldDisappear( getPlayerTargetUUID(), serverLevel, this ) ) {
-                IFullMoonMob.spawnSmoke( serverLevel, this );
-                discard();
-            }
-        }
-    }
-    
-    @Override
     protected SoundEvent getHurtSound( DamageSource damageSource ) {
         return ApocalypseObjects.SoundEvents.BREECHER_HURT.get();
     }
@@ -138,16 +122,6 @@ public class Breecher extends Creeper implements IFullMoonMob {
     @Override
     public void setPlayerTargetUUID( @Nullable UUID playerTargetUUID ) {
         this.playerTargetUUID = playerTargetUUID;
-    }
-    
-    @Override
-    public int getPlayerDeathCount() {
-        return playerDeathCount;
-    }
-    
-    @Override
-    public void setPlayerDeathCount( int deathCount ) {
-        playerDeathCount = deathCount;
     }
     
     @Override

@@ -12,9 +12,9 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 public abstract class AbstractEvent {
     
     /** The NBT key for storing event ID. */
-    public static final String KEY_EVENT_ID = "EventId";
+    public static final String TAG_EVENT_ID = "EventId";
     /** The NBT key for storing the player death count. */
-    public static final String KEY_DEATH_COUNT = "PlayerDeathCount";
+    public static final String TAG_DEATH_COUNT = "PlayerDeathCount";
     
     /** The event's event type. */
     protected final EventType<?> type;
@@ -65,7 +65,7 @@ public abstract class AbstractEvent {
     /**
      * Called from {@link PlayerDifficultyManager#onPlayerDeath(LivingDeathEvent)}.
      */
-    public void onPlayerDeath( ServerPlayer player, ServerLevel world ) {
+    public void onPlayerDeath( ServerPlayer player, ServerLevel level ) {
         if( ++deathCount >= 100 ) deathCount = 0;
     }
     
@@ -75,8 +75,8 @@ public abstract class AbstractEvent {
      * @param data The tag to write to.
      */
     public final void write( CompoundTag data ) {
-        data.putInt( KEY_EVENT_ID, getType().getId() );
-        data.putInt( KEY_DEATH_COUNT, getPlayerDeathCount() );
+        data.putInt( TAG_EVENT_ID, getType().getId() );
+        data.putInt( TAG_DEATH_COUNT, getPlayerDeathCount() );
         writeAdditional( data );
     }
     
@@ -85,16 +85,24 @@ public abstract class AbstractEvent {
      *
      * @param data The tag to write to.
      */
-    protected void writeAdditional( CompoundTag data ) { }
+    protected void writeAdditional( CompoundTag data ) {}
     
     /**
      * Loads this event's data from the given NBT.
      *
      * @param data the tag to read from.
      */
-    public void read( CompoundTag data, ServerPlayer player, ServerLevel level ) {
-        if( NBTHelper.containsNumber( data, KEY_DEATH_COUNT ) ) {
-            deathCount = data.getInt( KEY_DEATH_COUNT );
-        }
+    public final void read( CompoundTag data, ServerPlayer player, ServerLevel level ) {
+        if( NBTHelper.containsNumber( data, TAG_DEATH_COUNT ) )
+            deathCount = data.getInt( TAG_DEATH_COUNT );
+        
+        readAdditional( data, player, level );
     }
+    
+    /**
+     * Loads this event's data from the given NBT.
+     *
+     * @param data the tag to read from.
+     */
+    protected void readAdditional( CompoundTag data, ServerPlayer player, ServerLevel level ) {}
 }

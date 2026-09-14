@@ -1,12 +1,7 @@
 package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
-import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.config.ApocalypseConfig;
-import com.toast.apocalypse.common.core.mod_event.EventRegistry;
-import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
@@ -21,8 +16,6 @@ public interface IFullMoonMob {
     
     /** Key used for storing the full moon mob's player target UUID to NBT. */
     String KEY_PLAYER_UUID = "PlayerTargetUUID";
-    /** Key used for storing the full moon mob's player death count to NBT. */
-    String KEY_TARGET_DEATH_COUNT = "PlayerDeathCount";
     
     /**
      * @return The UUID of this full moon mob's set
@@ -32,22 +25,6 @@ public interface IFullMoonMob {
      */
     @Nullable
     UUID getPlayerTargetUUID();
-    
-    /**
-     * @return The amount of times this mob's target player has died
-     * since this mob first spawned.
-     * <br><br>
-     * When the event starts, we are at 0.
-     * When the player dies, the event's internal death count increments by 1,
-     * and the full moon mobs that have already spawned will be despawned if it's
-     * death count value is less than the current death count.
-     */
-    int getPlayerDeathCount();
-    
-    /**
-     * Sets the death count of the player this mob is tracking.
-     */
-    void setPlayerDeathCount( int deathCount );
     
     /**
      * Sets this full moon mob's target UUID.<br>
@@ -63,42 +40,9 @@ public interface IFullMoonMob {
     @Nullable
     static <E extends LivingEntity & IFullMoonMob> Player getEventTarget( E moonMob ) {
         if( moonMob.getPlayerTargetUUID() != null ) {
-            // noinspection resource
             return moonMob.level().getPlayerByUUID( moonMob.getPlayerTargetUUID() );
         }
         return null;
-    }
-    
-    /**
-     * This is a bit weird to explain, but here goes!<br>
-     * <br>
-     * When the player dies, their death count increments. Full moon mobs save the player's death count at
-     * the moment they spawned. This method checks if the full moon mob's saved death count is different
-     * from the player's current death count (implying the player has died since the mob spawned),
-     * in which case it should despawn.
-     * <p>
-     * TODO perhaps we should move this to an event listener to allow non-full-moon mobs to despawn on player death
-     */
-    static boolean shouldDisappear( @Nullable UUID playerTargetUUID, ServerLevel level, IFullMoonMob moonMob ) {
-        if( !ApocalypseConfig.LUNAR_SIEGE.SIEGE_MOBS.despawnMobsOnDeath.get() )
-            return false;
-        
-        if( playerTargetUUID == null )
-            return false;
-        
-        ServerPlayer player = level.getServer().getPlayerList().getPlayer( playerTargetUUID );
-        
-        // Player might be offline, do nothing
-        if( player == null )
-            return false;
-        
-        AbstractEvent event = Apocalypse.INSTANCE.getDifficultyManager().getEvent( player, EventRegistry.LUNAR_SIEGE );
-        
-        if( event != null ) {
-            final int deathCount = event.getPlayerDeathCount();
-            return moonMob.getPlayerDeathCount() != deathCount;
-        }
-        return false;
     }
     
     static void spawnSmoke( ServerLevel level, Mob mob ) {
