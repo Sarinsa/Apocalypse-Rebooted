@@ -5,6 +5,7 @@ import com.toast.apocalypse.common.core.Apocalypse;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.tags.BlockTags;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.data.BlockTagsProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
@@ -20,6 +21,8 @@ public class ApocalypseBlockTagProvider extends BlockTagsProvider {
     
     @Override
     public void addTags( HolderLookup.Provider lookupProvider ) {
+        tag( Tags.Blocks.STORAGE_BLOCKS )
+                .add( ApocalypseObjects.Blocks.MIDNIGHT_STEEL_BLOCK.get() );
         tag( BlockTags.BEACON_BASE_BLOCKS )
                 .add( ApocalypseObjects.Blocks.MIDNIGHT_STEEL_BLOCK.get() );
         

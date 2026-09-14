@@ -330,6 +330,7 @@ public final class FullMoonEvent extends AbstractEvent {
     
     /** Called on each siege mob as it is spawned. Adds the mob to the tracker and sets its target. */
     private void onMobSpawned( LivingEntity entity, ServerPlayer player ) {
+        //TODO flag the entity as a lunar siege spawn so we can make them drop fragmented souls
         if( entity instanceof NeutralMob mob ) {
             mob.setTarget( player );
             mob.setPersistentAngerTarget( player.getUUID() );
