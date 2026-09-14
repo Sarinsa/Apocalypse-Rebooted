@@ -7,6 +7,7 @@ import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import com.toast.apocalypse.common.tag.ApocalypseEntityTags;
+import com.toast.apocalypse.common.util.ItemStackUtils;
 import fathertoast.crust.api.config.common.value.collection.key.IRegWrapper;
 import fathertoast.crust.api.config.common.value.collection.key.RegObjKey;
 import fathertoast.crust.api.config.common.value.environment.EnvironmentContext;
@@ -26,7 +27,10 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.behavior.MoveToSkySeeingSpot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.FireworkRocketEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -448,7 +452,15 @@ public final class FullMoonEvent extends AbstractEvent {
     /** Called at the conclusion of this event to provide the player a reward for participating. */
     private void generateReward( ServerLevel level, ServerPlayer player, PlayerDifficultyManager difficultyManager,
                                  boolean victory, float completion ) {
-        //TODO generate some kind of reward
+        //TODO - Do some rewards, perchance.
+        final RandomSource rng = level.getRandom();
+        
+        // Spawn a celebratory firework rocket if the siege ended in victory
+        if( victory && MoveToSkySeeingSpot.hasNoBlocksAbove( level, player, player.blockPosition() ) ) {
+            ItemStack fireworkStack = ItemStackUtils.getRandomFirework( rng, 0, 3 );
+            FireworkRocketEntity firework = new FireworkRocketEntity( level, player, player.getX(), player.getEyeY(), player.getZ(), fireworkStack );
+            level.tryAddFreshEntityWithPassengers( firework );
+        }
     }
     
     /**
