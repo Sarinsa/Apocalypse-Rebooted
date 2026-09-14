@@ -202,6 +202,8 @@ public class MobBuffingConfig extends AbstractConfigFile {
         
         //public final ItemsByDifficultyMapField armorTierList;
         public final EntitySetField armorWhitelist;
+        public final DoubleField armorTrimChance;
+        public final DoubleField armorTrimLunarChance;
         public final DoubleField armorLunarChance;
         public final DoubleField armorDifficultySpan;
         public final DoubleField armorChance;
@@ -266,6 +268,10 @@ public class MobBuffingConfig extends AbstractConfigFile {
                     .addExtends( EntityType.PIGLIN, 1 )
                     .build(),
                     "A list of entity types that can be given armor from the above armor tier list." ) );
+            armorTrimChance = SPEC.define( new DoubleField( "armor.trim_chance", 0.01, DoubleField.Range.PERCENT,
+                    "The chance for the equipped armor set to have a random trim applied." ) );
+            armorTrimLunarChance = SPEC.define( new DoubleField( "armor.lunar_trim_chance", 0.02, DoubleField.Range.PERCENT,
+                    "The chance for the equipped armor set to have a random trim applied during full moons." ) );
             armorLunarChance = SPEC.define( new DoubleField( "armor.lunar_chance", 0.2, DoubleField.Range.PERCENT,
                     "The armor chance bonus gained during a full moon. Default is 0.2 (+20% chance during full moons)." ) );
             armorDifficultySpan = SPEC.define( new DoubleField( "armor.difficulty_span",

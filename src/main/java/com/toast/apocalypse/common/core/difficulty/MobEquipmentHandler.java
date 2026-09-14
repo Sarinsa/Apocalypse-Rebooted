@@ -6,7 +6,12 @@ import com.toast.apocalypse.common.util.DataStructureUtils;
 import fathertoast.crust.api.config.common.field.DoubleField;
 import fathertoast.crust.api.config.common.value.collection.ItemStackList;
 import fathertoast.crust.api.config.common.value.collection.key.FuzzyKey;
+import fathertoast.crust.api.config.common.value.collection.key.IRegWrapper;
 import fathertoast.crust.api.config.common.value.collection.value.FuzzyEntry;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -14,13 +19,14 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.armortrim.ArmorTrim;
+import net.minecraft.world.item.armortrim.TrimMaterial;
+import net.minecraft.world.item.armortrim.TrimPattern;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.annotation.Nullable;
+import java.util.*;
 
 import static com.toast.apocalypse.common.core.config.ApocalypseConfig.MOB_BUFFING;
 
@@ -30,6 +36,13 @@ public final class MobEquipmentHandler {
             EquipmentSlot.FEET, EquipmentSlot.LEGS, EquipmentSlot.CHEST, EquipmentSlot.HEAD
     };
     
+    /**
+     * Mapping of all armor tiers by the difficulty levels they are active for.
+     * The armor tiers themselves are maps of items by their equipment slots.
+     * <p>
+     * Warning: Do not directly use any item stacks in this map, since it is only refreshed when
+     * the config is (re)loaded. Instead, use {@link ItemStack#copy() copies} of these items.
+     */
     public static final Map<FuzzyKey<Double>, Map<EquipmentSlot, List<ItemStack>>> ARMOR_MAPS = new HashMap<>();
     
     /**
@@ -69,13 +82,17 @@ public final class MobEquipmentHandler {
             if( maxArmorChance >= 0.0 && chance > maxArmorChance ) {
                 chance = maxArmorChance;
             }
+            boolean trim;
             if( fullMoon ) {
                 chance += MOB_BUFFING.EQUIPMENT.armorLunarChance.get();
+                trim = MOB_BUFFING.EQUIPMENT.armorTrimLunarChance.rollChance( random );
+            }
+            else {
+                trim = MOB_BUFFING.EQUIPMENT.armorTrimChance.rollChance( random );
             }
             
             if( random.nextDouble() < chance ) {
-                //TODO might be fun to have a small chance to slap a random trim on the equipped armor
-                equipArmor( entity, scaledDifficulty, random );
+                equipArmor( entity, scaledDifficulty, random, trim );
             }
         }
         
@@ -171,7 +188,7 @@ public final class MobEquipmentHandler {
      * @param scaledDifficulty The difficulty (in days) of the nearest player.
      * @param random           The RNG of the level the entity is in.
      */
-    private static void equipArmor( LivingEntity entity, double scaledDifficulty, RandomSource random ) {
+    private static void equipArmor( LivingEntity entity, double scaledDifficulty, RandomSource random, boolean trim ) {
         if( ARMOR_MAPS.isEmpty() ) return;
         
         // Pick a random enabled armor tier
@@ -180,11 +197,15 @@ public final class MobEquipmentHandler {
         Map<EquipmentSlot, List<ItemStack>> armorTier = DataStructureUtils.getRandomListValue( random, availableTiers );
         if( armorTier == null ) return;
         
+        // Pick a random armor trim, if applicable
+        RegistryAccess regAccess = entity.level().registryAccess();
+        ArmorTrim armorTrim = trim ? nextArmorTrim( random ) : null;
+        
         // Try to equip armor for each slot
         for( EquipmentSlot slot : ARMOR_SLOTS ) {
             ItemStack equip = DataStructureUtils.getRandomListValue( random, armorTier.get( slot ) );
             if( equip != null && !equip.isEmpty() && entity.getItemBySlot( slot ).isEmpty() ) {
-                entity.setItemSlot( slot, equip.copy() ); // Copy; the armor item stacks are only generated on config load
+                entity.setItemSlot( slot, copyAndTrim( equip, regAccess, armorTrim ) );
             }
         }
     }
@@ -196,6 +217,28 @@ public final class MobEquipmentHandler {
             if( key.matches( scaledDifficulty ) ) list.add( value );
         } );
         return list;
+    }
+    
+    /** @return A random armor trim out of any registered pattern and material, or null if anything goes wrong. */
+    @Nullable
+    private static ArmorTrim nextArmorTrim( RandomSource random ) {
+        Registry<TrimPattern> trimPatterns = IRegWrapper.forKey( Registries.TRIM_PATTERN ).asVanillaRegistry();
+        Registry<TrimMaterial> trimMaterials = IRegWrapper.forKey( Registries.TRIM_MATERIAL ).asVanillaRegistry();
+        if( trimPatterns != null && trimMaterials != null ) {
+            Optional<Holder.Reference<TrimPattern>> pattern = trimPatterns.getRandom( random );
+            Optional<Holder.Reference<TrimMaterial>> material = trimMaterials.getRandom( random );
+            if( pattern.isPresent() && material.isPresent() ) {
+                return new ArmorTrim( material.get(), pattern.get() );
+            }
+        }
+        return null;
+    }
+    
+    /** @return A copy of the provided item, optionally trimmed. */
+    private static ItemStack copyAndTrim( ItemStack baseItem, RegistryAccess regAccess, @Nullable ArmorTrim armorTrim ) {
+        ItemStack item = baseItem.copy(); // Copy since the base armor item stacks are only generated on config load
+        if( armorTrim != null ) ArmorTrim.setTrim( regAccess, item, armorTrim );
+        return item;
     }
     
     /**
