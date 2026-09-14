@@ -3,9 +3,11 @@ package com.toast.apocalypse.common.core.difficulty;
 import com.toast.apocalypse.common.core.config.field.ItemsByDifficultyMapField;
 import com.toast.apocalypse.common.event.GameEventListener;
 import com.toast.apocalypse.common.util.DataStructureUtils;
+import fathertoast.crust.api.config.common.field.DoubleField;
 import fathertoast.crust.api.config.common.value.collection.ItemStackList;
 import fathertoast.crust.api.config.common.value.collection.key.FuzzyKey;
 import fathertoast.crust.api.config.common.value.collection.value.FuzzyEntry;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -82,18 +84,30 @@ public final class MobEquipmentHandler {
             double multiplier = scaledDifficulty / MOB_BUFFING.EQUIPMENT.enchantDifficultySpan.get();
             
             double chance = MOB_BUFFING.EQUIPMENT.enchantChance.get() * multiplier;
-            double maxEnchantChance = MOB_BUFFING.EQUIPMENT.armorMaxChance.get();
+            double maxEnchantChance = MOB_BUFFING.EQUIPMENT.enchantMaxChance.get();
             if( maxEnchantChance >= 0.0 && chance > maxEnchantChance ) {
                 chance = maxEnchantChance;
             }
+            double decLevel = MOB_BUFFING.EQUIPMENT.enchantLevel.get() * multiplier;
+            int maxEnchantLevel = MOB_BUFFING.EQUIPMENT.enchantMaxLevel.get();
+            if( maxEnchantLevel >= 0.0 && decLevel > maxEnchantLevel ) {
+                decLevel = maxEnchantLevel;
+            }
+            DoubleField treasureChance;
             if( fullMoon ) {
                 chance += MOB_BUFFING.EQUIPMENT.enchantLunarChance.get();
+                decLevel += MOB_BUFFING.EQUIPMENT.enchantLunarLevel.get();
+                treasureChance = MOB_BUFFING.EQUIPMENT.treasureEnchantLunarChance;
             }
+            else {
+                treasureChance = MOB_BUFFING.EQUIPMENT.treasureEnchantChance;
+            }
+            int level = Math.max( 1, Mth.ceil( decLevel ) );
             
             // Loop through equipment and roll chance for each
             for( EquipmentSlot slot : EquipmentSlot.values() ) {
                 if( random.nextDouble() < chance ) {
-                    maybeEnchantSlot( entity, random, slot );
+                    maybeEnchantSlot( entity, random, slot, level, treasureChance );
                 }
             }
         }
@@ -107,14 +121,13 @@ public final class MobEquipmentHandler {
      * @param random The RNG of the level object the entity is in.
      * @param slot   The equipment slot to enchant for.
      */
-    private static void maybeEnchantSlot( LivingEntity entity, RandomSource random, EquipmentSlot slot ) {
+    private static void maybeEnchantSlot( LivingEntity entity, RandomSource random, EquipmentSlot slot, int level, DoubleField treasureChance ) {
         ItemStack itemStack = entity.getItemBySlot( slot );
         
         // Abort if stack is empty or already enchanted
         if( itemStack.isEmpty() || !EnchantmentHelper.getEnchantments( itemStack ).isEmpty() ) return;
         
-        int level = MOB_BUFFING.EQUIPMENT.enchantLevelRange.next( random );//TODO Difficulty scale
-        EnchantmentHelper.enchantItem( random, itemStack, level, false );
+        EnchantmentHelper.enchantItem( random, itemStack, level, treasureChance.rollChance( random ) );
     }
     
     /**

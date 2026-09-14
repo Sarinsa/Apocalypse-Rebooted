@@ -208,11 +208,15 @@ public class MobBuffingConfig extends AbstractConfigFile {
         public final DoubleField armorMaxChance;
         
         public final EntitySetField enchantWhitelist;
+        public final DoubleField treasureEnchantChance;
+        public final DoubleField treasureEnchantLunarChance;
         public final DoubleField enchantLunarChance;
+        public final IntField enchantLunarLevel;
         public final DoubleField enchantDifficultySpan;
         public final DoubleField enchantChance;
         public final DoubleField enchantMaxChance;
-        public final IntField.RandomRange enchantLevelRange;
+        public final DoubleField enchantLevel;
+        public final IntField enchantMaxLevel;
         
         Equipment( MobBuffingConfig parent ) {
             super( parent, "equipment",
@@ -285,8 +289,16 @@ public class MobBuffingConfig extends AbstractConfigFile {
                     .addExtends( EntityType.PIGLIN, 1 )
                     .build(),
                     "A list of entity types that can get their equipment enchanted when spawning." ) );
+            treasureEnchantChance = SPEC.define( new DoubleField( "enchant.treasure_chance", 0.1, DoubleField.Range.PERCENT,
+                    "The chance for equipment enchanting to be considered 'treasure' enchanting.",
+                    "Treasure enchanting can apply enchantments that are unobtainable through the enchanting table." ) );
+            treasureEnchantLunarChance = SPEC.define( new DoubleField( "enchant.lunar_treasure_chance", 1.0, DoubleField.Range.PERCENT,
+                    "The chance for equipment enchanting to be considered 'treasure' enchanting during full moons.",
+                    "Treasure enchanting can apply enchantments that are unobtainable through the enchanting table." ) );
             enchantLunarChance = SPEC.define( new DoubleField( "enchant.lunar_chance", 0.2, DoubleField.Range.PERCENT,
                     "The enchant chance bonus gained during a full moon. Default is 0.2 (+20% chance during full moons)." ) );
+            enchantLunarLevel = SPEC.define( new IntField( "enchant.lunar_level", 10, IntField.Range.NON_NEGATIVE,
+                    "The enchanting level bonus gained during a full moon. Default is 10 (+10 levels during full moons)." ) );
             enchantDifficultySpan = SPEC.define( new DoubleField( "enchant.difficulty_span",
                     References.toDays( 1 ), 1.0, Double.POSITIVE_INFINITY,
                     "The difficulty per application of the below values. Default is 8.0 (8 days of difficulty per application)." ) );
@@ -296,9 +308,12 @@ public class MobBuffingConfig extends AbstractConfigFile {
                     "Note this chance is rolled once for each piece of equipment; weapon, helmet, leggings etc." ) );
             enchantMaxChance = SPEC.define( new DoubleField( "enchant.max_chance", 0.8, DoubleField.Range.PERCENT,
                     "The maximum enchant chance from difficulty. Default is 0.8 (80% chance)." ) );
-            enchantLevelRange = new IntField.RandomRange( SPEC, "enchant.level_range", 5, 30, 0, 30,
-                    "The lowest and highest value possible when picking the level when enchanting a piece of equipment." );
-            //TODO make enchant level scale with diff
+            enchantLevel = SPEC.define( new DoubleField( "enchant.level", 2.0, DoubleField.Range.NON_NEGATIVE,
+                    "Enchanting level per difficulty span. Default is 2.0 (2 levels per X difficulty)." ) );
+            enchantMaxLevel = SPEC.define( new IntField( "enchant.max_level", 20, IntField.Range.NON_NEGATIVE,
+                    "The maximum enchanting level from difficulty. Default is 20 (level 20 enchanting).",
+                    "Note: Going too far above the vanilla limit of level 30 enchanting may actually result in worse " +
+                            "enchantments, so be careful with this." ) );
             SPEC.decreaseIndent();
         }
         
