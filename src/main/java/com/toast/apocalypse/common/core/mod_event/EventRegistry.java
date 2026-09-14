@@ -1,7 +1,6 @@
 package com.toast.apocalypse.common.core.mod_event;
 
 import com.toast.apocalypse.api.event.ApocalypseEvent;
-import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.mod_event.events.*;
 import com.toast.apocalypse.common.util.References;
 import org.jetbrains.annotations.ApiStatus;
@@ -22,7 +21,7 @@ public class EventRegistry {
     
     
     public static final EventType<?> LUNAR_SIEGE = register( ApocalypseEvent.EventIds.LUNAR_SIEGE, "lunar_siege",
-            FullMoonEvent::new, References.FULL_MOON, FullMoonEvent::canStart );
+            FullMoonEvent::new, References.FULL_MOON, IEventPredicate.risingEdge( FullMoonEvent::canStart ) );
     
     public static final EventType<?> THUNDERSTORM = register( ApocalypseEvent.EventIds.THUNDERSTORM, "thunderstorm",
             ThunderstormEvent::new, References.THUNDERSTORM, ThunderstormEvent::canStart );
