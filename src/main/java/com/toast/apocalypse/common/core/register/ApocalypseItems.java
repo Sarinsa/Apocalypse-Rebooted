@@ -64,7 +64,7 @@ public final class ApocalypseItems {
     /** Registers a simple block item for the given block to the deferred register. */
     @SuppressWarnings( "SameParameterValue" )
     @SafeVarargs
-    static void registerBlockItem( RegistryObject<Block> regObj, ResourceKey<CreativeModeTab>... creativeTabs ) {
+    static void registerBlockItem( RegistryObject<? extends Block> regObj, ResourceKey<CreativeModeTab>... creativeTabs ) {
         RegistryObject<Item> itemRegObj = REGISTRY.register( Objects.requireNonNull( regObj.getId() ).getPath(), () -> new BlockItem( regObj.get(), new Item.Properties() ) );
         queueForCreativeTabs( itemRegObj, creativeTabs );
     }
