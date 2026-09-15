@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+@SuppressWarnings( "resource" )
 public class MobHelper {
     
     /** Note to include in duration multiplier config fields. */

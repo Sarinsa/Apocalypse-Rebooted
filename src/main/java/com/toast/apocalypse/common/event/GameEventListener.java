@@ -167,9 +167,7 @@ public final class GameEventListener {
         }
     }
     
-    /**
-     * Called when a player entity is cloned.
-     */
+    /** Called when a player entity is cloned. */
     @SubscribeEvent
     public void onPlayerCloned( PlayerEvent.Clone event ) {
         // Makes sure necessary capability data from Apocalypse
@@ -239,7 +237,6 @@ public final class GameEventListener {
                 }
             }
         }
-        
         // Completely ignore spawn placement checks if thunderstorm event is running
         if( event.getLevel() instanceof ServerLevel level ) {
             if( ApocalypseConfig.THUNDERSTORM.GENERAL.enabled.get() && level.isThundering() && entity instanceof Enemy ) {
@@ -255,11 +252,13 @@ public final class GameEventListener {
         }
     }
     
+    /** Called when a mob spawn checks for a valid position to spawn in. */
     @SubscribeEvent
     public void onSpawnPositionCheck( MobSpawnEvent.PositionCheck event ) {
         if( event.getSpawnType() != MobSpawnType.NATURAL ) return;
         
         if( event.getLevel() instanceof Level level && ApocalypseConfig.THUNDERSTORM.GENERAL.enabled.get() && level.isThundering() ) {
+            // Allow enemy entities to spawn anywhere during thunderstorms, if enabled
             if( event.getEntity() instanceof Enemy ) {
                 event.setResult( Event.Result.ALLOW );
             }
@@ -282,8 +281,7 @@ public final class GameEventListener {
         final boolean fullMoon = Apocalypse.INSTANCE.getDifficultyManager().isFullMoonNight();
         
         // Don't do anything if the player is still on grace period
-        if( difficulty <= 0L )
-            return;
+        if( difficulty <= 0L ) return;
         
         // Make sure we skip buffing non-enemies if "enemiesOnly" is enabled.
         if( ApocalypseConfig.MOB_BUFFING.GENERAL.enemiesOnly.get() && !(mob instanceof Enemy) ||
@@ -329,7 +327,7 @@ public final class GameEventListener {
             if( item == Items.BREAD ) {
                 final Level level = event.getEntity().level();
                 final ItemStack stack = new ItemStack( ApocalypseObjects.Items.FATHERLY_TOAST.get(), itemEntity.getItem().getCount() );
-                final int toastLevel = level.random.nextInt( 99 ) + 1;
+                final int toastLevel = level.random.nextIntBetweenInclusive( 0, 99 );
                 
                 stack.getOrCreateTag().putInt( FatherlyToastItem.KEY_TOAST_LEVEL, toastLevel );
                 level.addFreshEntity( new ItemEntity( level, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), stack ) );
@@ -384,8 +382,10 @@ public final class GameEventListener {
     @SubscribeEvent
     public void onTrade( VillagerTradesEvent event ) {
         if( event.getType() == VillagerProfession.CLERIC ) {
-            event.getTrades().get( 2 ).add( new VillagerTrades.EmeraldForItems( ApocalypseObjects.Items.FRAGMENTED_SOUL.get(), 2, 10, 10 ) );
-            event.getTrades().get( 5 ).add( new VillagerTrades.ItemsForEmeralds( ApocalypseObjects.Items.LUNAR_CLOCK.get(), 34, 1, 30 ) );
+            event.getTrades().get( 2 ).add( new VillagerTrades.EmeraldForItems(
+                    ApocalypseObjects.Items.FRAGMENTED_SOUL.get(), 2, 10, 10 ) );
+            event.getTrades().get( 5 ).add( new VillagerTrades.ItemsForEmeralds(
+                    ApocalypseObjects.Items.LUNAR_CLOCK.get(), 34, 1, 30 ) );
         }
     }
 }
