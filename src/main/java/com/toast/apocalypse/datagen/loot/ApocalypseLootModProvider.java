@@ -2,7 +2,6 @@ package com.toast.apocalypse.datagen.loot;
 
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.core.mod_event.events.FullMoonEvent;
 import com.toast.apocalypse.common.loot_modifier.SimpleAddLootModifier;
 import fathertoast.crust.api.datagen.loot.LootHelper;
 import fathertoast.crust.api.lib.NBTHelper;
@@ -55,7 +54,7 @@ public class ApocalypseLootModProvider extends GlobalLootModifierProvider {
         // Check if the entity was spawned by a lunar siege event
         CompoundTag tag = new CompoundTag();
         NBTHelper.getOrCreateCompound( NBTHelper.getOrCreateCompound( tag, "ForgeData" ), Apocalypse.MOD_ID )
-                .putByte( FullMoonEvent.TAG_SIEGE_MOB, (byte) 1 );
+                .putByte( ApocalypseObjects.Items.TAG_CAN_DROP_FRAGMENTED_SOUL, (byte) 1 );
         list.add( LootItemEntityPropertyCondition.hasProperties( LootContext.EntityTarget.THIS,
                 EntityPredicate.Builder.entity().nbt( new NbtPredicate( tag ) ) ).build() );
         

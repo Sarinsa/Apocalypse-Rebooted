@@ -17,7 +17,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Supplier;
 
 public class SimpleAddLootModifier extends LootModifier {

@@ -79,6 +79,12 @@ public final class ApocalypseObjects {
         RegistryObject<Item> BREECHER_SPAWN_EGG = item( "breecher_spawn_egg" );
         RegistryObject<Item> FEARWOLF_SPAWN_EGG = item( "fearwolf_spawn_egg" );
         RegistryObject<Item> SHADEFIEND_SPAWN_EGG = item( "shadefiend_spawn_egg" );
+        
+        /**
+         * When an entity's nbt tag {@code ForgeData/apocalypse/FragmentedSoul} is set to a
+         * byte value of 1, that entity is capable of dropping a fragmented soul.
+         */
+        String TAG_CAN_DROP_FRAGMENTED_SOUL = "FragmentedSoul";
     }
     
     /** Block entities. */
@@ -256,5 +262,5 @@ public final class ApocalypseObjects {
     }
     
     
-    private ApocalypseObjects() { }
+    private ApocalypseObjects() {}
 }
