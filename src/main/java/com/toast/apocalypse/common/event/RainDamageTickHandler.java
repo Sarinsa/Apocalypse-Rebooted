@@ -114,11 +114,11 @@ public final class RainDamageTickHandler {
         if( level.getHeightmapPos( Heightmap.Types.MOTION_BLOCKING, pos ).getY() > pos.getY() ) return false;
         else {
             Biome biome = level.getBiome( pos ).value();
-            return biome.getPrecipitationAt( pos ) == Biome.Precipitation.RAIN || biome.getPrecipitationAt( pos ) == Biome.Precipitation.SNOW;
+            return biome.getPrecipitationAt( pos ) != Biome.Precipitation.NONE;
         }
     }
     
     
     // Utility class
-    private RainDamageTickHandler() {}
+    private RainDamageTickHandler() { }
 }
