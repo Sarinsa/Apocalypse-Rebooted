@@ -1,6 +1,8 @@
 package com.toast.apocalypse.common.core.mod_event.events;
 
+import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.capability.CapabilityHelper;
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
@@ -73,6 +75,12 @@ public final class FullMoonEvent extends AbstractEvent {
     private static Component eventRemainingComponent( int remaining ) {
         return EVENT_NAME_COMPONENT.copy().append( " - " )
                 .append( Component.translatable( "event.apocalypse.full_moon.remaining", remaining ) );
+    }
+    
+    /** Allows the entity to drop a fragmented soul. */
+    public static void addFragmentedSoulDrop( LivingEntity entity ) {
+        NBTHelper.getForgeData( entity, Apocalypse.MOD_ID )
+                .putByte( ApocalypseObjects.Items.TAG_CAN_DROP_FRAGMENTED_SOUL, (byte) 1 );
     }
     
     
@@ -334,6 +342,8 @@ public final class FullMoonEvent extends AbstractEvent {
     
     /** Called on each siege mob as it is spawned. Adds the mob to the tracker and sets its target. */
     private void onMobSpawned( LivingEntity entity, ServerPlayer player ) {
+        addFragmentedSoulDrop( entity );
+        
         if( entity instanceof NeutralMob mob ) {
             mob.setTarget( player );
             mob.setPersistentAngerTarget( player.getUUID() );

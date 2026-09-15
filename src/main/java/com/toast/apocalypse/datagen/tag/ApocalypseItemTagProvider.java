@@ -29,20 +29,16 @@ public class ApocalypseItemTagProvider extends ItemTagsProvider {
         
         tag( Tags.Items.INGOTS )
                 .add( ApocalypseObjects.Items.MIDNIGHT_STEEL_INGOT.get() );
-        
         tag( ItemTags.BEACON_PAYMENT_ITEMS )
                 .add( ApocalypseObjects.Items.MIDNIGHT_STEEL_INGOT.get() );
         
         tag( Tags.Items.ARMORS_HELMETS )
                 .add( ApocalypseObjects.Items.BUCKET_HELM.get() )
                 .add( ApocalypseObjects.Items.MIDNIGHT_STEEL_HELMET.get() );
-        
         tag( Tags.Items.ARMORS_CHESTPLATES )
                 .add( ApocalypseObjects.Items.MIDNIGHT_STEEL_CHESTPLTAE.get() );
-        
         tag( Tags.Items.ARMORS_LEGGINGS )
                 .add( ApocalypseObjects.Items.MIDNIGHT_STEEL_LEGGINGS.get() );
-        
         tag( Tags.Items.ARMORS_BOOTS )
                 .add( ApocalypseObjects.Items.MIDNIGHT_STEEL_BOOTS.get() );
     }

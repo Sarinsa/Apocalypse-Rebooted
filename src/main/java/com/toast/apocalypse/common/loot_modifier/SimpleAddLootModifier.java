@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -16,7 +17,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Supplier;
 
 public class SimpleAddLootModifier extends LootModifier {
@@ -32,20 +32,13 @@ public class SimpleAddLootModifier extends LootModifier {
     
     public static final Supplier<Codec<SimpleAddLootModifier>> CODEC = () -> RecordCodecBuilder.create( inst -> LootModifier.codecStart( inst )
             .and( inst.group(
-                            ForgeRegistries.ITEMS.getCodec()
-                                    .fieldOf( "item" )
-                                    .forGetter( m -> m.itemToAdd ),
-                            Codec.DOUBLE.fieldOf( "chance" )
-                                    .forGetter( m -> m.chance ),
-                            Codec.INT.fieldOf( "maxCount" )
-                                    .forGetter( m -> m.maxStackCount ),
-                            Codec.INT.fieldOf( "minCount" )
-                                    .forGetter( m -> m.minStackCount ),
-                            RL_LIST_CODEC
-                                    .fieldOf( "lootTable" )
-                                    .forGetter( m -> m.lootTables )
-                    )
-            )
+                    ForgeRegistries.ITEMS.getCodec()
+                            .fieldOf( "item" ).forGetter( m -> m.itemToAdd ),
+                    Codec.DOUBLE.fieldOf( "chance" ).forGetter( m -> m.chance ),
+                    Codec.INT.fieldOf( "minCount" ).forGetter( m -> m.minStackCount ),
+                    Codec.INT.fieldOf( "maxCount" ).forGetter( m -> m.maxStackCount ),
+                    RL_LIST_CODEC.fieldOf( "lootTable" ).forGetter( m -> m.lootTables )
+            ) )
             .apply( inst, SimpleAddLootModifier::new )
     );
     
@@ -54,23 +47,34 @@ public class SimpleAddLootModifier extends LootModifier {
      *
      * @param conditionsIn the ILootConditions that need to be matched before the loot is modified.
      */
-    public SimpleAddLootModifier( LootItemCondition[] conditionsIn, Item itemToAdd, double chance, int maxStackCount, int minStackCount, List<ResourceLocation> lootTables ) {
+    public SimpleAddLootModifier( LootItemCondition[] conditionsIn, Item itemToAdd, double chance, int minStackCount, int maxStackCount ) {
+        this( conditionsIn, itemToAdd, chance, minStackCount, maxStackCount, List.of() );
+    }
+    
+    /**
+     * Constructs a LootModifier.
+     *
+     * @param conditionsIn the ILootConditions that need to be matched before the loot is modified.
+     */
+    public SimpleAddLootModifier( LootItemCondition[] conditionsIn, Item itemToAdd, double chance, int minStackCount, int maxStackCount, List<ResourceLocation> lootTables ) {
         super( conditionsIn );
         this.itemToAdd = itemToAdd;
         this.chance = chance;
-        this.maxStackCount = maxStackCount;
         this.minStackCount = minStackCount;
+        this.maxStackCount = maxStackCount;
         this.lootTables = lootTables;
     }
     
     @Nonnull
     @Override
     protected ObjectArrayList<ItemStack> doApply( ObjectArrayList<ItemStack> generatedLoot, LootContext context ) {
-        if( lootTables.contains( context.getQueriedLootTableId() ) ) {
-            Random random = new Random();
+        if( lootTables.isEmpty() || lootTables.contains( context.getQueriedLootTableId() ) ) {
+            RandomSource random = context.getRandom();
             
-            if( random.nextDouble() <= chance ) {
-                ItemStack stack = new ItemStack( this.itemToAdd, random.nextInt( this.maxStackCount + 1 ) );
+            if( chance >= 1.0 || random.nextDouble() < chance ) {
+                int delta = maxStackCount - minStackCount;
+                ItemStack stack = new ItemStack( itemToAdd, delta <= 0 ? minStackCount :
+                        minStackCount + random.nextInt( delta + 1 ) );
                 generatedLoot.add( stack );
             }
         }

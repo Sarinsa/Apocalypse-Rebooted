@@ -1,36 +1,32 @@
 package com.toast.apocalypse.datagen.loot;
 
-import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
+import fathertoast.crust.api.datagen.loot.LootEntryItemBuilder;
+import fathertoast.crust.api.datagen.loot.LootHelper;
+import fathertoast.crust.api.datagen.loot.LootPoolBuilder;
+import fathertoast.crust.api.datagen.loot.LootTableBuilder;
 import net.minecraft.data.loot.EntityLootSubProvider;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.functions.LootingEnchantFunction;
-import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-// TODO - Utilize crust's loot gen API, cause this hurts to look at
+
 public class ApocalypseEntityLootTableProvider extends EntityLootSubProvider {
     
     private final Set<EntityType<?>> knownEntities = new HashSet<>();
     
-    protected ApocalypseEntityLootTableProvider( FeatureFlagSet flagSet ) {
-        super( flagSet );
-    }
+    protected ApocalypseEntityLootTableProvider( FeatureFlagSet flagSet ) { super( flagSet ); }
     
     @Override
-    protected Stream<EntityType<?>> getKnownEntityTypes() {
-        return knownEntities.stream();
-    }
+    protected Stream<EntityType<?>> getKnownEntityTypes() { return knownEntities.stream(); }
     
     @Override
     protected void add( EntityType<?> type, LootTable.Builder table ) {
@@ -38,78 +34,53 @@ public class ApocalypseEntityLootTableProvider extends EntityLootSubProvider {
         knownEntities.add( type );
     }
     
+    protected <T extends Entity> void add( Supplier<EntityType<T>> type, LootTable.Builder table ) { add( type.get(), table ); }
+    
     @Override
     public void generate() {
-        add( ApocalypseEntities.GHOST.get(), LootTable.lootTable()
-                .withPool( LootPool.lootPool()
-                        .setRolls( ConstantValue.exactly( 1.0F ) )
-                        .add( LootItem.lootTableItem( Items.EXPERIENCE_BOTTLE )
-                                .apply( SetItemCountFunction.setCount( UniformGenerator.between( 0.0F, 1.0F ) ) )
-                                .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 2.0F ) ) ) ) )
-                .withPool( LootPool.lootPool()
-                        .setRolls( ConstantValue.exactly( 1 ) )
-                        .add( LootItem.lootTableItem( ApocalypseObjects.Items.FRAGMENTED_SOUL.get() )
-                                .apply( SetItemCountFunction.setCount( UniformGenerator.between( 0.0F, 2.0F ) ) )
-                                .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 1.0F ) ) ) ) ) );
+        // Lunar siege monsters
+        
+        add( ApocalypseEntities.GHOST, new LootTableBuilder()
+                .addSemicommonDrop( "base", Items.EXPERIENCE_BOTTLE )
+                .toLootTable() );
+        
+        add( ApocalypseEntities.GRUMP, new LootTableBuilder()
+                .addSemicommonDrop( "base", Items.COOKIE )
+                .addRareDrop( "rare", ItemTags.DECORATED_POT_SHERDS )
+                .toLootTable() );
+        
+        add( ApocalypseEntities.SEEKER, new LootTableBuilder()
+                .addCommonDrop( "base", Items.GUNPOWDER, 4 )
+                .addUncommonDrop( "uncommon", Items.DRAGON_BREATH )
+                .addRareDrop( "rare", Items.FLOWER_BANNER_PATTERN, Items.CREEPER_BANNER_PATTERN,
+                        Items.SKULL_BANNER_PATTERN, Items.MOJANG_BANNER_PATTERN, Items.GLOBE_BANNER_PATTERN,
+                        Items.PIGLIN_BANNER_PATTERN )
+                .toLootTable() );
+        
+        add( ApocalypseEntities.DESTROYER, new LootTableBuilder()
+                .addCommonDrop( "base", Items.GUNPOWDER, 6 )
+                .addSemicommonDrop( "common", Items.DRAGON_BREATH )
+                .addPool( new LootPoolBuilder( "uncommon" )
+                        .addConditions( LootHelper.UNCOMMON_CONDITIONS )
+                        .addEntry( new LootEntryItemBuilder( Items.BOOK ).enchant( 30, true ).toLootEntry() )
+                        .toLootPool() )
+                .toLootTable() );
+        
+        add( ApocalypseEntities.BREECHER, new LootTableBuilder()
+                .addLootTable( "base", EntityType.CREEPER.getDefaultLootTable() )
+                .addRareDrop( "rare", ItemTags.TRIM_TEMPLATES )
+                .toLootTable() );
         
         
-        add( ApocalypseEntities.GRUMP.get(), LootTable.lootTable()
-                .withPool( LootPool.lootPool()
-                        .setRolls( ConstantValue.exactly( 1 ) )
-                        .add( LootItem.lootTableItem( Items.COOKIE )
-                                .apply( SetItemCountFunction.setCount( UniformGenerator.between( 0.0F, 3.0F ) ) )
-                                .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 2.0F ) ) ) ) )
-                .withPool( LootPool.lootPool()
-                        .setRolls( ConstantValue.exactly( 1 ) )
-                        .add( LootItem.lootTableItem( ApocalypseObjects.Items.FRAGMENTED_SOUL.get() )
-                                .apply( SetItemCountFunction.setCount( UniformGenerator.between( 0.0F, 2.0F ) ) )
-                                .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 1.0F ) ) ) ) ) );
+        // Other monsters
         
+        add( ApocalypseEntities.FEARWOLF, new LootTableBuilder()
+                .addCommonDrop( "base", Items.BONE, 2 )
+                .addUncommonDrop( "uncommon", Items.EXPERIENCE_BOTTLE )
+                .toLootTable() );
         
-        add( ApocalypseEntities.SEEKER.get(), LootTable.lootTable()
-                .withPool( LootPool.lootPool()
-                        .setRolls( ConstantValue.exactly( 1 ) )
-                        .add( LootItem.lootTableItem( Items.GUNPOWDER )
-                                .apply( SetItemCountFunction.setCount( UniformGenerator.between( 0.0F, 3.0F ) ) )
-                                .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 2.0F ) ) ) ) )
-                .withPool( LootPool.lootPool()
-                        .setRolls( ConstantValue.exactly( 1 ) )
-                        .add( LootItem.lootTableItem( ApocalypseObjects.Items.FRAGMENTED_SOUL.get() )
-                                .apply( SetItemCountFunction.setCount( UniformGenerator.between( 0.0F, 2.0F ) ) )
-                                .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 1.0F ) ) ) ) ) );
-        
-        
-        add( ApocalypseEntities.DESTROYER.get(), LootTable.lootTable()
-                .withPool( LootPool.lootPool()
-                        .setRolls( ConstantValue.exactly( 1 ) )
-                        .add( LootItem.lootTableItem( Items.GUNPOWDER )
-                                .apply( SetItemCountFunction.setCount( UniformGenerator.between( 1.0F, 5.0F ) ) )
-                                .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 2.0F ) ) ) ) )
-                .withPool( LootPool.lootPool()
-                        .setRolls( ConstantValue.exactly( 1 ) )
-                        .add( LootItem.lootTableItem( ApocalypseObjects.Items.FRAGMENTED_SOUL.get() )
-                                .apply( SetItemCountFunction.setCount( UniformGenerator.between( 0.0F, 2.0F ) ) )
-                                .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 1.0F ) ) ) ) ) );
-        
-        
-        add( ApocalypseEntities.BREECHER.get(), LootTable.lootTable()
-                .withPool( LootPool.lootPool()
-                        .setRolls( ConstantValue.exactly( 1 ) )
-                        .add( LootItem.lootTableItem( Items.GUNPOWDER )
-                                .apply( SetItemCountFunction.setCount( UniformGenerator.between( 1.0F, 4.0F ) ) )
-                                .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 2.0F ) ) ) ) )
-                .withPool( LootPool.lootPool()
-                        .setRolls( ConstantValue.exactly( 1 ) )
-                        .add( LootItem.lootTableItem( ApocalypseObjects.Items.FRAGMENTED_SOUL.get() )
-                                .apply( SetItemCountFunction.setCount( UniformGenerator.between( 0.0F, 2.0F ) ) )
-                                .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 1.0F ) ) ) ) ) );
-        
-        
-        add( ApocalypseEntities.FEARWOLF.get(), LootTable.lootTable()
-                .withPool( LootPool.lootPool()
-                        .setRolls( ConstantValue.exactly( 1 ) )
-                        .add( LootItem.lootTableItem( Items.BONE )
-                                .apply( SetItemCountFunction.setCount( UniformGenerator.between( 1.0F, 2.0F ) ) )
-                                .apply( LootingEnchantFunction.lootingMultiplier( UniformGenerator.between( 0.0F, 2.0F ) ) ) ) ) );
+        add( ApocalypseEntities.SHADEFIEND, new LootTableBuilder()
+                .addSemicommonDrop( "base", Items.PHANTOM_MEMBRANE )
+                .toLootTable() );
     }
 }
