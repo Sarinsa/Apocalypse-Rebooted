@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.core.mod_event.events;
 
 import com.toast.apocalypse.common.capability.CapabilityHelper;
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
@@ -43,6 +44,9 @@ import java.util.List;
  * These are often referred to as "full moon sieges" in other parts of the code and in the properties file.
  */
 public final class FullMoonEvent extends AbstractEvent {
+    /** NBT tag name for the flag this event sets on all mobs it spawns. */
+    public static final String TAG_SIEGE_MOB = "SiegeMob";
+    
     // NBT tag names
     private static final String TAG_TIME_UNTIL_NEXT_SPAWN = "TimeNextSpawn";
     private static final String TAG_SPAWN_TIME = "SpawnTime";
@@ -330,7 +334,9 @@ public final class FullMoonEvent extends AbstractEvent {
     
     /** Called on each siege mob as it is spawned. Adds the mob to the tracker and sets its target. */
     private void onMobSpawned( LivingEntity entity, ServerPlayer player ) {
-        //TODO flag the entity as a lunar siege spawn so we can make them drop fragmented souls
+        // Mark the entity as a lunar siege mob; causes the entity to drop fragmented souls
+        NBTHelper.getForgeData( entity, Apocalypse.MOD_ID ).putByte( TAG_SIEGE_MOB, (byte) 1 );
+        
         if( entity instanceof NeutralMob mob ) {
             mob.setTarget( player );
             mob.setPersistentAngerTarget( player.getUUID() );
