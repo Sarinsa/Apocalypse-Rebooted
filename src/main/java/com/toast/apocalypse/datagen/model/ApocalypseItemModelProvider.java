@@ -80,6 +80,7 @@ public class ApocalypseItemModelProvider extends ItemModelProvider {
     }
     
     /** Generates the model files for the lunar clock item. */
+    @SuppressWarnings( "SameParameterValue" )
     private void lunarClock( RegistryObject<Item> item ) {
         processed.add( item.get() );
         final ResourceLocation id = Objects.requireNonNull( item.getId() );

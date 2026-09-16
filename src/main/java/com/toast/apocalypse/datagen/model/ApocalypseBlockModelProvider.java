@@ -45,17 +45,20 @@ public class ApocalypseBlockModelProvider extends BlockStateProvider {
     }
     
     /** Generates a "cube all" model for the given block and an item model with it as parent. */
+    @SuppressWarnings( "SameParameterValue" )
     private void simpleBlockWithItem( RegistryObject<Block> regObj ) {
         cubeAll( regObj.get() );
         simpleBlockItem( regObj );
     }
     
+    /** Generates a block item model for the given block that parents its block model. */
     private void simpleBlockItem( RegistryObject<Block> regObj ) {
         final Block block = regObj.get();
         itemModels().withExistingParent( blockName( block ), blockTexture( block ) );
     }
     
     /** Generates a cross block model for the given block. */
+    @SuppressWarnings( "SameParameterValue" )
     private void crossBlock( RegistryObject<Block> regObj, ResourceLocation renderType ) {
         final Block block = regObj.get();
         final String name = blockName( block );
