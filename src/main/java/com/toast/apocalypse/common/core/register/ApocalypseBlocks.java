@@ -27,17 +27,16 @@ public final class ApocalypseBlocks {
     public static final List<Pair<RegistryObject<Block>, RegistryObject<Block>>> WET_TORCHES;
     
     static {
-        register( ApocalypseObjects.Blocks.LUNAR_PHASE_SENSOR, LunarPhaseSensorBlock::new, CreativeModeTabs.REDSTONE_BLOCKS );
         register( ApocalypseObjects.Blocks.MIDNIGHT_STEEL_BLOCK, MidnightSteelBlock::new, CreativeModeTabs.BUILDING_BLOCKS );
+        register( ApocalypseObjects.Blocks.LUNAR_PHASE_SENSOR, LunarPhaseSensorBlock::new, CreativeModeTabs.REDSTONE_BLOCKS );
         register( ApocalypseObjects.Blocks.DYNAMIC_TRAP, DynamicTrapBlock::new, CreativeModeTabs.REDSTONE_BLOCKS, CreativeModeTabs.FUNCTIONAL_BLOCKS );
         register( ApocalypseObjects.Blocks.DEAD_GRASS, DeadPlantBlock::new, CreativeModeTabs.NATURAL_BLOCKS );
         register( ApocalypseObjects.Blocks.DEAD_PLANT, DeadPlantBlock::new, CreativeModeTabs.NATURAL_BLOCKS );
         
-        
         final ArrayList<Pair<RegistryObject<Block>, RegistryObject<Block>>> wetTorches = new ArrayList<>();
         for( WetTorchBlock.Type type : WetTorchBlock.Type.values() ) {
-            RegistryObject<Block> torch = register( type.torchId(), type::torchSupplier, CreativeModeTabs.BUILDING_BLOCKS );
-            RegistryObject<Block> wallTorch = register( type.wallTorchId(), type::wallTorchSupplier, CreativeModeTabs.BUILDING_BLOCKS );
+            RegistryObject<Block> torch = registerNoItem( type.torchId(), type::torchSupplier );
+            RegistryObject<Block> wallTorch = registerNoItem( type.wallTorchId(), type::wallTorchSupplier );
             wetTorches.add( Pair.of( torch, wallTorch ) );
         }
         wetTorches.trimToSize();
@@ -62,6 +61,12 @@ public final class ApocalypseBlocks {
     private static void register( RegistryObject<Block> regObj, Supplier<Block> supplier, ResourceKey<CreativeModeTab>... creativeTabs ) {
         REGISTRY.register( Objects.requireNonNull( regObj.getId() ).getPath(), supplier );
         ApocalypseItems.registerBlockItem( regObj, creativeTabs );
+    }
+    
+    /** Registers a block with no block item to the deferred register. */
+    @SuppressWarnings( { "SameParameterValue", "unused" } )
+    private static <T extends Block> RegistryObject<T> registerNoItem( String name, Supplier<T> supplier ) {
+        return REGISTRY.register( name, supplier );
     }
     
     /** Registers a block with no block item to the deferred register. */

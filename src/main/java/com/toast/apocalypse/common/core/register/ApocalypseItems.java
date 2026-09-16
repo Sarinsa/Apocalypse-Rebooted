@@ -6,7 +6,6 @@ import com.toast.apocalypse.common.item.BucketHelmetItem;
 import com.toast.apocalypse.common.item.FatherlyToastItem;
 import com.toast.apocalypse.common.item.LunarArmorItem;
 import com.toast.apocalypse.common.item.MobWikiBookItem;
-import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -40,7 +39,6 @@ public final class ApocalypseItems {
         register( ApocalypseObjects.Items.MIDNIGHT_STEEL_BOOTS, () -> new LunarArmorItem( ArmorItem.Type.BOOTS ), CreativeModeTabs.COMBAT );
         register( ApocalypseObjects.Items.LUNAR_CLOCK, () -> new Item( new Item.Properties().stacksTo( 1 ) ), CreativeModeTabs.TOOLS_AND_UTILITIES );
         register( ApocalypseObjects.Items.APOCALYPSE_COMPENDIUM, MobWikiBookItem::new, CreativeModeTabs.TOOLS_AND_UTILITIES );
-        register( ApocalypseObjects.Items.WET_TORCH, () -> new StandingAndWallBlockItem( ApocalypseObjects.Blocks.WET_TORCH.get(), ApocalypseObjects.Blocks.WET_WALL_TORCH.get(), new Item.Properties(), Direction.DOWN ) );
         
         registerSpawnEgg( ApocalypseObjects.Items.GHOST_SPAWN_EGG, ApocalypseEntities.GHOST, 0xBCBCBC, 0x708899 );
         registerSpawnEgg( ApocalypseObjects.Items.DESTROYER_SPAWN_EGG, ApocalypseEntities.DESTROYER, 0x877B6F, 0x912820 );

@@ -1,6 +1,6 @@
 package com.toast.apocalypse.common.misc.mixin_work;
 
-import com.toast.apocalypse.api.lib.ApocalypseObjects;
+import com.toast.apocalypse.common.block.WetTorchBlock;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import fathertoast.crust.api.config.common.value.collection.key.BlockStateKey;
@@ -45,11 +45,7 @@ public class ServerMixinHooks {
         // Pick random XZ coordinates in the chunk and
         // get the top position in the column as well as the highest solid block position
         BlockPos basePos = serverLevel.getBlockRandomPos( minChunkX, 0, minChunkZ, 15 );
-        
-        BlockPos topPos = serverLevel.getHeightmapPos(
-                Heightmap.Types.WORLD_SURFACE,
-                basePos
-        ).below();
+        BlockPos topPos = serverLevel.getHeightmapPos( Heightmap.Types.WORLD_SURFACE, basePos ).below();
         
         // If its raining and wet torches are enabled, check if we are on a torch block and fizzle it out
         if( ApocalypseConfig.MISC.OTHER.rainFizzlesTorches.get() && serverLevel.isRainingAt( topPos ) ) {
@@ -67,10 +63,7 @@ public class ServerMixinHooks {
         //noinspection deprecation
         if( !serverLevel.isAreaLoaded( topPos, 1 ) ) return;
         
-        BlockPos topSolidPos = serverLevel.getHeightmapPos(
-                Heightmap.Types.MOTION_BLOCKING,
-                basePos
-        ).below();
+        BlockPos topSolidPos = serverLevel.getHeightmapPos( Heightmap.Types.MOTION_BLOCKING, basePos ).below();
         
         // Corrode top block
         corrodeBlock( serverLevel, topPos );
@@ -115,7 +108,7 @@ public class ServerMixinHooks {
             //noinspection unchecked
             return (IRandomKey<Block>) regObjKeyField.get( key );
         }
-        catch( ReflectiveOperationException ignored ) {}
+        catch( ReflectiveOperationException ignored ) { }
         return null;
     }
     
@@ -126,27 +119,26 @@ public class ServerMixinHooks {
             statePropsField.setAccessible( true );
             return (BlockStatePropertyMap) statePropsField.get( key );
         }
-        catch( ReflectiveOperationException ignored ) {}
+        catch( ReflectiveOperationException ignored ) { }
         return BlockStatePropertyMap.EMPTY;
     }
     
     private static void maybeFizzleTorch( ServerLevel serverLevel, BlockPos pos ) {
-        BlockState stateAtPos = serverLevel.getBlockState( pos );
+        final BlockState state = serverLevel.getBlockState( pos );
         
-        if( stateAtPos.is( Blocks.TORCH ) ) {
-            serverLevel.setBlockAndUpdate( pos, ApocalypseObjects.Blocks.WET_TORCH.get().defaultBlockState() );
-        }
-        else if( stateAtPos.is( Blocks.WALL_TORCH ) ) {
-            BlockState wallTorch = ApocalypseObjects.Blocks.WET_WALL_TORCH.get().defaultBlockState();
-            
+        Block wetTorchBlock = WetTorchBlock.Type.getWetVariantForTorch( state.getBlock() );
+        if( wetTorchBlock == null ) return;
+        
+        BlockState wetTorchState = wetTorchBlock.defaultBlockState();
+        if( wetTorchState.is( Blocks.WALL_TORCH ) ) {
             try {
-                wallTorch = wallTorch.setValue( WallTorchBlock.FACING, stateAtPos.getValue( WallTorchBlock.FACING ) );
+                wetTorchState = wetTorchState.setValue( WallTorchBlock.FACING, state.getValue( WallTorchBlock.FACING ) );
             }
             catch( Exception ignored ) {
                 Apocalypse.LOGGER.warn( "Failed to copy block state facing property of wet wall torch to a vanilla wall torch. " +
                         "This should normally work!" );
             }
-            serverLevel.setBlockAndUpdate( pos, wallTorch );
         }
+        serverLevel.setBlockAndUpdate( pos, wetTorchState );
     }
 }

@@ -49,13 +49,11 @@ public final class ApocalypseObjects {
     
     /** Blocks. */
     public interface Blocks {
-        RegistryObject<Block> LUNAR_PHASE_SENSOR = block( "lunar_phase_sensor" );
         RegistryObject<Block> MIDNIGHT_STEEL_BLOCK = block( "midnight_steel_block" );
+        RegistryObject<Block> LUNAR_PHASE_SENSOR = block( "lunar_phase_sensor" );
         RegistryObject<Block> DYNAMIC_TRAP = block( "dynamic_trap" );
         RegistryObject<Block> DEAD_GRASS = block( "dead_grass" );
         RegistryObject<Block> DEAD_PLANT = block( "dead_plant" );
-        RegistryObject<Block> WET_TORCH = block( "wet_torch" );
-        RegistryObject<Block> WET_WALL_TORCH = block( "wet_wall_torch" );
     }
     
     /** Items. */
@@ -70,7 +68,6 @@ public final class ApocalypseObjects {
         RegistryObject<Item> MIDNIGHT_STEEL_BOOTS = item( "midnight_steel_boots" );
         RegistryObject<Item> LUNAR_CLOCK = item( "lunar_clock" );
         RegistryObject<Item> APOCALYPSE_COMPENDIUM = item( "apocalypse_compendium" );
-        RegistryObject<Item> WET_TORCH = item( "wet_torch" );
         
         RegistryObject<Item> GHOST_SPAWN_EGG = item( "ghost_spawn_egg" );
         RegistryObject<Item> DESTROYER_SPAWN_EGG = item( "destroyer_spawn_egg" );
@@ -262,5 +259,5 @@ public final class ApocalypseObjects {
     }
     
     
-    private ApocalypseObjects() {}
+    private ApocalypseObjects() { }
 }

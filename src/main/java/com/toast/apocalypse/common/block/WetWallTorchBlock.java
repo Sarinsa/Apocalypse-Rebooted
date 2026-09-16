@@ -51,6 +51,11 @@ public class WetWallTorchBlock extends WallTorchBlock {
     }
     
     @Override
+    public boolean isRandomlyTicking( BlockState state ) {
+        return true;
+    }
+    
+    @Override
     @SuppressWarnings( "deprecation" )
     public void randomTick( BlockState state, ServerLevel level, BlockPos pos, RandomSource random ) {
         if( level.isRainingAt( pos ) ) return;

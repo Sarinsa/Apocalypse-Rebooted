@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.TorchBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.HitResult;
 
 import javax.annotation.Nullable;
@@ -23,7 +24,8 @@ public class WetTorchBlock extends TorchBlock {
     
     public enum Type {
         NORMAL( "normal", Blocks.TORCH, Blocks.WALL_TORCH ),
-        SOUL( "soul", Blocks.SOUL_TORCH, Blocks.SOUL_WALL_TORCH );
+        SOUL( "soul", Blocks.SOUL_TORCH, Blocks.SOUL_WALL_TORCH ),
+        REDSTONE( "redstone", Blocks.REDSTONE_TORCH, Blocks.REDSTONE_WALL_TORCH );
         
         private final String ID;
         private final TorchBlock PARENT_TORCH;
@@ -43,12 +45,12 @@ public class WetTorchBlock extends TorchBlock {
         
         /** @return A new standing torch block for this type. */
         public Block torchSupplier() {
-            return new WetTorchBlock( this, Properties.copy( PARENT_TORCH ), PARENT_TORCH.flameParticle );
+            return new WetTorchBlock( this, copyPropsForTorch( PARENT_TORCH ), PARENT_TORCH.flameParticle );
         }
         
         /** @return A new wall torch block for this type. */
         public Block wallTorchSupplier() {
-            return new WetWallTorchBlock( this, Properties.copy( PARENT_WALL_TORCH ), PARENT_WALL_TORCH.flameParticle );
+            return new WetWallTorchBlock( this, copyPropsForTorch( PARENT_WALL_TORCH ), PARENT_WALL_TORCH.flameParticle );
         }
         
         /** @return The 'parent torch block' of this type's wet torch block. */
@@ -73,6 +75,40 @@ public class WetTorchBlock extends TorchBlock {
             }
             return null;
         }
+        
+        /**
+         * @return The wet counterpart of the given dry torch block,
+         * or null if no match exists.
+         */
+        @Nullable
+        public static Block getWetVariantForTorch( Block dryTorch ) {
+            for( Type type : Type.values() ) {
+                if( type.parentTorchBlock() == dryTorch ) {
+                    return type.torchBlock();
+                }
+                else if( type.parentWallTorchBlock() == dryTorch ) {
+                    return type.wallTorchBlock();
+                }
+            }
+            return null;
+        }
+        
+        /**
+         * Copies over the desired block properties of the given block to use for a wet torch block.
+         * Unsafe properties that are state sensitive are replaced.
+         */
+        private static Properties copyPropsForTorch( Block block ) {
+            return Properties.copy( block )
+                    .lightLevel( ( state ) -> 2 )
+                    .isViewBlocking( ( state, level, pos ) -> false )
+                    .mapColor( ( state ) -> MapColor.NONE )
+                    .emissiveRendering( ( state, level, pos ) -> false )
+                    .hasPostProcess( ( state, level, pos ) -> false )
+                    .isValidSpawn( ( state, level, pos, type ) -> false )
+                    .emissiveRendering( ( state, level, pos ) -> false )
+                    .isSuffocating( ( state, level, pos ) -> false )
+                    .isRedstoneConductor( ( state, level, pos ) -> false );
+        }
     }
     
     /** This wet torch block's torch type. */
@@ -96,6 +132,11 @@ public class WetTorchBlock extends TorchBlock {
             double z = (double) pos.getZ() + 0.5D;
             level.addParticle( ParticleTypes.SMOKE, x, y, z, 0.0D, 0.0D, 0.0D );
         }
+    }
+    
+    @Override
+    public boolean isRandomlyTicking( BlockState state ) {
+        return true;
     }
     
     @Override
