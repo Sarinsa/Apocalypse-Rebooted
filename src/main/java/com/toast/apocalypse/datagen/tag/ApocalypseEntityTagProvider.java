@@ -13,9 +13,9 @@ import java.util.concurrent.CompletableFuture;
 
 public class ApocalypseEntityTagProvider extends EntityTypeTagsProvider {
     
-    public ApocalypseEntityTagProvider( DataGenerator dataGenerator, CompletableFuture<HolderLookup.Provider> lookupProvider,
+    public ApocalypseEntityTagProvider( DataGenerator dataGen, CompletableFuture<HolderLookup.Provider> lookupProvider,
                                         @Nullable ExistingFileHelper fileHelper ) {
-        super( dataGenerator.getPackOutput(), lookupProvider, Apocalypse.MOD_ID, fileHelper );
+        super( dataGen.getPackOutput(), lookupProvider, Apocalypse.MOD_ID, fileHelper );
     }
     
     @Override

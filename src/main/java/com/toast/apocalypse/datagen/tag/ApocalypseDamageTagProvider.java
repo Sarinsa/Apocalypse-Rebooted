@@ -13,8 +13,8 @@ import java.util.concurrent.CompletableFuture;
 
 public class ApocalypseDamageTagProvider extends DamageTypeTagsProvider {
     
-    public ApocalypseDamageTagProvider( DataGenerator dataGenerator, CompletableFuture<HolderLookup.Provider> provider, @Nullable ExistingFileHelper fileHelper ) {
-        super( dataGenerator.getPackOutput(), provider, Apocalypse.MOD_ID, fileHelper );
+    public ApocalypseDamageTagProvider( DataGenerator dataGen, CompletableFuture<HolderLookup.Provider> provider, @Nullable ExistingFileHelper fileHelper ) {
+        super( dataGen.getPackOutput(), provider, Apocalypse.MOD_ID, fileHelper );
     }
     
     @Override

@@ -18,8 +18,8 @@ import java.util.function.Consumer;
 
 public class ApocalypseRecipeProvider extends RecipeProvider {
     
-    public ApocalypseRecipeProvider( DataGenerator dataGenerator ) {
-        super( dataGenerator.getPackOutput() );
+    public ApocalypseRecipeProvider( DataGenerator dataGen ) {
+        super( dataGen.getPackOutput() );
     }
     
     @Override

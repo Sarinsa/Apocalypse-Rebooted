@@ -18,8 +18,8 @@ import java.util.concurrent.CompletableFuture;
 
 public class ApocalypseItemTagProvider extends ItemTagsProvider {
     
-    public ApocalypseItemTagProvider( DataGenerator dataGenerator, CompletableFuture<HolderLookup.Provider> lookupProvider, CompletableFuture<TagsProvider.TagLookup<Block>> blockTagsProvider, @Nullable ExistingFileHelper existingFileHelper ) {
-        super( dataGenerator.getPackOutput(), lookupProvider, blockTagsProvider, Apocalypse.MOD_ID, existingFileHelper );
+    public ApocalypseItemTagProvider( DataGenerator dataGen, CompletableFuture<HolderLookup.Provider> lookupProvider, CompletableFuture<TagsProvider.TagLookup<Block>> blockTagsProvider, @Nullable ExistingFileHelper existingFileHelper ) {
+        super( dataGen.getPackOutput(), lookupProvider, blockTagsProvider, Apocalypse.MOD_ID, existingFileHelper );
     }
     
     @Override

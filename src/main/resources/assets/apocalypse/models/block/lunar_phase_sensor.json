@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:block/template_daylight_detector",
-  "textures": {
-    "top": "apocalypse:block/lunar_phase_sensor_top",
-    "side": "apocalypse:block/lunar_phase_sensor_side"
-  }
-}

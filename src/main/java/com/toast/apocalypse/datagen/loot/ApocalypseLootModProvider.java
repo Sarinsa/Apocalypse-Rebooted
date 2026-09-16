@@ -20,8 +20,8 @@ import java.util.Arrays;
 
 public class ApocalypseLootModProvider extends GlobalLootModifierProvider {
     
-    public ApocalypseLootModProvider( DataGenerator gen ) {
-        super( gen.getPackOutput(), Apocalypse.MOD_ID );
+    public ApocalypseLootModProvider( DataGenerator dataGen ) {
+        super( dataGen.getPackOutput(), Apocalypse.MOD_ID );
     }
     
     @Override

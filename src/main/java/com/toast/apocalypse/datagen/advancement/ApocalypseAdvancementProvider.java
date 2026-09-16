@@ -1,4 +1,4 @@
-package com.toast.apocalypse.datagen;
+package com.toast.apocalypse.datagen.advancement;
 
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.Apocalypse;
@@ -18,10 +18,11 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
+// TODO - More advancements? Maybe we could make some difficult challenges?
 public class ApocalypseAdvancementProvider extends ForgeAdvancementProvider {
     
-    public ApocalypseAdvancementProvider( DataGenerator dataGenerator, CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper fileHelper ) {
-        super( dataGenerator.getPackOutput(), lookupProvider, fileHelper, List.of( new AdvancementGen() ) );
+    public ApocalypseAdvancementProvider( DataGenerator dataGen, CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper fileHelper ) {
+        super( dataGen.getPackOutput(), lookupProvider, fileHelper, List.of( new AdvancementGen() ) );
     }
     
     private static class AdvancementGen implements ForgeAdvancementProvider.AdvancementGenerator {

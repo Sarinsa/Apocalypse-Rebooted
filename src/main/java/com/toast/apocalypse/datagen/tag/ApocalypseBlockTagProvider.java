@@ -14,9 +14,9 @@ import java.util.concurrent.CompletableFuture;
 
 public class ApocalypseBlockTagProvider extends BlockTagsProvider {
     
-    public ApocalypseBlockTagProvider( DataGenerator dataGenerator, CompletableFuture<HolderLookup.Provider> lookupProvider,
+    public ApocalypseBlockTagProvider( DataGenerator dataGen, CompletableFuture<HolderLookup.Provider> lookupProvider,
                                        @Nullable ExistingFileHelper existingFileHelper ) {
-        super( dataGenerator.getPackOutput(), lookupProvider, Apocalypse.MOD_ID, existingFileHelper );
+        super( dataGen.getPackOutput(), lookupProvider, Apocalypse.MOD_ID, existingFileHelper );
     }
     
     @Override

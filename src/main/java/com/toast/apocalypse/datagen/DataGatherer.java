@@ -1,8 +1,11 @@
 package com.toast.apocalypse.datagen;
 
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.datagen.advancement.ApocalypseAdvancementProvider;
 import com.toast.apocalypse.datagen.loot.ApocalypseLootModProvider;
 import com.toast.apocalypse.datagen.loot.ApocalypseLootTableProvider;
+import com.toast.apocalypse.datagen.model.ApocalypseBlockModelProvider;
+import com.toast.apocalypse.datagen.model.ApocalypseItemModelProvider;
 import com.toast.apocalypse.datagen.recipe.ApocalypseRecipeProvider;
 import com.toast.apocalypse.datagen.tag.ApocalypseBlockTagProvider;
 import com.toast.apocalypse.datagen.tag.ApocalypseDamageTagProvider;
@@ -23,20 +26,24 @@ public class DataGatherer {
     
     @SubscribeEvent
     public static void onGatherData( GatherDataEvent event ) {
-        DataGenerator dataGenerator = event.getGenerator();
+        DataGenerator dataGen = event.getGenerator();
         ExistingFileHelper fileHelper = event.getExistingFileHelper();
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
         
         if( event.includeServer() ) {
-            dataGenerator.addProvider( true, new ApocalypseRecipeProvider( dataGenerator ) );
-            dataGenerator.addProvider( true, new ApocalypseLootTableProvider( dataGenerator ) );
-            dataGenerator.addProvider( true, new ApocalypseAdvancementProvider( dataGenerator, lookupProvider, fileHelper ) );
-            BlockTagsProvider blockTagProvider = new ApocalypseBlockTagProvider( dataGenerator, lookupProvider, fileHelper );
-            dataGenerator.addProvider( true, blockTagProvider );
-            dataGenerator.addProvider( true, new ApocalypseItemTagProvider( dataGenerator, lookupProvider, blockTagProvider.contentsGetter(), fileHelper ) );
-            dataGenerator.addProvider( true, new ApocalypseEntityTagProvider( dataGenerator, lookupProvider, fileHelper ) );
-            dataGenerator.addProvider( true, new ApocalypseDamageTagProvider( dataGenerator, lookupProvider, fileHelper ) );
-            dataGenerator.addProvider( true, new ApocalypseLootModProvider( dataGenerator ) );
+            dataGen.addProvider( true, new ApocalypseRecipeProvider( dataGen ) );
+            dataGen.addProvider( true, new ApocalypseLootTableProvider( dataGen ) );
+            dataGen.addProvider( true, new ApocalypseAdvancementProvider( dataGen, lookupProvider, fileHelper ) );
+            BlockTagsProvider blockTagProvider = new ApocalypseBlockTagProvider( dataGen, lookupProvider, fileHelper );
+            dataGen.addProvider( true, blockTagProvider );
+            dataGen.addProvider( true, new ApocalypseItemTagProvider( dataGen, lookupProvider, blockTagProvider.contentsGetter(), fileHelper ) );
+            dataGen.addProvider( true, new ApocalypseEntityTagProvider( dataGen, lookupProvider, fileHelper ) );
+            dataGen.addProvider( true, new ApocalypseDamageTagProvider( dataGen, lookupProvider, fileHelper ) );
+            dataGen.addProvider( true, new ApocalypseLootModProvider( dataGen ) );
+        }
+        if( event.includeClient() ) {
+            dataGen.addProvider( true, new ApocalypseBlockModelProvider( dataGen, fileHelper ) );
+            dataGen.addProvider( true, new ApocalypseItemModelProvider( dataGen, fileHelper ) );
         }
     }
 }

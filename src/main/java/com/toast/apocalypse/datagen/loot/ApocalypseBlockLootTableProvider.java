@@ -1,11 +1,11 @@
 package com.toast.apocalypse.datagen.loot;
 
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
+import com.toast.apocalypse.common.block.WetTorchBlock;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.LootTable;
 
 import java.util.HashSet;
@@ -39,7 +39,10 @@ public class ApocalypseBlockLootTableProvider extends BlockLootSubProvider {
         add( ApocalypseObjects.Blocks.DEAD_GRASS.get(), noDrop() );
         add( ApocalypseObjects.Blocks.DEAD_PLANT.get(), noDrop() );
         
-        dropOther( ApocalypseObjects.Blocks.WET_TORCH.get(), Blocks.TORCH );
-        dropOther( ApocalypseObjects.Blocks.WET_WALL_TORCH.get(), Blocks.TORCH );
+        // Wet torches
+        for( WetTorchBlock.Type type : WetTorchBlock.Type.values() ) {
+            dropOther( type.torchBlock(), type.parentTorchBlock() );
+            dropOther( type.wallTorchBlock(), type.parentTorchBlock() );
+        }
     }
 }
