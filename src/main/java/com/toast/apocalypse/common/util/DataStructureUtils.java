@@ -2,127 +2,41 @@ package com.toast.apocalypse.common.util;
 
 import net.minecraft.util.RandomSource;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
-import java.util.function.BiPredicate;
-import java.util.function.Predicate;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 
+/** Contains helper methods for manipulating data structures and arrays. */
 public class DataStructureUtils {
     
-    public static <T> T[] copyOfFill( T[] original, int newLength, T rest ) {
-        T[] copy = Arrays.copyOf( original, newLength );
+    /**
+     * Functions similarly to {@link Arrays#copyOf(Object[], int)}, except the resulting
+     * array is padded with the given nonnull default value instead of nulls if the array is being expanded.
+     */
+    public static <T> T[] copyOfWithDefault( T[] original, int newLength, T defaultValue ) {
+        Objects.requireNonNull( original );
+        Objects.requireNonNull( defaultValue );
+        final T[] copy = Arrays.copyOf( original, newLength );
         
         for( int i = original.length; i < newLength; i++ ) {
-            copy[i] = rest;
+            copy[i] = defaultValue;
         }
         return copy;
     }
     
+    /** @return A random entry in the given list, or null if the list is empty. */
     @Nullable
-    public static <T> T getRandomListValue( @Nonnull Random random, @Nonnull List<T> list ) {
-        return list.isEmpty() ? null :
-                (list.size() == 1) ? list.get( 0 ) : list.get( random.nextInt( list.size() ) );
+    public static <T> T getRandomListValue( Random random, List<T> list ) {
+        if( list.isEmpty() ) return null;
+        return list.size() == 1 ? list.get( 0 ) : list.get( random.nextInt( list.size() ) );
     }
     
+    /** @return A random entry in the given list, or null if the list is empty. */
     @Nullable
-    public static <T> T getRandomListValue( @Nonnull RandomSource random, @Nonnull List<T> list ) {
-        return list.isEmpty() ? null :
-                (list.size() == 1) ? list.get( 0 ) : list.get( random.nextInt( list.size() ) );
-    }
-    
-    
-    @Nullable
-    public static <T> T getRandomCollectionValueFiltered( Random random, Collection<T> collection, Predicate<T> predicate ) {
-        final List<T> candidateElements = new ArrayList<>();
-        
-        for( T element : collection ) {
-            if( predicate.test( element ) )
-                candidateElements.add( element );
-        }
-        if( candidateElements.isEmpty() )
-            return null;
-        
-        return candidateElements.get( random.nextInt( candidateElements.size() ) );
-    }
-    
-    
-    @Nullable
-    public static <T> T getRandomCollectionValueFiltered( RandomSource random, Collection<T> collection, Predicate<T> predicate ) {
-        final List<T> candidateElements = new ArrayList<>();
-        
-        for( T element : collection ) {
-            if( predicate.test( element ) )
-                candidateElements.add( element );
-        }
-        if( candidateElements.isEmpty() )
-            return null;
-        
-        return candidateElements.get( random.nextInt( candidateElements.size() ) );
-    }
-    
-    @Nullable
-    public static <K, V> V getRandomMapValueFiltered( Random random, Map<K, V> map, BiPredicate<K, V> biPredicate ) {
-        final List<V> candidateElements = new ArrayList<>();
-        
-        for( K key : map.keySet() ) {
-            V value = map.get( key );
-            
-            if( biPredicate.test( key, value ) )
-                candidateElements.add( value );
-        }
-        if( candidateElements.isEmpty() )
-            return null;
-        
-        return candidateElements.get( random.nextInt( candidateElements.size() ) );
-    }
-    
-    @Nullable
-    public static <K, V> V getRandomMapValueFiltered( RandomSource random, Map<K, V> map, BiPredicate<K, V> biPredicate ) {
-        final List<V> candidateElements = new ArrayList<>();
-        
-        for( K key : map.keySet() ) {
-            V value = map.get( key );
-            
-            if( biPredicate.test( key, value ) )
-                candidateElements.add( value );
-        }
-        if( candidateElements.isEmpty() )
-            return null;
-        
-        return candidateElements.get( random.nextInt( candidateElements.size() ) );
-    }
-    
-    @Nullable
-    public static <K, V> K randomMapKeyFiltered( Random random, Map<K, V> map, BiPredicate<K, V> biPredicate ) {
-        final List<K> candidateKeys = new ArrayList<>();
-        
-        for( K key : map.keySet() ) {
-            V value = map.get( key );
-            
-            if( biPredicate.test( key, value ) )
-                candidateKeys.add( key );
-        }
-        if( candidateKeys.isEmpty() )
-            return null;
-        
-        return candidateKeys.size() == 1 ? candidateKeys.get( 0 ) : candidateKeys.get( random.nextInt( candidateKeys.size() ) );
-    }
-    
-    
-    @Nullable
-    public static <K, V> K randomMapKeyFiltered( RandomSource random, Map<K, V> map, BiPredicate<K, V> biPredicate ) {
-        final List<K> candidateKeys = new ArrayList<>();
-        
-        for( K key : map.keySet() ) {
-            V value = map.get( key );
-            
-            if( biPredicate.test( key, value ) )
-                candidateKeys.add( key );
-        }
-        if( candidateKeys.isEmpty() )
-            return null;
-        
-        return candidateKeys.size() == 1 ? candidateKeys.get( 0 ) : candidateKeys.get( random.nextInt( candidateKeys.size() ) );
+    public static <T> T getRandomListValue( RandomSource random, List<T> list ) {
+        if( list.isEmpty() ) return null;
+        return list.size() == 1 ? list.get( 0 ) : list.get( random.nextInt( list.size() ) );
     }
 }

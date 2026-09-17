@@ -5,9 +5,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.event.entity.living.MobSpawnEvent;
 
-/**
- * Class containing various NBT-related helper methods.
- */
+/** Class containing various NBT-related helper methods. */
 public class NBTUtil {
     
     /** The NBT key used for "main" compound tags where Apocalypse stores its data. */
@@ -22,8 +20,6 @@ public class NBTUtil {
     
     /** @return True if the given entity has been handled by Apocalypse. */
     public static boolean isEntityProcessed( LivingEntity entity ) {
-        if( entity == null ) return false;
-        
         if( NBTHelper.containsCompound( entity.getPersistentData(), TAG_MOD_DATA ) ) {
             final CompoundTag modData = entity.getPersistentData().getCompound( TAG_MOD_DATA );
             
@@ -36,7 +32,6 @@ public class NBTUtil {
     
     /** Helper method for marking an entity as processed by Apocalypse. */
     public static void markEntityProcessed( LivingEntity entity ) {
-        if( entity == null ) return;
         final CompoundTag modTag = NBTHelper.getOrCreateCompound( entity.getPersistentData(), TAG_MOD_DATA );
         modTag.putBoolean( TAG_PROCESSED, true );
     }
