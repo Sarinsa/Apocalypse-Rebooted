@@ -1,8 +1,8 @@
 package com.toast.apocalypse.common.entity.living.ai;
 
-import com.toast.apocalypse.common.entity.living.AbstractFullMoonGhast;
+import com.toast.apocalypse.api.entity.ILunarSiegeMob;
+import com.toast.apocalypse.common.entity.living.AbstractLunarSiegeGhast;
 import com.toast.apocalypse.common.entity.living.Grump;
-import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.target.TargetGoal;
@@ -10,11 +10,11 @@ import net.minecraft.world.entity.player.Player;
 
 import java.util.UUID;
 
-public class MoonMobPlayerTargetGoal<T extends Mob & IFullMoonMob> extends TargetGoal {
+public class LunarSiegeTargetPlayerGoal<T extends Mob & ILunarSiegeMob> extends TargetGoal {
     
     private final T moonMob;
     
-    public MoonMobPlayerTargetGoal( T mobEntity, boolean mustSee ) {
+    public LunarSiegeTargetPlayerGoal( T mobEntity, boolean mustSee ) {
         super( mobEntity, mustSee );
         moonMob = mobEntity;
     }
@@ -38,8 +38,8 @@ public class MoonMobPlayerTargetGoal<T extends Mob & IFullMoonMob> extends Targe
         }
         
         if( mustSee ) {
-            if( mob instanceof AbstractFullMoonGhast ) {
-                if( !((AbstractFullMoonGhast) moonMob).canSeeDirectly( player ) )
+            if( mob instanceof AbstractLunarSiegeGhast ) {
+                if( !((AbstractLunarSiegeGhast) moonMob).canSeeDirectly( player ) )
                     return false;
             }
             else if( !mob.getSensing().hasLineOfSight( player ) )

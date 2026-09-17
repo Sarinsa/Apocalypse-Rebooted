@@ -2,8 +2,8 @@ package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
+import com.toast.apocalypse.common.entity.living.ai.LunarSiegeTargetPlayerGoal;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
-import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import net.minecraft.core.BlockPos;
@@ -50,7 +50,7 @@ import java.util.Optional;
  * In addition to the above, Destroyers can also attempt to destroy their target player's
  * respawn point, forcing the player to confront it.
  */
-public class Destroyer extends AbstractFullMoonGhast {
+public class Destroyer extends AbstractLunarSiegeGhast {
     
     public static final EntityDataAccessor<Boolean> ATTACKED_BY_PT = SynchedEntityData.defineId( Destroyer.class, EntityDataSerializers.BOOLEAN );
     protected boolean isTargetingSpawnPoint = false;
@@ -85,7 +85,7 @@ public class Destroyer extends AbstractFullMoonGhast {
         goalSelector.addGoal( 1, new DestroyerLookAroundGoal( this ) );
         goalSelector.addGoal( 2, new Destroyer.RandomOrRelativeToTargetFlyGoal( this ) );
         targetSelector.addGoal( 0, new MobHurtByTargetGoal( this, Enemy.class ) );
-        targetSelector.addGoal( 1, new MoonMobPlayerTargetGoal<>( this, false ) );
+        targetSelector.addGoal( 1, new LunarSiegeTargetPlayerGoal<>( this, false ) );
         targetSelector.addGoal( 2, new NearestAttackableTargetGoal<>( this, Player.class, false, false ) );
     }
     
@@ -140,7 +140,7 @@ public class Destroyer extends AbstractFullMoonGhast {
         if( damageSource.getEntity() instanceof Player player ) {
             // If attacked by siege target player, notify the Destroyer, so it
             // focuses on the player rather than their respawn point.
-            if( getPlayerTargetUUID() != null && getPlayerTargetUUID() == player.getUUID() ) {
+            if( getEventTarget( this ) == player ) {
                 entityData.set( ATTACKED_BY_PT, true );
             }
         }
@@ -322,7 +322,7 @@ public class Destroyer extends AbstractFullMoonGhast {
                 Optional<Vec3> respawnPos = Optional.empty();
                 
                 if( ApocalypseConfig.ENTITIES.FULL_MOON.destroyerTargetRespawnPos.get() && destroyer.getTarget() instanceof ServerPlayer serverPlayer && !destroyer.attackedBySiegeTarget() ) {
-                    if( destroyer.getPlayerTargetUUID() != null && destroyer.getPlayerTargetUUID() == serverPlayer.getUUID() ) {
+                    if( destroyer.getEventTarget( destroyer ) == serverPlayer ) {
                         BlockPos pos = serverPlayer.getRespawnPosition();
                         
                         if( isPlayerSpawnValid( pos, destroyer.level() ) ) {
@@ -376,7 +376,7 @@ public class Destroyer extends AbstractFullMoonGhast {
             if( !ApocalypseConfig.ENTITIES.FULL_MOON.destroyerTargetRespawnPos.get() )
                 return false;
             
-            if( IFullMoonMob.getEventTarget( destroyer ) instanceof ServerPlayer targetPlayer && !destroyer.attackedBySiegeTarget() ) {
+            if( destroyer.getEventTarget( destroyer ) instanceof ServerPlayer targetPlayer && !destroyer.attackedBySiegeTarget() ) {
                 if( targetPlayer.getRespawnPosition() != null &&
                         (targetPlayer.getRespawnDimension().equals( destroyer.level().dimension() ))
                         && isPlayerSpawnValid( targetPlayer.getRespawnPosition(), destroyer.level() ) ) {
@@ -392,7 +392,7 @@ public class Destroyer extends AbstractFullMoonGhast {
             if( !ApocalypseConfig.ENTITIES.FULL_MOON.destroyerTargetRespawnPos.get() )
                 return false;
             
-            if( IFullMoonMob.getEventTarget( destroyer ) instanceof ServerPlayer targetPlayer && !destroyer.attackedBySiegeTarget() ) {
+            if( destroyer.getEventTarget( destroyer ) instanceof ServerPlayer targetPlayer && !destroyer.attackedBySiegeTarget() ) {
                 if( respawnPos != null && (targetPlayer.getRespawnDimension().equals( destroyer.level().dimension() )) ) {
                     return isPlayerSpawnValid( respawnPos, destroyer.level() );
                 }

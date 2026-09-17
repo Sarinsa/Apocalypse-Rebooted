@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.event;
 
+import com.toast.apocalypse.api.entity.ILunarSiegeMob;
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.capability.CapabilityHelper;
 import com.toast.apocalypse.common.core.Apocalypse;
@@ -10,7 +11,6 @@ import com.toast.apocalypse.common.core.difficulty.MobPotionHandler;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.entity.living.Grump;
-import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import com.toast.apocalypse.common.item.FatherlyToastItem;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.network.message.S2CSimpleClientTask;
@@ -206,7 +206,7 @@ public final class GameEventListener {
     @SubscribeEvent( priority = EventPriority.LOW )
     public void onDespawnCheck( MobSpawnEvent.AllowDespawn event ) {
         if( !event.getLevel().isClientSide() ) {
-            if( event.getEntity() instanceof IFullMoonMob && Apocalypse.INSTANCE.getDifficultyManager().isFullMoonNight() ) {
+            if( event.getEntity() instanceof ILunarSiegeMob && Apocalypse.INSTANCE.getDifficultyManager().isFullMoonNight() ) {
                 event.setResult( Event.Result.DENY );
             }
         }

@@ -1,9 +1,10 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.api.entity.ILunarSiegeMob;
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
+import com.toast.apocalypse.common.entity.living.ai.LunarSiegeTargetPlayerGoal;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
-import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
@@ -48,10 +49,10 @@ import java.util.function.BiPredicate;
  * clear line of sight. When it does have direct vision, it shoots much weaker fireballs that can be easily reflected
  * back at the seeker. The seeker also alerts nearby monsters of the player's whereabouts when in it's direct line of sight.
  */
-public class Seeker extends AbstractFullMoonGhast {
+public class Seeker extends AbstractLunarSiegeGhast {
     
     private static final EntityDataAccessor<Boolean> ALERTING = SynchedEntityData.defineId( Seeker.class, EntityDataSerializers.BOOLEAN );
-    private static final BiPredicate<Mob, Seeker> ALERT_PREDICATE = ( mob, seeker ) -> !(mob instanceof IFullMoonMob) && mob instanceof Enemy;
+    private static final BiPredicate<Mob, Seeker> ALERT_PREDICATE = ( mob, seeker ) -> !(mob instanceof ILunarSiegeMob) && mob instanceof Enemy;
     
     /** The seeker's current target. Updated when the seeker alerts nearby mobs. */
     private LivingEntity currentTarget;
@@ -80,7 +81,7 @@ public class Seeker extends AbstractFullMoonGhast {
         goalSelector.addGoal( 2, new LookAroundGoal( this ) );
         goalSelector.addGoal( 2, new Seeker.RandomOrRelativeToTargetFlyGoal( this ) );
         targetSelector.addGoal( 0, new MobHurtByTargetGoal( this, Enemy.class ) );
-        targetSelector.addGoal( 1, new MoonMobPlayerTargetGoal<>( this, false ) );
+        targetSelector.addGoal( 1, new LunarSiegeTargetPlayerGoal<>( this, false ) );
         targetSelector.addGoal( 2, new NearestAttackableTargetGoal<>( this, Player.class, false, false ) );
     }
     

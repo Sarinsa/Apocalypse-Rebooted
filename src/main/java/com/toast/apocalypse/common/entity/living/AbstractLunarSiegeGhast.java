@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.api.entity.ILunarSiegeMob;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
@@ -20,11 +21,11 @@ import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.UUID;
 
-public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMob {
+public abstract class AbstractLunarSiegeGhast extends Ghast implements ILunarSiegeMob {
     
     protected UUID playerTargetUUID;
     
-    public AbstractFullMoonGhast( EntityType<? extends Ghast> entityType, Level level ) {
+    public AbstractLunarSiegeGhast( EntityType<? extends Ghast> entityType, Level level ) {
         super( entityType, level );
     }
     
@@ -91,7 +92,7 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
         super.addAdditionalSaveData( compoundTag );
         
         if( this.getPlayerTargetUUID() != null ) {
-            compoundTag.putUUID( KEY_PLAYER_UUID, getPlayerTargetUUID() );
+            compoundTag.putUUID( TAG_PLAYER_UUID, getPlayerTargetUUID() );
         }
     }
     
@@ -99,8 +100,8 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
     public void readAdditionalSaveData( CompoundTag compoundTag ) {
         super.readAdditionalSaveData( compoundTag );
         
-        if( compoundTag.hasUUID( KEY_PLAYER_UUID ) ) {
-            setPlayerTargetUUID( compoundTag.getUUID( KEY_PLAYER_UUID ) );
+        if( compoundTag.hasUUID( TAG_PLAYER_UUID ) ) {
+            setPlayerTargetUUID( compoundTag.getUUID( TAG_PLAYER_UUID ) );
         }
     }
     
@@ -122,9 +123,9 @@ public abstract class AbstractFullMoonGhast extends Ghast implements IFullMoonMo
     
     /** Copied from ghast */
     protected static class LookAroundGoal extends Goal {
-        private final AbstractFullMoonGhast ghast;
+        private final AbstractLunarSiegeGhast ghast;
         
-        public LookAroundGoal( AbstractFullMoonGhast ghast ) {
+        public LookAroundGoal( AbstractLunarSiegeGhast ghast ) {
             this.ghast = ghast;
             setFlags( EnumSet.of( Goal.Flag.LOOK ) );
         }

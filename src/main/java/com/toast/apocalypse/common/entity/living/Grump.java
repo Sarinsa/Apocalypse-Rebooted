@@ -2,8 +2,8 @@ package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
+import com.toast.apocalypse.common.entity.living.ai.LunarSiegeTargetPlayerGoal;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
-import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
 import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
 import com.toast.apocalypse.common.entity.projectile.MonsterFishhook;
 import com.toast.apocalypse.common.inventory.container.GrumpInventoryContainer;
@@ -78,7 +78,7 @@ import java.util.UUID;
  * Despite being a fearsome close range enemy, it can be befriended with some Fatherly Toast, making it a useful
  * companion.
  */
-public class Grump extends AbstractFullMoonGhast implements OwnableEntity, ContainerListener {
+public class Grump extends AbstractLunarSiegeGhast implements OwnableEntity, ContainerListener {
     
     protected static final EntityDataAccessor<Optional<UUID>> OWNER_UUID = SynchedEntityData.defineId( Grump.class, EntityDataSerializers.OPTIONAL_UUID );
     protected static final EntityDataAccessor<Boolean> ENRAGED = SynchedEntityData.defineId( Grump.class, EntityDataSerializers.BOOLEAN );
@@ -139,7 +139,7 @@ public class Grump extends AbstractFullMoonGhast implements OwnableEntity, Conta
         goalSelector.addGoal( 5, new Grump.RandomFlyGoal( this ) );
         targetSelector.addGoal( 0, new Grump.OwnerAttackerTargetGoal( this ) );
         targetSelector.addGoal( 1, new GrumpHurtByTargetGoal( this, Enemy.class ) );
-        targetSelector.addGoal( 2, new MoonMobPlayerTargetGoal<>( this, true ) );
+        targetSelector.addGoal( 2, new LunarSiegeTargetPlayerGoal<>( this, true ) );
         targetSelector.addGoal( 3, new GrumpNearestAttackableTargetGoal<>( this, Player.class ) );
     }
     

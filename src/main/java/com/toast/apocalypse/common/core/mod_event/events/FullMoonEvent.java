@@ -1,5 +1,6 @@
 package com.toast.apocalypse.common.core.mod_event.events;
 
+import com.toast.apocalypse.api.entity.ILunarSiegeMob;
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.capability.CapabilityHelper;
 import com.toast.apocalypse.common.core.Apocalypse;
@@ -7,7 +8,6 @@ import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
-import com.toast.apocalypse.common.entity.living.IFullMoonMob;
 import com.toast.apocalypse.common.tag.ApocalypseEntityTags;
 import com.toast.apocalypse.common.util.ItemStackUtils;
 import fathertoast.crust.api.config.common.value.collection.key.IRegWrapper;
@@ -199,7 +199,7 @@ public final class FullMoonEvent extends AbstractEvent {
             generateReward( level, player, difficultyManager, false, (float) spawnedSiegeMobs.size() / totalSpawns );
             if( ApocalypseConfig.LUNAR_SIEGE.SIEGE_MOBS.despawnMobsOnTimeout.get() ) {
                 spawnedSiegeMobs.forEach( entity -> {
-                    if( entity instanceof Mob mob ) IFullMoonMob.spawnSmoke( level, mob );
+                    if( entity instanceof Mob mob ) ILunarSiegeMob.despawnSmokeEffect( level, mob );
                     entity.discard();
                 } );
             }
@@ -291,7 +291,7 @@ public final class FullMoonEvent extends AbstractEvent {
         
         if( ApocalypseConfig.LUNAR_SIEGE.SIEGE_MOBS.despawnMobsOnDeath.get() ) {
             spawnedSiegeMobs.forEach( entity -> {
-                if( entity instanceof Mob mob ) IFullMoonMob.spawnSmoke( level, mob );
+                if( entity instanceof Mob mob ) ILunarSiegeMob.despawnSmokeEffect( level, mob );
                 entity.discard();
             } );
         }
@@ -353,7 +353,7 @@ public final class FullMoonEvent extends AbstractEvent {
             mob.setTarget( player );
         }
         
-        if( entity instanceof IFullMoonMob mob ) {
+        if( entity instanceof ILunarSiegeMob mob ) {
             mob.setPlayerTargetUUID( player.getUUID() );
         }
         //        else {

@@ -1,10 +1,11 @@
 package com.toast.apocalypse.common.entity.living;
 
+import com.toast.apocalypse.api.entity.ILunarSiegeMob;
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.entity.living.ai.BreecherFindExplosionPos;
 import com.toast.apocalypse.common.entity.living.ai.BreecherSwellGoal;
+import com.toast.apocalypse.common.entity.living.ai.LunarSiegeTargetPlayerGoal;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
-import com.toast.apocalypse.common.entity.living.ai.MoonMobPlayerTargetGoal;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -34,7 +35,7 @@ import java.util.UUID;
  * that ignores line of sight, moves slightly faster and will explode when they detect that they can't get any closer to the player.<br>
  * Visually, the ony difference is that their eyes are entranced by the moon's power.
  */
-public class Breecher extends Creeper implements IFullMoonMob {
+public class Breecher extends Creeper implements ILunarSiegeMob {
     
     /** The position of a specific block/thing the Breecher wants to explotando */
     public static final EntityDataAccessor<Boolean> FORCE_SWELL = SynchedEntityData.defineId( Breecher.class, EntityDataSerializers.BOOLEAN );
@@ -62,7 +63,7 @@ public class Breecher extends Creeper implements IFullMoonMob {
         goalSelector.addGoal( 6, new LookAtPlayerGoal( this, Player.class, 8.0F ) );
         goalSelector.addGoal( 6, new RandomLookAroundGoal( this ) );
         targetSelector.addGoal( 0, new MobHurtByTargetGoal( this, Enemy.class ) );
-        targetSelector.addGoal( 1, new MoonMobPlayerTargetGoal<>( this, false ) );
+        targetSelector.addGoal( 1, new LunarSiegeTargetPlayerGoal<>( this, false ) );
     }
     
     @Override
@@ -129,7 +130,7 @@ public class Breecher extends Creeper implements IFullMoonMob {
         super.addAdditionalSaveData( compoundTag );
         
         if( this.getPlayerTargetUUID() != null ) {
-            compoundTag.putUUID( KEY_PLAYER_UUID, this.getPlayerTargetUUID() );
+            compoundTag.putUUID( TAG_PLAYER_UUID, this.getPlayerTargetUUID() );
         }
     }
     
@@ -137,8 +138,8 @@ public class Breecher extends Creeper implements IFullMoonMob {
     public void readAdditionalSaveData( CompoundTag compoundTag ) {
         super.readAdditionalSaveData( compoundTag );
         
-        if( compoundTag.hasUUID( KEY_PLAYER_UUID ) ) {
-            this.setPlayerTargetUUID( compoundTag.getUUID( KEY_PLAYER_UUID ) );
+        if( compoundTag.hasUUID( TAG_PLAYER_UUID ) ) {
+            this.setPlayerTargetUUID( compoundTag.getUUID( TAG_PLAYER_UUID ) );
         }
     }
 }
