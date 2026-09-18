@@ -6,7 +6,7 @@ import com.toast.apocalypse.common.capability.CapabilityHelper;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.config.util.ServerConfigHelper;
-import com.toast.apocalypse.common.core.mod_event.EventRegistry;
+import com.toast.apocalypse.common.core.mod_event.ApocalypseEventRegistry;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.core.mod_event.IEventPredicate;
 import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
@@ -94,7 +94,7 @@ public final class PlayerDifficultyManager {
     private boolean serverStopped = false;
     
     
-    public PlayerDifficultyManager() {}
+    public PlayerDifficultyManager() { }
     
     
     /** @return The current time of day in the given level. */
@@ -454,7 +454,7 @@ public final class PlayerDifficultyManager {
         }
         
         // Check for events to start
-        for( EventType<?> type : EventRegistry.allTypes() ) {
+        for( EventType<?> type : ApocalypseEventRegistry.allTypes() ) {
             if( !events.containsKey( type ) ) {
                 IEventPredicate startPredicate = type.getStartPredicate();
                 
@@ -557,7 +557,7 @@ public final class PlayerDifficultyManager {
             for( CompoundTag eventData : eventDataList ) {
                 try {
                     if( NBTHelper.containsNumber( eventData, AbstractEvent.TAG_EVENT_ID ) ) {
-                        final EventType<?> eventType = EventRegistry.getFromId( eventData.getInt( AbstractEvent.TAG_EVENT_ID ) );
+                        final EventType<?> eventType = ApocalypseEventRegistry.getFromId( eventData.getInt( AbstractEvent.TAG_EVENT_ID ) );
                         
                         if( eventType != null ) {
                             AbstractEvent event = eventType.createEvent();

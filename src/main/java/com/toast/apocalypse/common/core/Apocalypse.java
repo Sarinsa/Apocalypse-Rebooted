@@ -8,7 +8,7 @@ import com.toast.apocalypse.common.command.CommandRegister;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.config.ApocalypseServerConfig;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
-import com.toast.apocalypse.common.core.mod_event.EventRegistry;
+import com.toast.apocalypse.common.core.mod_event.ApocalypseEventRegistry;
 import com.toast.apocalypse.common.core.register.*;
 import com.toast.apocalypse.common.event.CapabilityAttachListener;
 import com.toast.apocalypse.common.event.GameEventListener;
@@ -112,7 +112,7 @@ public final class Apocalypse {
         INSTANCE = this;
         
         // Static init stuff
-        EventRegistry.init();
+        ApocalypseEventRegistry.init();
         ApocalypseTriggers.init();
         
         ConfigManager.create( "Apocalypse Rebooted", Apocalypse.MOD_ID );

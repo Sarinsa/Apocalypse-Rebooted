@@ -2,6 +2,7 @@ package com.toast.apocalypse.common.event;
 
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
+import com.toast.apocalypse.common.core.mod_event.ApocalypseEventRegistry;
 import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -24,7 +25,7 @@ import static com.toast.apocalypse.common.core.config.ApocalypseConfig.ACID_RAIN
  * This listener is responsible for calculating acid rain tick damage
  * and dealing damage to entities that are exposed to the rain (or snow).
  *
- * @see com.toast.apocalypse.common.core.mod_event.EventRegistry#ACID_RAIN
+ * @see ApocalypseEventRegistry#ACID_RAIN
  */
 @Mod.EventBusSubscriber( modid = Apocalypse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE )
 public final class RainDamageTickHandler {

@@ -63,12 +63,12 @@ public final class FullMoonEvent extends AbstractEvent {
     private static final int SPAWN_ATTEMPTS = 30;
     
     /** The base component used for the boss event overlay. */
-    private static final Component EVENT_NAME_COMPONENT = Component.translatable( "event.apocalypse.full_moon.title" );
+    public static final Component EVENT_NAME_COMPONENT = Component.translatable( "event.apocalypse.full_moon.title" );
     /** The component used for the boss event overlay to show a successful completion. */
-    private static final Component EVENT_VICTORY_COMPONENT = EVENT_NAME_COMPONENT.copy().append( " - " )
+    public static final Component EVENT_VICTORY_COMPONENT = EVENT_NAME_COMPONENT.copy().append( " - " )
             .append( Component.translatable( "event.minecraft.raid.victory" ) );
     /** The component used for the boss event overlay to show a failure. */
-    private static final Component EVENT_DEFEAT_COMPONENT = EVENT_NAME_COMPONENT.copy().append( " - " )
+    public static final Component EVENT_DEFEAT_COMPONENT = EVENT_NAME_COMPONENT.copy().append( " - " )
             .append( Component.translatable( "event.minecraft.raid.defeat" ) );
     
     /** @return A new component for the boss event overlay displaying the given number of remaining mobs. */

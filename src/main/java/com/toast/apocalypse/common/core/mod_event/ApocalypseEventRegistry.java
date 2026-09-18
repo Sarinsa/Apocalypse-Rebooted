@@ -15,7 +15,7 @@ import java.util.function.BiConsumer;
  * The registry for Apocalypse's event types.
  * Intended for internal use. Other mods can register their own events if desired, but it is not really supported.
  */
-public class EventRegistry {
+public class ApocalypseEventRegistry {
     
     private static final HashMap<Integer, EventType<?>> EVENTS = new HashMap<>();
     
