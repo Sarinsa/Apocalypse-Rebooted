@@ -1,10 +1,10 @@
 package com.toast.apocalypse.common.compat.jei;
 
-import com.toast.apocalypse.api.trap.AbstractTrap;
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
+import com.toast.apocalypse.api.trap.AbstractTrap;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.recipe.TrapRecipe;
-import com.toast.apocalypse.common.util.References;
+import com.toast.apocalypse.datagen.lang.TranslationKey;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.drawable.IDrawableAnimated;
@@ -23,8 +23,9 @@ import java.util.List;
 
 public class TrapCategory extends BaseRecipeCategory<TrapRecipe> {
     
+    public static final TranslationKey TRAP_CATEGORY_TITLE = Apocalypse.tk( "jei.recipe_category.apocalypse.title",
+            "Trap Assembling" );
     
-    private static final Component TITLE = Component.translatable( References.TRAP_CATEGORY_TITLE );
     private static final ResourceLocation GUI_TEXTURE = Apocalypse.rl( "textures/gui/container/dynamic_trap.png" );
     private static final ResourceLocation RESULT_SLOT = Apocalypse.rl( "textures/gui/container/components/trap_result_slot.png" );
     
@@ -61,7 +62,7 @@ public class TrapCategory extends BaseRecipeCategory<TrapRecipe> {
     
     @Override
     public Component getTitle() {
-        return TITLE;
+        return TRAP_CATEGORY_TITLE.get();
     }
     
     @Override
@@ -107,7 +108,7 @@ public class TrapCategory extends BaseRecipeCategory<TrapRecipe> {
             return List.of(
                     Component.translatable( trapAction.getTranslationKey() ),
                     Component.literal( "" ),
-                    Component.translatable( trapAction.getDescriptionKey() ).withStyle( ChatFormatting.GRAY ) );
+                    trapAction.getDescription().copy().withStyle( ChatFormatting.GRAY ) );
         }
         return List.of();
     }

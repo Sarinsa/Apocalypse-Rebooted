@@ -31,8 +31,8 @@ public class ApocalypseAdvancementProvider extends ForgeAdvancementProvider {
         public void generate( HolderLookup.Provider registries, Consumer<Advancement> saver, ExistingFileHelper existingFileHelper ) {
             Advancement root = Advancement.Builder.advancement()
                     .display( ApocalypseObjects.Items.FRAGMENTED_SOUL.get(),
-                            Component.translatable( title( "root" ) ),
-                            Component.translatable( desc( "root" ) ),
+                            title( "root", "The Apocalypse" ),
+                            desc( "root", "The grace period is over. Stay on your toes!" ),
                             Apocalypse.rl( "textures/gui/advancements/backgrounds/night_sky.png" ),
                             FrameType.TASK, true, true, false )
                     .addCriterion( "pass_grace_period", PassedGracePeriodTrigger.TriggerInstance.gracePeriodPassed() )
@@ -41,8 +41,8 @@ public class ApocalypseAdvancementProvider extends ForgeAdvancementProvider {
             Advancement toasty = Advancement.Builder.advancement()
                     .parent( root )
                     .display( ApocalypseObjects.Items.FATHERLY_TOAST.get(),
-                            Component.translatable( title( "toasty" ) ),
-                            Component.translatable( desc( "toasty" ) ),
+                            title( "toasty", "Secret Snack" ),
+                            desc( "toasty", "Obtain some Fatherly Toast. Quite toasty... Grumps likes cookies, so maybe..?" ),
                             null,
                             FrameType.CHALLENGE, true, true, true )
                     .addCriterion( "obtain_fatherly_toast", InventoryChangeTrigger.TriggerInstance.hasItems( ApocalypseObjects.Items.FATHERLY_TOAST.get() ) )
@@ -51,8 +51,8 @@ public class ApocalypseAdvancementProvider extends ForgeAdvancementProvider {
             Advancement.Builder.advancement()
                     .parent( toasty )
                     .display( Items.COOKIE,
-                            Component.translatable( title( "less_grumpy" ) ),
-                            Component.translatable( desc( "less_grumpy" ) ),
+                            title( "less_grumpy", "Slightly Less Grumpy" ),
+                            desc( "less_grumpy", "Tame a Grump with a scrumptious slice of Fatherly Toast!" ),
                             null,
                             FrameType.TASK, true, true, true )
                     .addCriterion( "tame_grump", TamedGrumpTrigger.TriggerInstance.tamedGrump() )
@@ -61,20 +61,22 @@ public class ApocalypseAdvancementProvider extends ForgeAdvancementProvider {
             Advancement.Builder.advancement()
                     .parent( root )
                     .display( ApocalypseObjects.Items.MIDNIGHT_STEEL_INGOT.get(),
-                            Component.translatable( title( "lunarium" ) ),
-                            Component.translatable( desc( "lunarium" ) ),
+                            title( "midnight_steel", "Moon Alloy" ),
+                            desc( "midnight_steel", "Craft a Midnight Steel Ingot from an Iron Ingot and a Fragmented Soul." ),
                             null,
                             FrameType.TASK, true, true, true )
                     .addCriterion( "obtain_midnight_steel", InventoryChangeTrigger.TriggerInstance.hasItems( ApocalypseObjects.Items.MIDNIGHT_STEEL_INGOT.get() ) )
                     .save( saver, Apocalypse.rl( "midnight_steel" ), existingFileHelper );
         }
         
-        private static String title( String advancementName ) {
-            return Apocalypse.MOD_ID + ".advancements." + advancementName + ".title";
+        /** @return A title component from the given sub-key and translation string. */
+        private static Component title( String subKey, String translation ) {
+            return Apocalypse.tk( Apocalypse.MOD_ID + ".advancements." + subKey + ".title", translation ).get();
         }
         
-        private static String desc( String advancementName ) {
-            return Apocalypse.MOD_ID + ".advancements." + advancementName + ".description";
+        /** @return A description component from the given sub-key and translation string. */
+        private static Component desc( String subKey, String translation ) {
+            return Apocalypse.tk( Apocalypse.MOD_ID + ".advancements." + subKey + ".description", translation ).get();
         }
     }
 }

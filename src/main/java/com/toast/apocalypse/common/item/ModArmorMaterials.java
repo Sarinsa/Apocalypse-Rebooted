@@ -16,7 +16,7 @@ public enum ModArmorMaterials implements ArmorMaterial {
             new int[] { 165, 240, 225, 195 },
             new int[] { 2, 6, 5, 2 },
             13,
-            ApocalypseObjects.SoundEvents.ARMOR_EQUIP_LUNAR,
+            ApocalypseObjects.SoundEvents.LUNAR_ARMOR_EQUIP,
             () -> Ingredient.of( ApocalypseObjects.Items.MIDNIGHT_STEEL_INGOT.get() ),
             name( "midnight_steel" ),
             0.0F,

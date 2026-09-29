@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.item;
 
-import com.toast.apocalypse.common.util.References;
+import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.datagen.lang.TranslationKey;
 import fathertoast.crust.api.lib.NBTHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -17,6 +18,12 @@ import java.util.List;
 
 public class FatherlyToastItem extends Item {
     
+    public static final TranslationKey FATHERLY_TOAST_DESC = Apocalypse.tk( "apocalypse.item_desc.fatherly_toast",
+            "Mmmm, toasty!" );
+    public static final TranslationKey FATHERLY_TOAST_LEVEL = Apocalypse.tk( "apocalypse.item.desc.fatherly_toast.level",
+            "Toast Level: %s" );
+    
+    // NBT key for toast level
     public static final String KEY_TOAST_LEVEL = "ToastLevel";
     
     
@@ -43,15 +50,14 @@ public class FatherlyToastItem extends Item {
     @SuppressWarnings( "ConstantConditions" )
     @Override
     public void appendHoverText( ItemStack itemStack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag ) {
-        tooltip.add( Component.translatable( References.FATHERLY_TOAST_DESC ).withStyle( ChatFormatting.GRAY ) );
+        tooltip.add( FATHERLY_TOAST_DESC.get().withStyle( ChatFormatting.GRAY ) );
         
         if( itemStack.hasTag() ) {
-            tooltip.add( Component.literal( "" ) );
-            
             final CompoundTag tag = itemStack.getTag();
             
             if( NBTHelper.containsNumber( tag, KEY_TOAST_LEVEL ) ) {
-                tooltip.add( Component.translatable( References.FATHERLY_TOAST_LEVEL, tag.getInt( KEY_TOAST_LEVEL ) ).withStyle( ChatFormatting.GRAY ) );
+                tooltip.add( Component.literal( "" ) );
+                tooltip.add( FATHERLY_TOAST_LEVEL.withArgs( tag.getInt( KEY_TOAST_LEVEL ) ).withStyle( ChatFormatting.GRAY ) );
             }
         }
     }

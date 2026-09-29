@@ -1,10 +1,10 @@
 package com.toast.apocalypse.common.core.register;
 
-import com.toast.apocalypse.api.trap.AbstractTrap;
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
+import com.toast.apocalypse.api.trap.AbstractTrap;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.trap_actions.EquipmentBreakTrap;
-import com.toast.apocalypse.common.trap_actions.GhostFreezeTrap;
+import com.toast.apocalypse.common.trap_actions.ArmorShattererTrap;
+import com.toast.apocalypse.common.trap_actions.GhostFreezerTrap;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
@@ -20,8 +20,8 @@ public final class ApocalypseTrapTypes {
     public static final DeferredRegister<AbstractTrap> REGISTRY = DeferredRegister.create( ApocalypseObjects.TrapTypes.REGISTRY_KEY, Apocalypse.MOD_ID );
     
     static {
-        register( ApocalypseObjects.TrapTypes.GHOST_FREEZE, GhostFreezeTrap::new );
-        register( ApocalypseObjects.TrapTypes.EQUIPMENT_BREAK, EquipmentBreakTrap::new );
+        register( ApocalypseObjects.TrapTypes.GHOST_FREEZER, GhostFreezerTrap::new );
+        register( ApocalypseObjects.TrapTypes.ARMOR_SHATTERER, ArmorShattererTrap::new );
     }
     
     

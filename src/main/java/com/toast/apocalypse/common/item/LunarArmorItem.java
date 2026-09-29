@@ -3,7 +3,7 @@ package com.toast.apocalypse.common.item;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.common.util.References;
+import com.toast.apocalypse.datagen.lang.TranslationKey;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -30,8 +30,12 @@ import static com.toast.apocalypse.common.item.ModArmorMaterials.MIDNIGHT_STEEL;
 
 public class LunarArmorItem extends ArmorItem {
     
-    public static final String KEY_MOD_DATA = "ApocalypseModData";
-    public static final String KEY_LUNAR_INDEX = "LunarArmorIndex";
+    public static final TranslationKey LUNAR_ARMOR_DESC = Apocalypse.tk( "apocalypse.item_desc.lunar_armor",
+            "Reacts to the moon" );
+    
+    // NBT keys
+    public static final String TAG_MOD_DATA = "ApocalypseModData";
+    public static final String TAG_LUNAR_INDEX = "LunarArmorIndex";
     
     public static final int MIN_INDEX = -1;
     public static final int MIN_SPORADIC_INDEX = 1;
@@ -64,11 +68,11 @@ public class LunarArmorItem extends ArmorItem {
         
         int index = 0;
         
-        if( stack.getTag() != null && stack.getTag().contains( KEY_MOD_DATA, Tag.TAG_COMPOUND ) ) {
-            CompoundTag modData = stack.getTag().getCompound( KEY_MOD_DATA );
+        if( stack.getTag() != null && stack.getTag().contains( TAG_MOD_DATA, Tag.TAG_COMPOUND ) ) {
+            CompoundTag modData = stack.getTag().getCompound( TAG_MOD_DATA );
             
-            if( modData.contains( KEY_LUNAR_INDEX, Tag.TAG_INT ) ) {
-                index = Mth.clamp( modData.getInt( KEY_LUNAR_INDEX ), MIN_INDEX, MAX_INDEX );
+            if( modData.contains( TAG_LUNAR_INDEX, Tag.TAG_INT ) ) {
+                index = Mth.clamp( modData.getInt( TAG_LUNAR_INDEX ), MIN_INDEX, MAX_INDEX );
             }
         }
         return getModifiersForIndex( index );
@@ -90,7 +94,7 @@ public class LunarArmorItem extends ArmorItem {
     
     @Override
     public void appendHoverText( ItemStack itemStack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag ) {
-        tooltip.add( Component.translatable( References.LUNAR_ARMOR_DESC ).withStyle( ChatFormatting.GRAY ) );
+        tooltip.add( LUNAR_ARMOR_DESC.withStyle( ChatFormatting.GRAY ) );
     }
     
     @Override
@@ -135,7 +139,7 @@ public class LunarArmorItem extends ArmorItem {
         
         CompoundTag compoundTag = itemStack.getOrCreateTag();
         CompoundTag modData = new CompoundTag();
-        modData.putInt( LunarArmorItem.KEY_LUNAR_INDEX, Apocalypse.INSTANCE.getDifficultyManager().getLunarArmorModIndex() );
-        compoundTag.put( LunarArmorItem.KEY_MOD_DATA, modData );
+        modData.putInt( LunarArmorItem.TAG_LUNAR_INDEX, Apocalypse.INSTANCE.getDifficultyManager().getLunarArmorModIndex() );
+        compoundTag.put( LunarArmorItem.TAG_MOD_DATA, modData );
     }
 }

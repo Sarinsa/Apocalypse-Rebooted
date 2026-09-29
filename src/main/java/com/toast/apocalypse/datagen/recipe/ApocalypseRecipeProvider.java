@@ -110,14 +110,14 @@ public class ApocalypseRecipeProvider extends RecipeProvider {
         
         //------------------------ TRAP ASSEMBLING ------------------------
         
-        TrapAssemblingRecipeBuilder.trap( ApocalypseObjects.TrapTypes.GHOST_FREEZE.get(), 600 )
+        TrapAssemblingRecipeBuilder.trap( ApocalypseObjects.TrapTypes.GHOST_FREEZER.get(), 600 )
                 .requires( ApocalypseObjects.Items.FRAGMENTED_SOUL.get(), 3 )
                 .requires( Tags.Items.STRING, 2 )
                 .requires( Items.SNOW_BLOCK )
                 .requires( Blocks.ICE )
                 .save( consumer );
         
-        TrapAssemblingRecipeBuilder.trap( ApocalypseObjects.TrapTypes.EQUIPMENT_BREAK.get(), 350 )
+        TrapAssemblingRecipeBuilder.trap( ApocalypseObjects.TrapTypes.ARMOR_SHATTERER.get(), 350 )
                 .requires( Tags.Items.GEMS_QUARTZ )
                 .requires( Tags.Items.GEMS_AMETHYST )
                 .requires( Items.IRON_BLOCK )

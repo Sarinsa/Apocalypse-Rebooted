@@ -1,9 +1,10 @@
 package com.toast.apocalypse.common.core.mod_event.events;
 
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
-import com.toast.apocalypse.common.util.References;
+import com.toast.apocalypse.datagen.lang.TranslationKey;
 import fathertoast.crust.api.config.common.value.environment.EnvironmentContext;
 import fathertoast.crust.api.lib.NBTHelper;
 import net.minecraft.core.BlockPos;
@@ -26,7 +27,15 @@ import net.minecraftforge.event.ForgeEventFactory;
 import java.util.Objects;
 
 public final class DarknessEvent extends AbstractEvent {
-    // NBT tag names
+    
+    public static final TranslationKey CALL_OF_THE_SHADOWS_WARN_0 = Apocalypse.tk( "event.apocalypse.call_of_the_shadows.first_warn",
+            "Something stirs in the darkness" );
+    public static final TranslationKey CALL_OF_THE_SHADOWS_WARN_1 = Apocalypse.tk( "event.apocalypse.call_of_the_shadows.second_warn",
+            "You feel something breathing down your neck" );
+    public static final TranslationKey CALL_OF_THE_SHADOWS_SPAWN = Apocalypse.tk( "event.apocalypse.call_of_the_shadows.creature_summoned",
+            "A monster emerges from the shadows" );
+    
+    // NBT tag keys
     private static final String TAG_STATE = "Stage";
     private static final String TAG_TIME_NEXT_STATE = "TimeNextState";
     
@@ -51,7 +60,7 @@ public final class DarknessEvent extends AbstractEvent {
     
     /** Called when this event starts. */
     @Override
-    public void onStart( MinecraftServer server, ServerPlayer player ) {}
+    public void onStart( MinecraftServer server, ServerPlayer player ) { }
     
     /**
      * Called every 5 ticks on the server to tick this event.
@@ -68,11 +77,11 @@ public final class DarknessEvent extends AbstractEvent {
             
             switch( stage ) {
                 // These states function as breaks between other states
-                case STARTING, RESET -> {}
-                case FIRST_WARN -> warn( level, player, References.CALL_OF_THE_SHADOWS_0, false );
-                case SECOND_WARN -> warn( level, player, References.CALL_OF_THE_SHADOWS_1, true );
+                case STARTING, RESET -> { }
+                case FIRST_WARN -> warn( level, player, CALL_OF_THE_SHADOWS_WARN_0.get(), false );
+                case SECOND_WARN -> warn( level, player, CALL_OF_THE_SHADOWS_WARN_1.get(), true );
                 case SPAWN -> {
-                    warn( level, player, References.CALL_OF_THE_SHADOWS_2, false );
+                    warn( level, player, CALL_OF_THE_SHADOWS_SPAWN.get(), false );
                     spawnMonster( level, player );
                 }
             }
@@ -80,7 +89,7 @@ public final class DarknessEvent extends AbstractEvent {
     }
     
     /** Displays a warning text component to the player, and optionally plays a spooky sound. */
-    private void warn( ServerLevel level, Player player, String warning, boolean spookySound ) {
+    private void warn( ServerLevel level, Player player, Component warning, boolean spookySound ) {
         if( spookySound ) {
             BlockPos soundPos = player.blockPosition().offset(
                     (int) player.getRandom().nextGaussian() * 10,
@@ -89,7 +98,7 @@ public final class DarknessEvent extends AbstractEvent {
             );
             level.playSound( null, soundPos, SoundEvents.AMBIENT_CAVE.get(), SoundSource.AMBIENT, 0.6F, 1.0F );
         }
-        player.displayClientMessage( Component.translatable( warning ), true );
+        player.displayClientMessage( warning, true );
     }
     
     /**
@@ -131,11 +140,11 @@ public final class DarknessEvent extends AbstractEvent {
     
     /** Called when the event ends naturally. */
     @Override
-    public void onEnd( MinecraftServer server, ServerPlayer player ) {}
+    public void onEnd( MinecraftServer server, ServerPlayer player ) { }
     
     /** Called when the player disconnects before the event can end naturally. */
     @Override
-    public void stop( ServerLevel level, ServerPlayer player ) {}
+    public void stop( ServerLevel level, ServerPlayer player ) { }
     
     /**
      * Saves this event's data to NBT.

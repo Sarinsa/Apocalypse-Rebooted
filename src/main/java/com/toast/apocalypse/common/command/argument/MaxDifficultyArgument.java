@@ -8,15 +8,19 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.toast.apocalypse.common.capability.CapabilityHelper;
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.util.References;
+import com.toast.apocalypse.datagen.lang.TranslationKey;
 import fathertoast.crust.api.lib.CrustCmdHelper;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.Component;
 
 public class MaxDifficultyArgument implements ArgumentType<Long> {
     
-    private static final DynamicCommandExceptionType ERROR_INVALID_DIFFICULTY_VALUE = new DynamicCommandExceptionType( ( o )
-            -> Component.translatable( References.COMMAND_INVALID_MAX_DIFFICULTY_VALUE, o ) );
+    public static final TranslationKey COMMAND_INVALID_MAX_DIFFICULTY_VALUE = Apocalypse.tk( "apocalypse.command.argument.max_difficulty.invalid_value",
+            "Value can not be less than -1 or exceed 100,000. -1 equals no limit" );
+    
+    private static final DynamicCommandExceptionType ERROR_INVALID_DIFFICULTY_VALUE = new DynamicCommandExceptionType( COMMAND_INVALID_MAX_DIFFICULTY_VALUE::withArgs );
+    
     
     public static MaxDifficultyArgument maxDifficulty() {
         return new MaxDifficultyArgument();

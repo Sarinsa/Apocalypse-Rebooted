@@ -2,20 +2,24 @@ package com.toast.apocalypse.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.toast.apocalypse.common.core.Apocalypse;
-import net.minecraft.client.KeyMapping;
+import fathertoast.crust.api.client.SortedKeyMapping;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.apache.commons.lang3.text.WordUtils;
 
 @Mod.EventBusSubscriber( modid = Apocalypse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT )
 public class ApocalypseKeyBindings {
     
-    public static final KeyMapping TOGGLE_DIFFICULTY = create( "toggleDifficulty", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, InputConstants.KEY_C );
-    public static final KeyMapping GRUMP_INTERACTION = create( "launchGrumpHook", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, InputConstants.KEY_V );
-    public static final KeyMapping GRUMP_DESCENT = create( "grumpDescent", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, InputConstants.KEY_LCONTROL );
+    public static final SortedKeyMapping TOGGLE_DIFFICULTY = create( 0, "toggle_difficulty", InputConstants.KEY_C,
+            KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM );
+    public static final SortedKeyMapping GRUMP_INTERACTION = create( 1, "grump_launch_hook", InputConstants.KEY_V,
+            KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM );
+    public static final SortedKeyMapping GRUMP_DESCENT = create( 2, "grump_descent", InputConstants.KEY_LCONTROL,
+            KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM );
     
     
     @SubscribeEvent
@@ -25,7 +29,20 @@ public class ApocalypseKeyBindings {
         event.register( GRUMP_DESCENT );
     }
     
-    private static KeyMapping create( String name, IKeyConflictContext conflictContext, InputConstants.Type type, int keyCode ) {
-        return new KeyMapping( "key.apocalypse." + name, conflictContext, type, keyCode, Apocalypse.MOD_NAME );
+    /**
+     * Helper method for creating a sorted key mapping.
+     *
+     * @param index           The sorting index of this key mapping.
+     * @param name            The name of the key mapping.
+     * @param conflictContext The conflict context type to use for this key mapping.
+     * @param type            The input type
+     * @return The created key mapping.
+     */
+    @SuppressWarnings( "SameParameterValue" )
+    private static SortedKeyMapping create( int index, String name, int keyCode, IKeyConflictContext conflictContext, InputConstants.Type type ) {
+        String id = "key." + Apocalypse.MOD_ID + "." + name;
+        // noinspection deprecation
+        Apocalypse.tk( id, WordUtils.capitalizeFully( name ).replaceAll( "_", " " ) );
+        return new SortedKeyMapping( index, id, Apocalypse.MOD_NAME, type, keyCode ).withConflictContext( conflictContext );
     }
 }

@@ -15,11 +15,10 @@ import com.toast.apocalypse.common.item.FatherlyToastItem;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.network.message.S2CSimpleClientTask;
 import com.toast.apocalypse.common.util.NBTUtil;
-import com.toast.apocalypse.common.util.References;
 import com.toast.apocalypse.common.util.VersionCheckHelper;
+import com.toast.apocalypse.datagen.lang.TranslationKey;
 import fathertoast.crust.api.lib.EnvironmentHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -65,6 +64,10 @@ public final class GameEventListener {
     /** A map containing an entity instance per entity type in the registry. */
     private static final Map<EntityType<?>, Entity> ENTITY_FOR_TYPE = new HashMap<>();
     
+    public static final TranslationKey TRY_SLEEP_FULL_MOON = Apocalypse.tk( "title.bed.apocalypse.full_moon",
+            "You may not rest during a full moon" );
+    public static final TranslationKey SLEEP_PENALTY = Apocalypse.tk( "title.bed.apocalypse.sleep_penalty",
+            "The monsters grow impatient" );
     
     //------------------------------------------------------------------
     //                            PLAYER
@@ -73,14 +76,9 @@ public final class GameEventListener {
     /** Called when a player logs into the server. */
     @SubscribeEvent
     public void onPlayerLoggedIn( PlayerEvent.PlayerLoggedInEvent event ) {
-        // Check if we should send update notification
-        if( ApocalypseConfig.MISC.VERSION_CHECK.sendUpdateMessage.get() ) {
-            String updateMessage = VersionCheckHelper.getUpdateMessage();
-            
-            if( updateMessage != null ) {
-                event.getEntity().sendSystemMessage( Component.literal( updateMessage ) );
-            }
-        }
+        // Maybe send update notification
+        VersionCheckHelper.trySendMessage( event.getEntity() );
+        
         // Send misc sync packets to the client
         if( !event.getEntity().level().isClientSide ) {
             ServerPlayer player = (ServerPlayer) event.getEntity();
@@ -121,7 +119,7 @@ public final class GameEventListener {
                 && Apocalypse.INSTANCE.getDifficultyManager().isFullMoon()
                 && ApocalypseConfig.LUNAR_SIEGE.GENERAL.denySleep.get() ) {
             event.setResult( Player.BedSleepingProblem.NOT_POSSIBLE_HERE );
-            player.displayClientMessage( Component.translatable( References.TRY_SLEEP_FULL_MOON ), true );
+            player.displayClientMessage( TRY_SLEEP_FULL_MOON.get(), true );
         }
     }
     
@@ -144,7 +142,7 @@ public final class GameEventListener {
                     playerDifficulty += (long) ((timeSkipped * ApocalypseConfig.DIFFICULTY.GENERAL.sleepPenaltyMultiplier.get()) * difficultyMult);
                     CapabilityHelper.setDifficulty( player, Math.min( playerDifficulty, playerMaxDifficulty ) );
                     
-                    player.displayClientMessage( Component.translatable( References.SLEEP_PENALTY ), true );
+                    player.displayClientMessage( SLEEP_PENALTY.get(), true );
                     // Play spooky sound
                     player.connection.send( new ClientboundSoundPacket(
                             SoundEvents.AMBIENT_CAVE,

@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.core.mod_event;
 
 import com.toast.apocalypse.common.core.mod_event.events.AbstractEvent;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
 
@@ -10,11 +11,11 @@ public class EventType<T extends AbstractEvent> {
     private final int id;
     private final String name;
     @Nullable
-    private final String startMessage;
+    private final Component startMessage;
     @Nullable
     private final IEventPredicate startPredicate;
     
-    public EventType( int id, String name, IEventFactory<T> factory, @Nullable String startMessage,
+    public EventType( int id, String name, IEventFactory<T> factory, @Nullable Component startMessage,
                       @Nullable IEventPredicate startPredicate ) {
         this.factory = factory;
         this.name = name;
@@ -33,14 +34,9 @@ public class EventType<T extends AbstractEvent> {
         return id;
     }
     
-    /**
-     * @return The translation key of the message
-     * that is sent to players when this
-     * event starts, which will later be
-     * parsed to a TranslationTextComponent
-     */
+    /** @return The component to display to the player when the event starts. */
     @Nullable
-    public final String getEventStartMessage() {
+    public final Component getEventStartMessage() {
         return startMessage;
     }
     

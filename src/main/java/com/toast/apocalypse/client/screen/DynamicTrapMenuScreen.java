@@ -18,7 +18,7 @@ import java.util.List;
 
 public class DynamicTrapMenuScreen extends AbstractContainerScreen<DynamicTrapMenu> implements MenuAccess<DynamicTrapMenu> {
     
-    private static final ResourceLocation texture = Apocalypse.rl( "textures/gui/container/dynamic_trap.png" );
+    private static final ResourceLocation TEXTURE = Apocalypse.rl( "textures/gui/container/dynamic_trap.png" );
     
     
     public DynamicTrapMenuScreen( DynamicTrapMenu menu, Inventory inventory, Component title ) {
@@ -52,11 +52,8 @@ public class DynamicTrapMenuScreen extends AbstractContainerScreen<DynamicTrapMe
                         List<Component> components = new ArrayList<>();
                         
                         components.add( Component.translatable( trapType.getTranslationKey() ) );
-                        
-                        if( trapType.getDescriptionKey() != null ) {
-                            components.add( Component.literal( "" ) );
-                            components.add( Component.translatable( trapType.getDescriptionKey() ).withStyle( ChatFormatting.GRAY ) );
-                        }
+                        components.add( Component.literal( "" ) );
+                        components.add( trapType.getDescription().copy().withStyle( ChatFormatting.GRAY ) );
                         guiGraphics.renderComponentTooltip( font, components, mouseX, mouseY );
                     }
                 }
@@ -71,13 +68,13 @@ public class DynamicTrapMenuScreen extends AbstractContainerScreen<DynamicTrapMe
     
     @Override
     protected void renderBg( GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY ) {
-        guiGraphics.blit( texture, leftPos, topPos, 0, 0, imageWidth, imageHeight );
-        guiGraphics.blit( texture, leftPos + 118, topPos + 35, 0, 183, 17, 16 );
+        guiGraphics.blit( TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight );
+        guiGraphics.blit( TEXTURE, leftPos + 118, topPos + 35, 0, 183, 17, 16 );
         
         if( menu.getPreparationTime() > 0 && menu.getMaxPreparationTime() > 0 ) {
             double progress = (double) menu.getPreparationTime() / menu.getMaxPreparationTime();
             int arrowWidth = (int) (progress * 18);
-            guiGraphics.blit( texture, leftPos + 118, topPos + 34, 0, 166, arrowWidth, 17 );
+            guiGraphics.blit( TEXTURE, leftPos + 118, topPos + 34, 0, 166, arrowWidth, 17 );
         }
         
         if( menu.getTrapPos() != null ) {

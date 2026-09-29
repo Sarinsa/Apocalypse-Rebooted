@@ -1,13 +1,14 @@
 package com.toast.apocalypse.common.blockentity;
 
-import com.toast.apocalypse.api.trap.AbstractTrap;
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
+import com.toast.apocalypse.api.trap.AbstractTrap;
 import com.toast.apocalypse.common.block.DynamicTrapBlock;
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.register.ApocalypseRecipeTypes;
 import com.toast.apocalypse.common.menus.DynamicTrapMenu;
 import com.toast.apocalypse.common.network.NetworkHelper;
 import com.toast.apocalypse.common.recipe.TrapRecipe;
-import com.toast.apocalypse.common.util.References;
+import com.toast.apocalypse.datagen.lang.TranslationKey;
 import fathertoast.crust.api.util.BoxShape;
 import fathertoast.crust.api.util.IDebugShape;
 import fathertoast.crust.api.util.IDebugShapeProvider;
@@ -40,6 +41,9 @@ import java.util.List;
 
 // TODO - Cleanup some things here
 public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements IDebugShapeProvider {
+    
+    public static final TranslationKey DYNAMIC_TRAP_CONTAINER = Apocalypse.tk( "container.apocalypse.dynamic_trap",
+            "Dynamic Trap" );
     
     private NonNullList<ItemStack> items = NonNullList.withSize( 9, ItemStack.EMPTY );
     
@@ -243,7 +247,7 @@ public class DynamicTrapBlockEntity extends BaseContainerBlockEntity implements 
     
     @Override
     protected Component getDefaultName() {
-        return Component.translatable( References.DYNAMIC_TRAP_CONTAINER );
+        return DYNAMIC_TRAP_CONTAINER.get();
     }
     
     @Override

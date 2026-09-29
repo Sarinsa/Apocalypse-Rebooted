@@ -8,6 +8,7 @@ import com.toast.apocalypse.common.command.argument.MaxDifficultyArgument;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.util.References;
+import com.toast.apocalypse.datagen.lang.TranslationKey;
 import fathertoast.crust.api.lib.CrustCmdHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -29,9 +30,7 @@ public class ApocalypseBaseCommand {
         );
     }
     
-    /**
-     * Base command for all difficulty related subcommands.
-     */
+    /** Base command for all difficulty related subcommands. */
     private static class DifficultyBaseCommand {
         
         private static ArgumentBuilder<CommandSourceStack, ?> register() {
@@ -43,10 +42,13 @@ public class ApocalypseBaseCommand {
         }
     }
     
-    /**
-     * Setting player difficulty.
-     */
+    /** Setting player difficulty. */
     private static class DifficultySetCommand {
+        
+        public static final TranslationKey SET_SINGLE = Apocalypse.tk( "apocalypse.command.difficulty.set_message.single",
+                "Set difficulty to %s for %s" );
+        public static final TranslationKey SET_MULTIPLE = Apocalypse.tk( "apocalypse.command.difficulty.set_message.multiple",
+                "Set difficulty to %s for %s players" );
         
         private static ArgumentBuilder<CommandSourceStack, ?> register() {
             // apocalypse difficulty set [<players>] <difficulty>
@@ -71,22 +73,23 @@ public class ApocalypseBaseCommand {
                 CapabilityHelper.setDifficulty( player, actualDifficulty );
             }
             
-            final Component message;
             if( players.size() == 1 ) {
-                message = Component.translatable( References.DIFFICULTY_SET_SINGLE, difficulty, players.iterator().next().getDisplayName() );
+                source.sendSystemMessage( SET_SINGLE.withArgs( difficulty, players.iterator().next().getDisplayName() ) );
             }
             else {
-                message = Component.translatable( References.DIFFICULTY_SET_MULTIPLE, difficulty, players.size() );
+                source.sendSystemMessage( SET_MULTIPLE.withArgs( difficulty, players.size() ) );
             }
-            source.sendSystemMessage( message );
             return players.size();
         }
     }
     
-    /**
-     * Setting player max difficulty.
-     */
+    /** Setting player max difficulty. */
     private static class DifficultySetMaxCommand {
+        
+        public static final TranslationKey SET_SINGLE = Apocalypse.tk( "apocalypse.command.difficulty.max_message.single",
+                "Set max difficulty to %s for %s" );
+        public static final TranslationKey SET_MULTIPLE = Apocalypse.tk( "apocalypse.command.difficulty.max_message.multiple",
+                "Set max difficulty to %s for %s players" );
         
         private static ArgumentBuilder<CommandSourceStack, ?> register() {
             // apocalypse difficulty max [<players>] <difficulty>
@@ -114,23 +117,22 @@ public class ApocalypseBaseCommand {
                     }
                 }
             }
-            
-            final Component message;
             if( players.size() == 1 ) {
-                message = Component.translatable( References.MAX_DIFFICULTY_SET_SINGLE, maxDifficulty, players.iterator().next().getDisplayName() );
+                source.sendSystemMessage( SET_SINGLE.withArgs( maxDifficulty, players.iterator().next().getDisplayName() ) );
             }
             else {
-                message = Component.translatable( References.MAX_DIFFICULTY_SET_MULTIPLE, maxDifficulty, players.size() );
+                source.sendSystemMessage( SET_MULTIPLE.withArgs( maxDifficulty, players.size() ) );
             }
-            source.sendSystemMessage( message );
             return players.size();
         }
     }
     
-    /**
-     * Advances the world time to right before the next full moon night.
-     */
+    /** Advances the world time to right before the next full moon night. */
     private static class NextFullMoonCommand {
+        
+        public static final TranslationKey MESSAGE = Apocalypse.tk( "apocalypse.command.difficulty.max_message.multiple",
+                "Set max difficulty to %s for %s players" );
+        
         
         private static ArgumentBuilder<CommandSourceStack, ?> register() {
             // apocalypse nextFullMoon
@@ -153,15 +155,12 @@ public class ApocalypseBaseCommand {
                 timeToSet = monthToSet * References.LUNAR_CYCLE * References.DAY_LENGTH + 12_980L;
             }
             level.setDayTime( timeToSet );
-            source.sendSystemMessage( Component.translatable(
-                    "apocalypse.command.next_full_moon.message", timeToSet ) );
+            source.sendSystemMessage( MESSAGE.withArgs( timeToSet ) );
             return 1;
         }
     }
     
-    /**
-     * Displays a player's Apocalypse properties (Difficulty, current events, etc.).
-     */
+    /** Displays a player's Apocalypse properties (Difficulty, current events, etc.). */
     private static class ModDebugCommand {
         
         private static ArgumentBuilder<CommandSourceStack, ?> register() {

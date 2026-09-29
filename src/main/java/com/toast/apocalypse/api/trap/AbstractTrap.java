@@ -3,6 +3,7 @@ package com.toast.apocalypse.api.trap;
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -40,16 +41,15 @@ public abstract class AbstractTrap {
     public abstract ResourceLocation getIcon();
     
     /**
-     * @return A translation key for a description that describes what this trap type does when activated.
-     * Used when hovering over a ready trap-type in the Dynamic Trap GUI.
+     * @return A description component that describes what this trap type does when activated.
+     * Used when hovering over a trap-type in the Dynamic Trap GUI. The returned component is copied.
      */
-    public abstract String getDescriptionKey();
+    public abstract Component getDescription();
     
     /** @return The translation key for this trap type's display name. Creates the key if it does not already exist. */
     public final String getTranslationKey() {
         if( descriptionId == null ) {
             final ResourceLocation id = ApocalypseObjects.TRAP_ACTIONS_REGISTRY.get().getKey( this );
-            
             if( id == null ) descriptionId = "missingno";
             else descriptionId = "apocalypse.trap_type." + id.getNamespace() + "." + id.getPath() + ".name";
         }

@@ -3,18 +3,23 @@ package com.toast.apocalypse.client.renderer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.toast.apocalypse.client.ApocalypseKeyBindings;
 import com.toast.apocalypse.common.capability.CapabilityHelper;
-import com.toast.apocalypse.common.util.References;
+import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.datagen.lang.TranslationKey;
 import fathertoast.crust.api.config.common.value.CrustAnchor;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.BossHealthOverlay;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 
 import static com.toast.apocalypse.client.ClientRegister.CLIENT_CONFIG;
 
 public class DifficultyOverlayRenderHandler {
+    
+    public static final TranslationKey DIFFICULTY = Apocalypse.tk( "apocalypse.hud.difficulty",
+            "Difficulty: %s" );
+    public static final TranslationKey DIFFICULTY_RATE = Apocalypse.tk( "apocalypse.hud.rate",
+            "Rate: %s" );
     
     /** True if the overlay is active and rendering this frame. */
     private static boolean IS_RENDERING;
@@ -95,12 +100,12 @@ public class DifficultyOverlayRenderHandler {
         final int partialDifficulty = CapabilityHelper.getPartialScaledDifficulty( difficulty );
         difficulty = CapabilityHelper.divByDayLength( difficulty );
         String formattedDifficulty = difficulty > 0L ? (difficulty + "." + partialDifficulty) : "0.0";
-        return Component.translatable( References.DIFFICULTY, formattedDifficulty ).getString();
+        return DIFFICULTY.withArgs( formattedDifficulty ).getString();
     }
     
     /** @return The player's current difficulty multiplier as a formatted, translated string. */
     public static String getFormattedMultiplier( double multiplier ) {
-        return Component.translatable( References.DIFFICULTY_RATE, (int) Math.ceil( multiplier * 100 ) + "%" ).getString();
+        return DIFFICULTY_RATE.withArgs( (int) Math.ceil( multiplier * 100 ) + "%" ).getString();
     }
     
     /** @return The color to use when rendering the difficulty text. */

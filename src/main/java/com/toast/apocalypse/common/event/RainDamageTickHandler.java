@@ -3,7 +3,7 @@ package com.toast.apocalypse.common.event;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.ApocalypseEventRegistry;
-import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
+import com.toast.apocalypse.common.core.register.ApocalypseDamageTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -86,11 +86,11 @@ public final class RainDamageTickHandler {
             // Deal health damage
             final ItemStack headStack = entity.getItemBySlot( EquipmentSlot.HEAD );
             if( headStack.isEmpty() || ACID_RAIN.GENERAL.nonProtectingItems.contains( headStack ) ) {
-                entity.hurt( ApocalypseDamageSources.of( level, ApocalypseDamageSources.ACID_RAIN ), ACID_RAIN.GENERAL.healthDamage.getFloat() );
+                entity.hurt( ApocalypseDamageTypes.of( level, ApocalypseDamageTypes.ACID_RAIN ), ACID_RAIN.GENERAL.healthDamage.getFloat() );
             }
-            
             // Deal durability damage
             damageEquipmentFromAcidRain( entity, EquipmentSlot.HEAD );
+            
             if( ACID_RAIN.GENERAL.damageAllEquipment.get() ) {
                 damageEquipmentFromAcidRain( entity, EquipmentSlot.CHEST );
                 damageEquipmentFromAcidRain( entity, EquipmentSlot.LEGS );
@@ -110,8 +110,7 @@ public final class RainDamageTickHandler {
     
     /** @return True if it is currently raining or snowing at the given block position. */
     public static boolean isRainingOrSnowingAt( Level level, BlockPos pos ) {
-        if( !level.isRaining() ) return false;
-        if( !level.canSeeSky( pos ) ) return false;
+        if( !level.isRaining() || !level.canSeeSky( pos ) ) return false;
         if( level.getHeightmapPos( Heightmap.Types.MOTION_BLOCKING, pos ).getY() > pos.getY() ) return false;
         else {
             Biome biome = level.getBiome( pos ).value();

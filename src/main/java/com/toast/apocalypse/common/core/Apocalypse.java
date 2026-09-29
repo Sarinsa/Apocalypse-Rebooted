@@ -15,6 +15,7 @@ import com.toast.apocalypse.common.event.GameEventListener;
 import com.toast.apocalypse.common.network.PacketHandler;
 import com.toast.apocalypse.common.triggers.ApocalypseTriggers;
 import com.toast.apocalypse.common.util.VersionCheckHelper;
+import com.toast.apocalypse.datagen.lang.TranslationKey;
 import fathertoast.crust.api.config.common.ConfigManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
@@ -205,6 +206,9 @@ public final class Apocalypse {
     public static ResourceLocation rl( String path ) {
         return ResourceLocation.fromNamespaceAndPath( MOD_ID, path );
     }
+    
+    /** @return A translation key of the specified key and translation string, under this mod's namespace. */
+    public static TranslationKey tk( String key, String translation ) { return TranslationKey.of( MOD_ID, key, translation ); }
     
     /** @return The difficulty manager instance. */
     public PlayerDifficultyManager getDifficultyManager() {

@@ -137,7 +137,7 @@ public final class ApocalypseObjects {
     /** Sound event types. */
     public interface SoundEvents {
         RegistryObject<SoundEvent> LUNAR_ARMOR_REACT = sound( "item.lunar_armor.react" );
-        RegistryObject<SoundEvent> ARMOR_EQUIP_LUNAR = sound( "item.armor.equip_lunar" );
+        RegistryObject<SoundEvent> LUNAR_ARMOR_EQUIP = sound( "item.lunar_armor.equip" );
         
         RegistryObject<SoundEvent> DYNAMIC_TRAP_ACTIVATE = sound( "block.dynamic_trap.activate" );
         
@@ -190,8 +190,8 @@ public final class ApocalypseObjects {
         /** The trap type registry's key. Can be used to register new trap types and create object holders. */
         ResourceKey<Registry<AbstractTrap>> REGISTRY_KEY = ResourceKey.createRegistryKey( rl( "trap_types" ) );
         
-        RegistryObject<AbstractTrap> GHOST_FREEZE = trapType( "ghost_freeze" );
-        RegistryObject<AbstractTrap> EQUIPMENT_BREAK = trapType( "equipment_break" );
+        RegistryObject<AbstractTrap> GHOST_FREEZER = trapType( "ghost_freezer" );
+        RegistryObject<AbstractTrap> ARMOR_SHATTERER = trapType( "armor_shatterer" );
     }
     
     /** Command argument types. */

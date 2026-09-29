@@ -1,7 +1,9 @@
 package com.toast.apocalypse.common.core.mod_event.events;
 
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
+import com.toast.apocalypse.datagen.lang.TranslationKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -9,6 +11,11 @@ import net.minecraft.server.level.ServerPlayer;
 // TODO - Currently does nothing other than displaying an event message.
 //        Perhaps other mechanics or mobs can be introduced in the future.
 public final class AcidRainEvent extends AbstractEvent {
+    
+    /** The translation key for this event's startup message */
+    public static final TranslationKey STARTUP_COMPONENT = Apocalypse.tk( "event.apocalypse.acid_rain",
+            "The air reeks of sulphur, death falls from the sky" );
+    
     
     public AcidRainEvent( EventType<?> type ) {
         super( type );

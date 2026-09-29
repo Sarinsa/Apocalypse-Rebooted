@@ -3,7 +3,7 @@ package com.toast.apocalypse.common.item;
 import com.toast.apocalypse.client.ClientUtil;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
-import com.toast.apocalypse.common.util.References;
+import com.toast.apocalypse.datagen.lang.TranslationKey;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.network.chat.Component;
@@ -21,7 +21,11 @@ import java.util.function.Consumer;
 
 public class BucketHelmetItem extends ArmorItem {
     
+    public static final TranslationKey BUCKET_HELM_DESC = Apocalypse.tk( "apocalypse.item_desc.bucket_helm",
+            "Protects you from the rain" );
+    
     public static final String TEXTURE = Apocalypse.rl( "textures/models/armor/bucket_helm.png" ).toString();
+    
     
     public BucketHelmetItem() {
         super( ArmorMaterials.IRON, Type.HELMET, new Item.Properties().defaultDurability( 0 ) );
@@ -51,7 +55,7 @@ public class BucketHelmetItem extends ArmorItem {
     @Override
     public void appendHoverText( ItemStack itemStack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag ) {
         if( !ApocalypseConfig.ACID_RAIN.GENERAL.nonProtectingItems.contains( itemStack ) ) {
-            tooltip.add( Component.translatable( References.BUCKET_HELM_DESC ).withStyle( ChatFormatting.GRAY ) );
+            tooltip.add( BUCKET_HELM_DESC.withStyle( ChatFormatting.GRAY ) );
         }
     }
 }

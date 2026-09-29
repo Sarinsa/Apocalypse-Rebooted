@@ -10,6 +10,7 @@ import com.toast.apocalypse.common.core.mod_event.EventType;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.tag.ApocalypseEntityTags;
 import com.toast.apocalypse.common.util.ItemStackUtils;
+import com.toast.apocalypse.datagen.lang.TranslationKey;
 import fathertoast.crust.api.config.common.value.collection.key.IRegWrapper;
 import fathertoast.crust.api.config.common.value.collection.key.RegObjKey;
 import fathertoast.crust.api.config.common.value.environment.EnvironmentContext;
@@ -49,6 +50,7 @@ import java.util.List;
  * These are often referred to as "full moon sieges" in other parts of the code and in the properties file.
  */
 public final class FullMoonEvent extends AbstractEvent {
+    
     // NBT tag names
     private static final String TAG_TIME_UNTIL_NEXT_SPAWN = "TimeNextSpawn";
     private static final String TAG_SPAWN_TIME = "SpawnTime";
@@ -62,19 +64,25 @@ public final class FullMoonEvent extends AbstractEvent {
     /** Number of spawn placements attempted for each spawn before discarding. */
     private static final int SPAWN_ATTEMPTS = 30;
     
-    /** The base component used for the boss event overlay. */
-    public static final Component EVENT_NAME_COMPONENT = Component.translatable( "event.apocalypse.full_moon.title" );
+    /** The translation key for this event's startup message */
+    public static final TranslationKey STARTUP_COMPONENT = Apocalypse.tk( "event.apocalypse.full_moon",
+            "Death lingers in the air, a bad moon rises" );
+    /** The translation key for the remaining monsters component. */
+    public static final TranslationKey MOBS_REMAINING_COMPONENT = Apocalypse.tk( "event.apocalypse.full_moon.remaining",
+            "Monsters Remaining: %s" );
+    /** The translation key for the boss event overlay component. */
+    public static final TranslationKey EVENT_NAME_COMPONENT = Apocalypse.tk( "event.apocalypse.full_moon.title", "Lunar Siege" );
     /** The component used for the boss event overlay to show a successful completion. */
-    public static final Component EVENT_VICTORY_COMPONENT = EVENT_NAME_COMPONENT.copy().append( " - " )
+    private static final Component EVENT_VICTORY_COMPONENT = EVENT_NAME_COMPONENT.get().append( " - " )
             .append( Component.translatable( "event.minecraft.raid.victory" ) );
     /** The component used for the boss event overlay to show a failure. */
-    public static final Component EVENT_DEFEAT_COMPONENT = EVENT_NAME_COMPONENT.copy().append( " - " )
+    private static final Component EVENT_DEFEAT_COMPONENT = EVENT_NAME_COMPONENT.get().append( " - " )
             .append( Component.translatable( "event.minecraft.raid.defeat" ) );
     
     /** @return A new component for the boss event overlay displaying the given number of remaining mobs. */
     private static Component eventRemainingComponent( int remaining ) {
-        return EVENT_NAME_COMPONENT.copy().append( " - " )
-                .append( Component.translatable( "event.apocalypse.full_moon.remaining", remaining ) );
+        return EVENT_NAME_COMPONENT.get().append( " - " )
+                .append( MOBS_REMAINING_COMPONENT.withArgs( remaining ) );
     }
     
     /** Allows the entity to drop a fragmented soul. */
@@ -85,7 +93,7 @@ public final class FullMoonEvent extends AbstractEvent {
     
     
     /** The 'boss health bar' we use to show information about this event. */
-    private final ServerBossEvent bossEvent = new ServerBossEvent( EVENT_NAME_COMPONENT,
+    private final ServerBossEvent bossEvent = new ServerBossEvent( EVENT_NAME_COMPONENT.get(),
             BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.NOTCHED_10 );
     
     /** A list containing all living mobs that were spawned by this siege. */
@@ -207,7 +215,7 @@ public final class FullMoonEvent extends AbstractEvent {
             setState( State.DEFEAT );
         }
         else {
-            bossEvent.setName( totalRemaining < 10 ? eventRemainingComponent( totalRemaining ) : EVENT_NAME_COMPONENT );
+            bossEvent.setName( totalRemaining < 10 ? eventRemainingComponent( totalRemaining ) : EVENT_NAME_COMPONENT.get() );
         }
     }
     
@@ -220,17 +228,17 @@ public final class FullMoonEvent extends AbstractEvent {
     private void setState( State newState ) {
         switch( newState ) {
             case GRACE_PERIOD -> {
-                bossEvent.setName( EVENT_NAME_COMPONENT );
+                bossEvent.setName( EVENT_NAME_COMPONENT.get() );
                 int gracePeriod = ApocalypseConfig.LUNAR_SIEGE.PACING.gracePeriod.getInt();
                 bossEvent.setProgress( Mth.clamp( (float) (gracePeriod - timer) / gracePeriod, 0.0F, 1.0F ) );
             }
             case SPAWNING -> {
-                bossEvent.setName( EVENT_NAME_COMPONENT );
+                bossEvent.setName( EVENT_NAME_COMPONENT.get() );
                 refreshRemainingMobCount();
             }
             case CLEANUP -> {
                 int totalRemaining = refreshRemainingMobCount();
-                bossEvent.setName( totalRemaining < 10 ? eventRemainingComponent( totalRemaining ) : EVENT_NAME_COMPONENT );
+                bossEvent.setName( totalRemaining < 10 ? eventRemainingComponent( totalRemaining ) : EVENT_NAME_COMPONENT.get() );
             }
             case VICTORY -> {
                 bossEvent.setName( EVENT_VICTORY_COMPONENT );
@@ -418,7 +426,7 @@ public final class FullMoonEvent extends AbstractEvent {
                 }
                 if( level.isLoaded( pos ) && NaturalSpawner.isSpawnPositionOk( placementType, level, pos, entityType ) ) {
                     // We check for collisions around the entity and a bit above if we are dealing with a flying
-                    // entity, so we can spawn it in the air a bit above ground to help prevent them getting stuck in the ground.
+                    // entity, so we can spawn it a bit above ground to help prevent it from getting stuck.
                     if( isFlyingType( entityType ) ) {
                         pos.move( Direction.UP, 10 + random.nextInt( 20 ) );
                         if( level.noCollision( entityType.getAABB(

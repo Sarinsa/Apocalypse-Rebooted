@@ -22,7 +22,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -482,7 +481,7 @@ public final class PlayerDifficultyManager {
         playerEvents.get( player.getUUID() ).put( eventType, newEvent );
         
         if( eventType.getEventStartMessage() != null && ApocalypseConfig.MISC.EVENTS.displayStartMessage.get() ) {
-            player.displayClientMessage( Component.translatable( eventType.getEventStartMessage() ), true );
+            player.displayClientMessage( eventType.getEventStartMessage(), true );
         }
         // Notify listeners that this event has started.
         ApocalypseEventFactory.fireApocalypseEventStarted( true, player, eventId );

@@ -16,7 +16,7 @@ public final class ApocalypseSounds {
     
     static {
         register( ApocalypseObjects.SoundEvents.LUNAR_ARMOR_REACT );
-        register( ApocalypseObjects.SoundEvents.ARMOR_EQUIP_LUNAR );
+        register( ApocalypseObjects.SoundEvents.LUNAR_ARMOR_EQUIP );
         
         register( ApocalypseObjects.SoundEvents.DYNAMIC_TRAP_ACTIVATE );
         

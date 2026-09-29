@@ -2,7 +2,7 @@ package com.toast.apocalypse.common.core.mod_event;
 
 import com.toast.apocalypse.api.event.ApocalypseEvent;
 import com.toast.apocalypse.common.core.mod_event.events.*;
-import com.toast.apocalypse.common.util.References;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nonnull;
@@ -21,13 +21,13 @@ public class ApocalypseEventRegistry {
     
     
     public static final EventType<?> LUNAR_SIEGE = register( ApocalypseEvent.EventIds.LUNAR_SIEGE, "lunar_siege",
-            FullMoonEvent::new, References.FULL_MOON, IEventPredicate.risingEdge( FullMoonEvent::canStart ) );
+            FullMoonEvent::new, FullMoonEvent.STARTUP_COMPONENT.get(), IEventPredicate.risingEdge( FullMoonEvent::canStart ) );
     
     public static final EventType<?> THUNDERSTORM = register( ApocalypseEvent.EventIds.THUNDERSTORM, "thunderstorm",
-            ThunderstormEvent::new, References.THUNDERSTORM, ThunderstormEvent::canStart );
+            ThunderstormEvent::new, ThunderstormEvent.STARTUP_COMPONENT.get(), ThunderstormEvent::canStart );
     
     public static final EventType<?> ACID_RAIN = register( ApocalypseEvent.EventIds.ACID_RAIN, "acid_rain",
-            AcidRainEvent::new, References.ACID_RAIN, AcidRainEvent::canStart );
+            AcidRainEvent::new, AcidRainEvent.STARTUP_COMPONENT.get(), AcidRainEvent::canStart );
     
     public static final EventType<?> CALL_OF_THE_SHADOWS = register( ApocalypseEvent.EventIds.CALL_OF_THE_SHADOWS, "call_of_the_shadows",
             DarknessEvent::new, null, DarknessEvent::canStart );
@@ -67,7 +67,7 @@ public class ApocalypseEventRegistry {
      */
     @ApiStatus.Internal
     public static <T extends AbstractEvent> EventType<T> register( int id, String name, @Nonnull EventType.IEventFactory<T> factory,
-                                                                   @Nullable String startMessage, @Nonnull IEventPredicate startupPredicate ) {
+                                                                   @Nullable Component startMessage, @Nonnull IEventPredicate startupPredicate ) {
         Objects.requireNonNull( factory );
         
         final EventType<T> eventType = new EventType<>( id, name, factory, startMessage, startupPredicate );

@@ -2,8 +2,8 @@ package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
+import com.toast.apocalypse.common.core.register.ApocalypseDamageTypes;
 import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
-import com.toast.apocalypse.common.misc.ApocalypseDamageSources;
 import com.toast.apocalypse.common.util.MobHelper;
 import fathertoast.crust.api.lib.CrustObjects;
 import net.minecraft.core.BlockPos;
@@ -96,7 +96,7 @@ public class Shadefiend extends FlyingMob implements Enemy {
         }
         // Damage the shadefiend if it comes in contact what in intolerable light level
         if( inHarmfulLight ) {
-            hurt( ApocalypseDamageSources.of( level(), ApocalypseDamageSources.LIGHT_INTOLERANCE ), 2 );
+            hurt( ApocalypseDamageTypes.of( level(), ApocalypseDamageTypes.LIGHT_INTOLERANCE ), 2 );
         }
     }
     
@@ -222,7 +222,7 @@ public class Shadefiend extends FlyingMob implements Enemy {
         }
         
         @Override
-        public void tick() {}
+        public void tick() { }
     }
     
     static class ShadefiendMoveControl extends SimpleFlyingMoveController {

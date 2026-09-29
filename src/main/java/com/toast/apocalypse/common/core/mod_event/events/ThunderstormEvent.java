@@ -1,8 +1,10 @@
 package com.toast.apocalypse.common.core.mod_event.events;
 
+import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
 import com.toast.apocalypse.common.core.mod_event.EventType;
+import com.toast.apocalypse.datagen.lang.TranslationKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -10,6 +12,11 @@ import net.minecraft.server.level.ServerPlayer;
 // TODO - Maybe we can do something else insaneo with this event
 //        than just using it to display a message lol
 public final class ThunderstormEvent extends AbstractEvent {
+    
+    /** The translation key for this event's startup message */
+    public static final TranslationKey STARTUP_COMPONENT = Apocalypse.tk( "event.apocalypse.thunderstorm",
+            "The sky grows dark, a storm is coming" );
+    
     
     public ThunderstormEvent( EventType<?> type ) {
         super( type );
