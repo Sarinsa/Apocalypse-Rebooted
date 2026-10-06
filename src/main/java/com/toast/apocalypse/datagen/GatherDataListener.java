@@ -1,6 +1,7 @@
 package com.toast.apocalypse.datagen;
 
 import com.toast.apocalypse.common.core.Apocalypse;
+import com.toast.apocalypse.common.core.register.ApocalypseBiomeModifiers;
 import com.toast.apocalypse.common.core.register.ApocalypseDamageTypes;
 import com.toast.apocalypse.datagen.advancement.ApocalypseAdvancementProvider;
 import com.toast.apocalypse.datagen.lang.ApocalypseLangProvider;
@@ -26,6 +27,7 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -34,7 +36,8 @@ import java.util.concurrent.CompletableFuture;
 public class GatherDataListener {
     
     private static final RegistrySetBuilder REGISTRY_BUILDER = new RegistrySetBuilder()
-            .add( Registries.DAMAGE_TYPE, ApocalypseDamageTypes::bootstrap );
+            .add( Registries.DAMAGE_TYPE, ApocalypseDamageTypes::bootstrap )
+            .add( ForgeRegistries.Keys.BIOME_MODIFIERS, ApocalypseBiomeModifiers::bootstrap );
     
     @SubscribeEvent
     public static void onGatherData( GatherDataEvent event ) {
@@ -47,8 +50,7 @@ public class GatherDataListener {
             dataGen.addProvider( true, new ApocalypseRecipeProvider( dataGen ) );
             dataGen.addProvider( true, new ApocalypseLootTableProvider( dataGen ) );
             dataGen.addProvider( true, new ApocalypseAdvancementProvider( dataGen, lookupProvider, fileHelper ) );
-            BlockTagsProvider blockTagProvider = new ApocalypseBlockTagProvider( dataGen, lookupProvider, fileHelper );
-            dataGen.addProvider( true, blockTagProvider );
+            BlockTagsProvider blockTagProvider = dataGen.addProvider( true, new ApocalypseBlockTagProvider( dataGen, lookupProvider, fileHelper ) );
             dataGen.addProvider( true, new ApocalypseItemTagProvider( dataGen, lookupProvider, blockTagProvider.contentsGetter(), fileHelper ) );
             dataGen.addProvider( true, new ApocalypseEntityTagProvider( dataGen, lookupProvider, fileHelper ) );
             dataGen.addProvider( true, new ApocalypseDamageTagProvider( dataGen, lookupProvider, fileHelper ) );
