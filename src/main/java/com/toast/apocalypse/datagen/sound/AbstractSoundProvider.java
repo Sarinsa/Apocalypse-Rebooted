@@ -3,7 +3,7 @@ package com.toast.apocalypse.datagen.sound;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.datagen.GatherDataListener;
+import com.toast.apocalypse.datagen.DataGenUtils;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -76,7 +76,7 @@ public abstract class AbstractSoundProvider implements DataProvider {
      * @param soundFiles   A list of resource locations pointing to the sound event's sound files.
      */
     public final void add( ResourceLocation soundEventId, String subtitleKey, List<ResourceLocation> soundFiles ) {
-        soundFiles.forEach( ( rl ) -> GatherDataListener.assertFileExists( rl, fileHelper, SOUND ) );
+        soundFiles.forEach( ( rl ) -> DataGenUtils.assertFileExists( rl, fileHelper, SOUND ) );
         entries.add( new Entry( soundEventId, subtitleKey, soundFiles ) );
     }
     
@@ -88,7 +88,7 @@ public abstract class AbstractSoundProvider implements DataProvider {
      * @param soundFiles  A list of resource locations pointing to the sound event's sound files.
      */
     public final void add( RegistryObject<SoundEvent> soundEvent, String subtitleKey, List<ResourceLocation> soundFiles ) {
-        soundFiles.forEach( ( rl ) -> GatherDataListener.assertFileExists( rl, fileHelper, SOUND ) );
+        soundFiles.forEach( ( rl ) -> DataGenUtils.assertFileExists( rl, fileHelper, SOUND ) );
         entries.add( new Entry( soundEvent, subtitleKey, soundFiles ) );
     }
     

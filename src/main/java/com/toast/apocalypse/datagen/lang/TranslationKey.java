@@ -1,14 +1,10 @@
 package com.toast.apocalypse.datagen.lang;
 
-import fathertoast.crust.api.config.common.ConfigUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.forgespi.language.ModFileScanData;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -28,32 +24,6 @@ public class TranslationKey {
     /** A map of mod IDs linked to a map of all known keys and their translation strings. */
     private static final Map<String, Map<String, String>> ALL_KEYS = new HashMap<>();
     
-    
-    /**
-     * Attempts to initialize all classes that belong to the specified namespace / mod ID
-     * to ensure all static instances of this class are initialized before language data gen starts.
-     */
-    public static void initializeClasses( String modId ) {
-        // Iterate through all scanned classes
-        for( ModFileScanData scanData : ModList.get().getAllScanData() ) {
-            if( !modId.equals( scanData.getTargets().keySet().stream().findFirst().orElse( null ) ) )
-                continue;
-            
-            for( ModFileScanData.ClassData classData : scanData.getClasses() ) {
-                final String className = classData.clazz().getClassName();
-                try {
-                    Class.forName( className );
-                }
-                catch( ClassNotFoundException e ) {
-                    ConfigUtil.LOG.error( "Failed to initialize class '{}'!", className );
-                    if( !FMLEnvironment.production ) {
-                        // noinspection CallToPrintStackTrace
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
     
     /**
      * Creates a new instance from the given mod ID, key and translation string

@@ -20,7 +20,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.data.BlockTagsProvider;
 import net.minecraftforge.common.data.DatapackBuiltinEntriesProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
@@ -62,24 +61,6 @@ public class GatherDataListener {
             dataGen.addProvider( true, new ApocalypseSoundProvider( dataGen, fileHelper ) );
             dataGen.addProvider( true, new ApocalypseLangProvider( dataGen ) );
             dataGen.addProvider( true, new ApocalypseParticleProvider( dataGen, fileHelper ) );
-        }
-    }
-    
-    /** @return The given resource location, with the prefix and suffix of the given resource type merged onto it. */
-    public static String toFilePath( ResourceLocation rl, ExistingFileHelper.IResourceType resourceType ) {
-        return rl.getNamespace() + ":" + resourceType.getPrefix() + "/" + rl.getPath() + resourceType.getSuffix();
-    }
-    
-    /**
-     * Checks if the given resource location actually points to an existing file that
-     * matches the provided resource type.
-     *
-     * @throws IllegalArgumentException if the file does not exist.
-     */
-    public static void assertFileExists( ResourceLocation texture, ExistingFileHelper fileHelper, ExistingFileHelper.IResourceType resourceType ) {
-        if( !fileHelper.exists( texture, resourceType ) ) {
-            final String filePath = toFilePath( texture, resourceType );
-            throw new IllegalStateException( "Sound file at " + filePath + " does not exist" );
         }
     }
 }

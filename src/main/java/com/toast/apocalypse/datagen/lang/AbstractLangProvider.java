@@ -1,6 +1,7 @@
 package com.toast.apocalypse.datagen.lang;
 
 import com.google.gson.JsonObject;
+import com.toast.apocalypse.datagen.DataGenUtils;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -46,7 +47,7 @@ public abstract class AbstractLangProvider implements DataProvider {
     public AbstractLangProvider( PackOutput output, String modId ) {
         this.output = output;
         this.modId = modId;
-        TranslationKey.initializeClasses( modId );
+        DataGenUtils.initializeClasses( modId, List.of() );
     }
     
     /** Called first when adding language entries, before {@link #autoGenForRegistries()} and {@link #autoGenForRegistryKeys()}. */

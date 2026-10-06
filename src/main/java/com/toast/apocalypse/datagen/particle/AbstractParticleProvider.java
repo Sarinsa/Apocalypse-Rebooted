@@ -3,7 +3,7 @@ package com.toast.apocalypse.datagen.particle;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.toast.apocalypse.common.core.Apocalypse;
-import com.toast.apocalypse.datagen.GatherDataListener;
+import com.toast.apocalypse.datagen.DataGenUtils;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -76,7 +76,7 @@ public abstract class AbstractParticleProvider implements DataProvider {
      * @param textures   A list of texture locations pointing to the textures the particle can pick from.
      */
     public final void add( ResourceLocation particleId, List<ResourceLocation> textures ) {
-        textures.forEach( ( rl ) -> GatherDataListener.assertFileExists( rl, fileHelper, TEXTURE ) );
+        textures.forEach( ( rl ) -> DataGenUtils.assertFileExists( rl, fileHelper, TEXTURE ) );
         List<String> strings = textures.stream().map( ResourceLocation::toString ).toList();
         entries.put( particleId.toString(), strings );
     }
