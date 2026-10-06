@@ -43,18 +43,20 @@ public abstract class AbstractParticleProvider implements DataProvider {
     /** Runs this data provider. */
     @Override // DataProvider
     public CompletableFuture<?> run( CachedOutput cache ) {
-        addParticles();
-        
-        if( entries.isEmpty() ) return CompletableFuture.allOf();
-        
-        List<CompletableFuture<?>> futures = new ArrayList<>();
-        // Write each entry to their own file
-        for( Map.Entry<String, List<String>> entry : entries.entrySet() ) {
-            String fileName = entry.getKey().split( ":", 2 )[1] + ".json";
-            Path filePath = packOutput.getOutputFolder( PackOutput.Target.RESOURCE_PACK ).resolve( modId ).resolve( "particles" ).resolve( fileName );
-            futures.add( DataProvider.saveStable( cache, entryToJson( entry ), filePath ) );
-        }
-        return CompletableFuture.allOf( futures.toArray( CompletableFuture[]::new ) );
+        return CompletableFuture.supplyAsync( () -> {
+            addParticles();
+            
+            if( entries.isEmpty() ) return CompletableFuture.allOf();
+            
+            List<CompletableFuture<?>> futures = new ArrayList<>();
+            // Write each entry to their own file
+            for( Map.Entry<String, List<String>> entry : entries.entrySet() ) {
+                String fileName = entry.getKey().split( ":", 2 )[1] + ".json";
+                Path filePath = packOutput.getOutputFolder( PackOutput.Target.RESOURCE_PACK ).resolve( modId ).resolve( "particles" ).resolve( fileName );
+                futures.add( DataProvider.saveStable( cache, entryToJson( entry ), filePath ) );
+            }
+            return CompletableFuture.allOf( futures.toArray( CompletableFuture[]::new ) );
+        } );
     }
     
     /** @return A string that identifies this provider. */

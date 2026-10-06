@@ -19,23 +19,7 @@ public class ApocalypseSoundProvider extends AbstractSoundProvider {
     
     @Override
     protected void addSoundEvents() {
-        addEntry( SoundEvents.LUNAR_ARMOR_REACT, "lunar_armor.react", "Midnight Steel armor reacting",
-                mcLoc( "block/enchantment_table/enchant" ), 1, 3 );
-        addEntry( SoundEvents.LUNAR_ARMOR_EQUIP, "lunar_armor.equip", "Midnight Steel armor clanks",
-                mcLoc( "item/armor/equip_iron" ), 1, 6 );
-        
-        addEntry( SoundEvents.DYNAMIC_TRAP_ACTIVATE, "dynamic_trap.activate", "Dynamic Trap activated",
-                mcLoc( "random/click" ) );
-        
-        addEntry( SoundEvents.MONSTER_HOOK_RETRIEVE, "monster_fish_hook.retrieve", "Grump hook retrieved",
-                mcLoc( "entity/bobber/retrieve1" ) );
-        
-        addEntry( SoundEvents.DESTROYER_FIREBALL_DEFLECT, "destroyer_fireball.deflect", "Destroyer fireball fizzles",
-                mcLoc( "random/fuse" ) );
-        
-        addEntry( SoundEvents.SEEKER_FIREBALL_IGNITE, "seeker_fireball.ignite", "Seeker fireball ignited",
-                mcLoc( "mob/ghast/fireball4" ) );
-        
+        // DESTROYER
         addEntry( SoundEvents.DESTROYER_WARN, "destroyer.warn", "Destroyer shoots",
                 mcLoc( "mob/ghast/charge" ) );
         addEntry( SoundEvents.DESTROYER_SHOOT, "destroyer.shoot", "Destroyer shoots",
@@ -45,6 +29,7 @@ public class ApocalypseSoundProvider extends AbstractSoundProvider {
         addEntry( SoundEvents.DESTROYER_DEATH, "destroyer.death", "Destroyer dies",
                 mcLoc( "mob/ghast/death" ) );
         
+        // SEEKER
         addEntry( SoundEvents.SEEKER_WARN, "seeker.warn", "Seeker shoots",
                 mcLoc( "mob/ghast/charge" ) );
         addEntry( SoundEvents.SEEKER_SHOOT, "seeker.shoot", "Seeker shoots",
@@ -56,11 +41,13 @@ public class ApocalypseSoundProvider extends AbstractSoundProvider {
         addEntry( SoundEvents.SEEKER_DEATH, "seeker.death", "Seeker dies",
                 mcLoc( "mob/ghast/death" ) );
         
+        // BREECHER
         addEntry( SoundEvents.BREECHER_HURT, "breecher.hurt", "Breecher hurts",
                 mcLoc( "mob/creeper/say" ), 1, 4 );
         addEntry( SoundEvents.BREECHER_DEATH, "breecher.death", "Breecher dies",
                 mcLoc( "mob/creeper/death" ) );
         
+        // GHOST
         addEntry( SoundEvents.GHOST_IDLE, "ghost.idle", "Ghost groans",
                 mcLoc( "mob/blaze/breathe" ), 1, 4 );
         addEntry( SoundEvents.GHOST_HURT, "ghost.hurt", "Ghost hurts",
@@ -70,6 +57,7 @@ public class ApocalypseSoundProvider extends AbstractSoundProvider {
         addEntry( SoundEvents.GHOST_FREEZE, "ghost.freeze", "Ghost freezes",
                 modLoc( "entity/ghost/ghost_freeze" ) );
         
+        // GRUMP
         addEntry( SoundEvents.GRUMP_HURT, "grump.hurt", "Grump hurts",
                 mcLoc( "mob/ghast/scream" ), 1, 5 );
         addEntry( SoundEvents.GRUMP_DEATH, "grump.death", "Grump hurts",
@@ -83,6 +71,7 @@ public class ApocalypseSoundProvider extends AbstractSoundProvider {
         addEntry( SoundEvents.GRUMP_EQUIP_SADDLE, "grump.equip_saddle", "Saddle equips",
                 mcLoc( "mob/horse/leather" ) );
         
+        // FEARWOLF
         addEntry( SoundEvents.FEARWOLF_STEP, "fearwolf.step", "Footsteps",
                 mcLoc( "mob/wolf/step" ), 1, 5 );
         addEntry( SoundEvents.FEARWOLF_IDLE, "fearwolf.idle", "Fearwolf growls",
@@ -92,6 +81,7 @@ public class ApocalypseSoundProvider extends AbstractSoundProvider {
         addEntry( SoundEvents.FEARWOLF_DEATH, "fearwolf.death", "Fearwolf dies",
                 mcLoc( "mob/wolf/death" ) );
         
+        // SHADEFIEND
         addEntry( SoundEvents.SHADEFIEND_FLAP, "shadefiend.flap", "Shadefiend flaps",
                 mcLoc( "mob/wolf/death" ) );
         addEntry( SoundEvents.SHADEFIEND_IDLE, "shadefiend.idle", "Shadefiend screeches",
@@ -102,6 +92,24 @@ public class ApocalypseSoundProvider extends AbstractSoundProvider {
                 mcLoc( "mob/wolf/death" ) );
         addEntry( SoundEvents.SHADEFIEND_DEATH, "shadefiend.death", "Shadefiend dies",
                 mcLoc( "mob/wolf/death" ) );
+        
+        // PROJECTILES
+        addEntry( SoundEvents.MONSTER_HOOK_RETRIEVE, "monster_fish_hook.retrieve", "Grump hook retrieved",
+                mcLoc( "entity/bobber/retrieve1" ) );
+        addEntry( SoundEvents.DESTROYER_FIREBALL_DEFLECT, "destroyer_fireball.deflect", "Destroyer fireball fizzles",
+                mcLoc( "random/fuse" ) );
+        addEntry( SoundEvents.SEEKER_FIREBALL_IGNITE, "seeker_fireball.ignite", "Seeker fireball ignited",
+                mcLoc( "mob/ghast/fireball4" ) );
+        
+        // ARMOR
+        addEntry( SoundEvents.LUNAR_ARMOR_REACT, "lunar_armor.react", "Midnight Steel armor reacting",
+                mcLoc( "block/enchantment_table/enchant" ), 1, 3 );
+        addEntry( SoundEvents.LUNAR_ARMOR_EQUIP, "lunar_armor.equip", "Midnight Steel armor clanks",
+                mcLoc( "item/armor/equip_iron" ), 1, 6 );
+        
+        // DYNAMIC TRAP
+        addEntry( SoundEvents.DYNAMIC_TRAP_ACTIVATE, "dynamic_trap.activate", "Dynamic Trap activated",
+                mcLoc( "random/click" ) );
     }
     
     

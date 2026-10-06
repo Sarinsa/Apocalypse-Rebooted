@@ -29,7 +29,7 @@ public abstract class AbstractSoundProvider implements DataProvider {
     private final List<Entry> entries = new ArrayList<>();
     /** The pack output this provider uses when saving. */
     private final PackOutput packOutput;
-    /** The ID of the mod to generate a sound event definitions JSON for. */
+    /** The ID of the mod to run this provider for. */
     protected final String modId;
     /** An {@link ExistingFileHelper} instance to help assert the existence of files that already exist before data generation. */
     protected final ExistingFileHelper fileHelper;
@@ -48,6 +48,9 @@ public abstract class AbstractSoundProvider implements DataProvider {
     }
     
     
+    /** Called when this data provider runs. Add sound entries here. */
+    protected abstract void addSoundEvents();
+    
     /** Runs this data provider. */
     @Override // DataProvider
     public CompletableFuture<?> run( CachedOutput cache ) {
@@ -64,9 +67,6 @@ public abstract class AbstractSoundProvider implements DataProvider {
         entries.forEach( entry -> json.add( entry.getId().toString(), entry.toJson() ) );
         return DataProvider.saveStable( cache, json, target );
     }
-    
-    /** Called when this data provider runs. Add sound entries here. */
-    protected abstract void addSoundEvents();
     
     /**
      * Adds a sound event entry to the list of entries to generate.

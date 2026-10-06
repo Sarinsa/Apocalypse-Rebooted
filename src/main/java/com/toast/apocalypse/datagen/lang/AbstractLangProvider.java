@@ -30,16 +30,16 @@ public abstract class AbstractLangProvider implements DataProvider {
     
     private static final String defaultLocale = "en_us";
     
-    /** A map containing all translation keys and their translation strings. */
-    private final Map<String, String> translations = new HashMap<>();
     /** A map of deferred registries to auto-generate English translations for. */
     private final Map<DeferredRegister<?>, Function<RegistryObject<Object>, String>> autoGenRegistries = new HashMap<>();
     /** A map of registry key lists to auto-generate English translations for. */
     private final Map<List<ResourceKey<?>>, Function<ResourceKey<?>, String>> autoGenRegistryKeys = new HashMap<>();
     
+    /** A map containing all translation keys and their translation strings. */
+    private final Map<String, String> translations = new HashMap<>();
     /** The pack output this provider uses when saving. */
     protected final PackOutput output;
-    /** The ID of the mod to generate translations for. */
+    /** The ID of the mod to run this provider for. */
     protected final String modId;
     
     
@@ -55,14 +55,16 @@ public abstract class AbstractLangProvider implements DataProvider {
     /** Runs this data provider. */
     @Override // DataProvider
     public CompletableFuture<?> run( CachedOutput cache ) {
-        addTranslations();
-        autoGenForRegistries();
-        autoGenForRegistryKeys();
-        
-        if( !translations.isEmpty() )
-            return save( cache, output.getOutputFolder( PackOutput.Target.RESOURCE_PACK )
-                    .resolve( modId ).resolve( "lang" ).resolve( defaultLocale + ".json" ) );
-        return CompletableFuture.allOf();
+        return CompletableFuture.supplyAsync( () -> {
+            addTranslations();
+            autoGenForRegistries();
+            autoGenForRegistryKeys();
+            
+            if( !translations.isEmpty() )
+                return save( cache, output.getOutputFolder( PackOutput.Target.RESOURCE_PACK )
+                        .resolve( modId ).resolve( "lang" ).resolve( defaultLocale + ".json" ) );
+            return CompletableFuture.allOf();
+        } );
     }
     
     /** @return A string that identifies this provider. */
