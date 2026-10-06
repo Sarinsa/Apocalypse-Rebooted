@@ -19,7 +19,6 @@ import net.minecraftforge.registries.RegistryObject;
 import org.apache.commons.lang3.text.WordUtils;
 
 import javax.annotation.Nullable;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,16 +55,17 @@ public abstract class AbstractLangProvider implements DataProvider {
     /** Runs this data provider. */
     @Override // DataProvider
     public CompletableFuture<?> run( CachedOutput cache ) {
-        return CompletableFuture.supplyAsync( () -> {
-            addTranslations();
-            autoGenForRegistries();
-            autoGenForRegistryKeys();
-            
-            if( !translations.isEmpty() )
-                return save( cache, output.getOutputFolder( PackOutput.Target.RESOURCE_PACK )
-                        .resolve( modId ).resolve( "lang" ).resolve( defaultLocale + ".json" ) );
-            return CompletableFuture.allOf();
-        } );
+        addTranslations();
+        autoGenForRegistries();
+        autoGenForRegistryKeys();
+        
+        if( !translations.isEmpty() ) {
+            JsonObject json = new JsonObject();
+            translations.forEach( json::addProperty );
+            return DataProvider.saveStable( cache, json, output.getOutputFolder( PackOutput.Target.RESOURCE_PACK )
+                    .resolve( modId ).resolve( "lang" ).resolve( defaultLocale + ".json" ) );
+        }
+        return CompletableFuture.allOf();
     }
     
     /** @return A string that identifies this provider. */
@@ -74,13 +74,6 @@ public abstract class AbstractLangProvider implements DataProvider {
         return "Language: " + modId;
     }
     
-    /** Writes the contents of {@link #translations} to JSON. */
-    private CompletableFuture<?> save( CachedOutput cache, Path target ) {
-        JsonObject json = new JsonObject();
-        translations.forEach( json::addProperty );
-        
-        return DataProvider.saveStable( cache, json, target );
-    }
     
     //---------------------------------------------------------------------------------
     //                                ADD TYPE SPECIFIC

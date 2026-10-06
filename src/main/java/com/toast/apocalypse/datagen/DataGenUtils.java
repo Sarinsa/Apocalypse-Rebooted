@@ -38,7 +38,7 @@ public final class DataGenUtils {
      * @param modId      The ID of the mod whose classes should be initialized.
      * @param exceptions A list of full class names of classes that should not be initialized. This can be empty, but not null.
      * @throws NullPointerException if {@code modId} is null.
-     * @throws ReportedException    if something else goes wrong, such as looking up a class that does not exist.
+     * @throws ReportedException    if initialization of a class fails.
      */
     public static void initializeClasses( String modId, List<String> exceptions ) {
         Objects.requireNonNull( modId );
@@ -52,8 +52,8 @@ public final class DataGenUtils {
                 try {
                     Class.forName( className );
                 }
-                catch( Throwable throwable ) {
-                    CrashReport report = CrashReport.forThrowable( throwable, "Exception while trying to initialize classes!" );
+                catch( ClassNotFoundException e ) {
+                    CrashReport report = CrashReport.forThrowable( e, "Exception while trying to initialize classes: class does not exist!" );
                     CrashReportCategory category = report.addCategory( "Initialization details" );
                     category.setDetail( "Name of unfound class", className );
                     category.setDetail( "Mod ID associated with class", modId );
