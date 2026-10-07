@@ -35,7 +35,7 @@ public class ApocalypseSoundProvider extends AbstractSoundProvider {
         addEntry( SoundEvents.SEEKER_SHOOT, "seeker.shoot", "Seeker shoots",
                 mcLoc( "mob/ghast/fireball4" ) );
         addEntry( SoundEvents.SEEKER_ALERT_MOBS, "seeker.alert", "Seeker alerts",
-                mcLoc( "mob/ghast/affectionate_scream" ) );
+                mcLoc( "block/sculk_shrieker/shriek" ), 1, 5 );
         addEntry( SoundEvents.SEEKER_HURT, "seeker.hurt", "Seeker hurts",
                 mcLoc( "mob/ghast/scream" ), 1, 5 );
         addEntry( SoundEvents.SEEKER_DEATH, "seeker.death", "Seeker dies",

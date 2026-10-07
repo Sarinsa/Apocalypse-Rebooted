@@ -64,20 +64,20 @@ public abstract class AbstractSoundProvider implements DataProvider {
     /** Writes the contents of {@link #entries} to JSON. */
     private CompletableFuture<?> save( CachedOutput cache, Path target ) {
         JsonObject json = new JsonObject();
-        entries.forEach( entry -> json.add( entry.getId().toString(), entry.toJson() ) );
+        entries.forEach( entry -> json.add( entry.getName(), entry.toJson() ) );
         return DataProvider.saveStable( cache, json, target );
     }
     
     /**
      * Adds a sound event entry to the list of entries to generate.
      *
-     * @param soundEventId The registry ID of the sound event to add an entry for.
-     * @param subtitleKey  The translation key of the sound event's subtitle.
-     * @param soundFiles   A list of resource locations pointing to the sound event's sound files.
+     * @param soundEventName The name of the sound event registry object to add an entry for.
+     * @param subtitleKey    The translation key of the sound event's subtitle.
+     * @param soundFiles     A list of resource locations pointing to the sound event's sound files.
      */
-    public final void add( ResourceLocation soundEventId, String subtitleKey, List<ResourceLocation> soundFiles ) {
+    public final void add( String soundEventName, String subtitleKey, List<ResourceLocation> soundFiles ) {
         soundFiles.forEach( ( rl ) -> DataGenUtils.assertFileExists( rl, fileHelper, SOUND ) );
-        entries.add( new Entry( soundEventId, subtitleKey, soundFiles ) );
+        entries.add( new Entry( soundEventName, subtitleKey, soundFiles ) );
     }
     
     /**
@@ -124,11 +124,11 @@ public abstract class AbstractSoundProvider implements DataProvider {
     /**
      * Holds the necessary data for a sound event.
      *
-     * @param soundEventId The registry ID of the sound event represented by this entry.
-     * @param subtitle     The subtitle translation key for this entry.
-     * @param soundFiles   The locations of the sound files for this entry.
+     * @param soundEventName The name of the sound event registry object represented by this entry.
+     * @param subtitle       The subtitle translation key for this entry.
+     * @param soundFiles     The locations of the sound files for this entry.
      */
-    private record Entry(ResourceLocation soundEventId, String subtitle, List<ResourceLocation> soundFiles) {
+    private record Entry(String soundEventName, String subtitle, List<ResourceLocation> soundFiles) {
         
         private Entry {
             if( soundFiles.isEmpty() )
@@ -136,12 +136,12 @@ public abstract class AbstractSoundProvider implements DataProvider {
         }
         
         Entry( RegistryObject<SoundEvent> soundEvent, String subtitle, List<ResourceLocation> soundFiles ) {
-            this( Objects.requireNonNull( soundEvent.getId() ), subtitle, soundFiles );
+            this( Objects.requireNonNull( soundEvent.getId() ).getPath(), subtitle, soundFiles );
         }
         
-        /** @return The registry ID of this entry's sound event. */
-        public ResourceLocation getId() {
-            return soundEventId;
+        /** @return The name of this entry's sound event registry object. */
+        public String getName() {
+            return soundEventName;
         }
         
         /** @return This entry as a JSON object. */
