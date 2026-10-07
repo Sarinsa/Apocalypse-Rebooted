@@ -356,7 +356,7 @@ public final class GameEventListener {
                     GameEventListener.ENTITY_FOR_TYPE.put( type, entity );
                 }
                 else if( entity == null ) {
-                    Apocalypse.LOGGER.error( "Failed to create entity instance for type {}! Mob spawn difficulty config list will not work for this type!", type );
+                    Apocalypse.LOG.error( "Failed to create entity instance for type {}! Mob spawn difficulty config list will not work for this type!", type );
                 }
             }
             catch( Exception ignored ) {

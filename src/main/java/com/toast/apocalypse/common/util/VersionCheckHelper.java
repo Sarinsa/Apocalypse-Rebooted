@@ -44,7 +44,7 @@ public class VersionCheckHelper {
             final VersionChecker.Status status = result.status();
             
             if( status == VersionChecker.Status.PENDING ) {
-                Apocalypse.LOGGER.info( "Tried to fetch newest update info, but received check status {}.", status.name() );
+                Apocalypse.LOG.info( "Tried to fetch newest update info, but received check status {}.", status.name() );
                 return;
             }
             
@@ -55,7 +55,7 @@ public class VersionCheckHelper {
                     MESSAGE = createMessage( version );
                 }
                 else {
-                    Apocalypse.LOGGER.info( "Tried looking for Apocalypse updates, but VersionChecker does not contain our mod info! " +
+                    Apocalypse.LOG.info( "Tried looking for Apocalypse updates, but VersionChecker does not contain our mod info! " +
                             "Could the version check json be broken?" );
                 }
             }

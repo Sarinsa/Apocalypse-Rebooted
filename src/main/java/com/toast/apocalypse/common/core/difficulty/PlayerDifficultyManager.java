@@ -566,7 +566,7 @@ public final class PlayerDifficultyManager {
                     }
                 }
                 catch( Exception e ) {
-                    Apocalypse.LOGGER.error( "Failed to load mod event data for player with UUID {}.", player.getUUID() );
+                    Apocalypse.LOG.error( "Failed to load mod event data for player with UUID {}.", player.getUUID() );
                     // noinspection CallToPrintStackTrace
                     e.printStackTrace();
                 }
@@ -596,7 +596,7 @@ public final class PlayerDifficultyManager {
             persistentData.put( KEY_EVENT_DATA_LIST, listTag );
         }
         catch( Exception e ) {
-            Apocalypse.LOGGER.info( "Failed to save player event data for player with UUID {}", player.getUUID() );
+            Apocalypse.LOG.info( "Failed to save player event data for player with UUID {}", player.getUUID() );
             // noinspection CallToPrintStackTrace
             e.printStackTrace();
         }

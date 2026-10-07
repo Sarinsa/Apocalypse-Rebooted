@@ -135,7 +135,7 @@ public class ServerMixinHooks {
                 wetTorchState = wetTorchState.setValue( WallTorchBlock.FACING, state.getValue( WallTorchBlock.FACING ) );
             }
             catch( Exception ignored ) {
-                Apocalypse.LOGGER.warn( "Failed to copy block state facing property of wet wall torch to a vanilla wall torch. " +
+                Apocalypse.LOG.warn( "Failed to copy block state facing property of wet wall torch to a vanilla wall torch. " +
                         "This should normally work!" );
             }
         }

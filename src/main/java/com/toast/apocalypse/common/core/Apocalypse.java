@@ -97,7 +97,7 @@ public final class Apocalypse {
     /** The mod's display name. */
     public static final String MOD_NAME = "Apocalypse Rebooted";
     /** A logger instance with this mod's ID as its name. **/
-    public static final Logger LOGGER = LogManager.getLogger( MOD_ID );
+    public static final Logger LOG = LogManager.getLogger( MOD_ID );
     /** The instance of the mod class. */
     public static Apocalypse INSTANCE;
     
@@ -187,11 +187,11 @@ public final class Apocalypse {
                             if( IApocalypsePlugin.class.isAssignableFrom( pluginClass ) ) {
                                 IApocalypsePlugin plugin = (IApocalypsePlugin) pluginClass.getConstructor().newInstance();
                                 plugin.load( getApi() );
-                                LOGGER.info( "Found Apocalypse plugin at {} with plugin ID: {}", annotationData.memberName(), plugin.getPluginId() );
+                                LOG.info( "Found Apocalypse plugin at {} with plugin ID: {}", annotationData.memberName(), plugin.getPluginId() );
                             }
                         }
                         catch( Exception e ) {
-                            LOGGER.error( "Failed to load Apocalypse plugin at {}! Damn dag nabit damnit!", annotationData.memberName() );
+                            LOG.error( "Failed to load Apocalypse plugin at {}! Damn dag nabit damnit!", annotationData.memberName() );
                             // noinspection CallToPrintStackTrace
                             e.printStackTrace();
                         }

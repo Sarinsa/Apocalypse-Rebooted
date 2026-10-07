@@ -59,6 +59,6 @@ public class RyoamicCompat {
     
     @SuppressWarnings( { "StringConcatenationArgumentToLogCall", "SameParameterValue" } )
     private static void warn( String message, Object... args ) {
-        Apocalypse.LOGGER.warn( "[RyoamicLights compat] " + message, args );
+        Apocalypse.LOG.warn( "[RyoamicLights compat] " + message, args );
     }
 }

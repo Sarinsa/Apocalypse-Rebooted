@@ -65,7 +65,7 @@ public class WetWallTorchBlock extends WallTorchBlock {
             vanillaTorch = vanillaTorch.setValue( FACING, state.getValue( FACING ) );
         }
         catch( Exception ignored ) {
-            Apocalypse.LOGGER.warn( "Failed to copy block state facing property of wet wall torch to a parent wall torch. " +
+            Apocalypse.LOG.warn( "Failed to copy block state facing property of wet wall torch to a parent wall torch. " +
                     "This should normally work!" );
         }
         level.setBlockAndUpdate( pos, vanillaTorch );
