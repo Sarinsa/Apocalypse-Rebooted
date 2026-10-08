@@ -47,7 +47,8 @@ public class ApocalypseBlockModelProvider extends BlockStateProvider {
     /** Generates a "cube all" model for the given block and an item model with it as parent. */
     @SuppressWarnings( "SameParameterValue" )
     private void simpleBlockWithItem( RegistryObject<Block> regObj ) {
-        cubeAll( regObj.get() );
+        Block block = regObj.get();
+        getVariantBuilder( block ).partialState().setModels( new ConfiguredModel( cubeAll( regObj.get() ) ) );
         simpleBlockItem( regObj );
     }
     
@@ -104,7 +105,8 @@ public class ApocalypseBlockModelProvider extends BlockStateProvider {
             final String modelName = blockName( block ) + "_" + trapState.getSerializedName();
             
             ConfiguredModel.Builder<?> builder = ConfiguredModel.builder().modelFile( models().cube( modelName,
-                    bottomTexture, topTexture, sideTexture, sideTexture, sideTexture, sideTexture ) );
+                            bottomTexture, topTexture, sideTexture, sideTexture, sideTexture, sideTexture )
+                    .texture( "particle", bottomTexture ) );
             
             return withFacing( builder, facing ).build();
         } );
