@@ -4,6 +4,7 @@ import com.toast.apocalypse.client.ClientRegister;
 import com.toast.apocalypse.client.ClientUtil;
 import com.toast.apocalypse.client.screen.misc.ApocalypseWCTab;
 import com.toast.apocalypse.common.core.Apocalypse;
+import fathertoast.crust.api.lib.CrustMath;
 import net.minecraft.client.gui.components.tabs.Tab;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.ParticleOptions;
@@ -33,14 +34,15 @@ public class ClientMixinHooks {
     public static float getAcidRainColor( float originalValue, int index, Biome.Precipitation precipitation ) {
         if( !ClientUtil.isRainingAcid() || !ClientRegister.CLIENT_CONFIG.MISC.renderAcidRain.get() )
             return originalValue;
-        
         if( precipitation == Biome.Precipitation.SNOW && !ClientUtil.acidSnowEnabled() )
             return originalValue;
         
+        final int color = ClientUtil.getAcidRainColor();
+        
         return switch( index ) {
-            case 0 -> ClientUtil.RAIN_COLOR.x;
-            case 1 -> ClientUtil.RAIN_COLOR.y;
-            case 2 -> ClientUtil.RAIN_COLOR.z;
+            case 0 -> CrustMath.getRed( color );
+            case 1 -> CrustMath.getGreen( color );
+            case 2 -> CrustMath.getBlue( color );
             default -> originalValue;
         };
     }

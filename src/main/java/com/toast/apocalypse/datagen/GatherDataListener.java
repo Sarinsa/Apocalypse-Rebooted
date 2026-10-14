@@ -28,6 +28,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -40,6 +41,8 @@ public class GatherDataListener {
     
     @SubscribeEvent
     public static void onGatherData( GatherDataEvent event ) {
+        DataGenUtils.initializeClasses( Apocalypse.MOD_ID, List.of() );
+        
         DataGenerator dataGen = event.getGenerator();
         ExistingFileHelper fileHelper = event.getExistingFileHelper();
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();

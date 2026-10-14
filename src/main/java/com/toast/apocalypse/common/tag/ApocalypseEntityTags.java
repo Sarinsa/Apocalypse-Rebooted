@@ -6,7 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 
-public class ApocalypseEntityTags {
+public final class ApocalypseEntityTags {
     
     public static final TagKey<EntityType<?>> FLYING_ENTITIES = modTag( "flying_entities" );
     
@@ -22,6 +22,6 @@ public class ApocalypseEntityTags {
         return TagKey.create( Registries.ENTITY_TYPE, id );
     }
     
-    // Utility class, instantiation redundant
+    // No instantiation
     private ApocalypseEntityTags() { }
 }

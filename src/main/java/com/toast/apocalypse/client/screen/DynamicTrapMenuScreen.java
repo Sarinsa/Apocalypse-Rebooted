@@ -7,65 +7,74 @@ import com.toast.apocalypse.common.menus.DynamicTrapMenu;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DynamicTrapMenuScreen extends AbstractContainerScreen<DynamicTrapMenu> implements MenuAccess<DynamicTrapMenu> {
     
+    /** The dynamic trap GUI texture. */
     private static final ResourceLocation TEXTURE = Apocalypse.rl( "textures/gui/container/dynamic_trap.png" );
+    /** A screen rectangle representing the space taken up by the trap crafting result slot. */
+    private ScreenRectangle trapSlotArea;
     
     
-    public DynamicTrapMenuScreen( DynamicTrapMenu menu, Inventory inventory, Component title ) {
-        super( menu, inventory, title );
+    /**
+     * Constructs a new menu screen.
+     *
+     * @param container The dynamic trap container.
+     * @param inventory The player's inventory (usually).
+     * @param title     This menu's title component.
+     */
+    public DynamicTrapMenuScreen( DynamicTrapMenu container, Inventory inventory, Component title ) {
+        super( container, inventory, title );
     }
     
+    /** Called to initialize this container. */
     @Override
     protected void init() {
         super.init();
         titleLabelX = (imageWidth - font.width( title )) / 2;
+        trapSlotArea = new ScreenRectangle( leftPos + 141, topPos + 35, 16, 16 );
     }
     
+    /** Renders this menu screen. */
     @Override
     public void render( GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick ) {
         renderBackground( guiGraphics );
         super.render( guiGraphics, mouseX, mouseY, partialTick );
-        this.renderTooltip( guiGraphics, mouseX, mouseY );
+        renderTooltip( guiGraphics, mouseX, mouseY );
     }
     
+    /** Handles tooltip rendering for this menu screen. */
     @Override
     protected void renderTooltip( GuiGraphics guiGraphics, int mouseX, int mouseY ) {
         super.renderTooltip( guiGraphics, mouseX, mouseY );
+        if( menu.getTrapPos() == null || Minecraft.getInstance().level == null ) return;
         
-        if( menu.getTrapPos() != null ) {
-            if( Minecraft.getInstance().level != null
-                    && Minecraft.getInstance().level.getExistingBlockEntity( menu.getTrapPos() ) instanceof DynamicTrapBlockEntity trap ) {
+        final BlockEntity blockEntity = Minecraft.getInstance().level.getExistingBlockEntity( menu.getTrapPos() );
+        
+        if( blockEntity instanceof DynamicTrapBlockEntity trap && trap.getCurrentTrap() != null ) {
+            if( hoveringOver( trapSlotArea, mouseX, mouseY ) ) {
+                final AbstractTrap trapType = trap.getCurrentTrap();
+                final List<Component> components = new ArrayList<>();
                 
-                if( trap.getCurrentTrap() != null ) {
-                    if( hoveringOverSlotAt( leftPos + 141, topPos + 35, mouseX, mouseY ) ) {
-                        AbstractTrap trapType = trap.getCurrentTrap();
-                        List<Component> components = new ArrayList<>();
-                        
-                        components.add( Component.translatable( trapType.getTranslationKey() ) );
-                        components.add( Component.literal( "" ) );
-                        components.add( trapType.getDescription().copy().withStyle( ChatFormatting.GRAY ) );
-                        guiGraphics.renderComponentTooltip( font, components, mouseX, mouseY );
-                    }
-                }
+                components.add( Component.translatable( trapType.getTranslationKey() ) );
+                components.add( Component.literal( "" ) );
+                components.add( trapType.getDescription().copy().withStyle( ChatFormatting.GRAY ) );
+                guiGraphics.renderComponentTooltip( font, components, mouseX, mouseY );
             }
         }
     }
     
-    private boolean hoveringOverSlotAt( int posX, int posY, double mouseX, double mouseY ) {
-        return mouseX >= posX && mouseX <= (posX + 16)
-                && mouseY >= posY && mouseY <= posY + 16;
-    }
-    
+    /** Renders the background for this menu screen. */
     @Override
     protected void renderBg( GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY ) {
         guiGraphics.blit( TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight );
@@ -76,7 +85,6 @@ public class DynamicTrapMenuScreen extends AbstractContainerScreen<DynamicTrapMe
             int arrowWidth = (int) (progress * 18);
             guiGraphics.blit( TEXTURE, leftPos + 118, topPos + 34, 0, 166, arrowWidth, 17 );
         }
-        
         if( menu.getTrapPos() != null ) {
             if( Minecraft.getInstance().level != null
                     && Minecraft.getInstance().level.getExistingBlockEntity( menu.getTrapPos() ) instanceof DynamicTrapBlockEntity trap ) {
@@ -87,5 +95,14 @@ public class DynamicTrapMenuScreen extends AbstractContainerScreen<DynamicTrapMe
                 }
             }
         }
+    }
+    
+    /** @return True if the mouse's current coordinates are inside the given screen rectangle. */
+    private boolean hoveringOver( ScreenRectangle rectangle, double mouseX, double mouseY ) {
+        int minX = rectangle.left();
+        int maxX = minX + rectangle.width();
+        int minY = rectangle.top();
+        int maxY = minY + rectangle.height();
+        return mouseX >= minX && mouseX <= maxX && mouseY >= minY && mouseY <= maxY;
     }
 }

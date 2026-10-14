@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.item;
 
 import com.toast.apocalypse.client.ClientUtil;
+import com.toast.apocalypse.client.renderer.model.armor.BucketHelmetModel;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.datagen.lang.TranslationKey;
@@ -42,7 +43,13 @@ public class BucketHelmetItem extends ArmorItem {
         consumer.accept( new IClientItemExtensions() {
             @Override
             public HumanoidModel<?> getHumanoidArmorModel( LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original ) {
-                return equipmentSlot == EquipmentSlot.HEAD ? ClientUtil.BUCKET_HELMET_MODEL.copyProps( original ) : original;
+                if( equipmentSlot == EquipmentSlot.HEAD ) {
+                    BucketHelmetModel model = ClientUtil.getBucketHelmetModel();
+                    if( model != null ) {
+                        return model.copyPropsOf( original );
+                    }
+                }
+                return original;
             }
             
             @Override

@@ -21,7 +21,7 @@ import com.toast.apocalypse.client.renderer.entity.projectile.monsterhook.Monste
 import com.toast.apocalypse.client.renderer.model.armor.BucketHelmetModel;
 import com.toast.apocalypse.client.renderer.model.armor.GrumpBucketHelmetModel;
 import com.toast.apocalypse.client.screen.DynamicTrapMenuScreen;
-import com.toast.apocalypse.common.compat.ryaomic.RyoamicCompat;
+import com.toast.apocalypse.common.compat.ryaomic.ApocalypseRyoamicCompat;
 import com.toast.apocalypse.common.core.Apocalypse;
 import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import fathertoast.crust.api.config.client.ClientConfigUtil;
@@ -43,15 +43,13 @@ import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.RegistryObject;
 
 @Mod.EventBusSubscriber( value = Dist.CLIENT, modid = Apocalypse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD )
-public class ClientRegister {
+public final class ClientRegister {
     
     /** Apocalypse's client config. */
     public static final ClientConfig CLIENT_CONFIG = new ClientConfig(
@@ -67,9 +65,6 @@ public class ClientRegister {
     
     @SubscribeEvent
     public static void onClientSetup( FMLClientSetupEvent event ) {
-        final IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modBus.addListener( ClientUtil::onAddLayer );
-        
         MinecraftForge.EVENT_BUS.register( new ClientEventListener() );
         MinecraftForge.EVENT_BUS.register( new KeyInputListener() );
         
@@ -79,7 +74,7 @@ public class ClientRegister {
         // Tell Forge to open the config editor when our mod's "Config" button is clicked in the Mods screen
         ClientConfigUtil.registerConfigButtonAsEditScreen();
         
-        RyoamicCompat.init();
+        ApocalypseRyoamicCompat.init();
         
         event.enqueueWork( () -> {
             ItemModelProps.register();
@@ -87,16 +82,19 @@ public class ClientRegister {
         } );
     }
     
+    /** Called when Forge GUI overlays are to be registered. */
     @SubscribeEvent
     public static void onGuiOverlayRegister( RegisterGuiOverlaysEvent event ) {
         event.registerAbove( VanillaGuiOverlay.BOSS_EVENT_PROGRESS.id(), IDifficultyOverlayHelper.OVERLAY_ID.getPath(), DIFFICULTY_OVERLAY );
     }
     
+    /** Called when it is time to register particle providers. */
     @SubscribeEvent
     public static void registerParticles( RegisterParticleProvidersEvent event ) {
         event.registerSpriteSet( ApocalypseObjects.ParticleTypes.LUNAR_DESPAWN_SMOKE.get(), LunarDespawnSmokeParticle.Factory::new );
     }
     
+    /** Called when it is time to register entity renderer layer definitions. */
     @SubscribeEvent
     public static void registerLayerDefs( EntityRenderersEvent.RegisterLayerDefinitions event ) {
         event.registerLayerDefinition( ApocalypseModelLayers.GHOST, GhostModel::createBodyLayer );
@@ -111,6 +109,7 @@ public class ClientRegister {
         event.registerLayerDefinition( ApocalypseModelLayers.GRUMP_BUCKET_HELMET, GrumpBucketHelmetModel::createBodyLayer );
     }
     
+    /** Called when it is time to register entity and block entity renderers. */
     @SubscribeEvent
     public static void registerRenderer( EntityRenderersEvent.RegisterRenderers event ) {
         event.registerEntityRenderer( ApocalypseEntities.GHOST.get(), GhostRenderer::new );
@@ -125,6 +124,12 @@ public class ClientRegister {
         event.registerEntityRenderer( ApocalypseEntities.DESTROYER_FIREBALL.get(), ( context ) -> new ThrownItemRenderer<>( context, 3.0F, true ) );
         event.registerEntityRenderer( ApocalypseEntities.SEEKER_FIREBALL.get(), ( context ) -> new ThrownItemRenderer<>( context, 1.5F, true ) );
         
+    }
+    
+    /** Called when additional entity renderer layers can be registered, after entity and player renderers have been registered. */
+    @SubscribeEvent
+    public static void onAddLayer( EntityRenderersEvent.AddLayers event ) {
+        ClientUtil.createBucketHelmetModel( event );
     }
     
     /** Registers Apocalypse's menu screens. */
@@ -144,4 +149,7 @@ public class ClientRegister {
         // noinspection unchecked
         MenuScreens.register( (MenuType<? extends M>) regObj.get(), screenFactory );
     }
+    
+    // No instantiation
+    private ClientRegister() { }
 }

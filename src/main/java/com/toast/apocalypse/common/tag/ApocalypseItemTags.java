@@ -6,7 +6,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 
-public class ApocalypseItemTags {
+public final class ApocalypseItemTags {
     
     public static final TagKey<Item> COOKIES = forgeTag( "cookies" );
     
@@ -23,6 +23,6 @@ public class ApocalypseItemTags {
         return ItemTags.create( id );
     }
     
-    // Utility class, instantiation redundant
+    // No instantiation
     private ApocalypseItemTags() { }
 }

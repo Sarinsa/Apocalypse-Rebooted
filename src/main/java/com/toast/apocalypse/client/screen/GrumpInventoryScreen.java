@@ -12,16 +12,33 @@ import net.minecraft.world.entity.player.Inventory;
 
 public class GrumpInventoryScreen extends AbstractContainerScreen<GrumpInventoryContainer> {
     
+    /** The grump inventory GUI texture. */
     private static final ResourceLocation TEXTURE = Apocalypse.rl( "textures/gui/container/grump.png" );
+    /** The grump entity whose inventory is being accessed. */
     private final Grump grump;
-    private float xMouse;
-    private float yMouse;
     
-    public GrumpInventoryScreen( GrumpInventoryContainer container, Inventory playerInventory, Grump grump ) {
-        super( container, playerInventory, grump.getDisplayName() );
+    
+    /**
+     * Constructs a new menu screen.
+     *
+     * @param container The grump inventory container.
+     * @param inventory The player's inventory (usually).
+     * @param grump     The grump entity whose inventory is being accessed.
+     */
+    public GrumpInventoryScreen( GrumpInventoryContainer container, Inventory inventory, Grump grump ) {
+        super( container, inventory, grump.getDisplayName() );
         this.grump = grump;
     }
     
+    /** Renders this menu screen. */
+    @Override
+    public void render( GuiGraphics guiGraphics, int xMouse, int yMouse, float partialTick ) {
+        renderBackground( guiGraphics );
+        super.render( guiGraphics, xMouse, yMouse, partialTick );
+        renderTooltip( guiGraphics, xMouse, yMouse );
+    }
+    
+    /** Renders the background for this menu screen. */
     @Override
     protected void renderBg( GuiGraphics guiGraphics, float partialTick, int xMouse, int yMouse ) {
         RenderSystem.setShaderColor( 1.0F, 1.0F, 1.0F, 1.0F );
@@ -33,14 +50,5 @@ public class GrumpInventoryScreen extends AbstractContainerScreen<GrumpInventory
         guiGraphics.blit( TEXTURE, i + 7, j + 35, 0, imageHeight + 54, 18, 18 );
         
         InventoryScreen.renderEntityInInventoryFollowsMouse( guiGraphics, i + 51, j + 50, 17, (float) (i + 51) - xMouse, (float) (j + 75 - 50) - yMouse, grump );
-    }
-    
-    @Override
-    public void render( GuiGraphics guiGraphics, int xMouse, int yMouse, float partialTick ) {
-        renderBackground( guiGraphics );
-        this.xMouse = (float) xMouse;
-        this.yMouse = (float) yMouse;
-        super.render( guiGraphics, xMouse, yMouse, partialTick );
-        renderTooltip( guiGraphics, xMouse, yMouse );
     }
 }

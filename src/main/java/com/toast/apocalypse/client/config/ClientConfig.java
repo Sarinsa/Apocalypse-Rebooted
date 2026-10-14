@@ -6,7 +6,6 @@ import fathertoast.crust.api.config.common.AbstractConfigFile;
 import fathertoast.crust.api.config.common.ConfigManager;
 import fathertoast.crust.api.config.common.field.*;
 import fathertoast.crust.api.config.common.value.CrustAnchor;
-import org.joml.Vector3f;
 
 public class ClientConfig extends AbstractConfigFile {
     
@@ -82,8 +81,7 @@ public class ClientConfig extends AbstractConfigFile {
             
             rainColor = SPEC.define( new InjectionWrapperField<>( new ColorIntField( "acid_rain_color", 0xACFF75, false,
                     "Decides the color of Apocalypse's acid rain." ),
-                    ( color ) -> ClientUtil.RAIN_COLOR = new Vector3f( color.getRed(), color.getGreen(), color.getBlue() ) )
-            );
+                    ( color ) -> ClientUtil.setAcidRainColor( color.get() ) ) );
             renderAcidRain = SPEC.define( new BooleanField( "render_acid_rain", true,
                     "If enabled, Apocalypse's custom weather renderer is used when it rains acid.",
                     "Might break if other mods are installed that changes weather rendering." ) );

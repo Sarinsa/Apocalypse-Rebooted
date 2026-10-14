@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Style;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.UnaryOperator;
@@ -15,6 +16,10 @@ import java.util.function.UnaryOperator;
 /**
  * Holds a translation key and provides some methods for easily
  * creating translation components from it.
+ * <br><br>
+ * <strong>NOTE:</strong> if you have statically initialized translation keys lying
+ * around in various classes, you can call {@link com.toast.apocalypse.datagen.DataGenUtils#initializeClasses(String, List)}
+ * to ensure all your mod's classes are initialized before running a language provider.
  */
 // TODO - If we end up moving this to Crust, we might want to
 //        make it so translations for multiple languages can be appended to a key object,

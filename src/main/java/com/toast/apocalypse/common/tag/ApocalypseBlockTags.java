@@ -6,7 +6,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 
-public class ApocalypseBlockTags {
+public final class ApocalypseBlockTags {
     
     private static TagKey<Block> modTag( String name ) {
         return create( Apocalypse.rl( name ) );
@@ -20,6 +20,6 @@ public class ApocalypseBlockTags {
         return BlockTags.create( id );
     }
     
-    // Utility class, instantiation redundant
+    // No instantiation
     private ApocalypseBlockTags() { }
 }

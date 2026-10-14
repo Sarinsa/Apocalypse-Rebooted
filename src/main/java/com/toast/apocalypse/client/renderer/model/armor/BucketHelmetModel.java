@@ -31,18 +31,22 @@ public class BucketHelmetModel extends HumanoidModel<LivingEntity> {
         return LayerDefinition.create( meshDef, 32, 32 );
     }
     
-    /** Copies over head rotations and positions from the specified model. */
-    public BucketHelmetModel copyProps( HumanoidModel<?> humanoidModel ) {
-        rope.xRot = humanoidModel.head.xRot;
-        rope.yRot = humanoidModel.head.yRot;
-        rope.x = humanoidModel.head.x;
-        rope.y = humanoidModel.head.y;
-        rope.z = humanoidModel.head.z;
-        bone.xRot = humanoidModel.head.xRot;
-        bone.yRot = humanoidModel.head.yRot;
-        bone.x = humanoidModel.head.x;
-        bone.y = humanoidModel.head.y;
-        bone.z = humanoidModel.head.z;
+    /**
+     * Copies the head rotations and positions of the given humanoid model over to this model.
+     *
+     * @return Self, after copying over rotations.
+     */
+    public BucketHelmetModel copyPropsOf( HumanoidModel<?> other ) {
+        rope.xRot = other.head.xRot;
+        rope.yRot = other.head.yRot;
+        rope.x = other.head.x;
+        rope.y = other.head.y;
+        rope.z = other.head.z;
+        bone.xRot = other.head.xRot;
+        bone.yRot = other.head.yRot;
+        bone.x = other.head.x;
+        bone.y = other.head.y;
+        bone.z = other.head.z;
         return this;
     }
     

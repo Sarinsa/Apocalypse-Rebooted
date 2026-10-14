@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.Mod;
 import org.apache.commons.lang3.text.WordUtils;
 
 @Mod.EventBusSubscriber( modid = Apocalypse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT )
-public class ApocalypseKeyBindings {
+public final class ApocalypseKeyBindings {
     
     public static final SortedKeyMapping TOGGLE_DIFFICULTY = create( 0, "toggle_difficulty", InputConstants.KEY_C,
             KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM );
@@ -22,6 +22,7 @@ public class ApocalypseKeyBindings {
             KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM );
     
     
+    /** Called when it is time to register key mappings. */
     @SubscribeEvent
     public static void registerKeyBindings( RegisterKeyMappingsEvent event ) {
         event.register( TOGGLE_DIFFICULTY );
@@ -45,4 +46,7 @@ public class ApocalypseKeyBindings {
         Apocalypse.tk( id, WordUtils.capitalizeFully( name ).replaceAll( "_", " " ) );
         return new SortedKeyMapping( index, id, Apocalypse.MOD_NAME, type, keyCode ).withConflictContext( conflictContext );
     }
+    
+    // No instantiation
+    private ApocalypseKeyBindings() { }
 }

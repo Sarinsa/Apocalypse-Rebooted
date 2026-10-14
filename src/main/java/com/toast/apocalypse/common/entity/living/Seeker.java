@@ -47,15 +47,15 @@ import java.util.function.BiPredicate;
  * This is a full moon mob whose entire goal in life is to break through your defenses. It is similar to a ghast, only
  * it has unlimited target range that ignores line of sight and shoots creeper-sized fireballs when it does not have a
  * clear line of sight. When it does have direct vision, it shoots much weaker fireballs that can be easily reflected
- * back at the seeker. The seeker also alerts nearby monsters of the player's whereabouts when in it's direct line of sight.
+ * back at the seeker. The seeker also alerts nearby monsters of the player's whereabouts when in its direct line of sight.
  */
 public class Seeker extends AbstractLunarSiegeGhast {
     
     private static final EntityDataAccessor<Boolean> ALERTING = SynchedEntityData.defineId( Seeker.class, EntityDataSerializers.BOOLEAN );
     private static final BiPredicate<Mob, Seeker> ALERT_PREDICATE = ( mob, seeker ) -> !(mob instanceof ILunarSiegeMob) && mob instanceof Enemy;
     
-    /** The seeker's current target. Updated when the seeker alerts nearby mobs. */
-    private LivingEntity currentTarget;
+    /** The seeker's current target for alerting. Updated when the seeker alerts nearby mobs. */
+    private LivingEntity targetForAlerting;
     
     public Seeker( EntityType<? extends Ghast> entityType, Level level ) {
         super( entityType, level );
@@ -131,7 +131,6 @@ public class Seeker extends AbstractLunarSiegeGhast {
     
     private static boolean isReflectedFireball( DamageSource damageSource ) {
         Entity entity = damageSource.getDirectEntity();
-        
         return entity instanceof SeekerFireballEntity && damageSource.getEntity() instanceof Player;
     }
     
@@ -184,7 +183,7 @@ public class Seeker extends AbstractLunarSiegeGhast {
         return data;
     }
     
-    /** Essentially a copy of the ghast's fireball goal */
+    /** Modified copy-paste of {@link Ghast.GhastShootFireballGoal} */
     private static class FireballAttackGoal extends Goal {
         
         private final Seeker seeker;
@@ -347,7 +346,7 @@ public class Seeker extends AbstractLunarSiegeGhast {
                 return seeker.canAlert()
                         && seeker.distanceToSqr( seeker.getTarget() ) < 4096.0D
                         && seeker.canSeeDirectly( seeker.getTarget() )
-                        && seeker.currentTarget != seeker.getTarget();
+                        && seeker.targetForAlerting != seeker.getTarget();
             }
             return false;
         }
@@ -384,9 +383,9 @@ public class Seeker extends AbstractLunarSiegeGhast {
                         attributeInstance.setBaseValue( Math.max( attributeInstance.getValue(), 60.0D ) );
                     }
                 }
-                seeker.currentTarget = seeker.getTarget();
+                seeker.targetForAlerting = seeker.getTarget();
                 seeker.setAlerting( true );
-                seeker.playSound( ApocalypseObjects.SoundEvents.SEEKER_ALERT_MOBS.get(), 5.0F, 0.6F );
+                seeker.playSound( ApocalypseObjects.SoundEvents.SEEKER_ALERT_MOBS.get(), 1.0F, 0.6F );
             }
         }
         
