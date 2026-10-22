@@ -8,6 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.Level;
 
+// TODO - Will this ever be used? Very unlikely :(
 public class MobWikiBookItem extends Item {
     
     public MobWikiBookItem() {
@@ -17,16 +18,5 @@ public class MobWikiBookItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use( Level level, Player player, InteractionHand hand ) {
         return super.use( level, player, hand );
-        /*
-        ItemStack itemstack = player.getItemInHand(hand);
-
-        if (player instanceof ServerPlayerEntity) {
-            NetworkHelper.openMobWikiScreen((ServerPlayerEntity) player);
-        }
-
-        player.awardStat(Stats.ITEM_USED.get(this));
-        return ActionResult.sidedSuccess(itemstack, world.isClientSide());
-
-         */
     }
 }

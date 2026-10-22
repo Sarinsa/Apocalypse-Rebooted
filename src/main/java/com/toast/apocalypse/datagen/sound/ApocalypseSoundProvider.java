@@ -83,15 +83,15 @@ public class ApocalypseSoundProvider extends AbstractSoundProvider {
         
         // SHADEFIEND
         addEntry( SoundEvents.SHADEFIEND_FLAP, "shadefiend.flap", "Shadefiend flaps",
-                mcLoc( "mob/wolf/death" ) );
+                mcLoc( "mob/phantom/flap" ), 1, 6 );
         addEntry( SoundEvents.SHADEFIEND_IDLE, "shadefiend.idle", "Shadefiend screeches",
-                mcLoc( "mob/wolf/death" ) );
+                mcLoc( "mob/phantom/idle" ), 1, 5 );
         addEntry( SoundEvents.SHADEFIEND_BITE, "shadefiend.bite", "Shadefiend bites",
-                mcLoc( "mob/wolf/death" ) );
+                mcLoc( "mob/phantom/bite" ), 1, 2 );
         addEntry( SoundEvents.SHADEFIEND_HURT, "shadefiend.hurt", "Shadefiend dies",
-                mcLoc( "mob/wolf/death" ) );
+                mcLoc( "mob/phantom/hurt" ), 1, 3 );
         addEntry( SoundEvents.SHADEFIEND_DEATH, "shadefiend.death", "Shadefiend dies",
-                mcLoc( "mob/wolf/death" ) );
+                mcLoc( "mob/phantom/death" ), 1, 3 );
         
         // PROJECTILES
         addEntry( SoundEvents.MONSTER_HOOK_RETRIEVE, "monster_fish_hook.retrieve", "Grump hook retrieved",

@@ -4,7 +4,7 @@ import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.ai.LunarSiegeTargetPlayerGoal;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
-import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
+import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveControl;
 import com.toast.apocalypse.common.entity.projectile.MonsterFishhook;
 import com.toast.apocalypse.common.inventory.container.GrumpInventoryContainer;
 import com.toast.apocalypse.common.misc.PlayerKeyBindInfo;
@@ -34,7 +34,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -99,7 +98,7 @@ public class Grump extends AbstractLunarSiegeGhast implements OwnableEntity, Con
     
     public Grump( EntityType<? extends Ghast> entityType, Level level ) {
         super( entityType, level );
-        moveControl = new SimpleFlyingMoveController( this );
+        moveControl = new SimpleFlyingMoveControl( this );
         xpReward = 3;
         inventory.addListener( this );
         updateContainerEquipment();
@@ -316,7 +315,7 @@ public class Grump extends AbstractLunarSiegeGhast implements OwnableEntity, Con
             if( isVehicle() ) {
                 if( getControllingPassenger() != null ) {
                     LivingEntity rider = getControllingPassenger();
-                    
+                    // TODO - Maybe make this multiplier configurable
                     setDeltaMovement( getDeltaMovement().scale( 1.05D ) );
                     
                     setYRot( rider.getYRot() );
@@ -428,9 +427,9 @@ public class Grump extends AbstractLunarSiegeGhast implements OwnableEntity, Con
         }
     }
     
-    /** @return This Grump's move control cast to {@link SimpleFlyingMoveController}. */
-    private SimpleFlyingMoveController getFlyingMoveControl() {
-        return (SimpleFlyingMoveController) moveControl;
+    /** @return This Grump's move control cast to {@link SimpleFlyingMoveControl}. */
+    private SimpleFlyingMoveControl getFlyingMoveControl() {
+        return (SimpleFlyingMoveControl) moveControl;
     }
     
     /** Convenience method for shrinking an item stack in a player's inventory. */
@@ -450,7 +449,7 @@ public class Grump extends AbstractLunarSiegeGhast implements OwnableEntity, Con
         setPlayerTargetUUID( null );
         // Stop potential weird movement happening
         // if a movement goal is running.
-        getFlyingMoveControl().setAction( MoveControl.Operation.WAIT );
+        getFlyingMoveControl().setOperating( false );
         level().broadcastEntityEvent( this, (byte) 7 );
     }
     
@@ -674,7 +673,7 @@ public class Grump extends AbstractLunarSiegeGhast implements OwnableEntity, Con
         @Override
         public boolean canUse() {
             LivingEntity target = grump.getTarget();
-            return grump.isAlive() && target != null && grump.canSeeDirectly( target );
+            return grump.isAlive() && target != null && grump.isViewUnobstructed( target );
         }
         
         @Override
@@ -703,7 +702,7 @@ public class Grump extends AbstractLunarSiegeGhast implements OwnableEntity, Con
         
         @Override
         public void stop() {
-            grump.getFlyingMoveControl().setAction( MoveControl.Operation.WAIT );
+            grump.getFlyingMoveControl().setOperating( false );
         }
         
         @Override
@@ -928,10 +927,10 @@ public class Grump extends AbstractLunarSiegeGhast implements OwnableEntity, Con
         
         @Override
         public boolean canUse() {
-            if( grump.hasOwner() || grump.isVehicle() ) return false;
-            if( grump.getTarget() != null ) return false;
+            if( grump.hasOwner() || grump.isVehicle() || grump.getTarget() != null )
+                return false;
             
-            MoveControl moveControl = grump.getMoveControl();
+            SimpleFlyingMoveControl moveControl = grump.getFlyingMoveControl();
             
             if( !moveControl.hasWanted() ) {
                 return true;
@@ -940,8 +939,8 @@ public class Grump extends AbstractLunarSiegeGhast implements OwnableEntity, Con
                 double x = moveControl.getWantedX() - grump.getX();
                 double y = moveControl.getWantedY() - grump.getY();
                 double z = moveControl.getWantedZ() - grump.getZ();
-                double d3 = x * x + y * y + z * z;
-                return d3 < 1.0D || d3 > 3600.0D;
+                double squareSum = x * x + y * y + z * z;
+                return squareSum < 1.0D || squareSum > 3600.0D;
             }
         }
         
@@ -956,7 +955,7 @@ public class Grump extends AbstractLunarSiegeGhast implements OwnableEntity, Con
             double x = grump.getX() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
             double y = grump.getY() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
             double z = grump.getZ() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 8.0F);
-            grump.getMoveControl().setWantedPosition( x, y, z, 1.0D );
+            grump.getMoveControl().setWantedPosition( x, y, z, 1.0 );
         }
     }
     
@@ -974,11 +973,11 @@ public class Grump extends AbstractLunarSiegeGhast implements OwnableEntity, Con
         
         private void setWantedToOwner() {
             Vec3 vec3 = owner.getEyePosition( 1.0F ).add( 0.0D, -(grump.getBbHeight() / 2), 0.0D );
-            grump.moveControl.setWantedPosition( vec3.x, vec3.y, vec3.z, 1.0D );
+            setWantedPosition( vec3.x, vec3.y, vec3.z );
         }
         
         private void setWantedPosition( double x, double y, double z ) {
-            grump.moveControl.setWantedPosition( x, y, z, 1.0D );
+            grump.moveControl.setWantedPosition( x, y, z, 1.0 );
         }
         
         @Override
@@ -1001,7 +1000,7 @@ public class Grump extends AbstractLunarSiegeGhast implements OwnableEntity, Con
         
         @Override
         public void stop() {
-            grump.getFlyingMoveControl().setAction( MoveControl.Operation.WAIT );
+            grump.getFlyingMoveControl().setOperating( false );
         }
         
         @Override

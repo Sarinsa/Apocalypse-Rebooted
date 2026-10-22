@@ -28,6 +28,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
+@SuppressWarnings( "resource" )
 public class Fearwolf extends Monster implements Enemy {
     
     private static final EntityDataAccessor<Boolean> CLOAKED = SynchedEntityData.defineId( Fearwolf.class, EntityDataSerializers.BOOLEAN );
@@ -40,16 +41,17 @@ public class Fearwolf extends Monster implements Enemy {
     
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal( 1, new FloatGoal( this ) );
-        this.goalSelector.addGoal( 2, new FearwolfRunAwayGoal( this, 1.0D ) );
-        this.goalSelector.addGoal( 2, new MeleeAttackGoal( this, 0.85D, true ) );
-        this.goalSelector.addGoal( 3, new WaterAvoidingRandomStrollGoal( this, 0.6D ) );
-        this.goalSelector.addGoal( 4, new LookAtPlayerGoal( this, Player.class, 8.0F ) );
-        this.goalSelector.addGoal( 5, new RandomLookAroundGoal( this ) );
-        this.targetSelector.addGoal( 1, (new HurtByTargetGoal( this )).setAlertOthers() );
-        this.targetSelector.addGoal( 2, new NearestAttackableTargetGoal<>( this, Player.class, true ) );
+        goalSelector.addGoal( 1, new FloatGoal( this ) );
+        goalSelector.addGoal( 2, new FearwolfRunAwayGoal( this, 1.0D ) );
+        goalSelector.addGoal( 2, new MeleeAttackGoal( this, 0.85D, true ) );
+        goalSelector.addGoal( 3, new WaterAvoidingRandomStrollGoal( this, 0.6D ) );
+        goalSelector.addGoal( 4, new LookAtPlayerGoal( this, Player.class, 8.0F ) );
+        goalSelector.addGoal( 5, new RandomLookAroundGoal( this ) );
+        targetSelector.addGoal( 1, (new HurtByTargetGoal( this )).setAlertOthers() );
+        targetSelector.addGoal( 2, new NearestAttackableTargetGoal<>( this, Player.class, true ) );
     }
     
+    @SuppressWarnings( "unused" )
     public static boolean checkFearwolfSpawnRules( EntityType<? extends Fearwolf> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random ) {
         return level.getDifficulty() != Difficulty.PEACEFUL && level.getBlockState( pos.below() ).is( BlockTags.ANIMALS_SPAWNABLE_ON ) && level.getEntitiesOfClass( Player.class, new AABB( pos ).inflate( 40.0D ) ).isEmpty();
     }

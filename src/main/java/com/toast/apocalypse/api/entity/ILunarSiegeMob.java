@@ -18,10 +18,16 @@ import java.util.UUID;
 @Deprecated
 // Siege targeting will be NBT-driven in the future, and utility methods
 // will be moved elsewhere in the API, making this interface obsolete in future updates.
-public interface ILunarSiegeMob {
+public interface ILunarSiegeMob<T extends LivingEntity> {
     
     // Key used for storing a lunar siege mob's player target UUID to NBT
     String TAG_PLAYER_UUID = "PlayerTargetUUID";
+    
+    /** @return Self as an entity. */
+    default T asEntity() {
+        // noinspection unchecked
+        return (T) this;
+    }
     
     /**
      * @return The UUID of this lunar siege mob's siege player target.
@@ -34,7 +40,7 @@ public interface ILunarSiegeMob {
     /**
      * Sets this lunar siege mob's siege player target UUID.
      *
-     * @param playerTargetUUID The UUID of the specified player to target.
+     * @param playerTargetUUID The UUID of the player to target.
      */
     void setPlayerTargetUUID( @Nullable UUID playerTargetUUID );
     
@@ -43,10 +49,11 @@ public interface ILunarSiegeMob {
      * or the player does not exist in the same level as the mob.
      */
     @Nullable
-    default <T extends LivingEntity & ILunarSiegeMob> Player getEventTarget( T siegeMob ) {
-        if( siegeMob.getPlayerTargetUUID() != null ) {
+    default Player getSiegeTarget() {
+        if( getPlayerTargetUUID() != null ) {
+            T entity = asEntity();
             // noinspection resource
-            return siegeMob.level().getPlayerByUUID( siegeMob.getPlayerTargetUUID() );
+            return entity.level().getPlayerByUUID( getPlayerTargetUUID() );
         }
         return null;
     }

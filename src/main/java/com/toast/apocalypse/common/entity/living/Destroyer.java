@@ -4,11 +4,10 @@ import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.ai.LunarSiegeTargetPlayerGoal;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
-import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
+import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveControl;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -30,7 +29,6 @@ import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Ghast;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Fireball;
-import net.minecraft.world.entity.projectile.LargeFireball;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.BedBlock;
@@ -41,26 +39,51 @@ import net.minecraftforge.common.ForgeMod;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
-import java.util.Optional;
 
 /**
- * This is a full moon mob similar to a ghast, though it has unlimited aggro range ignoring line of sight and
- * its fireballs can potentially destroy any type of block.<br>
- * <br>
- * In addition to the above, Destroyers can also attempt to destroy their target player's
- * respawn point, forcing the player to confront it.
+ * This lunar siege mob is a relative of the ghast whose purpose is to break through the player's defenses, mercilessly.
+ * The Destroyer differs from normal ghasts in the following ways, assuming config values are set to default:
+ * <p>
+ * - Its fireballs have a lower explosion radius than a normal Ghast, but can destroy any type of block,
+ * except blocks that are designed to be truly indestructible (bedrock, barrier etc.).
+ * <p>
+ * - Has a massive aggro range.
+ * <p>
+ * - Can deal heavy damage to equipped armor.
+ * <p>
+ * - Deflected fireballs are volatile and explode shortly after being hit.
+ * <p>
+ * - Can potentially survive being hit by multiple deflected fireballs.
+ * <br><br>
+ * In addition to the above, Destroyers are also capable of fireballing their target player's
+ * respawn point, pressuring the player into confronting it.
  */
+@SuppressWarnings( "resource" )
 public class Destroyer extends AbstractLunarSiegeGhast {
     
+    // TODO - This does not need to be a synced data item
     public static final EntityDataAccessor<Boolean> ATTACKED_BY_PT = SynchedEntityData.defineId( Destroyer.class, EntityDataSerializers.BOOLEAN );
+    /**
+     * True if this destroyer is currently prioritizing shooting|
+     * fireballs at its target's spawn point.
+     */
     protected boolean isTargetingSpawnPoint = false;
     
+    
+    /**
+     * This entity's entity factory.
+     *
+     * @param entityType The entity type associated with this entity.
+     * @param level      The level this entity exists in.
+     */
     public Destroyer( EntityType<? extends Ghast> entityType, Level level ) {
         super( entityType, level );
-        moveControl = new SimpleFlyingMoveController( this );
+        moveControl = new SimpleFlyingMoveControl( this );
         xpReward = 5;
     }
     
+    
+    /** @return The default attributes to register to the Destroyer entity type. */
     public static AttributeSupplier.Builder createDestroyerAttributes() {
         return Mob.createMobAttributes()
                 .add( Attributes.MAX_HEALTH, 12.0 )
@@ -68,16 +91,16 @@ public class Destroyer extends AbstractLunarSiegeGhast {
                 .add( ForgeMod.SWIM_SPEED.get(), 1.1 );
     }
     
+    /**
+     * The spawn predicate for the Destroyer entity type.
+     *
+     * @return True if the spawn should be allowed.
+     */
     public static boolean checkDestroyerSpawnRules( EntityType<? extends Destroyer> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random ) {
         return level.getDifficulty() != Difficulty.PEACEFUL && Mob.checkMobSpawnRules( entityType, level, spawnType, pos, random );
     }
     
-    @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        entityData.define( ATTACKED_BY_PT, false );
-    }
-    
+    /** Called when this mob's goal selectors are to be populated. */
     @Override
     protected void registerGoals() {
         goalSelector.addGoal( 0, new DestroySpawnPointGoal<>( this ) );
@@ -89,33 +112,33 @@ public class Destroyer extends AbstractLunarSiegeGhast {
         targetSelector.addGoal( 2, new NearestAttackableTargetGoal<>( this, Player.class, false, false ) );
     }
     
+    /** Called when this entity's synchronized data items are to be defined. */
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        entityData.define( ATTACKED_BY_PT, false );
+    }
+    
     /**
-     * @return True if this Destroyer at any point
-     * has been attacked by their siege target player
-     * since it spawned.
+     * @return True if this Destroyer at any point has been
+     * attacked by their siege target player since it spawned.
      */
     @SuppressWarnings( "BooleanMethodIsAlwaysInverted" )
     public boolean attackedBySiegeTarget() {
         return entityData.get( ATTACKED_BY_PT );
     }
     
-    @Override
-    public void die( DamageSource damageSource ) {
-        super.die( damageSource );
-    }
-    
-    /**
-     * Completely ignore line of sight; the target
-     * is always "visible"
-     */
+    /** @return True if this entity currently has direct line of sight to the given entity. */
     @Override
     public boolean hasLineOfSight( Entity entity ) {
+        // Can always see target
         return true;
     }
     
+    /** @return True if this entity is invulnerable to the given damage source. */
     @Override
     public boolean isInvulnerableTo( DamageSource damageSource ) {
-        return !isReflectedFireball( damageSource )
+        return !AbstractLunarSiegeGhast.isDeflectedFireball( damageSource )
                 && (isRemoved()
                 || isInvulnerable()
                 && !damageSource.is( DamageTypeTags.BYPASSES_INVULNERABILITY )
@@ -125,26 +148,25 @@ public class Destroyer extends AbstractLunarSiegeGhast {
                 || damageSource.is( DamageTypeTags.IS_FALL ));
     }
     
-    private static boolean isReflectedFireball( DamageSource damageSource ) {
-        Entity entity = damageSource.getDirectEntity();
-        
-        return (entity instanceof LargeFireball || entity instanceof DestroyerFireballEntity) && damageSource.getEntity() instanceof Player;
-    }
-    
+    /**
+     * Attempts to damage this entity.
+     *
+     * @param damageSource The damage source that is damaging the entity.
+     * @param damage       The amount of damage to inflict.
+     * @return True if the entity was actually hurt. Returns false otherwise.
+     */
     @Override
     public boolean hurt( DamageSource damageSource, float damage ) {
         if( isInvulnerableTo( damageSource ) ) {
             return false;
         }
-        
         if( damageSource.getEntity() instanceof Player player ) {
             // If attacked by siege target player, notify the Destroyer, so it
             // focuses on the player rather than their respawn point.
-            if( getEventTarget( this ) == player ) {
+            if( getSiegeTarget() == player ) {
                 entityData.set( ATTACKED_BY_PT, true );
             }
         }
-        
         // Prevent instant fireball death and return to sender advancement
         else if( damageSource.getDirectEntity() instanceof Fireball ) {
             // Prevent the destroyer from damaging itself
@@ -163,70 +185,105 @@ public class Destroyer extends AbstractLunarSiegeGhast {
         return super.hurt( damageSource, damage );
     }
     
+    /** @return The sound event this entity plays when it is hurt. This can be null. */
     @Override
     protected SoundEvent getHurtSound( DamageSource damageSource ) {
         return ApocalypseObjects.SoundEvents.DESTROYER_HURT.get();
     }
     
+    /** @return The sound event this entity plays when it dies. This can be null. */
     @Override
     protected SoundEvent getDeathSound() {
         return ApocalypseObjects.SoundEvents.DESTROYER_DEATH.get();
     }
     
-    @Override
+    /** @return The explosion power this ghast applies to its fireballs. */
+    @Override // Ghast
     public int getExplosionPower() {
         return explosionPower == 0 ? ApocalypseConfig.ENTITIES.FULL_MOON.destroyerExplosionPower.get() : explosionPower;
     }
     
-    @Override
-    @Nullable
+    /**
+     * Called when this entity has been spawned into the world.
+     * <br><br>
+     * <strong><u>NOTE:</strong></u> Modders must call {@link net.minecraftforge.event.ForgeEventFactory#onFinalizeSpawn(Mob, ServerLevelAccessor, DifficultyInstance, MobSpawnType, SpawnGroupData, CompoundTag)}
+     * instead of this method (override-only).
+     *
+     * @param serverLevel        The server level the entity was spawned into.
+     * @param difficultyInstance The level's current difficulty data.
+     * @param spawnType          The spawn type of this spawn, which provides context on what caused the spawn to happen.
+     * @param spawnGroupData     A data object that normally contains relevant data for mobs that have spawned in packs. Can be null.
+     * @param compoundTag        Custom NBT that the entity spawned with. Can be null.
+     * @return The final/processed spawn group data. Can be null.
+     */
     @SuppressWarnings( "deprecation" )
-    public SpawnGroupData finalizeSpawn( ServerLevelAccessor serverLevel, DifficultyInstance difficultyInstance, MobSpawnType spawnType, @Nullable SpawnGroupData data, @Nullable CompoundTag compoundTag ) {
-        data = super.finalizeSpawn( serverLevel, difficultyInstance, spawnType, data, compoundTag );
+    @Nullable
+    @Override
+    public SpawnGroupData finalizeSpawn( ServerLevelAccessor serverLevel, DifficultyInstance difficultyInstance, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag ) {
+        spawnGroupData = super.finalizeSpawn( serverLevel, difficultyInstance, spawnType, spawnGroupData, compoundTag );
         
-        if( compoundTag != null && compoundTag.contains( "ExplosionPower", Tag.TAG_ANY_NUMERIC ) ) {
-            explosionPower = compoundTag.getInt( "ExplosionPower" );
+        if( compoundTag != null ) {
+            explosionPower = compoundTag.getInt( TAG_EXPLOSION_POWER );
         }
-        else {
-            explosionPower = 0;
-        }
-        return data;
+        return spawnGroupData;
     }
     
-    private boolean withinFiringRange( Vec3 vec3 ) {
-        return horizontalDistanceToSqr( vec3 ) < 4096.0D;
+    /** @return True if the given position is within fireball attack range. */
+    private boolean withinFiringRange( Vec3 pos ) {
+        return horizontalDistToSqr( pos ) < 4096.0D;
     }
     
-    /** Essentially a copy of the ghast's fireball goal */
+    
+    /** Modified copy-paste of {@link Ghast.GhastShootFireballGoal}. */
     private static class FireballAttackGoal extends Goal {
         
+        /** The owner of this goal. */
         private final Destroyer destroyer;
+        /**
+         * This goal's tick timer.
+         * <br><br>
+         * <p>0: Goal just started.</p>
+         * <p>10: Play warn/shoot sound.</p>
+         * <p>20: Shoot fireball and set {@code chargeTime} to -40 as a cooldown.</p>
+         */
         public int chargeTime;
         
+        
+        /**
+         * Constructs a new instance.
+         *
+         * @param destroyer The Destroyer entity that owns this goal.
+         */
         public FireballAttackGoal( Destroyer destroyer ) {
             this.destroyer = destroyer;
         }
         
+        
+        /** @return True if this goal requires its logic to be updated every tick. */
         @Override
         public boolean requiresUpdateEveryTick() {
             return true;
         }
         
+        /** @return True if this goal can start running. */
         @Override
         public boolean canUse() {
             return destroyer.getTarget() != null && !destroyer.isTargetingSpawnPoint;
         }
         
+        /** Called when this goal has just started running. */
         @Override
         public void start() {
             chargeTime = 0;
         }
         
+        /** Called when this goal stops running. */
         @Override
         public void stop() {
             destroyer.setCharging( false );
         }
         
+        /** Called to update this goal's logic. */
         @Override
         public void tick() {
             LivingEntity target = destroyer.getTarget();
@@ -235,6 +292,7 @@ public class Destroyer extends AbstractLunarSiegeGhast {
             if( destroyer.withinFiringRange( target.position() ) && destroyer.hasLineOfSight( target ) ) {
                 Level level = destroyer.level();
                 ++chargeTime;
+                
                 if( chargeTime == 10 && !destroyer.isSilent() ) {
                     level.playSound(
                             null,
@@ -245,12 +303,11 @@ public class Destroyer extends AbstractLunarSiegeGhast {
                             (level.random.nextFloat() - level.random.nextFloat()) * 0.2F + 1.0F
                     );
                 }
-                
                 if( chargeTime == 20 ) {
-                    Vec3 vec3 = destroyer.getViewVector( 1.0F );
-                    double x = target.getX() - (destroyer.getX() + vec3.x * 4.0D);
+                    Vec3 viewVec = destroyer.getViewVector( 1.0F );
+                    double x = target.getX() - (destroyer.getX() + viewVec.x * 4.0D);
                     double y = target.getY( 0.5D ) - (0.5D + destroyer.getY( 0.5D ));
-                    double z = target.getZ() - (destroyer.getZ() + vec3.z * 4.0D);
+                    double z = target.getZ() - (destroyer.getZ() + viewVec.z * 4.0D);
                     
                     if( !destroyer.isSilent() ) {
                         level.playSound(
@@ -263,7 +320,7 @@ public class Destroyer extends AbstractLunarSiegeGhast {
                         );
                     }
                     DestroyerFireballEntity fireball = new DestroyerFireballEntity( level, destroyer, x, y, z );
-                    fireball.setPos( destroyer.getX() + vec3.x * 4.0D, destroyer.getY( 0.5D ) + 0.5D, fireball.getZ() + vec3.z * 4.0D );
+                    fireball.setPos( destroyer.getX() + viewVec.x * 4.0D, destroyer.getY( 0.5D ) + 0.5D, fireball.getZ() + viewVec.z * 4.0D );
                     level.addFreshEntity( fireball );
                     chargeTime = -40;
                 }
@@ -275,16 +332,32 @@ public class Destroyer extends AbstractLunarSiegeGhast {
         }
     }
     
+    /**
+     * A modified copy-paste of {@link Ghast.RandomFloatAroundGoal} that either picks a random position to fly to
+     * if the goal owner has no current target, or attempts to follow the target otherwise.
+     */
     static class RandomOrRelativeToTargetFlyGoal extends Goal {
         
-        private static final double maxDistanceBeforeFollow = 3000.0D;
+        /**
+         * The minimum distance that must exist between the goal owner and its target
+         * before the goal owner starts following it instead of flying randomly.
+         */
+        private static final double minDistBeforeFollow = 3000.0D;
+        /** The owner of this goal. */
         private final Destroyer destroyer;
         
+        
+        /**
+         * Creates a new instance.
+         *
+         * @param destroyer The Destroyer entity that owns this goal.
+         */
         public RandomOrRelativeToTargetFlyGoal( Destroyer destroyer ) {
             this.destroyer = destroyer;
             setFlags( EnumSet.of( Goal.Flag.MOVE ) );
         }
         
+        /** @return True if this goal can start running. */
         @Override
         public boolean canUse() {
             MoveControl controller = destroyer.getMoveControl();
@@ -301,28 +374,24 @@ public class Destroyer extends AbstractLunarSiegeGhast {
             }
         }
         
+        /** @return True if this goal has started and should continue running. */
         @Override
         public boolean canContinueToUse() {
             return false;
         }
         
-        private void setRandomWantedPosition() {
-            RandomSource random = destroyer.getRandom();
-            double x = destroyer.getX() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
-            double y = destroyer.getY() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 10.0F);
-            double z = destroyer.getZ() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
-            destroyer.getMoveControl().setWantedPosition( x, y, z, 1.0D );
-        }
-        
+        /** Called when this goal has just started running. */
         @Override
         public void start() {
             MoveControl controller = destroyer.getMoveControl();
             
+            // Check if goal owner has a target
             if( destroyer.getTarget() != null ) {
-                Optional<Vec3> respawnPos = Optional.empty();
+                Vec3 respawnPos = null;
                 
+                // Check if targeting player respawn position is enabled
                 if( ApocalypseConfig.ENTITIES.FULL_MOON.destroyerTargetRespawnPos.get() && destroyer.getTarget() instanceof ServerPlayer serverPlayer && !destroyer.attackedBySiegeTarget() ) {
-                    if( destroyer.getEventTarget( destroyer ) == serverPlayer ) {
+                    if( destroyer.getSiegeTarget() == serverPlayer ) {
                         BlockPos pos = serverPlayer.getRespawnPosition();
                         
                         if( isPlayerSpawnValid( pos, destroyer.level() ) ) {
@@ -330,53 +399,86 @@ public class Destroyer extends AbstractLunarSiegeGhast {
                             double y = pos.getY() + 10.0D;
                             double z = pos.getZ();
                             
-                            if( destroyer.canReachDist( x, y, z, 10 ) ) {
-                                respawnPos = Optional.of( new Vec3( x, y, z ) );
+                            if( destroyer.noCollisionTowards( x, y, z, 10 ) ) {
+                                respawnPos = new Vec3( x, y, z );
                             }
                         }
                     }
                 }
                 LivingEntity target = destroyer.getTarget();
-                double distanceToTarget = destroyer.distanceToSqr( target );
+                double distToTarget = destroyer.distanceToSqr( target );
                 
-                if( respawnPos.isPresent() ) {
-                    Vec3 vec3 = respawnPos.get();
-                    
-                    if( !destroyer.withinFiringRange( vec3 ) )
-                        controller.setWantedPosition( vec3.x, vec3.y, vec3.z, 1.0D );
+                // Move toward the target's respawn position, if possible
+                if( respawnPos != null ) {
+                    if( !destroyer.withinFiringRange( respawnPos ) )
+                        controller.setWantedPosition( respawnPos.x, respawnPos.y, respawnPos.z, 1.0D );
                 }
                 else {
-                    if( distanceToTarget > maxDistanceBeforeFollow ) {
+                    // Follow target if too far away
+                    if( distToTarget > minDistBeforeFollow ) {
                         controller.setWantedPosition( target.getX(), target.getY() + 10.0D, target.getZ(), 1.0D );
                     }
+                    // Pick a random pos to fly to otherwise
                     else {
                         setRandomWantedPosition();
                     }
                 }
             }
+            // Goal owner has no target, just fly randomly
             else {
                 setRandomWantedPosition();
             }
         }
+        
+        /** Creates a new randomized position nearby for the goal owner to try and fly to. */
+        private void setRandomWantedPosition() {
+            RandomSource random = destroyer.getRandom();
+            double x = destroyer.getX() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            double y = destroyer.getY() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 10.0F);
+            double z = destroyer.getZ() + (double) ((random.nextFloat() * 2.0F - 1.0F) * 16.0F);
+            destroyer.getMoveControl().setWantedPosition( x, y, z, 1.0D );
+        }
     }
     
+    /**
+     * A fireball attack goal that makes the Destroyer launch fireballs at
+     * its lunar siege target's respawn position, if enabled.
+     */
     private static class DestroySpawnPointGoal<T extends Destroyer> extends Goal {
         
+        /** The owner of this goal. */
         private final T destroyer;
+        /** The block position of the lunar siege target's respawn position. */
+        @Nullable
         private BlockPos respawnPos;
+        /**
+         * This goal's tick timer.
+         * <br><br>
+         * <p>0: Goal just started.</p>
+         * <p>10: Play warn/shoot sound.</p>
+         * <p>20: Shoot fireball and set {@code chargeTime} to -40 as a cooldown.</p>
+         */
         public int chargeTime;
         
+        
+        /**
+         * Creates a new instance.
+         *
+         * @param destroyer The Destroyer entity that owns this goal.
+         */
         private DestroySpawnPointGoal( T destroyer ) {
             this.destroyer = destroyer;
-            
         }
         
+        
+        /** @return True if this goal can start running. */
         @Override
         public boolean canUse() {
             if( !ApocalypseConfig.ENTITIES.FULL_MOON.destroyerTargetRespawnPos.get() )
                 return false;
             
-            if( destroyer.getEventTarget( destroyer ) instanceof ServerPlayer targetPlayer && !destroyer.attackedBySiegeTarget() ) {
+            // This goal can only run if the goal owner has not been attacked by its siege target since spawning
+            if( destroyer.getSiegeTarget() instanceof ServerPlayer targetPlayer && !destroyer.attackedBySiegeTarget() ) {
                 if( targetPlayer.getRespawnPosition() != null &&
                         (targetPlayer.getRespawnDimension().equals( destroyer.level().dimension() ))
                         && isPlayerSpawnValid( targetPlayer.getRespawnPosition(), destroyer.level() ) ) {
@@ -387,12 +489,13 @@ public class Destroyer extends AbstractLunarSiegeGhast {
             return false;
         }
         
+        /** @return True if this goal has started and should continue running. */
         @Override
         public boolean canContinueToUse() {
             if( !ApocalypseConfig.ENTITIES.FULL_MOON.destroyerTargetRespawnPos.get() )
                 return false;
             
-            if( destroyer.getEventTarget( destroyer ) instanceof ServerPlayer targetPlayer && !destroyer.attackedBySiegeTarget() ) {
+            if( destroyer.getSiegeTarget() instanceof ServerPlayer targetPlayer && !destroyer.attackedBySiegeTarget() ) {
                 if( respawnPos != null && (targetPlayer.getRespawnDimension().equals( destroyer.level().dimension() )) ) {
                     return isPlayerSpawnValid( respawnPos, destroyer.level() );
                 }
@@ -400,12 +503,14 @@ public class Destroyer extends AbstractLunarSiegeGhast {
             return false;
         }
         
+        /** Called when this goal has just started running. */
         @Override
         public void start() {
             chargeTime = 0;
             destroyer.isTargetingSpawnPoint = true;
         }
         
+        /** Called when this goal stops running. */
         @Override
         public void stop() {
             respawnPos = null;
@@ -413,16 +518,18 @@ public class Destroyer extends AbstractLunarSiegeGhast {
             destroyer.isTargetingSpawnPoint = false;
         }
         
+        /** Called to update this goal's logic. */
         @Override
         public void tick() {
-            if( destroyer.horizontalDistanceToSqr( respawnPos ) < 4096.0D ) {
+            if( respawnPos == null ) return;
+            
+            if( destroyer.horizontalDistToSqr( respawnPos ) < 4096.0D ) {
                 Level level = destroyer.level();
                 ++chargeTime;
                 
                 if( chargeTime == 10 && !destroyer.isSilent() ) {
                     level.levelEvent( null, 1015, destroyer.blockPosition(), 0 );
                 }
-                
                 if( chargeTime == 20 ) {
                     Vec3 vec3 = destroyer.getViewVector( 1.0F );
                     double x = respawnPos.getX() - (destroyer.getX() + vec3.x * 4.0D);
@@ -445,24 +552,38 @@ public class Destroyer extends AbstractLunarSiegeGhast {
         }
     }
     
+    /** A goal for updating the goal owner's look angles. */
+    // TODO - Maybe create a custom LookControl implementation instead of having a goal for this
     protected static class DestroyerLookAroundGoal extends Goal {
+        
+        /** The owner of this goal. */
         private final Destroyer destroyer;
         
+        
+        /**
+         * Creates a new instance.
+         *
+         * @param destroyer The Destroyer entity that owns this goal.
+         */
         public DestroyerLookAroundGoal( Destroyer destroyer ) {
             this.destroyer = destroyer;
-            this.setFlags( EnumSet.of( Goal.Flag.LOOK ) );
+            setFlags( EnumSet.of( Goal.Flag.LOOK ) );
         }
         
+        
+        /** @return True if this goal requires its logic to be updated every tick. */
         @Override
         public boolean requiresUpdateEveryTick() {
             return true;
         }
         
+        /** @return True if this goal can start running. */
         @Override
         public boolean canUse() {
             return true;
         }
         
+        /** Called to update this goal's logic. */
         public void tick() {
             if( destroyer.getTarget() == null ) {
                 Vec3 vec3 = destroyer.getDeltaMovement();
@@ -500,9 +621,7 @@ public class Destroyer extends AbstractLunarSiegeGhast {
      * after possibly having been destroyed.
      */
     private static boolean isPlayerSpawnValid( @Nullable BlockPos pos, Level level ) {
-        if( pos == null )
-            return false;
-        
+        if( pos == null ) return false;
         Block block = level.getBlockState( pos ).getBlock();
         return block instanceof BedBlock || block instanceof RespawnAnchorBlock;
     }

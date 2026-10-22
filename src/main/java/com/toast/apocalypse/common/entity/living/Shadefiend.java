@@ -3,7 +3,7 @@ package com.toast.apocalypse.common.entity.living;
 import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.core.register.ApocalypseDamageTypes;
-import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
+import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveControl;
 import com.toast.apocalypse.common.util.MobHelper;
 import fathertoast.crust.api.lib.CrustObjects;
 import net.minecraft.core.BlockPos;
@@ -35,6 +35,7 @@ import net.minecraftforge.fluids.FluidType;
 
 import java.util.EnumSet;
 
+@SuppressWarnings( "resource" )
 public class Shadefiend extends FlyingMob implements Enemy {
     
     /** Set to true when the Shadefiend is in a space with a harmful light level. */
@@ -67,7 +68,7 @@ public class Shadefiend extends FlyingMob implements Enemy {
     
     @Override
     protected void registerGoals() {
-        // Only be active when we have a target player, looks more creepy from a distance
+        // Only be animate when we have a target player, looks more creepy from a distance
         goalSelector.addGoal( 0, new Shadefiend.MeleeAttackGoal( this ) );
         targetSelector.addGoal( 0, new NearestAttackableTargetGoal<>( this, Player.class, true ) );
     }
@@ -84,17 +85,17 @@ public class Shadefiend extends FlyingMob implements Enemy {
     @Override
     public void tick() {
         super.tick();
+        // noinspection resource
+        Level level = level();
         
-        boolean inHarmfulLight = (level().getBrightness( LightLayer.BLOCK, blockPosition() ) > getLightLevelLimit( LightLayer.BLOCK ))
-                || (level().isDay() && level().getBrightness( LightLayer.SKY, blockPosition() ) > getLightLevelLimit( LightLayer.SKY ));
+        boolean inHarmfulLight = (level.getBrightness( LightLayer.BLOCK, blockPosition() ) > getLightLevelLimit( LightLayer.BLOCK ))
+                || (level.isDay() && level.getBrightness( LightLayer.SKY, blockPosition() ) > getLightLevelLimit( LightLayer.SKY ));
         
-        if( level().isClientSide ) {
-            spawnParticles();
-        }
+        if( level.isClientSide ) spawnParticles();
         else {
             entityData.set( IS_IN_LIGHT, inHarmfulLight );
         }
-        // Damage the shadefiend if it comes in contact what in intolerable light level
+        // Damage the shadefiend if it is exposed to an intolerable light level
         if( inHarmfulLight ) {
             hurt( ApocalypseDamageTypes.of( level(), ApocalypseDamageTypes.LIGHT_INTOLERANCE ), 2 );
         }
@@ -137,7 +138,7 @@ public class Shadefiend extends FlyingMob implements Enemy {
         );
     }
     
-    /** Returns the max brightness for the specified light layer that the Shadefiend can tolerate. */
+    /** @return The max brightness for the specified light layer that the Shadefiend can tolerate. */
     private int getLightLevelLimit( LightLayer lightLayer ) {
         return lightLayer == LightLayer.SKY ? ApocalypseConfig.ENTITIES.MISC.shadefiendSkyLightTolerance.getInt() :
                 ApocalypseConfig.ENTITIES.MISC.shadefiendBlockLightTolerance.getInt();
@@ -182,6 +183,7 @@ public class Shadefiend extends FlyingMob implements Enemy {
     
     @Override
     public void playAmbientSound() {
+        // Only play sound while having a target
         if( getTarget() != null ) {
             super.playAmbientSound();
         }
@@ -202,7 +204,10 @@ public class Shadefiend extends FlyingMob implements Enemy {
         return ApocalypseObjects.SoundEvents.SHADEFIEND_DEATH.get();
     }
     
-    
+    /**
+     * A body rotation control implementation for the Shadefiend that makes sure
+     * Y-rotation for the head and body are always the same.
+     */
     class ShadefiendBodyRotationControl extends BodyRotationControl {
         public ShadefiendBodyRotationControl( Mob mob ) {
             super( mob );
@@ -210,43 +215,48 @@ public class Shadefiend extends FlyingMob implements Enemy {
         
         @Override
         public void clientTick() {
-            Shadefiend.this.yHeadRot = Shadefiend.this.yBodyRot;
-            Shadefiend.this.yBodyRot = Shadefiend.this.getYRot();
+            Shadefiend.this.yHeadRot = Shadefiend.this.yBodyRot = Shadefiend.this.getYRot();
         }
     }
     
+    /** A look control implementation that does absolutely nothing. */
     static class ShadefiendLookControl extends LookControl {
-        
         public ShadefiendLookControl( Mob mob ) {
             super( mob );
         }
         
         @Override
-        public void tick() { }
+        public void tick() {
+            // Does nothin'
+        }
     }
     
-    static class ShadefiendMoveControl extends SimpleFlyingMoveController {
+    /** A flying move control implementation for the Shadefiend. */
+    static class ShadefiendMoveControl extends SimpleFlyingMoveControl {
         
-        public ShadefiendMoveControl( FlyingMob mob ) {
-            super( mob );
+        /**
+         * Creates a new instance.
+         *
+         * @param flyingMob The owner of this move control.
+         */
+        public ShadefiendMoveControl( FlyingMob flyingMob ) {
+            super( flyingMob );
         }
         
+        /** Updates this move control's logic. */
         @Override
         public void tick() {
             if( operation == Operation.MOVE_TO ) {
-                if( floatDuration-- <= 0 ) {
-                    floatDuration += mob.getRandom().nextInt( 5 ) + 2;
+                if( timeNextPosition-- <= 0 ) {
+                    timeNextPosition += mob.getRandom().nextInt( 5 ) + 2;
                     Vec3 moveVec = new Vec3(
                             wantedX - mob.getX(),
                             wantedY - mob.getY(),
                             wantedZ - mob.getZ() );
-                    final int distance = Mth.ceil( moveVec.length() );
                     moveVec = moveVec.normalize();
                     
-                    if( !isNearWanted() ) {
-                        if( mob.getRandom().nextBoolean() || canReach( moveVec, distance ) ) {
-                            mob.setDeltaMovement( mob.getDeltaMovement().add( moveVec.scale( getScaledMoveSpeed() ) ) );
-                        }
+                    if( !isWithinDistToWanted( 1.0 ) && noCollision( moveVec ) ) {
+                        mob.setDeltaMovement( mob.getDeltaMovement().add( moveVec.scale( getScaledFlyingSpeed() ) ) );
                     }
                     else {
                         operation = Operation.WAIT;
@@ -258,31 +268,25 @@ public class Shadefiend extends FlyingMob implements Enemy {
             }
         }
         
-        private boolean isNearWanted() {
-            return hasWanted() && mob.distanceToSqr(
-                    getWantedX(),
-                    getWantedY(),
-                    getWantedZ() ) < 1.0;
-        }
-        
+        /** Updates the Shadefiend's rotation based on where it is currently headed. */
         private void updateRotations() {
             double x = wantedX - mob.getX();
             double y = wantedY - mob.getY();
             double z = wantedZ - mob.getZ();
-            double xzSqrRoot = Math.sqrt( x * x + z * z );
+            double sqrt = Math.sqrt( x * x + z * z );
             
-            if( Math.abs( xzSqrRoot ) > (double) 1.0E-5F ) {
-                double offset = 1.0D - Math.abs( y * (double) 0.7F ) / xzSqrRoot;
+            if( Math.abs( sqrt ) > (double) 1.0E-5F ) {
+                double offset = 1.0D - Math.abs( y * (double) 0.7F ) / sqrt;
                 x *= offset;
                 z *= offset;
-                xzSqrRoot = Math.sqrt( x * x + z * z );
+                sqrt = Math.sqrt( x * x + z * z );
                 float horizontalAngle = (float) Mth.atan2( z, x );
                 float yDegrees = Mth.wrapDegrees( mob.getYRot() + 90.0F );
                 float xzDegrees = Mth.wrapDegrees( horizontalAngle * (180F / (float) Math.PI) );
                 mob.setYRot( Mth.approachDegrees( yDegrees, xzDegrees, 4.0F ) - 90.0F );
                 mob.yBodyRot = mob.getYRot();
                 
-                float xRot = (float) (-(Mth.atan2( -y, xzSqrRoot ) * (double) (180F / (float) Math.PI)));
+                float xRot = (float) (-(Mth.atan2( -y, sqrt ) * (double) (180F / (float) Math.PI)));
                 mob.setXRot( xRot );
             }
         }
@@ -316,7 +320,7 @@ public class Shadefiend extends FlyingMob implements Enemy {
             LivingEntity target = mob.getTarget();
             
             if( mob.isAlive() && !mob.isVehicle() && target != null && target.isAlive() ) {
-                return mob.hasLineOfSight( target ) || ((SimpleFlyingMoveController) mob.moveControl).canReachCurrentWanted();
+                return mob.hasLineOfSight( target ) || ((SimpleFlyingMoveControl) mob.moveControl).canReachCurrentWanted();
             }
             return false;
         }

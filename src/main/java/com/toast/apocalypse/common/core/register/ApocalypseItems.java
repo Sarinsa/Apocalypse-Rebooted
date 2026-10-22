@@ -38,7 +38,7 @@ public final class ApocalypseItems {
         register( ApocalypseObjects.Items.MIDNIGHT_STEEL_LEGGINGS, () -> new LunarArmorItem( ArmorItem.Type.LEGGINGS ), CreativeModeTabs.COMBAT );
         register( ApocalypseObjects.Items.MIDNIGHT_STEEL_BOOTS, () -> new LunarArmorItem( ArmorItem.Type.BOOTS ), CreativeModeTabs.COMBAT );
         register( ApocalypseObjects.Items.LUNAR_CLOCK, () -> new Item( new Item.Properties().stacksTo( 1 ) ), CreativeModeTabs.TOOLS_AND_UTILITIES );
-        register( ApocalypseObjects.Items.APOCALYPSE_COMPENDIUM, MobWikiBookItem::new, CreativeModeTabs.TOOLS_AND_UTILITIES );
+        register( ApocalypseObjects.Items.APOCALYPSE_COMPENDIUM, MobWikiBookItem::new );
         
         registerSpawnEgg( ApocalypseObjects.Items.GHOST_SPAWN_EGG, ApocalypseEntities.GHOST, 0xBCBCBC, 0x708899 );
         registerSpawnEgg( ApocalypseObjects.Items.DESTROYER_SPAWN_EGG, ApocalypseEntities.DESTROYER, 0x877B6F, 0x912820 );
@@ -68,6 +68,7 @@ public final class ApocalypseItems {
     }
     
     /** Registers a simple item to the deferred register. */
+    @SuppressWarnings( "SameParameterValue" )
     @SafeVarargs
     private static void registerSimple( RegistryObject<Item> regObj, ResourceKey<CreativeModeTab>... creativeTabs ) {
         queueForCreativeTabs( REGISTRY.register( Objects.requireNonNull( regObj.getId() ).getPath(), () -> new Item( new Item.Properties() ) ), creativeTabs );

@@ -5,7 +5,7 @@ import com.toast.apocalypse.api.lib.ApocalypseObjects;
 import com.toast.apocalypse.common.core.config.ApocalypseConfig;
 import com.toast.apocalypse.common.entity.living.ai.LunarSiegeTargetPlayerGoal;
 import com.toast.apocalypse.common.entity.living.ai.MobHurtByTargetGoal;
-import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveController;
+import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveControl;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import com.toast.apocalypse.common.entity.projectile.SeekerFireballEntity;
 import com.toast.apocalypse.common.event.ApocalypseEventFactory;
@@ -59,7 +59,7 @@ public class Seeker extends AbstractLunarSiegeGhast {
     
     public Seeker( EntityType<? extends Ghast> entityType, Level level ) {
         super( entityType, level );
-        moveControl = new SimpleFlyingMoveController( this );
+        moveControl = new SimpleFlyingMoveControl( this );
         xpReward = 5;
     }
     
@@ -83,11 +83,6 @@ public class Seeker extends AbstractLunarSiegeGhast {
         targetSelector.addGoal( 0, new MobHurtByTargetGoal( this, Enemy.class ) );
         targetSelector.addGoal( 1, new LunarSiegeTargetPlayerGoal<>( this, false ) );
         targetSelector.addGoal( 2, new NearestAttackableTargetGoal<>( this, Player.class, false, false ) );
-    }
-    
-    @Override
-    public void die( DamageSource damageSource ) {
-        super.die( damageSource );
     }
     
     @Override
@@ -119,7 +114,7 @@ public class Seeker extends AbstractLunarSiegeGhast {
     
     @Override
     public boolean isInvulnerableTo( DamageSource damageSource ) {
-        return !isReflectedFireball( damageSource )
+        return !AbstractLunarSiegeGhast.isDeflectedFireball( damageSource )
                 && (isRemoved()
                 || isInvulnerable()
                 && !damageSource.is( DamageTypeTags.BYPASSES_INVULNERABILITY )
@@ -127,11 +122,6 @@ public class Seeker extends AbstractLunarSiegeGhast {
                 || damageSource.is( DamageTypeTags.IS_FIRE )
                 && fireImmune()
                 || damageSource.is( DamageTypeTags.IS_FALL ));
-    }
-    
-    private static boolean isReflectedFireball( DamageSource damageSource ) {
-        Entity entity = damageSource.getDirectEntity();
-        return entity instanceof SeekerFireballEntity && damageSource.getEntity() instanceof Player;
     }
     
     @Override
@@ -226,7 +216,7 @@ public class Seeker extends AbstractLunarSiegeGhast {
             LivingEntity target = seeker.getTarget();
             if( target == null ) return;
             
-            if( seeker.horizontalDistanceToSqr( target ) < 4096.0D ) {
+            if( seeker.horizontalDistToSqr( target ) < 4096.0D ) {
                 Level level = seeker.level();
                 ++chargeTime;
                 if( chargeTime == 10 && !seeker.isSilent() ) {
@@ -256,7 +246,7 @@ public class Seeker extends AbstractLunarSiegeGhast {
                                 (level.random.nextFloat() - level.random.nextFloat()) * 0.2F + 1.0F
                         );
                     }
-                    boolean canSeeTarget = seeker.canSeeDirectly( target );
+                    boolean canSeeTarget = seeker.isViewUnobstructed( target );
                     SeekerFireballEntity fireball = new SeekerFireballEntity( level, seeker, canSeeTarget, x, y, z );
                     fireball.setPos( seeker.getX() + vec3.x * 4.0D, seeker.getY( 0.5D ) + 0.2D, fireball.getZ() + vec3.z * 4.0D );
                     level.addFreshEntity( fireball );
@@ -345,7 +335,7 @@ public class Seeker extends AbstractLunarSiegeGhast {
             if( seeker.getTarget() != null ) {
                 return seeker.canAlert()
                         && seeker.distanceToSqr( seeker.getTarget() ) < 4096.0D
-                        && seeker.canSeeDirectly( seeker.getTarget() )
+                        && seeker.isViewUnobstructed( seeker.getTarget() )
                         && seeker.targetForAlerting != seeker.getTarget();
             }
             return false;

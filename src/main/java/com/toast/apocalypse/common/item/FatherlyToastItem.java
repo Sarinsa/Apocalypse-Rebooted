@@ -30,7 +30,7 @@ public class FatherlyToastItem extends Item {
     public FatherlyToastItem() {
         super( new Item.Properties()
                 .fireResistant()
-                .food( ApocalypseFoods.FATHERLY_TOAST )
+                .food( ApocalypseFoodProps.FATHERLY_TOAST )
         );
     }
     
