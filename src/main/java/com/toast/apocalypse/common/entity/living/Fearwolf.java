@@ -144,6 +144,6 @@ public class Fearwolf extends Monster implements Enemy {
     /** @return The amount of experience this entity drops when it is killed. */
     @Override
     public int getExperienceReward() {
-        return level().random.nextInt( 5 ) + 3;
+        return level().random.nextIntBetweenInclusive( 1, 6 );
     }
 }
