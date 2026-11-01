@@ -9,7 +9,6 @@ import com.toast.apocalypse.common.core.difficulty.MobAttributeHandler;
 import com.toast.apocalypse.common.core.difficulty.MobEquipmentHandler;
 import com.toast.apocalypse.common.core.difficulty.MobPotionHandler;
 import com.toast.apocalypse.common.core.difficulty.PlayerDifficultyManager;
-import com.toast.apocalypse.common.core.register.ApocalypseEntities;
 import com.toast.apocalypse.common.entity.living.Grump;
 import com.toast.apocalypse.common.item.FatherlyToastItem;
 import com.toast.apocalypse.common.network.NetworkHelper;
@@ -302,18 +301,7 @@ public final class GameEventListener {
     /** Called right before a living entity receives damage. */
     @SubscribeEvent( priority = EventPriority.LOWEST )
     public void onLivingEntityDamaged( LivingDamageEvent event ) {
-        final Entity attacker = event.getSource().getEntity();
-        
-        if( attacker != null ) {
-            float damage = event.getAmount();
-            
-            if( attacker.getType() == ApocalypseEntities.GHOST.get() ) {
-                event.setAmount( Math.max( 1.0F, damage ) );
-            }
-            else if( attacker.getType() == ApocalypseEntities.GRUMP.get() ) {
-                event.setAmount( Math.max( 2.0F, damage ) );
-            }
-        }
+        // Eeeeyyuuupp
     }
     
     /** Called when an entity is struck by lightning. */
