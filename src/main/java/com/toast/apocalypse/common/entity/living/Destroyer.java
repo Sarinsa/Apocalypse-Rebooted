@@ -49,7 +49,7 @@ import java.util.EnumSet;
  * <p>
  * - Has a massive aggro range.
  * <p>
- * - Can deal heavy damage to equipped armor.
+ * - Its fireballs can deal great damage to armor and other equipment.
  * <p>
  * - Deflected fireballs are volatile and explode shortly after being hit.
  * <p>
