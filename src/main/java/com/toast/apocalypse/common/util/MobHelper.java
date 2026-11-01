@@ -6,7 +6,10 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.AABB;
 
@@ -72,10 +75,38 @@ public class MobHelper {
         // Return early if list is empty
         if( list.isEmpty() ) return list;
         
-        // Limit the amount of mobs.
+        // Limit the amount of mobs
         while( list.size() > cap ) {
             list.remove( list.size() - cap );
         }
         return list;
+    }
+    
+    /**
+     * Sets the given mob on fire if it is exposed to direct sunlight.
+     * If the mob is wearing something on its head it will be protected from the scorching sun,
+     * on the expense of some damage dealt to the item on its head.
+     */
+    public static void burnInSunlight( Mob mob ) {
+        boolean burn = mob.isSunBurnTick();
+        
+        if( burn ) {
+            final ItemStack itemStack = mob.getItemBySlot( EquipmentSlot.HEAD );
+            
+            if( !itemStack.isEmpty() ) {
+                if( itemStack.isDamageableItem() ) {
+                    final int damage = mob.getRandom().nextInt( 2 );
+                    itemStack.setDamageValue( itemStack.getDamageValue() + damage );
+                    // Break item if durability ran out
+                    if( itemStack.getDamageValue() >= itemStack.getMaxDamage() ) {
+                        mob.broadcastBreakEvent( EquipmentSlot.HEAD );
+                        mob.setItemSlot( EquipmentSlot.HEAD, ItemStack.EMPTY );
+                    }
+                }
+                burn = false;
+            }
+            // 8 seconds is the vanilla default
+            if( burn ) mob.setSecondsOnFire( 8 );
+        }
     }
 }
