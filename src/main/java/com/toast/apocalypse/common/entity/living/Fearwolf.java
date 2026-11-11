@@ -27,13 +27,11 @@ import net.minecraft.world.phys.AABB;
 
 /**
  * This monster is an aggressive, yet cowardly wolf variant that attacks nearby players on sight, but is quick to flee
- * the moment the target retaliates.
- * <br><br>
- * The Fearwolf differs from normal wolves in the following ways:
+ * the moment the target retaliates. The Fearwolf differs from normal wolves in the following ways:
  * <p>- Applies a slowness potion effect to its target on attack.</p>
  * <p>- Possesses the "deathtouch" trait, meaning the damage it deals cannot be reduced by armor or other effects, but will also
  * never one-shot the target.</p>
- * <p>- Cloaks itself and turns temporarily invisible when hurt by players.</p>
+ * <p>- Temporarily cloaks itself and attempts to fall back when hurt by a player.</p>
  */
 @SuppressWarnings( "resource" )
 public class Fearwolf extends Monster implements Enemy {
@@ -50,7 +48,7 @@ public class Fearwolf extends Monster implements Enemy {
     
     
     /** @return The default attributes to register to the Fearwolf entity type. */
-    public static AttributeSupplier.Builder createAttributes() {
+    public static AttributeSupplier.Builder createFearwolfAttributes() {
         return Mob.createMobAttributes()
                 .add( Attributes.MOVEMENT_SPEED, 0.35 )
                 .add( Attributes.MAX_HEALTH, 10.0 )
@@ -113,7 +111,10 @@ public class Fearwolf extends Monster implements Enemy {
         return ApocalypseObjects.SoundEvents.FEARWOLF_IDLE.get();
     }
     
-    /** @return The sound event this entity plays when it is hurt. This can be null. */
+    /**
+     * @param damageSource The damage source that caused this entity to take damage
+     * @return The sound event this entity plays when it is hurt. This can be null.
+     */
     @Override
     protected SoundEvent getHurtSound( DamageSource damageSource ) {
         return ApocalypseObjects.SoundEvents.FEARWOLF_HURT.get();
