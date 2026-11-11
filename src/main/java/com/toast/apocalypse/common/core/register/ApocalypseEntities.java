@@ -71,8 +71,8 @@ public final class ApocalypseEntities {
         createConfigAttributes( event, GRUMP, ApocalypseConfig.ENTITIES.FULL_MOON.grumpAttributes, Grump.createGrumpAttributes() );
         createConfigAttributes( event, BREECHER, ApocalypseConfig.ENTITIES.FULL_MOON.breecherAttributes, Breecher.createBreecherAttributes() );
         
-        createConfigAttributes( event, FEARWOLF, ApocalypseConfig.ENTITIES.MISC.fearwolfAttributes, Fearwolf.createAttributes() );
-        createConfigAttributes( event, SHADEFIEND, ApocalypseConfig.ENTITIES.MISC.shadefiendAttributes, Shadefiend.createAttributes() );
+        createConfigAttributes( event, FEARWOLF, ApocalypseConfig.ENTITIES.MISC.fearwolfAttributes, Fearwolf.createFearwolfAttributes() );
+        createConfigAttributes( event, SHADEFIEND, ApocalypseConfig.ENTITIES.MISC.shadefiendAttributes, Shadefiend.createShadefiendAttributes() );
     }
     
     /** Registers config-driven attributes for an entity type. */
@@ -102,5 +102,5 @@ public final class ApocalypseEntities {
     }
     
     
-    private ApocalypseEntities() {}
+    private ApocalypseEntities() { }
 }

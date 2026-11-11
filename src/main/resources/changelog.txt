@@ -15,6 +15,7 @@
     - Added wet torch variants for Soul Fire Torch and Redstone Torch.
     - Grump now implements the OwnableEntity interface.
     - Made the Fearwolf's flee logic a bit less clunky.
+    - All of Apocalypse's flying mobs now properly utilize the "minecraft:flying_speed" attribute
     - Scrapped old unused "mob wiki" code.
     - Fixed Shadefiend melee attack AI having no cooldown.
     - Rebalanced Fatherly Toast's food stats.

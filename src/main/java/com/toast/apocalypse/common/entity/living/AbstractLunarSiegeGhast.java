@@ -1,6 +1,7 @@
 package com.toast.apocalypse.common.entity.living;
 
 import com.toast.apocalypse.api.entity.ILunarSiegeMob;
+import com.toast.apocalypse.common.entity.living.ai.SimpleFlyingMoveControl;
 import com.toast.apocalypse.common.entity.projectile.DestroyerFireballEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -44,6 +45,7 @@ public abstract class AbstractLunarSiegeGhast extends Ghast implements ILunarSie
      */
     public AbstractLunarSiegeGhast( EntityType<? extends Ghast> entityType, Level level ) {
         super( entityType, level );
+        moveControl = new SimpleFlyingMoveControl( this );
     }
     
     
@@ -164,6 +166,7 @@ public abstract class AbstractLunarSiegeGhast extends Ghast implements ILunarSie
     }
     
     /** @return True if the given damage source is a player-deflected fireball. */
+    @SuppressWarnings( "BooleanMethodIsAlwaysInverted" )
     protected static boolean isDeflectedFireball( DamageSource damageSource ) {
         if( !(damageSource.getEntity() instanceof Player) ) return false;
         Entity entity = damageSource.getDirectEntity();

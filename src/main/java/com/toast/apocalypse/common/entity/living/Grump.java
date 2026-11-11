@@ -98,7 +98,6 @@ public class Grump extends AbstractLunarSiegeGhast implements OwnableEntity, Con
     
     public Grump( EntityType<? extends Ghast> entityType, Level level ) {
         super( entityType, level );
-        moveControl = new SimpleFlyingMoveControl( this );
         xpReward = 3;
         inventory.addListener( this );
         updateContainerEquipment();
@@ -109,9 +108,9 @@ public class Grump extends AbstractLunarSiegeGhast implements OwnableEntity, Con
         return Mob.createMobAttributes()
                 .add( Attributes.MAX_HEALTH, 10.0 )
                 .add( Attributes.ATTACK_DAMAGE, 2.0 )
+                .add( Attributes.FOLLOW_RANGE, 2048.0 )
                 .add( Attributes.FLYING_SPEED, 1.0 )
-                .add( ForgeMod.SWIM_SPEED.get(), 1.1 )
-                .add( Attributes.FOLLOW_RANGE, 2048.0 );
+                .add( ForgeMod.SWIM_SPEED.get(), 1.1 );
     }
     
     public static boolean checkGrumpSpawnRules( EntityType<? extends Grump> entityType, ServerLevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random ) {

@@ -67,6 +67,7 @@ public class Seeker extends AbstractLunarSiegeGhast {
         return Mob.createMobAttributes()
                 .add( Attributes.MAX_HEALTH, 10.0 )
                 .add( Attributes.FOLLOW_RANGE, 2048.0 )
+                .add( Attributes.FLYING_SPEED, 1.2 )
                 .add( ForgeMod.SWIM_SPEED.get(), 1.1 );
     }
     
@@ -103,12 +104,10 @@ public class Seeker extends AbstractLunarSiegeGhast {
         return !isCharging();
     }
     
-    /**
-     * Completely ignore line of sight; the target
-     * is always "visible"
-     */
+    /** @return True if this entity currently has direct line of sight to the given entity. */
     @Override
     public boolean hasLineOfSight( Entity entity ) {
+        // Can always see target
         return true;
     }
     

@@ -35,7 +35,6 @@ import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RespawnAnchorBlock;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeMod;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -88,7 +87,7 @@ public class Destroyer extends AbstractLunarSiegeGhast {
         return Mob.createMobAttributes()
                 .add( Attributes.MAX_HEALTH, 12.0 )
                 .add( Attributes.FOLLOW_RANGE, 2048.0 )
-                .add( ForgeMod.SWIM_SPEED.get(), 1.1 );
+                .add( Attributes.FLYING_SPEED, 0.85 );
     }
     
     /**
@@ -185,7 +184,10 @@ public class Destroyer extends AbstractLunarSiegeGhast {
         return super.hurt( damageSource, damage );
     }
     
-    /** @return The sound event this entity plays when it is hurt. This can be null. */
+    /**
+     * @param damageSource The damage source that caused this entity to take damage
+     * @return The sound event this entity plays when it is hurt. This can be null.
+     */
     @Override
     protected SoundEvent getHurtSound( DamageSource damageSource ) {
         return ApocalypseObjects.SoundEvents.DESTROYER_HURT.get();

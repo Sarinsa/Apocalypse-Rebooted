@@ -53,11 +53,12 @@ public class Shadefiend extends FlyingMob implements Enemy {
         return level.getDifficulty() != Difficulty.PEACEFUL;
     }
     
-    public static AttributeSupplier.Builder createAttributes() {
+    public static AttributeSupplier.Builder createShadefiendAttributes() {
         return Mob.createMobAttributes()
                 .add( Attributes.MOVEMENT_SPEED, 0.35 )
                 .add( Attributes.MAX_HEALTH, 15.0 )
-                .add( Attributes.ATTACK_DAMAGE, 3.0 );
+                .add( Attributes.ATTACK_DAMAGE, 3.0 )
+                .add( Attributes.FLYING_SPEED, 0.6 );
     }
     
     @Override
